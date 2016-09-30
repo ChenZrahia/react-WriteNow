@@ -1,53 +1,63 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
-
+//import Exponent from 'exponent';
 import React, { Component } from 'react';
 import {
   AppRegistry,
+  AsyncStorage,
+  Image,
+  Platform,
+  ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
-  View
+  TouchableOpacity,
+  View,
 } from 'react-native';
-
-class WriteNow extends Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.android.js
-        </Text>
-        <Text style={styles.instructions}>
-          Double tap R on your keyboard to reload,{'\n'}
-          Shake or press menu button for dev menu
-        </Text>
-      </View>
-    );
-  }
-}
+import Tabs from './src/Tabs';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+  example: {
+    elevation: 4,
+  },
+  statusbar: {
+    backgroundColor: '#820cf7',
+    height: Platform.OS === 'ios' ? 20 : 24,
+  },
+  appbar: {
+    flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    height: Platform.OS === 'ios' ? 44 : 56,
+    backgroundColor: '#9933FF',
+    elevation: 4,
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+  title: {
+    flex: 1,
+    margin: 16,
+    textAlign: Platform.OS === 'ios' ? 'center' : 'left',
+    fontSize: Platform.OS === 'ios' ? 20 : 18,
+    color: '#fff',
+  }
 });
+
+export default class WriteNow extends Component {
+  render() {
+    return (
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" />
+        <View style={styles.statusbar} />
+        <View style={styles.appbar}>            
+          <Text style={styles.title}>
+            WriteNow
+          </Text>
+          <View style={styles.button} />
+        </View>
+       <Tabs style={styles.example} />
+      </View>
+    );
+  }
+}
 
 AppRegistry.registerComponent('WriteNow', () => WriteNow);
