@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TabViewAnimated, TabViewPage, TabBarTop } from 'react-native-tab-view';
+import serverSrv from '../Services/serverSrv';
 
 const styles = StyleSheet.create({
   container: {
