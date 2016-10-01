@@ -24,7 +24,7 @@ export default class Contacts extends Component {
                     publicInfo: {
                         fullName: 'rugbin ionic',
                         mail: 'hozeleto@gmail.com',
-                        picture: 'data:image/jpeg;base64,/9j/4AA...'
+                        picture: 'http://www.maariv.co.il/HttpHandlers/ShowImage.ashx?id=338891&w=758&h=530'
                     }
                 },
                 {
@@ -35,7 +35,7 @@ export default class Contacts extends Component {
                     publicInfo: {
                         fullName: 'rugbin apk',
                         mail: 'hozeleto@gmail.com',
-                        picture: 'data:image/jpeg;base64,/9j/4AA...'
+                        picture: 'http://www.maariv.co.il/HttpHandlers/ShowImage.ashx?id=338891&w=758&h=530'
                     }
                 }]),
         };
@@ -49,8 +49,30 @@ export default class Contacts extends Component {
         return (
             <ListView
                 dataSource={this.state.dataSource}
-                renderRow={(rowData) => <Text>rugbin gay</Text>}
+                renderRow={(rowData) =>
+                    <View style={styles.row}>
+                        <Image style={styles.thumb} source={rowData.publicInfo.picture} />
+                        <Text style={styles.text}>
+                            {rowData.publicInfo.fullName}
+                        </Text>
+                    </View>}
                 />
         );
     }
 }
+
+var styles = StyleSheet.create({
+    row: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        padding: 10,
+        backgroundColor: '#F6F6F6',
+    },
+    thumb: {
+        width: 64,
+        height: 64,
+    },
+    text: {
+        flex: 1,
+    }
+});
