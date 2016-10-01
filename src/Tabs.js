@@ -1,8 +1,12 @@
 import React, { Component } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TabViewAnimated, TabViewPage, TabBarTop } from 'react-native-tab-view';
+<<<<<<< HEAD
+import Contacts from './Contacts/Contacts';
+=======
 import serverSrv from '../Services/serverSrv';
 import Contacts from './Contacts/Contacts'
+>>>>>>> 64d3c94e9221394e1473ef407666bb207ed4a099
 
 const styles = StyleSheet.create({
   container: {
@@ -40,9 +44,9 @@ export default class Tabs extends Component {
   state = {
     index: 1,
     routes: [
-      { key: '3', title: 'Other' },
+      { key: '1', title: 'Contacts' },
       { key: '2', title: 'Chats' },
-      { key: '1', title: 'Contacts' }
+      { key: '3', title: 'Other' }
     ],
   };
 
@@ -60,12 +64,24 @@ export default class Tabs extends Component {
         indicatorStyle={styles.indicator}
         style={styles.tabbar}
         labelStyle={styles.label}
-      />
+        />
     );
   };
 
   _renderScene = ({ route }) => {
     switch (route.key) {
+<<<<<<< HEAD
+      case '1':
+        return (<View style={[styles.page, { backgroundColor: 'white' }]} >
+          <Contacts />
+        </View>);
+      case '2':
+        return <View style={[styles.page, { backgroundColor: 'red' }]} />;
+      case '3':
+        return <View style={[styles.page, { backgroundColor: 'blue' }]} />;
+      default:
+        return null;
+=======
     case '1':
       return <View style={[ styles.page, { backgroundColor: 'red' } ]} />;
     case '2':
@@ -74,6 +90,7 @@ export default class Tabs extends Component {
       return <View style={[ styles.page, { backgroundColor: 'blue' } ]} />;
     default:
       return null;
+>>>>>>> 64d3c94e9221394e1473ef407666bb207ed4a099
     }
   };
 
@@ -84,12 +101,12 @@ export default class Tabs extends Component {
   render() {
     return (
       <TabViewAnimated
-        style={[ styles.container, this.props.style ]}
+        style={[styles.container, this.props.style]}
         navigationState={this.state}
         renderScene={this._renderPage}
         renderHeader={this._renderHeader}
         onRequestChangeTab={this._handleChangeTab}
-      />
+        />
     );
   }
 }
