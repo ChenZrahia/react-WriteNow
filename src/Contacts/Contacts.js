@@ -13,8 +13,10 @@ var serverSrv = require('../../Services/serverSrv');
 export default class Contacts extends Component {
     constructor() {
         super();
+        this.myFriends = [];
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         this.state = {
+<<<<<<< HEAD
             dataSource: ds.cloneWithRows([
                 {
                     id: '9dd93195-04cb-40a3-8f32-26fb43d100ee',
@@ -38,17 +40,28 @@ export default class Contacts extends Component {
                         picture: 'http://www.maariv.co.il/HttpHandlers/ShowImage.ashx?id=338891&w=758&h=530'
                     }
                 }]),
+=======
+            dataSource: ds.cloneWithRows(this.myFriends)            
+>>>>>>> 64d3c94e9221394e1473ef407666bb207ed4a099
         };
-        serverSrv.getMyFriends((result) => {
+        serverSrv.GetAllMyFriends((result) => {
             this.myFriends = result;
-            console.log(result);
-        })
+            this.setState({
+                dataSource: ds.cloneWithRows(result)
+            })
+
+            // this.state = {
+            //     dataSource: ds.cloneWithRows(this.myFriends)
+            // };
+        });
     }
 
     render() {
         return (
             <ListView
+                enableEmptySections={true}
                 dataSource={this.state.dataSource}
+<<<<<<< HEAD
                 renderRow={(rowData) =>
                     <View style={styles.row}>
                         <Image style={styles.thumb} source={rowData.publicInfo.picture} />
@@ -56,6 +69,9 @@ export default class Contacts extends Component {
                             {rowData.publicInfo.fullName}
                         </Text>
                     </View>}
+=======
+                renderRow={(rowData) => <Text>{rowData.publicInfo.fullName}</Text>}
+>>>>>>> 64d3c94e9221394e1473ef407666bb207ed4a099
                 />
         );
     }
