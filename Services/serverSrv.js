@@ -20,31 +20,20 @@ function errorDB(error) {
 }
 
 var db = SQLite.openDatabase({name: 'WriteNow.db', location: 'default'}, null , errorDB);
-
-
+var isFirstTime = true;
 export var myFriends = null;
 
 
-export function getMyFriends(callback){
-    try{
-        if(myFriends == null){
-            GetAllMyFriends((result) => {
-                myFriends = result;     
-                if(callback){
-                    callback(myFriends);
-                }
-            })
-        }
-        if(callback){
-            callback(myFriends);
-        }
-    } catch(error){
-        ErrorHandler.WriteError('getMyFriends', error);
-    }
-}
+db.transaction((tx) => { 
+     // tx.executeSql('Drop table Friends');
+});
 
-export function GetAllMyFriends(callback) {    
+export function GetAllMyFriends(callback, isUpdate) {    
     try {
+        if(myFriends && callback && !isUpdate){
+            callback(myFriends);
+            return;
+        }
         db.transaction((tx) => {    
             tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id PRIMARY KEY NOT NULL, phoneNumber, ModifyDate , ModifyPicDate, fullName, mail, picture, gender)', [] , null, errorDB); //להוציא לפונקציה נפרדת
             tx.executeSql('SELECT * FROM Friends',[], (tx, rs) => {
@@ -63,8 +52,13 @@ export function GetAllMyFriends(callback) {
                                     }
                         });
                     }
+                    myFriends = result;
                     if (callback) {
                         callback(result);
+                        if(isFirstTime == true){
+                            isFirstTime = false;
+                            GetAllMyFriends_Server(callback);
+                        }
                     }
                 }catch(error){
                     ErrorHandler.WriteError('serverSrv.js => SELECT * FROM Friends => catch', error);
@@ -79,31 +73,36 @@ export function GetAllMyFriends(callback) {
 } 
 
 function GetAllMyFriends_Server(callback) {    
-    try { 
-        getMyFriends((friends) => {
-            let friendUidArray = friends.map((friend) => {return friend.id;});
-            socket.emit('GetMyFriendsChanges', friendUidArray, ((data) => {
-                db.transaction((tx) => { 
-                    for(var i = 0; i < data.length; i++)
-                    {
-                        if (data[i].deletedUser == true && data[i].id) {
-                            tx.executeSql('DELETE FROM Friends WHERE id=?', [data[i].id]);
-                        } else {
-                            tx.executeSql('INSERT INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
-                                [data[i].id,
-                                data[i].phoneNumber,
-                                data[i].ModifyDate,
-                                data[i].ModifyPicDate,
-                                data[i].publicInfo.fullName,
-                                data[i].publicInfo.mail,
-                                data[i].publicInfo.picture,
-                                data[i].publicInfo.gender ]);
-                        }
+    try {
+        var friends = [];
+        if (myFriends) {
+            friends = myFriends;
+        }
+        let friendUidArray = friends.map((friend) => {return friend.id;});
+        socket.emit('GetMyFriendsChanges', friendUidArray, ((data) => {
+            db.transaction((tx) => { 
+                for(var i = 0; i < data.length; i++)
+                {
+                    console.log(data[i].id);
+                    if (data[i].deletedUser == true && data[i].id) {
+                        tx.executeSql('DELETE FROM Friends WHERE id=?', [data[i].id]);
+                    } else {
+                        tx.executeSql('INSERT INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
+                            [data[i].id,
+                            data[i].phoneNumber,
+                            data[i].ModifyDate,
+                            data[i].ModifyPicDate,
+                            data[i].publicInfo.fullName,
+                            data[i].publicInfo.mail,
+                            data[i].publicInfo.picture,
+                            data[i].publicInfo.gender ]);
                     }
-                })
-            }));
-        });
+                }
+                console.log(111);
+                GetAllMyFriends(callback, true);
+            })
+        }));
     } catch (error) {
-ErrorHandler.WriteError('serverSrv.js => GetAllMyFriends_Server', error);
+        ErrorHandler.WriteError('serverSrv.js => GetAllMyFriends_Server', error);
     }
 } 

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TabViewAnimated, TabViewPage, TabBarTop } from 'react-native-tab-view';
 import serverSrv from '../Services/serverSrv';
+import Contacts from './Contacts/Contacts'
 
 const styles = StyleSheet.create({
   container: {
@@ -68,7 +69,7 @@ export default class Tabs extends Component {
     case '1':
       return <View style={[ styles.page, { backgroundColor: 'red' } ]} />;
     case '2':
-      return <View style={[ styles.page, { backgroundColor: 'white' } ]} />;
+      return (<View style={[ styles.page, { backgroundColor: 'white' } ]} ><Contacts /></View>);
     case '3':
       return <View style={[ styles.page, { backgroundColor: 'blue' } ]} />;
     default:
