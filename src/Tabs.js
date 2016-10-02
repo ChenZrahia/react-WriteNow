@@ -72,9 +72,9 @@ export default class Tabs extends Component {
           <Contacts />
         </View>);
       case '2':
-        return <View style={[styles.page, { backgroundColor: 'red' }]}><SignUp /></View>;
+        return <View style={[styles.page, { backgroundColor: 'white' }]}><SignUp /></View>;
       case '3':
-        return <View style={[styles.page, { backgroundColor: 'blue' }]} />;
+        return <View style={[styles.page, { backgroundColor: 'white' }]} />;
       default:
         return null;
     }
