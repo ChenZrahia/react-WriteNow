@@ -20,9 +20,12 @@ export default class Contacts extends Component {
         };
         serverSrv.GetAllMyFriends((result) => {
             this.myFriends = result;
-            this.setState({
-                dataSource: ds.cloneWithRows(result)
-            })
+            setTimeout(() => {
+                this.setState({
+                    dataSource: ds.cloneWithRows(result)
+                })
+            }, 1000);
+            
 
             // this.state = {
             //     dataSource: ds.cloneWithRows(this.myFriends)
@@ -32,52 +35,68 @@ export default class Contacts extends Component {
 
     render() {
         return (
-            <ListView style={{ paddingTop: 5 }}
+            <View style={{ flex: 1, alignSelf: 'stretch' }}>
+            <ListView style={{ paddingTop: 5,  flex: 1 }}
                 enableEmptySections={true}
                 dataSource={this.state.dataSource}
                 renderRow={(rowData) =>
-                    <TouchableHighlight onPress={() => {
+                    <TouchableHighlight underlayColor='#ededed' onPress={() => {
                     } }>
-                        <View>
                             <View style={styles.row}>
-                                <Image style={styles.thumb} source={{ uri: rowData.publicInfo.picture }}/>
-                                <Text style={styles.text}>
-                                    {rowData.publicInfo.fullName}
-                                </Text>
+                            <View style={styles.viewImg}>
+                                <Image style={styles.thumb} source={ rowData.publicInfo.picture ? {uri: rowData.publicInfo.picture} : require('../../img/user.jpg') }/>
                             </View>
-                        </View>
-                    </TouchableHighlight>}
-                renderSeperator={
-                    <View style={{ height: 4, backgroundColor: 'black' }}
-                        />}
+                                <View style={{flexDirection: 'column'}}>
+                                    <Text style={styles.textName}>
+                                        {rowData.publicInfo.fullName}
+                                    </Text>
+                                    <Text style={styles.textStatus}>
+                                        {rowData.publicInfo.isOnline ? 'online' : 'offline'}
+                                    </Text>
+                                </View>                                
+                            </View>
+                    </TouchableHighlight>
+                }
                 />
+            </View>
         );
     }
+
+
 }
 
-setTimeout(() => {
-    throw "Reload";
-}, 10000);
+// setTimeout(() => {
+//     throw "Reload";
+// }, 20000);
 
 var styles = StyleSheet.create({
     row: {
         flex: 1,
         flexDirection: 'row',
-        justifyContent: 'flex-start',
         padding: 5,
-        backgroundColor: '#F6F6F6',
-        alignItems: 'flex-start'
+        borderBottomWidth: 0.5,
+        borderColor: '#e7e7e7',
+    },
+    viewImg: {
+        borderColor: 'black',
+        elevation: 3,
+        borderRadius: 4,
     },
     thumb: {
         borderRadius: 4,
         borderWidth: 0.5,
         width: 40,
         height: 40,
+        alignSelf: 'flex-end',
     },
-    text: {
-        flex: 1,
-        width: 100,
-        height: 40,
-        paddingLeft: 10
+    textName: {
+        paddingLeft: 10,
+        color: 'black',
+        alignSelf: 'flex-start'
+    },
+    textStatus: {
+        paddingLeft: 10,
+        color: 'gray',
+        alignSelf: 'flex-start'
     }
 });
