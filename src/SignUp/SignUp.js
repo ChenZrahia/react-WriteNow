@@ -14,7 +14,7 @@ import {
 
 /*var ImagePicker = require('react-native-image-picker');*/
 
-class WriteNow extends Component {
+export default class SignUp extends Component {
   constructor() {
     super();
     
@@ -98,4 +98,3 @@ const styles = StyleSheet.create({
   }
 });
 
-AppRegistry.registerComponent('WriteNow', () => WriteNow);
