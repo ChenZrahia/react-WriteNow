@@ -6,7 +6,8 @@ import { Image,
     StyleSheet,
     RecyclerViewBackedScrollView,
     Text,
-    View, } from 'react-native';
+    View,
+    Modal } from 'react-native';
 
 var serverSrv = require('../../Services/serverSrv');
 
@@ -16,7 +17,8 @@ export default class Contacts extends Component {
         this.myFriends = [];
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         this.state = {
-            dataSource: ds.cloneWithRows(this.myFriends)
+            dataSource: ds.cloneWithRows(this.myFriends),
+            modalVisible: false
         };
         serverSrv.GetAllMyFriends((result) => {
             this.myFriends = result;
@@ -25,44 +27,55 @@ export default class Contacts extends Component {
                     dataSource: ds.cloneWithRows(result)
                 })
             }, 1000);
-            
-
-            // this.state = {
-            //     dataSource: ds.cloneWithRows(this.myFriends)
-            // };
         });
+    }
+
+    setModalVisible(visible) {
+        this.setState({ modalVisible: visible });
     }
 
     render() {
         return (
             <View style={{ flex: 1, alignSelf: 'stretch' }}>
-            <ListView style={{ paddingTop: 5,  flex: 1 }}
-                enableEmptySections={true}
-                dataSource={this.state.dataSource}
-                renderRow={(rowData) =>
-                    <TouchableHighlight underlayColor='#ededed' onPress={() => {
-                    } }>
+                <ListView style={{ paddingTop: 5, flex: 1 }}
+                    enableEmptySections={true}
+                    dataSource={this.state.dataSource}
+                    renderRow={(rowData) =>
+                        <TouchableHighlight underlayColor='#ededed' onPress={() => {
+                        } }>
                             <View style={styles.row}>
-                            <View style={styles.viewImg}>
-                                <Image style={styles.thumb} source={ rowData.publicInfo.picture ? {uri: rowData.publicInfo.picture} : require('../../img/user.jpg') }/>
-                            </View>
-                                <View style={{flexDirection: 'column'}}>
+                                <TouchableHighlight onPress={() => {
+                                    this.setModalVisible(true)
+                                } }>
+                                    <View style={styles.viewImg}>
+                                        <Image style={styles.thumb} source={ rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg') }/>
+                                    </View>
+                                </TouchableHighlight>
+                                <View style={{ flexDirection: 'column' }}>
                                     <Text style={styles.textName}>
                                         {rowData.publicInfo.fullName}
                                     </Text>
                                     <Text style={styles.textStatus}>
                                         {rowData.publicInfo.isOnline ? 'online' : 'offline'}
                                     </Text>
-                                </View>                                
+                                </View>
                             </View>
-                    </TouchableHighlight>
-                }
-                />
+                        </TouchableHighlight>
+                    }
+                    />
+                <Modal
+                    animationType={"slide"}
+                    transparent={true}
+                    visible={this.state.modalVisible}
+                    onRequestClose={() => { console.log("Modal has been closed.") } }>
+                    <View>
+                        <Text>Hello World</Text>
+                        <Image style={styles.thumb} source={{ uri: 'http://img.mako.co.il/2016/09/21/709707_I_reduced.jpg' }}/>
+                    </View>
+                </Modal>
             </View>
         );
     }
-
-
 }
 
 // setTimeout(() => {
