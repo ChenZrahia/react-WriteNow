@@ -27,7 +27,7 @@ export default class SignUp extends Component {
     this.state = {
       DisplayName: "",
       PhoneNumber: "",
-      avatarSource: { uri: '../../img/user.jpg' }
+      avatarSource: require('../../img/user.jpg') 
     }
   }
 
@@ -69,18 +69,20 @@ export default class SignUp extends Component {
         <Text style = {styles.Welcome}>
           Welcome to WriteNow!
         </Text>
-        <TouchableHighlight onPress={this.showImagePicker}>
+        <TouchableHighlight onPress={this.showImagePicker} underlayColor='#ededed'>
+        <View style={styles.viewImg}>
           <Image style={styles.UserImage} source={this.state.avatarSource}/>
+        </View>
         </TouchableHighlight>
-        <TextInput
+        <TextInput underlineColorAndroid="transparent"
           onChangeText={(val) => this.setState({ DisplayName: val }) }
           style={styles.input} placeholder="Display Name"
           />
-        <TextInput
+        <TextInput underlineColorAndroid="transparent"
           onChangeText={(val) => this.setState({ PhoneNumber: val }) }
           style={styles.input} placeholder="Phone Number"
           />
-        <TouchableHighlight style = {styles.button} underlayColor='#99d7f4'>
+        <TouchableHighlight style = {styles.button} underlayColor='#a7003b'>
           <Text style = {styles.buttonText}>Submit</Text>
         </TouchableHighlight>
       </View>
@@ -93,9 +95,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
     padding: 10,
-    paddingTop: 80
+    paddingTop: 10
   },
   Welcome: {
     fontSize: 24,
@@ -106,27 +107,26 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   input: {
-    height: 50,
+    height: 45,
     width: 300,
     marginTop: 10,
     padding: 4,
     fontSize: 18,
     borderWidth: 1,
-    borderColor: '#48bbec'
+    borderRadius: 15,
+    borderColor: '#f50057'
   },
   UserImage: {
     width: 100,
     height: 100,
-    borderRadius: 90,
-    shadowRadius: 90,
-    marginTop: 10,
-    shadowColor: '#696969',
+    borderRadius: 10,
   },
   button: {
     height: 40,
     width: 80,
-    backgroundColor: '#4BBBEC',
-    borderColor: '#4BBBEC',
+    backgroundColor: '#f50057',
+    borderColor: '#f50057',
+    borderRadius: 10,
     marginLeft: 10,
     marginTop: 10,
     justifyContent: 'center'
@@ -136,5 +136,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'white',
     alignSelf: 'center'
-  }
+  },
+  viewImg: {
+        borderColor: 'black',
+        elevation: 3,
+        borderRadius: 10,
+        margin: 10,
+    },
 });

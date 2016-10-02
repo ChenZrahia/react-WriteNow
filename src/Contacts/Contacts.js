@@ -76,6 +76,7 @@ var styles = StyleSheet.create({
         padding: 5,
         borderBottomWidth: 0.5,
         borderColor: '#e7e7e7',
+        backgroundColor: 'white'
     },
     viewImg: {
         borderColor: 'black',
