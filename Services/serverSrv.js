@@ -1,7 +1,10 @@
-import React from 'react-native';
+var React = require('react-native');
+
+//import React from 'react-native';
 import './UserAgent';
 import io from 'socket.io-client/socket.io';
-
+//import ReactNativeRSAUtil from 'react-native-rsa-util';
+//var ReactNativeRSAUtil = require('react-native-rsa-util');
 //--------for dev mode only-----------//
 var encryptedUid = 'UIP5n4v1jj24a+dHq6L/QqLwDFtPnSoebPzUe5+DWKOQ+rj5boKTAI6goMgySXHDj4BRMOa16wNV743D3/5WfRlXPrizY6nvi3XEmg/oPQvmNLlchDDjqZpQW8nfAS3IH9jZwDqFjxMKVkMau1SOLJxMroz7hTKVH7gOCGLHzik=';
 var publicKey = `-----BEGIN PUBLIC KEY-----
@@ -9,6 +12,11 @@ var publicKey = `-----BEGIN PUBLIC KEY-----
             B3nfrzvfLZBCmXKkS5GYg/xzIx5BbsfVSKOKXzCcnlIhWUssanrDiW8CAwEAAQ==
             -----END PUBLIC KEY-----`;
 //--------for dev mode only-----------//
+
+// var ReactNativeRSAUtil = React.NativeModules.ReactNativeRSAUtil;
+
+// console.log('ReactNativeRSAUtil');
+// console.log(React.NativeModules);
 
 export var socket = io('https://server-sagi-uziel.c9users.io:8080', {query: {encryptedUid: encryptedUid, publicKey: publicKey}});
 
@@ -20,16 +28,18 @@ function errorDB(error) {
 }
 
 var db = SQLite.openDatabase({name: 'WriteNow.db', location: 'default'}, null , errorDB);
-var isFirstTime_Friends = true;
-var isFirstTime_Chats = true;
-export var myFriends = null;
-export var myChats = null;
+var _isFirstTime_Friends = true;
+var _isFirstTime_Chats = true;
+var _isAppOpen = true;
+export var _myFriends = null;
+export var _myChats = null;
+export var _uid = null;
 
 //Users
 export function GetAllMyFriends(callback, isUpdate) {    
     try {
-        if(myFriends && callback && !isUpdate){
-            callback(myFriends);
+        if(_myFriends && callback && !isUpdate){
+            callback(_myFriends);
             return;
         }
         db.transaction((tx) => {    
@@ -50,11 +60,11 @@ export function GetAllMyFriends(callback, isUpdate) {
                                     }
                         });
                     }
-                    myFriends = result;
+                    _myFriends = result;
                     if (callback) {
                         callback(result);
-                        if(isFirstTime_Friends == true){
-                            isFirstTime_Friends = false;
+                        if(_isFirstTime_Friends == true){
+                            _isFirstTime_Friends = false;
                             GetAllMyFriends_Server(callback);
                         }
                     }
@@ -73,11 +83,11 @@ export function GetAllMyFriends(callback, isUpdate) {
 function GetAllMyFriends_Server(callback) {    
     try {
         var friends = [];
-        if (myFriends) {
-            friends = myFriends;
+        if (_myFriends) {
+            friends = _myFriends;
         }
         let friendUidArray = friends.map((friend) => {return friend.id;});
-        socket.emit('GetMyFriendsChanges', friendUidArray, ((data) => {
+        socket.emit('Get_myFriendsChanges', friendUidArray, ((data) => {
             db.transaction((tx) => { 
                 for(var i = 0; i < data.length; i++)
                 {
@@ -96,6 +106,8 @@ function GetAllMyFriends_Server(callback) {
                     }
                 }
                 GetAllMyFriends(callback, true);
+            }, (error) => {
+                ErrorHandler.WriteError('serverSrv.js => GetAllMyFriends_Server => Get_myFriendsChanges', error);
             })
         }));
     } catch (error) {
@@ -106,8 +118,8 @@ function GetAllMyFriends_Server(callback) {
 //Conversation
 export function GetAllUserConv(callback, isUpdate) {    
     try {
-        if(myChats && callback && !isUpdate){
-            callback(myChats);
+        if(_myChats && callback && !isUpdate){
+            callback(_myChats);
             return;
         }
         db.transaction((tx) => {    
@@ -125,11 +137,11 @@ export function GetAllUserConv(callback, isUpdate) {
                                     isGroup: rs.rows.item(i).isGroup
                         });
                     }
-                    myChats = result;
+                    _myChats = result;
                     if (callback) {
                         callback(result);
-                        if(isFirstTime_Chats == true){
-                            isFirstTime_Chats = false;
+                        if(_isFirstTime_Chats == true){
+                            _isFirstTime_Chats = false;
                             GetAllMyFriends_Server(callback);
                         }
                     }
@@ -148,8 +160,8 @@ export function GetAllUserConv(callback, isUpdate) {
 function GetAllUserConv_Server(callback) {    
     try {
         var chats = [];
-        if (myChats) {
-            chats = myChats;
+        if (_myChats) {
+            chats = _myChats;
         }
         let convIdArray = chats.map((chat) => {return chat.id;});
         socket.emit('GetAllUserConvChanges', convIdArray, ((data) => {
@@ -170,8 +182,79 @@ function GetAllUserConv_Server(callback) {
                 }
                 GetAllUserConv(callback, true);
             })
-        }));
+        }), (error) => {
+            ErrorHandler.WriteError('serverSrv.js => GetAllUserConv_Server => GetAllUserConvChanges', error);
+        });
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => GetAllUserConv_Server', error);
     }
 }  
+
+//connect  login
+export function login(callback){
+    db.transaction((tx) => { 
+            tx.executeSql('SELECT * FROM UserInfo', [], (tx, rs) => {
+            if(rs.rows.length > 0 || true){
+                var item = rs.rows.item(rs.rows.length - 1);
+                _uid = item.uid;
+
+                // ReactNativeRSAUtil.encryptStringWithPrivateKey(item.uid, item.privateKey)
+                //     .then((error, data) => {
+                //         try {
+                //              if ( !error ) {
+                //                 console.log(data);
+                //                 socket.disconnect();
+                //                 socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {query: {encryptedUid: data, publicKey: item.publicKey}});
+                //             } else {
+                //                 //ErrorHandler.WriteError(' constructor => AuthenticationOk', error);
+                //             }
+                //         } catch (error) {
+                            
+                //         }
+                //     });
+
+
+                // try {
+                //     socket.disconnect();
+                //     socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {query: {encryptedUid: encryptedUid, publicKey: item.publicKey}});
+                // } catch (error) {
+                //     ErrorHandler.WriteError('constructor => _loggingService.reConnect', error);
+                // }
+                socket.removeAllListeners("AuthenticationOk");
+                _isAppOpen = false;
+                socket.on('AuthenticationOk', (ok) => {
+                    try {
+                        if(_isAppOpen == false){
+                            // _zone.run(() => {
+                            //     nav.popToRoot();
+                            //     nav.push(TabsPage);
+                            // });
+                            _isAppOpen = true;
+                        }
+                    } catch (e) {
+                        ErrorHandler.WriteError('EnterPage constructor => AuthenticationOk', error);
+                    }
+                });
+            }
+            else{
+                // _zone.run(() => {nav.push(SignUp);});
+            }
+        }, (error) => {
+            // _zone.run(() => {nav.push(SignUp);});
+            ErrorHandler.WriteError('SELECT SQL statement Error' + error.message, error);
+        });
+    }, (error) => {
+        ErrorHandler.WriteError('serverSrv.js => login => transaction', error);
+    });
+}
+
+ var e = 'e2317111-a84a-4c70-b0e9-b54b910833fa';
+
+setTimeout(() => {
+    //var key = new ReactNativeRSAUtil();
+    // ReactNativeRSAUtil.decryptStringWithPublicKey(encryptedUid, publicKey).then((error, data) => {
+    //     if ( !error ) {
+    //         console.log(data);
+    //     }
+    // });
+}, 1000);
