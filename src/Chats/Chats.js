@@ -9,34 +9,25 @@ import { Image,
     View, } from 'react-native';
 
 var serverSrv = require('../../Services/serverSrv');
-var PhoneContacts = require('react-native-contacts')
 
-export default class Contacts extends Component {
+export default class Chats extends Component {
     constructor() {
         super();
-        this.myFriends = [];
+        this.myChats = [];
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-        PhoneContacts.getAll((err, contacts) => {
-            if (err && err.type === 'permissionDenied') {
-                // x.x
-            } else {
-                console.log(contacts)
-            }
-        })
-
         this.state = {
-            dataSource: ds.cloneWithRows(this.myFriends)
+            dataSource: ds.cloneWithRows(this.myChats)
         };
-        serverSrv.GetAllMyFriends((result) => {
-            this.myFriends = result;
+        serverSrv.GetAllUserConv((result) => {
+            this.myChats = result;
             setTimeout(() => {
                 this.setState({
                     dataSource: ds.cloneWithRows(result)
                 })
-            }, 1000);
+            }, 0);
 
             this.state = {
-                dataSource: ds.cloneWithRows(this.myFriends)
+                dataSource: ds.cloneWithRows(this.myChats)
             };
         });
     }
@@ -50,16 +41,24 @@ export default class Contacts extends Component {
                     renderRow={(rowData) =>
                         <TouchableHighlight underlayColor='#ededed' onPress={() => {
                         } }>
+                        
                             <View style={styles.row}>
                                 <View style={styles.viewImg}>
-                                    <Image style={styles.thumb} source={ rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg') }/>
+                                    
+                                    <Image style={styles.thumb} source={ rowData.isGroup && rowData.groupPicture ? {uri: rowData.groupPicture} : (rowData.participates[0] && rowData.participates[0].publicInfo && rowData.participates[0].publicInfo.picture && !rowData.isGroup ? { uri: rowData.participates[0].publicInfo.picture} : require('../../img/user.jpg')) }/>
                                 </View>
                                 <View style={{ flexDirection: 'column' }}>
                                     <Text style={styles.textName}>
-                                        {rowData.publicInfo.fullName}
+                                        { rowData.isGroup == true ? rowData.groupName : rowData.participates[0].publicInfo.fullName }
                                     </Text>
                                     <Text style={styles.textStatus}>
-                                        {rowData.publicInfo.isOnline ? 'online' : 'offline'}
+                                        {(() => {
+                                            if (rowData.messages && rowData.messages.length > 0 && rowData.isGroup == false) {
+                                                return rowData.messages[0].content;
+                                            } else if (rowData.messages && rowData.messages.length > 0 && rowData.isGroup == true) {
+                                                return rowData.messages[0].lastMsgSender + rowData.messages[0].content;
+                                            }
+                                        }) }
                                     </Text>
                                 </View>
                             </View>
@@ -69,13 +68,7 @@ export default class Contacts extends Component {
             </View>
         );
     }
-
-
 }
-
-// setTimeout(() => {
-//     throw "Reload";
-// }, 20000);
 
 var styles = StyleSheet.create({
     row: {

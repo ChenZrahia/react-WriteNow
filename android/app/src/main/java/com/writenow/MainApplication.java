@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.pgsqlite.SQLitePluginPackage; //added by sagi uziel 1.10.16
 import com.imagepicker.ImagePickerPackage;
+import com.rt2zz.reactnativecontacts.ReactNativeContacts;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -30,7 +31,8 @@ public class MainApplication extends Application implements ReactApplication {
       return Arrays.<ReactPackage>asList(
         new SQLitePluginPackage(), 
           new MainReactPackage(),
-            new ImagePickerPackage()
+            new ImagePickerPackage(),
+            new ReactNativeContacts()
       );
     }
   };

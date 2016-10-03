@@ -4,6 +4,7 @@ import { TabViewAnimated, TabViewPage, TabBarTop } from 'react-native-tab-view';
 import serverSrv from '../Services/serverSrv';
 import Contacts from './Contacts/Contacts'
 import SignUp from './SignUp/SignUp'
+import Chats from './Chats/Chats'
 
 const styles = StyleSheet.create({
   container: {
@@ -68,13 +69,13 @@ export default class Tabs extends Component {
   _renderScene = ({ route }) => {
     switch (route.key) {
       case '1':
-        return (<View style={[styles.page, { backgroundColor: '#F6F6F6' }]} >
+        return (<View style={[styles.page, { backgroundColor: 'white' }]} >
           <Contacts />
         </View>);
       case '2':
-        return <View style={[styles.page, { backgroundColor: 'white' }]}><SignUp /></View>;
+        return <View style={[styles.page, { backgroundColor: 'white' }]}><Chats /></View>;
       case '3':
-        return <View style={[styles.page, { backgroundColor: 'white' }]} />;
+        return <View style={[styles.page, { backgroundColor: 'white' }]}><SignUp /></View>;
       default:
         return null;
     }
