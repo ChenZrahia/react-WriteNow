@@ -180,6 +180,10 @@ export function GetAllUserConv(callback, isUpdate) {
 
                         }), errorDB);
                     }
+                    if (_isFirstTime_Chats == true && rs.rows.length == 0) {
+                        _isFirstTime_Chats = false;
+                        GetAllUserConv_Server(callback);
+                    }
                 } catch (error) {
                     ErrorHandler.WriteError('serverSrv.js => SELECT * FROM Conversation => catch', error);
                 }
@@ -194,11 +198,13 @@ export function GetAllUserConv(callback, isUpdate) {
 
 function GetAllUserConv_Server(callback) {
     try {
+        console.log('GetAllUserConvChanges');
         var chats = [];
         if (_myChats) {
             chats = _myChats;
         }
         let convIdArray = chats.map((chat) => { return chat.id; });
+        console.log('12345345');
         socket.emit('GetAllUserConvChanges', convIdArray, ((data) => {
             db.transaction((tx) => {
                 for (var i = 0; i < data.length; i++) {

@@ -18,7 +18,9 @@ export default class Chats extends Component {
         this.state = {
             dataSource: ds.cloneWithRows(this.myChats)
         };
+        console.log('serverSrv.GetAllUserConv');
         serverSrv.GetAllUserConv((result) => {
+        console.log('serverSrv.GetAllUserConv2');
             this.myChats = result;
             setTimeout(() => {
                 this.setState({

@@ -9,20 +9,20 @@ import { Image,
     View, } from 'react-native';
 
 var serverSrv = require('../../Services/serverSrv');
-var PhoneContacts = require('react-native-contacts')
+//var PhoneContacts = require('react-native-contacts')
 
 export default class Contacts extends Component {
     constructor() {
         super();
         this.myFriends = [];
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-        PhoneContacts.getAll((err, contacts) => {
-            if (err && err.type === 'permissionDenied') {
-                // x.x
-            } else {
-                console.log(contacts)
-            }
-        })
+        // PhoneContacts.getAll((err, p_contacts) => {
+        //     if (err && err.type === 'permissionDenied') {
+        //         // x.x
+        //     } else {
+        //         console.log(contacts)
+        //     }
+        // })
 
         this.state = {
             dataSource: ds.cloneWithRows(this.myFriends)
