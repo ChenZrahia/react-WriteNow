@@ -210,8 +210,7 @@ export function login() {
                 if (rs.rows.length > 0) {
                     var item = rs.rows.item(rs.rows.length - 1);
                     _uid = item.uid;
-                    //  Actions.Tabs();
-                    Actions.SignUp({ type: 'replace' }); //-test only
+                     Actions.Tabs();
 
                     // ReactNativeRSAUtil.encryptStringWithPrivateKey(item.uid, item.privateKey)
                     //     .then((error, data) => {
