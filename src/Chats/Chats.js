@@ -18,19 +18,30 @@ export default class Chats extends Component {
         this.state = {
             dataSource: ds.cloneWithRows(this.myChats)
         };
-        console.log('serverSrv.GetAllUserConv');
         serverSrv.GetAllUserConv((result) => {
-        console.log('serverSrv.GetAllUserConv2');
-            this.myChats = result;
-            setTimeout(() => {
-                this.setState({
-                    dataSource: ds.cloneWithRows(result)
-                })
-            }, 0);
+            try {
+                this.myChats = result;
+                console.log(result.length);
+                console.log(this.myChats.length);
+                console.log('this.myChats.length');
+                setTimeout(() => {
+                    try {
+                        this.setState({
+                            dataSource: ds.cloneWithRows(result)
+                        })
+                    } catch (error) {
+                        console.log('error');
+                        console.log(error);
+                    }
+                }, 100);
 
-            this.state = {
-                dataSource: ds.cloneWithRows(this.myChats)
-            };
+                this.state = {
+                    dataSource: ds.cloneWithRows(this.myChats)
+                };
+            } catch (error) {
+                console.log(error);
+            }
+
         });
     }
 
@@ -43,24 +54,17 @@ export default class Chats extends Component {
                     renderRow={(rowData) =>
                         <TouchableHighlight underlayColor='#ededed' onPress={() => {
                         } }>
-                        
                             <View style={styles.row}>
                                 <View style={styles.viewImg}>
-                                    
-                                    <Image style={styles.thumb} source={ rowData.isGroup && rowData.groupPicture ? {uri: rowData.groupPicture} : (rowData.participates[0] && rowData.participates[0].publicInfo && rowData.participates[0].publicInfo.picture && !rowData.isGroup ? { uri: rowData.participates[0].publicInfo.picture} : require('../../img/user.jpg')) }/>
+
+                                    <Image style={styles.thumb} source={ rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? require('../../img/user.jpg') : require('../../img/user.jpg')) }/>
                                 </View>
                                 <View style={{ flexDirection: 'column' }}>
                                     <Text style={styles.textName}>
-                                        { rowData.isGroup == true ? rowData.groupName : rowData.participates[0].publicInfo.fullName }
+                                        { rowData.groupName }
                                     </Text>
                                     <Text style={styles.textStatus}>
-                                        {(() => {
-                                            if (rowData.messages && rowData.messages.length > 0 && rowData.isGroup == false) {
-                                                return rowData.messages[0].content;
-                                            } else if (rowData.messages && rowData.messages.length > 0 && rowData.isGroup == true) {
-                                                return rowData.messages[0].lastMsgSender + rowData.messages[0].content;
-                                            }
-                                        }) }
+                                        {rowData.lastMessage}
                                     </Text>
                                 </View>
                             </View>
@@ -70,7 +74,13 @@ export default class Chats extends Component {
             </View>
         );
     }
-}
+}                                        // {(() => {
+//     if (rowData.messages && rowData.messages.length > 0 && rowData.isGroup == false) {
+//         return rowData.messages[0].content;
+//     } else if (rowData.messages && rowData.messages.length > 0 && rowData.isGroup == true) {
+//         return rowData.messages[0].lastMsgSender + rowData.messages[0].content;
+//     }
+// }) }
 
 var styles = StyleSheet.create({
     row: {

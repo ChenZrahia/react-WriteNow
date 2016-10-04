@@ -13,64 +13,82 @@ var serverSrv = require('../../Services/serverSrv');
 
 export default class Contacts extends Component {
     constructor() {
-        super();
-        this.myFriends = [];
-        const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-        // PhoneContacts.getAll((err, p_contacts) => {
-        //     if (err && err.type === 'permissionDenied') {
-        //         // x.x
-        //     } else {
-        //         console.log(contacts)
-        //     }
-        // })
-
-        this.state = {
-            dataSource: ds.cloneWithRows(this.myFriends)
-        };
-        serverSrv.GetAllMyFriends((result) => {
-            this.myFriends = result;
-            setTimeout(() => {
-                this.setState({
-                    dataSource: ds.cloneWithRows(result)
-                })
-            }, 1000);
+        try {
+            super();
+            this.myFriends = [];
+            const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+            // PhoneContacts.getAll((err, p_contacts) => {
+            //     if (err && err.type === 'permissionDenied') {
+            //         // x.x
+            //     } else {
+            //         console.log(contacts)
+            //     }
+            // })
 
             this.state = {
                 dataSource: ds.cloneWithRows(this.myFriends)
             };
-        });
+            serverSrv.GetAllMyFriends((result) => {
+                try {
+                    this.myFriends = result;
+                    setTimeout(() => {
+                        try {
+                            this.setState({
+                                dataSource: ds.cloneWithRows(result)
+                            })
+                        } catch (error) {
+                            console.log('error');
+                            console.log(error);
+                        }
+                    }, 1000);
+
+                    this.state = {
+                        dataSource: ds.cloneWithRows(this.myFriends)
+                    };
+                } catch (error) {
+                    console.log(error);
+                }
+
+            });
+        } catch (error) {
+            console.log(error);
+        }
+
     }
 
     render() {
-        return (
-            <View style={{ flex: 1, alignSelf: 'stretch' }}>
-                <ListView style={{ paddingTop: 5, flex: 1 }}
-                    enableEmptySections={true}
-                    dataSource={this.state.dataSource}
-                    renderRow={(rowData) =>
-                        <TouchableHighlight underlayColor='#ededed' onPress={() => {
-                        } }>
-                            <View style={styles.row}>
-                                <View style={styles.viewImg}>
-                                    <Image style={styles.thumb} source={ rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg') }/>
+        try {
+            return (
+                <View style={{ flex: 1, alignSelf: 'stretch' }}>                
+                    <ListView style={{ paddingTop: 5, flex: 1 }}
+                        enableEmptySections={true}
+                        dataSource={this.state.dataSource}
+                        renderRow={(rowData) =>
+                            <TouchableHighlight underlayColor='#ededed' onPress={() => {
+                            } }>
+                                <View style={styles.row}>
+                                    <View style={styles.viewImg}>
+                                        <Image style={styles.thumb} source={ rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg') }/>
+                                    </View>
+                                    <View style={{ flexDirection: 'column' }}>
+                                        <Text style={styles.textName}>
+                                            {rowData.publicInfo.fullName}
+                                        </Text>
+                                        <Text style={styles.textStatus}>
+                                            {rowData.publicInfo.isOnline ? 'online' : 'offline'}
+                                        </Text>
+                                    </View>
                                 </View>
-                                <View style={{ flexDirection: 'column' }}>
-                                    <Text style={styles.textName}>
-                                        {rowData.publicInfo.fullName}
-                                    </Text>
-                                    <Text style={styles.textStatus}>
-                                        {rowData.publicInfo.isOnline ? 'online' : 'offline'}
-                                    </Text>
-                                </View>
-                            </View>
-                        </TouchableHighlight>
-                    }
-                    />
-            </View>
-        );
+                            </TouchableHighlight>
+                        }
+                        />
+                </View>
+            );
+        } catch (error) {
+            console.log(error);
+        }
+
     }
-
-
 }
 
 // setTimeout(() => {

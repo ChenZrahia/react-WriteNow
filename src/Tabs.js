@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TabViewAnimated, TabViewPage, TabBarTop } from 'react-native-tab-view';
-import serverSrv from '../Services/serverSrv';
 import Contacts from './Contacts/Contacts'
 import SignUp from './SignUp/SignUp'
 import Chats from './Chats/Chats'
+import {Actions, Scene, Router} from 'react-native-router-flux';
+
+var serverSrv = require('../Services/serverSrv');
 
 const styles = StyleSheet.create({
   container: {
@@ -35,6 +37,9 @@ const styles = StyleSheet.create({
 });
 
 export default class Tabs extends Component {
+  constructor() {
+    super();
+  }
   static propTypes = {
     style: View.propTypes.style,
   };
@@ -69,13 +74,11 @@ export default class Tabs extends Component {
   _renderScene = ({ route }) => {
     switch (route.key) {
       case '1':
-        return (<View style={[styles.page, { backgroundColor: 'white' }]} >
-          <Contacts />
-        </View>);
+        return <View style={[styles.page, { backgroundColor: 'white' }]} ><Contacts /></View>;
       case '2':
         return <View style={[styles.page, { backgroundColor: 'white' }]}><Chats /></View>;
       case '3':
-        return <View style={[styles.page, { backgroundColor: 'white' }]}><SignUp /></View>;
+        return <View style={[styles.page, { backgroundColor: 'white' }]}></View>;
       default:
         return null;
     }

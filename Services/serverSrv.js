@@ -1,10 +1,11 @@
 var React = require('react-native');
-
+import {Actions} from 'react-native-router-flux';
 //import React from 'react-native';
 import './UserAgent';
 import io from 'socket.io-client/socket.io';
-//import ReactNativeRSAUtil from 'react-native-rsa-util';
-//var ReactNativeRSAUtil = require('react-native-rsa-util');
+var RSAKey = require('react-native-rsa');
+var SignUp = require('../src/SignUp/SignUp');
+
 //--------for dev mode only-----------//
 var encryptedUid = 'UIP5n4v1jj24a+dHq6L/QqLwDFtPnSoebPzUe5+DWKOQ+rj5boKTAI6goMgySXHDj4BRMOa16wNV743D3/5WfRlXPrizY6nvi3XEmg/oPQvmNLlchDDjqZpQW8nfAS3IH9jZwDqFjxMKVkMau1SOLJxMroz7hTKVH7gOCGLHzik=';
 var publicKey = `-----BEGIN PUBLIC KEY-----
@@ -15,11 +16,7 @@ var publicKey = `-----BEGIN PUBLIC KEY-----
 
 // var ReactNativeRSAUtil = React.NativeModules.ReactNativeRSAUtil;
 
-// console.log('ReactNativeRSAUtil');
-// console.log(React.NativeModules);
-
 export var socket = io('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: encryptedUid, publicKey: publicKey } });
-
 var ErrorHandler = require('../ErrorHandler');
 var SQLite = require('react-native-sqlite-storage')
 
@@ -35,10 +32,19 @@ export var _myFriends = null;
 export var _myChats = null;
 export var _uid = null;
 
-//  db.transaction((tx) => {
-//             tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
-//             tx.executeSql('DROP TABLE participates', [], null, errorDB); //------------------
-//  });
+db.transaction((tx) => {
+        tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid)'); //פונקציה חיצונית
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime)', [], null, errorDB); //להוציא לפונקציה נפרדת
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id PRIMARY KEY NOT NULL, phoneNumber, ModifyDate , ModifyPicDate, fullName, mail, picture, gender)', [], null, errorDB); //להוציא לפונקציה נפרדת
+    });
+
+export function DeleteDb() {
+    db.transaction((tx) => {
+        tx.executeSql('DELETE FROM UserInfo', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
+    });
+}
 
 //Users
 export function GetAllMyFriends(callback, isUpdate) {
@@ -48,7 +54,6 @@ export function GetAllMyFriends(callback, isUpdate) {
             return;
         }
         db.transaction((tx) => {
-            tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id PRIMARY KEY NOT NULL, phoneNumber, ModifyDate , ModifyPicDate, fullName, mail, picture, gender)', [], null, errorDB); //להוציא לפונקציה נפרדת
             tx.executeSql('SELECT * FROM Friends', [], (tx, rs) => {
                 try {
                     var result = [];
@@ -128,13 +133,9 @@ export function GetAllUserConv(callback, isUpdate) {
             return;
         }
         db.transaction((tx) => {
-            tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup)', [], null, errorDB); //להוציא לפונקציה נפרדת
-            tx.executeSql('CREATE TABLE IF NOT EXISTS participates (convId NOT NULL, id NOT NULL, phoneNumber, ModifyDate , ModifyPicDate, fullName, mail, picture, gender)', [], null, errorDB); //להוציא לפונקציה נפרדת
             tx.executeSql('SELECT * FROM Conversation', [], (tx, rs) => {
                 try {
                     var result = [];
-                    var indexes = {};
-                    var countOfConvs = 0;
                     for (var i = 0; i < rs.rows.length; i++) {
                         result.push({
                             id: rs.rows.item(i).id,
@@ -142,47 +143,17 @@ export function GetAllUserConv(callback, isUpdate) {
                             manager: rs.rows.item(i).manager,
                             groupName: rs.rows.item(i).groupName,
                             groupPicture: rs.rows.item(i).groupPicture,
-                            isGroup: rs.rows.item(i).isGroup,
-                            participates: [] //לעשות בדיקה אם בשרת נוספו משתתפים לשיחה. לשלוח גייסון של קוד שיחה וקוד משתתפים (מערך)
+                            isGroup: rs.rows.item(i).isGroup //לעשות בדיקה אם בשרת נוספו משתתפים לשיחה. לשלוח גייסון של קוד שיחה וקוד משתתפים (מערך)
                         });
-                        if (!indexes[rs.rows.item(i).id]) {
-                            indexes[rs.rows.item(i).id] = i;
-                        }
-                        tx.executeSql('SELECT * FROM participates WHERE convId = ?', [rs.rows.item(i).id], ((tx, p_rs) => {
-                            countOfConvs++;
-                            for (var j = 0; j < p_rs.rows.length; j++) {
-                                try {
-                                    var index = indexes[p_rs.rows.item(j).convId];
-                                    result[index].participates.push({
-                                        id: p_rs.rows.item(j).id,
-                                        phoneNumber: p_rs.rows.item(j).phoneNumber,
-                                        ModifyDate: p_rs.rows.item(j).ModifyDate,
-                                        ModifyPicDate: p_rs.rows.item(j).ModifyPicDate,
-                                        publicInfo: {
-                                            fullName: p_rs.rows.item(j).fullName,
-                                            mail: p_rs.rows.item(j).mail,
-                                            picture: p_rs.rows.item(j).picture,
-                                            gender: p_rs.rows.item(j).gender
-                                        }
-                                    });
-                                } catch (error) {
-                                    ErrorHandler.WriteError('serverSrv.js => SELECT * FROM participates => catch', error);
-                                }
-                            }
-                            if (countOfConvs == result.length && callback) {
-                                callback(result);
-                                if (_isFirstTime_Chats == true) {
-                                    _isFirstTime_Chats = false;
-                                    GetAllUserConv_Server(callback);
-                                }
-                            }
-                            _myChats = result;
-
-                        }), errorDB);
                     }
-                    if (_isFirstTime_Chats == true && rs.rows.length == 0) {
-                        _isFirstTime_Chats = false;
-                        GetAllUserConv_Server(callback);
+                    _myChats = result;
+                    if (callback) {
+                        callback(result);
+                        if (_isFirstTime_Chats == true) {
+                            _isFirstTime_Chats = false;
+                            console.log('callback');
+                            GetAllUserConv_Server(callback);
+                        }
                     }
                 } catch (error) {
                     ErrorHandler.WriteError('serverSrv.js => SELECT * FROM Conversation => catch', error);
@@ -198,42 +169,30 @@ export function GetAllUserConv(callback, isUpdate) {
 
 function GetAllUserConv_Server(callback) {
     try {
-        console.log('GetAllUserConvChanges');
         var chats = [];
         if (_myChats) {
             chats = _myChats;
         }
         let convIdArray = chats.map((chat) => { return chat.id; });
-        console.log('12345345');
         socket.emit('GetAllUserConvChanges', convIdArray, ((data) => {
             db.transaction((tx) => {
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].deletedConv == true && data[i].id) {
                         tx.executeSql('DELETE FROM Conversation WHERE id=?', [data[i].id]);
-                        tx.executeSql('DELETE FROM participates WHERE convId=?', [data[i].id]);
                     } else {
-                        tx.executeSql('INSERT INTO Conversation VALUES (?, ?, ?, ?, ?, ?)',
+                        tx.executeSql('INSERT INTO Conversation VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
                             [data[i].id,
                                 data[i].isEncrypted,
                                 data[i].manager,
                                 data[i].groupName,
                                 data[i].groupPicture,
-                                data[i].isGroup]);
-
-                        for (var j = 0; j < data[i].participates.length; j++) {
-                            tx.executeSql('INSERT INTO participates VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                                [data[i].id,
-                                    data[i].participates[j].id,
-                                    data[i].participates[j].phoneNumber,
-                                    data[i].participates[j].ModifyDate,
-                                    data[i].participates[j].ModifyPicDate,
-                                    data[i].participates[j].publicInfo.fullName,
-                                    data[i].participates[j].publicInfo.mail,
-                                    data[i].participates[j].publicInfo.picture,
-                                    data[i].participates[j].publicInfo.gender]);
-                        }
+                                data[i].isGroup,
+                                data[i].lastMessage,
+                                data[i].lastMessageTime
+                            ]);
                     }
                 }
+                console.log('callback GetAllUserConv1');
                 GetAllUserConv(callback, true);
             }, (error) => {
                 ErrorHandler.WriteError('serverSrv.js => GetAllUserConv_Server => GetAllUserConvChanges', error);
@@ -245,70 +204,98 @@ function GetAllUserConv_Server(callback) {
 }
 
 //connect  login
-export function login(callback) {
+export function login() {
     db.transaction((tx) => {
-        tx.executeSql('SELECT * FROM UserInfo', [], (tx, rs) => {
-            if (rs.rows.length > 0 || true) {
-                var item = rs.rows.item(rs.rows.length - 1);
-                _uid = item.uid;
+        try {
+            tx.executeSql('SELECT * FROM UserInfo', [], (tx, rs) => {
+                if (rs.rows.length > 0) {
+                    var item = rs.rows.item(rs.rows.length - 1);
+                    _uid = item.uid;
+                    Actions.Tabs();
+                    // ReactNativeRSAUtil.encryptStringWithPrivateKey(item.uid, item.privateKey)
+                    //     .then((error, data) => {
+                    //         try {
+                    //              if ( !error ) {
+                    //                 console.log(data);
+                    //                 socket.disconnect();
+                    //                 socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {query: {encryptedUid: data, publicKey: item.publicKey}});
+                    //             } else {
+                    //                 //ErrorHandler.WriteError(' constructor => AuthenticationOk', error);
+                    //             }
+                    //         } catch (error) {
 
-                // ReactNativeRSAUtil.encryptStringWithPrivateKey(item.uid, item.privateKey)
-                //     .then((error, data) => {
-                //         try {
-                //              if ( !error ) {
-                //                 console.log(data);
-                //                 socket.disconnect();
-                //                 socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {query: {encryptedUid: data, publicKey: item.publicKey}});
-                //             } else {
-                //                 //ErrorHandler.WriteError(' constructor => AuthenticationOk', error);
-                //             }
-                //         } catch (error) {
-
-                //         }
-                //     });
+                    //         }
+                    //     });
 
 
-                // try {
-                //     socket.disconnect();
-                //     socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {query: {encryptedUid: encryptedUid, publicKey: item.publicKey}});
-                // } catch (error) {
-                //     ErrorHandler.WriteError('constructor => _loggingService.reConnect', error);
-                // }
-                socket.removeAllListeners("AuthenticationOk");
-                _isAppOpen = false;
-                socket.on('AuthenticationOk', (ok) => {
-                    try {
-                        if (_isAppOpen == false) {
-                            // _zone.run(() => {
-                            //     nav.popToRoot();
-                            //     nav.push(TabsPage);
-                            // });
-                            _isAppOpen = true;
+                    // try {
+                    //     socket.disconnect();
+                    //     socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {query: {encryptedUid: encryptedUid, publicKey: item.publicKey}});
+                    // } catch (error) {
+                    //     ErrorHandler.WriteError('constructor => _loggingService.reConnect', error);
+                    // }
+                    socket.removeAllListeners("AuthenticationOk");
+                    _isAppOpen = false;
+                    socket.on('AuthenticationOk', (ok) => {
+                        try {
+                            if (_isAppOpen == false) {
+                                // _zone.run(() => {
+                                //     nav.popToRoot();
+                                //     nav.push(TabsPage);
+                                // });
+                                _isAppOpen = true;
+                            }
+                        } catch (e) {
+                            Actions.SignUp({ type: 'replace' });
+                            ErrorHandler.WriteError('EnterPage constructor => AuthenticationOk', error);
                         }
-                    } catch (e) {
-                        ErrorHandler.WriteError('EnterPage constructor => AuthenticationOk', error);
+                    });
+                }
+                else {
+                    try {
+                        Actions.SignUp({ type: 'replace' });
+                    } catch (error) {
+                        console.log(error);
                     }
-                });
-            }
-            else {
-                // _zone.run(() => {nav.push(SignUp);});
-            }
-        }, (error) => {
-            // _zone.run(() => {nav.push(SignUp);});
-            ErrorHandler.WriteError('SELECT SQL statement Error' + error.message, error);
-        });
+                }
+            }, (error) => {
+                Actions.SignUp({ type: 'replace' });
+                ErrorHandler.WriteError('SELECT SQL statement Error' + error.message, error);
+            });
+        } catch (error) {
+            Actions.SignUp({ type: 'replace' });
+            ErrorHandler.WriteError('serverSrv.js => login => transaction inner', error);
+        }
     }, (error) => {
+        Actions.SignUp({ type: 'replace' });
         ErrorHandler.WriteError('serverSrv.js => login => transaction', error);
     });
 }
 
-var e = 'e2317111-a84a-4c70-b0e9-b54b910833fa';
+export function signUpFunc(newUser) {
+    try {
+        // const bits = 256; //לשקול להגדיל בפרודקשן!
+        // const exponent = '10001';
+        // var rsa = new RSAKey();
+        // rsa.generate(bits, exponent);
+        // var publicKey = rsa.getPublicString(); // return json encoded string
+        // var privateKey = rsa.getPrivateString(); // return json encoded string
+        socket.emit('addNewUser', newUser, (user) => {
+            // var rsa2 = new RSAKey();
+            // rsa2.setPrivateString(privateKey);
+            // var encryptedUid = rsa2.encrypt(user.id);
 
-setTimeout(() => {
-    //var key = new ReactNativeRSAUtil();
-    // ReactNativeRSAUtil.decryptStringWithPublicKey(encryptedUid, publicKey).then((error, data) => {
-    //     if ( !error ) {
-    //         console.log(data);
-    //     }
-    // });
-}, 1000);
+            db.transaction(function (tx) {
+                tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?)', [user.id, '', '', '']);
+            }, (error) => {
+                ErrorHandler.WriteError('signUp => addNewUser => transaction', error);
+            }, function () {
+            });
+
+            // clsObj._loggingService.reConnectWithUid(encryptedUid, user.pkey);
+            //clsObj.nav.push(TabsPage); //navigation
+        });
+    } catch (e) {
+        ErrorHandler.WriteError('signUp', e);
+    }
+}
