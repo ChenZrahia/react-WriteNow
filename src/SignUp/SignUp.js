@@ -7,12 +7,20 @@ import {
   TextInput,
   Image,
   View,
-  TouchableHighlight
+  TouchableOpacity,
+  TouchableHighlight,
 } from 'react-native';
+import {Actions} from 'react-native-router-flux'
+
+
 
 var Platform = require('react-native').Platform;
 var ImagePicker = require('react-native-image-picker');
-
+var RSAKey = require('react-native-rsa');
+var ErrorHandler = require('../../ErrorHandler');
+var serverSrv = require('../../Services/serverSrv');
+var disabled = false;
+var profileImg = '';
 var options = {
   title: 'Select Profile Image',
   storageOptions: {
@@ -27,13 +35,42 @@ export default class SignUp extends Component {
     this.state = {
       DisplayName: "",
       PhoneNumber: "",
-      avatarSource: require('../../img/user.jpg') 
+      avatarSource: require('../../img/user.jpg')
     }
   }
+  test = (() => { });
+
+  SignUpSubmit = (() => {
+    try {
+      if (disabled == true) {
+        return;
+      }
+      disabled = true;
+      var newUser = {
+        pkey: '',
+        lastSeen: Date.now,
+        isOnline: true,
+        ModifyDate: Date.now(),
+        ModifyPicDate: Date.now(),
+        phoneNumber: this.state.PhoneNumber,
+        publicInfo: {
+          fullName: this.state.DisplayName,
+          mail: '',
+          picture: profileImg,
+          gender: ''
+        },
+        privateInfo: {
+          tokenNotification: ''
+        }
+      };
+      serverSrv.signUpFunc(newUser);
+      Actions.Tabs({type: 'reset'});
+    } catch (e) {
+      ErrorHandler.WriteError('SigbUp.js => SignUpSubmit', e);
+    }
+  });
 
   showImagePicker = () => {
-    console.log('this.state');
-    console.log(this.state);
     ImagePicker.showImagePicker(options, (response) => {
       console.log('Response = ', response);
 
@@ -55,7 +92,8 @@ export default class SignUp extends Component {
         } else {
           const source = { uri: response.uri, isStatic: true };
         }
-
+        profileImg = response.data;
+       
         this.setState({
           avatarSource: source
         });
@@ -70,21 +108,23 @@ export default class SignUp extends Component {
           Welcome to WriteNow!
         </Text>
         <TouchableHighlight onPress={this.showImagePicker} underlayColor='#ededed'>
-        <View style={styles.viewImg}>
-          <Image style={styles.UserImage} source={this.state.avatarSource}/>
-        </View>
+          <View style={styles.viewImg}>
+            <Image style={styles.UserImage} source={this.state.avatarSource}/>
+          </View>
         </TouchableHighlight>
-        <TextInput underlineColorAndroid="transparent"
+        <TextInput underlineColorAndroid="transparent" autoCapitalize="words"
           onChangeText={(val) => this.setState({ DisplayName: val }) }
           style={styles.input} placeholder="Display Name"
           />
-        <TextInput underlineColorAndroid="transparent"
+        <TextInput underlineColorAndroid="transparent" keyboardType="phone-pad"
           onChangeText={(val) => this.setState({ PhoneNumber: val }) }
           style={styles.input} placeholder="Phone Number"
           />
-        <TouchableHighlight style = {styles.button} underlayColor='#a7003b'>
-          <Text style = {styles.buttonText}>Submit</Text>
-        </TouchableHighlight>
+        <TouchableOpacity disabled={disabled} style = {styles.button} underlayColor='#ededed' onPress={this.SignUpSubmit}>
+          <View>
+            <Text style={styles.buttonText}>Submit</Text>
+          </View>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -138,9 +178,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center'
   },
   viewImg: {
-        borderColor: 'black',
-        elevation: 3,
-        borderRadius: 10,
-        margin: 10,
-    },
+    borderColor: 'black',
+    elevation: 3,
+    borderRadius: 10,
+    margin: 10,
+  },
 });

@@ -10,10 +10,18 @@ import { Image,
     Modal } from 'react-native';
 
 var serverSrv = require('../../Services/serverSrv');
+//var PhoneContacts = require('react-native-contacts')
 
 export default class Contacts extends Component {
     constructor() {
         super();
+                    // PhoneContacts.getAll((err, p_contacts) => { אתה תצטרך את זה
+            //     if (err && err.type === 'permissionDenied') {
+            //         // x.x
+            //     } else {
+            //         console.log(contacts)
+            //     }
+            // })
         this.myFriends = [];
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         this.state = {

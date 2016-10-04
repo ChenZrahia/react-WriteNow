@@ -1,4 +1,3 @@
-//import Exponent from 'exponent';
 import React, { Component } from 'react';
 import {
   AppRegistry,
@@ -12,7 +11,31 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Tabs from './src/Tabs';
+import InitRout from './src/InitRout';
+var serverSrv = require('./Services/serverSrv');
+
+
+export default class WriteNow extends Component {
+  constructor() {
+    super();
+    serverSrv.login();
+  }
+  render() {
+    return (
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" />
+        <View style={styles.statusbar} />
+        <View style={styles.appbar}>
+          <Text style={styles.title}>
+            WriteNow
+          </Text>
+          <View style={styles.button} />
+        </View>
+        <InitRout />
+      </View>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -41,23 +64,5 @@ const styles = StyleSheet.create({
     color: '#fff',
   }
 });
-
-export default class WriteNow extends Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" />
-        <View style={styles.statusbar} />
-        <View style={styles.appbar}>            
-          <Text style={styles.title}>
-            WriteNow
-          </Text>
-          <View style={styles.button} />
-        </View>
-       <Tabs style={styles.example} />
-      </View>
-    );
-  }
-}
 
 AppRegistry.registerComponent('WriteNow', () => WriteNow);
