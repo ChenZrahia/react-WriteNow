@@ -32,17 +32,16 @@ export var _myFriends = null;
 export var _myChats = null;
 export var _uid = null;
 
-db.transaction((tx) => {
-        tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid)'); //פונקציה חיצונית
-        tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime)', [], null, errorDB); //להוציא לפונקציה נפרדת
-        tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id PRIMARY KEY NOT NULL, phoneNumber, ModifyDate , ModifyPicDate, fullName, mail, picture, gender)', [], null, errorDB); //להוציא לפונקציה נפרדת
-    });
 
 export function DeleteDb() {
     db.transaction((tx) => {
         tx.executeSql('DELETE FROM UserInfo', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
+
+        tx.executeSql('DROP FROM UserInfo', [], null, errorDB); //------------------
+        tx.executeSql('DROP FROM Conversation', [], null, errorDB); //------------------
+        tx.executeSql('DROP FROM Friends', [], null, errorDB); //------------------
     });
 }
 
@@ -211,7 +210,9 @@ export function login() {
                 if (rs.rows.length > 0) {
                     var item = rs.rows.item(rs.rows.length - 1);
                     _uid = item.uid;
-                    Actions.Tabs();
+                    //  Actions.Tabs();
+                    Actions.SignUp({ type: 'replace' }); //-test only
+
                     // ReactNativeRSAUtil.encryptStringWithPrivateKey(item.uid, item.privateKey)
                     //     .then((error, data) => {
                     //         try {
@@ -272,7 +273,7 @@ export function login() {
     });
 }
 
-export function signUpFunc(newUser) {
+export function signUpFunc(newUser, callback) {
     try {
         // const bits = 256; //לשקול להגדיל בפרודקשן!
         // const exponent = '10001';
@@ -291,7 +292,9 @@ export function signUpFunc(newUser) {
                 ErrorHandler.WriteError('signUp => addNewUser => transaction', error);
             }, function () {
             });
-
+            if (callback) {
+                callback(user.id);
+            }
             // clsObj._loggingService.reConnectWithUid(encryptedUid, user.pkey);
             //clsObj.nav.push(TabsPage); //navigation
         });

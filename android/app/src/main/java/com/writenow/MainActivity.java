@@ -4,6 +4,7 @@ import com.facebook.react.ReactActivity;
 import com.imagepicker.ImagePickerPackage;
 import com.imagepicker.ImagePickerPackage;
 import com.imagepicker.ImagePickerPackage;
+import com.imagepicker.ImagePickerPackage;
 //import cn.touna.reactnativersautil.ReactNativeRSAUtilPackage;
 //import com.imagepicker.ImagePickerPackage;
 //import com.imagepicker.ImagePickerPackage;

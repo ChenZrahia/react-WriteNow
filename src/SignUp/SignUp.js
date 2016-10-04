@@ -11,8 +11,7 @@ import {
   TouchableHighlight,
 } from 'react-native';
 import {Actions} from 'react-native-router-flux'
-
-
+import Toast from 'react-native-root-toast';
 
 var Platform = require('react-native').Platform;
 var ImagePicker = require('react-native-image-picker');
@@ -40,12 +39,37 @@ export default class SignUp extends Component {
   }
   test = (() => { });
 
+
+  // Add a Toast on screen.
+
+
   SignUpSubmit = (() => {
     try {
       if (disabled == true) {
         return;
       }
+
+      var msg = '';
+      if (!this.state.PhoneNumber) {
+        msg = 'Enter Your Phone Number';
+      } else if (this.state.PhoneNumber.length != 10) {
+        msg = 'Invalid Phone Number';
+      } else if (!this.state.DisplayName || this.state.DisplayName < 2) {
+        msg = 'Enter Your Name';
+      }
+      if (msg.length > 0) {
+        var toast = Toast.show(msg, {
+          duration: Toast.durations.LONG,
+          position: Toast.positions.BOTTOM,
+          shadow: true,
+          animation: true,
+          hideOnPress: true,
+          delay: 0
+        });
+        return;
+      }
       disabled = true;
+
       var newUser = {
         pkey: '',
         lastSeen: Date.now,
@@ -63,8 +87,22 @@ export default class SignUp extends Component {
           tokenNotification: ''
         }
       };
-      serverSrv.signUpFunc(newUser);
-      Actions.Tabs({type: 'reset'});
+
+      serverSrv.signUpFunc(newUser, (userId) => {
+        if (userId) {
+          Actions.Tabs({ type: 'reset' });
+        } else {
+          disabled = false;
+          var toast = Toast.show('Phone Number Already In Use', {
+            duration: Toast.durations.LONG,
+            position: Toast.positions.BOTTOM,
+            shadow: true,
+            animation: true,
+            hideOnPress: true,
+            delay: 0
+          });
+        }
+      });
     } catch (e) {
       ErrorHandler.WriteError('SigbUp.js => SignUpSubmit', e);
     }
@@ -93,7 +131,7 @@ export default class SignUp extends Component {
           const source = { uri: response.uri, isStatic: true };
         }
         profileImg = response.data;
-       
+
         this.setState({
           avatarSource: source
         });
