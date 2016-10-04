@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TabViewAnimated, TabViewPage, TabBarTop } from 'react-native-tab-view';
 import serverSrv from '../Services/serverSrv';
-import Contacts from './Contacts/Contacts'
-import SignUp from './SignUp/SignUp'
+import Contacts from './Contacts/Contacts';
+import SignUp from './SignUp/SignUp';
 
 const styles = StyleSheet.create({
   container: {
@@ -68,9 +68,7 @@ export default class Tabs extends Component {
   _renderScene = ({ route }) => {
     switch (route.key) {
       case '1':
-        return (<View style={[styles.page, { backgroundColor: '#F6F6F6' }]} >
-          <Contacts />
-        </View>);
+        return (<View style={[styles.page, { backgroundColor: '#F6F6F6' }]}><Contacts /></View>);
       case '2':
         return <View style={[styles.page, { backgroundColor: 'white' }]}><SignUp /></View>;
       case '3':

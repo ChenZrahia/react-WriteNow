@@ -10,6 +10,10 @@
     "react-addons-shallow-compare": "^15.3.2",
     "react-native": "0.34.1",
     "react-native-image-picker": "^0.22.9",
+    "react-native-image-preview": "^0.1.1",
+    "react-native-lightbox": "^0.6.0",
+    "react-native-photo-view": "^1.2.0",
+    "react-native-photo-viewer": "^1.2.2",
     "react-native-sqlite-storage": "^3.1.2",
     "react-native-tab-view": "0.0.29"
   }
