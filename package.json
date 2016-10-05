@@ -6,11 +6,15 @@
     "start": "node node_modules/react-native/local-cli/cli.js start"
   },
   "dependencies": {
+    "native-base": "^0.5.9",
     "react": "15.3.2",
     "react-addons-shallow-compare": "^15.3.2",
     "react-native": "0.34.1",
+    "react-native-gifted-chat": "0.0.10",
     "react-native-image-picker": "^0.22.9",
+    "react-native-router-flux": "^3.35.0",
     "react-native-sqlite-storage": "^3.1.2",
-    "react-native-tab-view": "0.0.29"
+    "react-native-tab-view": "0.0.29",
+    "react-native-vector-icons": "^2.1.0"
   }
 }

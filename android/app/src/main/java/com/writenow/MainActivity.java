@@ -1,6 +1,8 @@
 package com.writenow;
 
 import com.facebook.react.ReactActivity;
+import com.imagepicker.ImagePickerPackage;
+import com.imagepicker.ImagePickerPackage;
 
 public class MainActivity extends ReactActivity {
 
