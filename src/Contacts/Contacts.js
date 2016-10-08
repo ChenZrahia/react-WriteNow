@@ -15,11 +15,11 @@ var serverSrv = require('../../Services/serverSrv');
 export default class Contacts extends Component {
     constructor() {
         super();
-                    // PhoneContacts.getAll((err, p_contacts) => { אתה תצטרך את זה
+            //         PhoneContacts.getAll((err, p_contacts) => {
             //     if (err && err.type === 'permissionDenied') {
             //         // x.x
             //     } else {
-            //         console.log(contacts)
+            //         console.log(p_contacts)
             //     }
             // })
         this.myFriends = [];

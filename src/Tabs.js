@@ -1,23 +1,16 @@
 import React, { Component } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import { TabViewAnimated, TabViewPage, TabBarTop } from 'react-native-tab-view';
-
 import serverSrv from '../Services/serverSrv';
 import Contacts from './Contacts/Contacts';
-
 import ChatRoom from './ChatRoom/ChatRoom';
-
 import SignUp from './SignUp/SignUp'
 import Chats from './Chats/Chats'
 import {Actions, Scene, Router} from 'react-native-router-flux';
+var generalStyle = require('../styles/generalStyle');
 
-// var serverSrv = require('../Services/serverSrv');
 
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+const styles = StyleSheet.create({  
   tabbar: {
     backgroundColor: '#9933FF',
     shadowColor: "#000000",
@@ -80,13 +73,11 @@ export default class Tabs extends Component {
   _renderScene = ({ route }) => {
     switch (route.key) {
       case '1':
-
         return <View style={[styles.page, { backgroundColor: 'white' }]} ><Contacts /></View>;
       case '2':
         return <View style={[styles.page, { backgroundColor: 'white' }]}><Chats /></View>;
       case '3':
         return (<View style={[styles.page, { backgroundColor: 'white' }]} >
-         <ChatRoom />
         </View>);
 
       default:
@@ -100,13 +91,21 @@ export default class Tabs extends Component {
 
   render() {
     return (
-      <TabViewAnimated
-        style={[styles.container, this.props.style]}
-        navigationState={this.state}
-        renderScene={this._renderPage}
-        renderHeader={this._renderHeader}
-        onRequestChangeTab={this._handleChangeTab}
-        />
+      <View style={generalStyle.styles.container}>
+        <View style={generalStyle.styles.appbar}>
+          <Text style={generalStyle.styles.titleHeader}>
+            WriteNow
+          </Text>
+          <View style={styles.button} />
+        </View>
+        <TabViewAnimated
+          style={[generalStyle.styles.container, this.props.style]}
+          navigationState={this.state}
+          renderScene={this._renderPage}
+          renderHeader={this._renderHeader}
+          onRequestChangeTab={this._handleChangeTab}
+          />
+      </View>
     );
   }
 }

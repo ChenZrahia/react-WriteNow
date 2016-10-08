@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
-import { GiftedChat } from 'react-native-gifted-chat';
+import GiftedChat from './GiftedChat';
 import { Container, Content, Icon } from 'native-base';
-
-           
 import { Image,
     ReactNative,
     ListView,
@@ -10,111 +8,150 @@ import { Image,
     AppRegistry,
     TouchableOpacity,
     StyleSheet,
-    RecyclerViewBackedScrollView,
     Text,
     TextInput,
     Dimensions,
+    StatusBar,
+    ScrollView,
     View, } from 'react-native';
-    
-   
-    
-
 
 var serverSrv = require('../../Services/serverSrv');
-
-export default class ChatRoom extends Component {  
-  constructor(props) {
-    super(props);
-    this.state = {messages: [], text: ''};
-    
-  
-  }
-
-
-  render() {
-      return (
-        <View style={styles.modal}>
-        <View style={styles.Header}>
-          <View style={styles.viewImg}>
-             <Image style={styles.thumb} source={ require('../../img/user.jpg') }/>
-         </View>
-          <Text style={styles.HeaderText}>Rugbin React Native</Text>
-          </View>
-        <View style={styles.container}>                 
-          <Icon name='md-happy' style={styles.iconSend}/>           
-          <TextInput underlineColorAndroid="transparent"
-           multiline = {true}
-           style={styles.textArea}
-          placeholder="Type message..."   
-           numberOfLines = {4}
-          onChangeText={(text) => this.setState({text})}>
-          </TextInput> 
-          <Icon name='md-send' style={styles.iconSend}/>   
-        </View>
-        </View>
-                                        
-      );
-  }
+var generalStyles = require('../../styles/generalStyle');
 
 
 
-  _onPressIcons(){
-      console.log('icons show');
-  }
+export default class ChatRoom extends Component {
+    constructor(props) {
+        super(props);
+        this.state = { messages: [] };
+        this.onSend = this.onSend.bind(this);
+    }
 
-  _onPressSend(){
-      console.log('send message..');
-  }
+    componentWillMount() {
+        serverSrv.GetAllMyFriends(); //-----
+        setTimeout(() => {
+            serverSrv.GetConv((data) => {
+                if (!data) {
+                    data = [];
+                }
+                this.setState({
+                    messages: data,
+                });
+            }, '938bece7-d81d-4401-93e1-1517263de035');
+        }, 1000);
 
+    }
+    onSend(messages = []) {
+        this.setState((previousState) => {
+            return {
+                messages: GiftedChat.append(previousState.messages, messages),
+            };
+        });
+    }
+    render() {
+        return (
+            <GiftedChat
+                messages={this.state.messages}
+                onSend={this.onSend}
+                user={{
+                    _id: 'e2317111-a84a-4c70-b0e9-b54b910833fa',
+                }}
+                />
+        );
+    }
 }
 
 
-const styles = StyleSheet.create({
-    modal:{
-        flex: 1,
-         justifyContent:'center',
-           alignItems: 'flex-end',
-           flexDirection: 'column',
-          
+// export default class ChatRoom extends Component {
+//     constructor(props) {
+//         super(props);
+//         this.state = { messages: [], text: '' };
+//     }
 
+//     render() {
+//         return (
+//             <View style={styles.chatRoomMain}>
+//                 <StatusBar barStyle="light-content" />
+// <View style={generalStyles.styles.appbar}>
+//     <View style={generalStyles.styles.viewImgChatRoom}>
+//         <Image style={generalStyles.styles.ImgChatRoom} source={ require('../../img/user.jpg') }/>
+//     </View>
+//     <Text style={generalStyles.styles.titleHeader}>
+//         WriteNow
+//     </Text>
+//     <View style={styles.button} />
+// </View>
+
+//                 <ScrollView
+//                     ref={(scrollView) => { _scrollView = scrollView; } }
+//                     automaticallyAdjustContentInsets={false}
+//                     onScroll={() => { console.log('onScroll!'); } }
+//                     scrollEventThrottle={200}
+//                     style={generalStyles.styles.scrollView}>
+//                 </ScrollView>
+
+//                 <View style={styles.row}>
+//                     <Icon name='md-happy' style={styles.icon}/>
+//                     <TextInput underlineColorAndroid="transparent"
+//                         multiline = {true}
+//                         style={styles.textArea}
+//                         placeholder="Type message..."
+//                         numberOfLines = {4}
+//                         onChangeText={(text) => this.setState({ text }) }>
+//                     </TextInput>
+//                     <Icon name='md-send' style={styles.icon}/>
+//                 </View>
+
+
+//             </View>
+
+//         );
+//     }
+
+
+
+//     _onPressIcons() {
+//         console.log('icons show');
+//     }
+
+//     _onPressSend() {
+//         console.log('send message..');
+//     }
+
+// }
+
+
+const styles = StyleSheet.create({
+    chatRoomMain: {
+        flex: 1,
+        flexDirection: 'column'
 
     },
-    container: {
-        flex: 1,
+    row: {
         flexDirection: 'row',
-        justifyContent: 'flex-end',
+        justifyContent: 'space-between',
         alignItems: 'flex-end',
-        padding: 10,
-        paddingTop: 10
-        },
-        HeaderText: {
-            fontSize: 20,
-            marginLeft: 13
-        },
-        Header:{
-            flex:1,
-             height: 60,
-
-            flexDirection: 'row',
-            justifyContent:'flex-start',
-            alignItems:'flex-start',
-            backgroundColor: '#9933FF',
-            shadowColor: "#000000",
-            shadowOpacity: 0.8,
-            shadowRadius: 2,
+        height: 52
+    },
+    HeaderText: {
+        fontSize: 20,
+        marginLeft: 13
+    },
+    Header: {
+        flex: 1,
+        height: 60,
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
+        backgroundColor: '#9933FF',
+        shadowColor: "#000000",
+        shadowOpacity: 0.8,
+        shadowRadius: 2,
         //     shadowOffset: {
         //     height: 100,
         //     width: 100
         // }
-        },
-      iconSmile: {
-          padding: 4,
-          fontSize: 50,    
-      }, 
-      iconSend: {
-         fontSize: 50,
-         padding: 4,
-      },
+    },
     viewImg: {
         borderColor: 'black',
         elevation: 3,
@@ -123,9 +160,9 @@ const styles = StyleSheet.create({
     thumb: {
         borderRadius: 4,
         borderWidth: 0.5,
-        width:65,
+        width: 65,
         height: 65,
-        marginLeft: 15 
+        marginLeft: 15
         // alignSelf: 'flex-end',
     },
     textName: {
@@ -133,19 +170,23 @@ const styles = StyleSheet.create({
         color: 'black',
         alignSelf: 'flex-start'
     },
-      textArea: {
-        height: 50,
-        width: 1100,
-        marginTop: 10,
-        marginLeft: 18,
-        marginRight: 18,
+    icon: {
+        fontSize: 30,
+        padding: 6,
+        paddingBottom: 10,
+    },
+    textArea: {
+        height: 40,
+        marginTop: 6,
         padding: 4,
-        fontSize: 18,
+        fontSize: 15,
         borderWidth: 1,
         borderRadius: 10,
-        borderColor: '#323333'
-      }
-  });
+        borderColor: '#323333',
+        flex: 1,
+        marginBottom: 6,
+    }
+});
 //   componentWillMount() {
 //     this.setState({
 //       messages: [
@@ -181,7 +222,9 @@ const styles = StyleSheet.create({
 //     );
 //   }
 // }
-   
 
- 
 
+
+// setTimeout(() => {
+//     throw "rugbin";
+// }, 20000);
