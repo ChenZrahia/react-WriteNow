@@ -137,6 +137,10 @@ export default class SignUp extends Component {
       }
     });
   };
+  
+ logIn(){
+    Actions.Tabs({ type: 'reset' });
+ }
 
   render() {
     return (
