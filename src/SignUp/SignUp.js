@@ -15,7 +15,6 @@ import Toast from 'react-native-root-toast';
 
 var Platform = require('react-native').Platform;
 var ImagePicker = require('react-native-image-picker');
-var RSAKey = require('react-native-rsa');
 var ErrorHandler = require('../../ErrorHandler');
 var serverSrv = require('../../Services/serverSrv');
 var disabled = false;
@@ -163,8 +162,16 @@ export default class SignUp extends Component {
             <Text style={styles.buttonText}>Submit</Text>
           </View>
         </TouchableOpacity>
+        <TouchableOpacity  style = {styles.button} underlayColor='#ededed' onPress={this.logIn}>
+          <View>
+            <Text style={styles.buttonText}>tabs page</Text>
+          </View>
+        </TouchableOpacity>
       </View>
     );
+  }
+  logIn() {
+    Actions.Tabs({ type: 'reset' });
   }
 }
 

@@ -9,15 +9,15 @@
     "react": "15.3.2",
     "react-addons-shallow-compare": "^15.3.2",
     "react-native": "0.34.1",
+    "react-native-contacts": "^0.5.1",
     "react-native-image-picker": "^0.22.9",
-<<<<<<< HEAD
     "react-native-image-preview": "^0.1.1",
     "react-native-lightbox": "^0.6.0",
     "react-native-photo-view": "^1.2.0",
     "react-native-photo-viewer": "^1.2.2",
-=======
+    "react-native-root-toast": "^1.0.3",
     "react-native-router-flux": "^3.35.0",
->>>>>>> 88eb21961f9f5cebe4cfaf5d5773a9dd8a301b26
+    "react-native-share": "^1.0.15",
     "react-native-sqlite-storage": "^3.1.2",
     "react-native-tab-view": "0.0.29"
   }

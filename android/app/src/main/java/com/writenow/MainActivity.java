@@ -2,12 +2,10 @@ package com.writenow;
 
 import com.facebook.react.ReactActivity;
 import com.imagepicker.ImagePickerPackage;
-import com.imagepicker.ImagePickerPackage;
-import com.imagepicker.ImagePickerPackage;
-import com.imagepicker.ImagePickerPackage;
+import com.rt2zz.reactnativecontacts.ReactNativeContacts;
+
 //import cn.touna.reactnativersautil.ReactNativeRSAUtilPackage;
-//import com.imagepicker.ImagePickerPackage;
-//import com.imagepicker.ImagePickerPackage;
+
 public class MainActivity extends ReactActivity {
 
     //added by sagi uziel 1.10.16 -start

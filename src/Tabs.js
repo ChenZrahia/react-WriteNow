@@ -1,18 +1,12 @@
 import React, { Component } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TabViewAnimated, TabViewPage, TabBarTop } from 'react-native-tab-view';
-<<<<<<< HEAD
-import serverSrv from '../Services/serverSrv';
-import Contacts from './Contacts/Contacts';
-import SignUp from './SignUp/SignUp';
-=======
 import Contacts from './Contacts/Contacts'
 import SignUp from './SignUp/SignUp'
 import Chats from './Chats/Chats'
 import {Actions, Scene, Router} from 'react-native-router-flux';
 
 var serverSrv = require('../Services/serverSrv');
->>>>>>> 88eb21961f9f5cebe4cfaf5d5773a9dd8a301b26
 
 const styles = StyleSheet.create({
   container: {
@@ -80,11 +74,7 @@ export default class Tabs extends Component {
   _renderScene = ({ route }) => {
     switch (route.key) {
       case '1':
-<<<<<<< HEAD
-        return (<View style={[styles.page, { backgroundColor: '#F6F6F6' }]}><Contacts /></View>);
-=======
-        return <View style={[styles.page, { backgroundColor: 'white' }]} ><Contacts /></View>;
->>>>>>> 88eb21961f9f5cebe4cfaf5d5773a9dd8a301b26
+        return (<View style={[styles.page, { backgroundColor: 'white' }]}><Contacts /></View>);
       case '2':
         return <View style={[styles.page, { backgroundColor: 'white' }]}><Chats /></View>;
       case '3':

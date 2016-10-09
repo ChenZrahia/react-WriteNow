@@ -3,7 +3,7 @@ import {Actions} from 'react-native-router-flux';
 //import React from 'react-native';
 import './UserAgent';
 import io from 'socket.io-client/socket.io';
-var RSAKey = require('react-native-rsa');
+//var RSAKey = require('react-native-rsa');
 var SignUp = require('../src/SignUp/SignUp');
 
 //--------for dev mode only-----------//

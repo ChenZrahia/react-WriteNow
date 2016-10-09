@@ -25,6 +25,8 @@
 		3CF40342A7E748029327411E /* libRNImagePicker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F299286D7674D39B53B002F /* libRNImagePicker.a */; };
 		DB27AD62EBDB4CCEB3C8E2F8 /* libSQLite.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E5BEE2057408479ABA8634B4 /* libSQLite.a */; };
 		A14E48A6518A41AB91A1CCAB /* libReactNativeRSAUtil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A69E92622B144BF7A2F7BF55 /* libReactNativeRSAUtil.a */; };
+		EA2CF8D4238C4B47948B433F /* libRNShare.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A507FF370C741DEAF2F67B1 /* libRNShare.a */; };
+		50908A01F47147259F53D27F /* libRCTContacts.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABD97830B5E247C5991F2C16 /* libRCTContacts.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -135,6 +137,10 @@
 		E5BEE2057408479ABA8634B4 /* libSQLite.a */ = {isa = PBXFileReference; name = "libSQLite.a"; path = "libSQLite.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		67E103958F9D47CCACF6762D /* ReactNativeRSAUtil.xcodeproj */ = {isa = PBXFileReference; name = "ReactNativeRSAUtil.xcodeproj"; path = "../node_modules/react-native-rsa-util/iOS/ReactNativeRSAUtil.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		A69E92622B144BF7A2F7BF55 /* libReactNativeRSAUtil.a */ = {isa = PBXFileReference; name = "libReactNativeRSAUtil.a"; path = "libReactNativeRSAUtil.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		A837A7903BC0469D96287A3A /* RNShare.xcodeproj */ = {isa = PBXFileReference; name = "RNShare.xcodeproj"; path = "../node_modules/react-native-share/ios/RNShare.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		1A507FF370C741DEAF2F67B1 /* libRNShare.a */ = {isa = PBXFileReference; name = "libRNShare.a"; path = "libRNShare.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		6ECC42888FD54E6197646BF6 /* RCTContacts.xcodeproj */ = {isa = PBXFileReference; name = "RCTContacts.xcodeproj"; path = "../node_modules/react-native-contacts/ios/RCTContacts.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		ABD97830B5E247C5991F2C16 /* libRCTContacts.a */ = {isa = PBXFileReference; name = "libRCTContacts.a"; path = "libRCTContacts.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -163,6 +169,8 @@
 				3CF40342A7E748029327411E /* libRNImagePicker.a in Frameworks */,
 				DB27AD62EBDB4CCEB3C8E2F8 /* libSQLite.a in Frameworks */,
 				A14E48A6518A41AB91A1CCAB /* libReactNativeRSAUtil.a in Frameworks */,
+				EA2CF8D4238C4B47948B433F /* libRNShare.a in Frameworks */,
+				50908A01F47147259F53D27F /* libRCTContacts.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -288,6 +296,8 @@
 				4D189B81036947E19B4D21F5 /* RNImagePicker.xcodeproj */,
 				ACB3047DF2C14E47950E116B /* SQLite.xcodeproj */,
 				67E103958F9D47CCACF6762D /* ReactNativeRSAUtil.xcodeproj */,
+				A837A7903BC0469D96287A3A /* RNShare.xcodeproj */,
+				6ECC42888FD54E6197646BF6 /* RCTContacts.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -605,6 +615,8 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
 			name = Debug;
@@ -621,6 +633,8 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WriteNow.app/WriteNow";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -641,6 +655,8 @@
 					"$(SRCROOT)\..\node_modules\react-native-image-picker\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-sqlite-storage\src\ios",
 					"$(SRCROOT)\..\node_modules\react-native-rsa-util\iOS\ReactNativeRSAUtil",
+					"$(SRCROOT)\..\node_modules\react-native-share\ios",
+					"$(SRCROOT)\..\node_modules\react-native-contacts\ios\RCTContacts",
 				);
 				INFOPLIST_FILE = "WriteNow/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -666,6 +682,8 @@
 					"$(SRCROOT)\..\node_modules\react-native-image-picker\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-sqlite-storage\src\ios",
 					"$(SRCROOT)\..\node_modules\react-native-rsa-util\iOS\ReactNativeRSAUtil",
+					"$(SRCROOT)\..\node_modules\react-native-share\ios",
+					"$(SRCROOT)\..\node_modules\react-native-contacts\ios\RCTContacts",
 				);
 				INFOPLIST_FILE = "WriteNow/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -720,6 +738,8 @@
 					"$(SRCROOT)\..\node_modules\react-native-image-picker\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-sqlite-storage\src\ios",
 					"$(SRCROOT)\..\node_modules\react-native-rsa-util\iOS\ReactNativeRSAUtil",
+					"$(SRCROOT)\..\node_modules\react-native-share\ios",
+					"$(SRCROOT)\..\node_modules\react-native-contacts\ios\RCTContacts",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -763,6 +783,8 @@
 					"$(SRCROOT)\..\node_modules\react-native-image-picker\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-sqlite-storage\src\ios",
 					"$(SRCROOT)\..\node_modules\react-native-rsa-util\iOS\ReactNativeRSAUtil",
+					"$(SRCROOT)\..\node_modules\react-native-share\ios",
+					"$(SRCROOT)\..\node_modules\react-native-contacts\ios\RCTContacts",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
