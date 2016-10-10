@@ -34,6 +34,8 @@
 		CFDB46A5F7024FAFB6F3D7E5 /* Octicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E7A6012AD94345F4B6B85DF2 /* Octicons.ttf */; };
 		B988D4427C1E42C5A0F3BD96 /* Zocial.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D67D260651544CBA5A53B79 /* Zocial.ttf */; };
 		A14E48A6518A41AB91A1CCAB /* libReactNativeRSAUtil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A69E92622B144BF7A2F7BF55 /* libReactNativeRSAUtil.a */; };
+		EA2CF8D4238C4B47948B433F /* libRNShare.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A507FF370C741DEAF2F67B1 /* libRNShare.a */; };
+		50908A01F47147259F53D27F /* libRCTContacts.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABD97830B5E247C5991F2C16 /* libRCTContacts.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -154,6 +156,10 @@
 		5D67D260651544CBA5A53B79 /* Zocial.ttf */ = {isa = PBXFileReference; name = "Zocial.ttf"; path = "../node_modules/react-native-vector-icons/Fonts/Zocial.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		67E103958F9D47CCACF6762D /* ReactNativeRSAUtil.xcodeproj */ = {isa = PBXFileReference; name = "ReactNativeRSAUtil.xcodeproj"; path = "../node_modules/react-native-rsa-util/iOS/ReactNativeRSAUtil.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		A69E92622B144BF7A2F7BF55 /* libReactNativeRSAUtil.a */ = {isa = PBXFileReference; name = "libReactNativeRSAUtil.a"; path = "libReactNativeRSAUtil.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		A837A7903BC0469D96287A3A /* RNShare.xcodeproj */ = {isa = PBXFileReference; name = "RNShare.xcodeproj"; path = "../node_modules/react-native-share/ios/RNShare.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		1A507FF370C741DEAF2F67B1 /* libRNShare.a */ = {isa = PBXFileReference; name = "libRNShare.a"; path = "libRNShare.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		6ECC42888FD54E6197646BF6 /* RCTContacts.xcodeproj */ = {isa = PBXFileReference; name = "RCTContacts.xcodeproj"; path = "../node_modules/react-native-contacts/ios/RCTContacts.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		ABD97830B5E247C5991F2C16 /* libRCTContacts.a */ = {isa = PBXFileReference; name = "libRCTContacts.a"; path = "libRCTContacts.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -183,6 +189,8 @@
 				DB27AD62EBDB4CCEB3C8E2F8 /* libSQLite.a in Frameworks */,
 				88BD6455F70A4760B2F7A8D3 /* libRNVectorIcons.a in Frameworks */,
 				A14E48A6518A41AB91A1CCAB /* libReactNativeRSAUtil.a in Frameworks */,
+				EA2CF8D4238C4B47948B433F /* libRNShare.a in Frameworks */,
+				50908A01F47147259F53D27F /* libRCTContacts.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -309,6 +317,8 @@
 				ACB3047DF2C14E47950E116B /* SQLite.xcodeproj */,
 				A2009F4AAC304319949AB97D /* RNVectorIcons.xcodeproj */,
 				67E103958F9D47CCACF6762D /* ReactNativeRSAUtil.xcodeproj */,
+				A837A7903BC0469D96287A3A /* RNShare.xcodeproj */,
+				6ECC42888FD54E6197646BF6 /* RCTContacts.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -651,6 +661,8 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
 			name = Debug;
@@ -667,6 +679,8 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WriteNow.app/WriteNow";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -688,6 +702,8 @@
 					"$(SRCROOT)\..\node_modules\react-native-sqlite-storage\src\ios",
 					"$(SRCROOT)\..\node_modules\react-native-vector-icons\RNVectorIconsManager",
 					"$(SRCROOT)\..\node_modules\react-native-rsa-util\iOS\ReactNativeRSAUtil",
+					"$(SRCROOT)\..\node_modules\react-native-share\ios",
+					"$(SRCROOT)\..\node_modules\react-native-contacts\ios\RCTContacts",
 				);
 				INFOPLIST_FILE = "WriteNow/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -714,6 +730,8 @@
 					"$(SRCROOT)\..\node_modules\react-native-sqlite-storage\src\ios",
 					"$(SRCROOT)\..\node_modules\react-native-vector-icons\RNVectorIconsManager",
 					"$(SRCROOT)\..\node_modules\react-native-rsa-util\iOS\ReactNativeRSAUtil",
+					"$(SRCROOT)\..\node_modules\react-native-share\ios",
+					"$(SRCROOT)\..\node_modules\react-native-contacts\ios\RCTContacts",
 				);
 				INFOPLIST_FILE = "WriteNow/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -769,6 +787,8 @@
 					"$(SRCROOT)\..\node_modules\react-native-sqlite-storage\src\ios",
 					"$(SRCROOT)\..\node_modules\react-native-vector-icons\RNVectorIconsManager",
 					"$(SRCROOT)\..\node_modules\react-native-rsa-util\iOS\ReactNativeRSAUtil",
+					"$(SRCROOT)\..\node_modules\react-native-share\ios",
+					"$(SRCROOT)\..\node_modules\react-native-contacts\ios\RCTContacts",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -811,6 +831,9 @@
 					"$(SRCROOT)/../node_modules/react-native/React/**",
 					"$(SRCROOT)\..\node_modules\react-native-image-picker\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-sqlite-storage\src\ios",
+					"$(SRCROOT)\..\node_modules\react-native-rsa-util\iOS\ReactNativeRSAUtil",
+					"$(SRCROOT)\..\node_modules\react-native-share\ios",
+					"$(SRCROOT)\..\node_modules\react-native-contacts\ios\RCTContacts",
 					"$(SRCROOT)\..\node_modules\react-native-vector-icons\RNVectorIconsManager",
 					"$(SRCROOT)\..\node_modules\-util\iOS\ReactNativeRSAUtil",
 				);

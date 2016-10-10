@@ -15,7 +15,6 @@ import Toast from 'react-native-root-toast';
 
 var Platform = require('react-native').Platform;
 var ImagePicker = require('react-native-image-picker');
-// var RSAKey = require('react-native-rsa');
 var ErrorHandler = require('../../ErrorHandler');
 var serverSrv = require('../../Services/serverSrv');
 var disabled = false;
@@ -207,6 +206,9 @@ export default class SignUp extends Component {
         </TouchableOpacity>
       </View>
     );
+  }
+  logIn() {
+    Actions.Tabs({ type: 'reset' });
   }
 }
 
