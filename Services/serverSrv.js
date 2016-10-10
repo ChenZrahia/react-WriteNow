@@ -66,7 +66,7 @@ export function GetAllMyFriends(callback, isUpdate) {
             return;
         }
         db.transaction((tx) => {
-            tx.executeSql('SELECT * FROM Friends', [], (tx, rs) => {
+            tx.executeSql('SELECT * FROM Friends ORDER BY fullName', [], (tx, rs) => {
                 try {
                     var result = [];
                     for (var i = 0; i < rs.rows.length; i++) {
@@ -160,7 +160,7 @@ export function GetAllUserConv(callback, isUpdate) {
             return;
         }
         db.transaction((tx) => {
-            tx.executeSql('SELECT * FROM Conversation', [], (tx, rs) => {
+            tx.executeSql('SELECT * FROM Conversation ORDER BY lastMessageTime', [], (tx, rs) => {
                 try {
                     var result = [];
                     for (var i = 0; i < rs.rows.length; i++) {
@@ -198,7 +198,6 @@ export function GetAllUserConv(callback, isUpdate) {
 }
 
 //ChatRoom
-
 export function GetConv(callback, convId, isUpdate) {
     try {
         if (_myConvs && _myConvs[convId] && callback && !isUpdate) {
@@ -207,7 +206,7 @@ export function GetConv(callback, convId, isUpdate) {
         }
 
         db.transaction((tx) => {
-            tx.executeSql('SELECT * FROM Messages WHERE convId = ?', [convId], (tx, rs) => {
+            tx.executeSql('SELECT * FROM Messages WHERE convId = ? AND content IS NOT NULL ORDER BY sendTime DESC', [convId], (tx, rs) => {
                 try {
                     var result = [];
                     for (var i = 0; i < rs.rows.length; i++) {

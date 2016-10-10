@@ -15,7 +15,7 @@ export default class Chats extends Component {
         this.myChats = [];
         this.todayDate = new Date();
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-        this.myChats = this.sortDates(this.myChats);
+        //this.myChats = this.sortDates(this.myChats);
         this.state = {
             dataSource: ds.cloneWithRows(this.myChats)
         };

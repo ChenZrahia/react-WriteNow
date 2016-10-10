@@ -98,7 +98,7 @@ export default class Contacts extends Component {
                 this.setState({
                     dataSource: ds.cloneWithRows(array)
                 })
-            }, 1000);
+            }, 100);
         }
     }
 
