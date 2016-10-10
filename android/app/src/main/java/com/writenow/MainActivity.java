@@ -1,6 +1,7 @@
 package com.writenow;
 
 import com.facebook.react.ReactActivity;
+import com.rt2zz.reactnativecontacts.ReactNativeContacts;
 import com.imagepicker.ImagePickerPackage;
 import com.rt2zz.reactnativecontacts.ReactNativeContacts;
 
