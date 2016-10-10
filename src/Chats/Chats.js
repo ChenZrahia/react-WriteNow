@@ -28,6 +28,7 @@ export default class Chats extends Component {
                         this.setState({
                             dataSource: ds.cloneWithRows(result)
                         })
+                        
                     } catch (error) {
                         console.log('error');
                         console.log(error);
@@ -98,9 +99,9 @@ export default class Chats extends Component {
         }
     }
 
-    openChat() {
-        console.log('123');
-        Actions.ChatRoom();
+    openChat(rowData) {
+      
+        Actions.ChatRoom(rowData.id);
     }
 
     render() {
@@ -111,7 +112,7 @@ export default class Chats extends Component {
                     dataSource={this.state.dataSource}
                     renderRow={(rowData) =>
                         <TouchableHighlight underlayColor='#ededed' onPress={() => {
-                            this.openChat();
+                            this.openChat(rowData);
                         } }>
                             <View style={styles.row}>
                                 <View style={styles.viewImg}>
