@@ -15,6 +15,7 @@ import Toast from 'react-native-root-toast';
 
 var Platform = require('react-native').Platform;
 var ImagePicker = require('react-native-image-picker');
+
 var ErrorHandler = require('../../ErrorHandler');
 var serverSrv = require('../../Services/serverSrv');
 var disabled = false;
@@ -140,18 +141,54 @@ export default class SignUp extends Component {
   
  logIn(){
    var RSAKey = require('react-native-rsa');
+    var  ReactNativeRSAUtil = require("react-native-rsa-util");
   const bits = 1024;
   const exponent = '10001';
   var rsa = new RSAKey();
   rsa.generate(bits, exponent);
   var publicKey = rsa.getPublicString(); 
-  var privateKey = rsa.getPrivateString(); 
+  var privateKey = rsa.getPrivateString();
+   console.log('*********************');
+  console.log('private key : ' + rsa.getPrivateString());
+   console.log('*********************');
+  console.log('public key : ' + rsa.getPublicString()); 
   var rsa2 = new RSAKey();
-  rsa2.setPrivateString(privateKey);
-  var originText = 'Test 123 Test 321';
-  encrypted = rsa2.encrypt(originText);
-  var rsa3 = new RSAKey();
-  rsa3.setPublicString(publicKey);
+  
+  rsa2.setPublicString(rsa.getPublicString());
+  console.log('*********************');
+  console.log('public key : ' + rsa2.getPublicString());
+    var originText = 'Test 123 Test 321';
+    console.log('*********************');
+   var encrypted = rsa.encrypt(originText);
+   console.log(encrypted);
+  //   var decrypted = rsa.decrypt(encrypted); // decrypted == originText
+  //  console.log('decrypted: ' + decrypted);
+
+  //  ReactNativeRSAUtil.encryptStringWithPrivateKey(originText, privateKey)
+  //   .then((error, data) => {
+  //       if ( !error ) {
+  //           console.log(data);
+  //       }
+  //   });
+  //   ReactNativeRSAUtil.decryptStringWithPublicKey(encrypted, rsa2.getPublicString())
+  //   .then((error, data) => {
+  //       if ( !error ) {
+  //           console.log(data);
+  //       }
+  //   });
+  // rsa2.setPublicString(publicKey);
+  // rsa.setPrivateString(privateKey);
+  // console.log('*********************');
+  // console.log('private key : ' + rsa.getPrivateString());
+  // var originText = 'Test 123 Test 321';
+  // var encrypted = rsa.encrypt(originText);
+  // console.log('*********************');
+  // console.log(encrypted);
+  // console.log('*********************');
+  // console.log('public key : ' + rsa2.getPublicString());
+  // var decrypted = rsa2.decrypt(encrypted); // decrypted == originText
+  // console.log('decrypted: ' + decrypted);
+
   // var decrypted = rsa3.decrypt(encrypted);
   // console.log(decrypted);
   // var RSAKey = require('react-native-rsa');
@@ -206,9 +243,6 @@ export default class SignUp extends Component {
         </TouchableOpacity>
       </View>
     );
-  }
-  logIn() {
-    Actions.Tabs({ type: 'reset' });
   }
 }
 
