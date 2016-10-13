@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Image,
+import {
+    Image,
     ReactNative,
     ListView,
     TouchableHighlight,
@@ -7,10 +8,11 @@ import { Image,
     RecyclerViewBackedScrollView,
     Text,
     View,
-    Modal } from 'react-native';
+    Modal
+} from 'react-native';
 
 var serverSrv = require('../../Services/serverSrv');
-var PhoneContacts = require('react-native-contacts')
+var PhoneContacts = require('react-native-contacts');
 
 export default class Contacts extends Component {
     constructor() {
@@ -112,6 +114,8 @@ export default class Contacts extends Component {
                 <ListView style={{ paddingTop: 5, flex: 1 }}
                     enableEmptySections={true}
                     dataSource={this.state.dataSource}
+                    initialListSize={50}
+                    pageSize={100}
                     renderRow={(rowData) =>
                         <View>
                             <TouchableHighlight underlayColor='#ededed' onPress={() => {
@@ -122,7 +126,7 @@ export default class Contacts extends Component {
                                         this.setImageVisible(true);
                                     } }>
                                         <View style={styles.viewImg}>
-                                            <Image style={styles.thumb} source={ rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg') }/>
+                                            <Image style={styles.thumb} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
                                         </View>
                                     </TouchableHighlight>
                                     <View style={{ flexDirection: 'column' }}>
@@ -130,7 +134,7 @@ export default class Contacts extends Component {
                                             {rowData.publicInfo.fullName}
                                         </Text>
                                         <Text style={styles.textStatus}>
-                                            {rowData.isPhoneContact ? rowData.phoneNumber : (rowData.publicInfo.isOnline ? 'online' : 'offline') }
+                                            {rowData.phoneNumber}
                                         </Text>
                                     </View>
                                 </View>
@@ -148,7 +152,7 @@ export default class Contacts extends Component {
                         <TouchableHighlight onPress={() => {
                             this.setImageVisible(!this.state.imageVisible)
                         } }>
-                            <Image style={styles.imageInsideModal} source={ this.imgSelected }/>
+                            <Image style={styles.imageInsideModal} source={this.imgSelected} />
                         </TouchableHighlight>
                     </View>
                 </Modal>
