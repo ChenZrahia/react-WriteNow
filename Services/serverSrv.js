@@ -154,19 +154,15 @@ function GetAllMyFriends_Server(callback) {
 
 //Conversation
 export function GetAllUserConv(callback, isUpdate) {
-    console.log(new Date());
     try {
         if (_myChats && callback && !isUpdate) {
             callback(_myChats);
             return;
         }
-        console.log(new Date());
         db.transaction((tx) => {
-            console.log(new Date());
-            db.executeSql('SELECT * FROM Conversation ORDER BY lastMessageTime', [], (tx, rs) => {
+            tx.executeSql('SELECT * FROM Conversation ORDER BY lastMessageTime', [], (tx, rs) => {
                 try {
                     var result = [];
-                    console.log(new Date());
                     for (var i = 0; i < rs.rows.length; i++) {
                         var chat = {
                             id: rs.rows.item(i).id,
@@ -181,10 +177,8 @@ export function GetAllUserConv(callback, isUpdate) {
                         myChatsJson[rs.rows.item(i).id] = chat;
                         result.push(chat);
                     }
-                    console.log(new Date());
                     _myChats = result;
                     if (callback) {
-                        console.log(new Date());
                         callback(result);
                         if (_isFirstTime_Chats == true) {
                             _isFirstTime_Chats = false;
