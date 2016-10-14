@@ -52,18 +52,23 @@ export default class Contacts extends Component {
                 // x.x
             } else {
                 contacts = contacts.filter((user) => {
-                    if (user.phoneNumbers && user.phoneNumbers[0] && this.phnesNumbers.indexOf(user.phoneNumbers[0].number) < 0) {
-                        this.phnesNumbers.push(user.phoneNumbers[0].number);
-                        this.myContacts.push({
+                    if (user.phoneNumbers && user.phoneNumbers[0]) {
+                        var usr = {
                             isOnline: false,
                             isPhoneContact: true,
-                            phoneNumber: (user.phoneNumbers && user.phoneNumbers[0]) ? user.phoneNumbers[0].number.replace('+972 ', '0').replace(/-/g, '') : '',
+                            phoneNumber: (user.phoneNumbers && user.phoneNumbers[0]) ? user.phoneNumbers[0].number.replace(/[+]972/g, '0').replace(/[ ]|[-()]/g, '') : '',
                             publicInfo: {
                                 fullName: user.givenName + (user.middleName ? (' ' + user.middleName) : '') + (user.familyName ? (' ' + user.familyName) : ''),
                                 picture: user.thumbnailPath
                             }
-                        });
-                        return true;
+                        };
+                        if (this.phnesNumbers.indexOf(usr.phoneNumber) >= 0) {
+                            return false;
+                        } else {
+                            this.myContacts.push(usr);
+                            this.phnesNumbers.push(usr.phoneNumber);
+                            return true;
+                        }
                     } else {
                         return false;
                     }
@@ -136,12 +141,12 @@ export default class Contacts extends Component {
                     style={styles.searchBar}
                     placeholder={'Search'}
                     value={this.state.filter}
-                    onChange={this.onFilterChange.bind(this)}
+                    onChange={this.onFilterChange.bind(this) }
                     underlineColorAndroid='rgba(0,0,0,0)'
                     />
                 <ListView style={{ paddingTop: 5, flex: 1 }}
                     enableEmptySections={true}
-                    dataSource={this.getDataSource()}
+                    dataSource={this.getDataSource() }
                     pageSize={20}
                     renderRow={(rowData) =>
                         <View>
@@ -153,7 +158,7 @@ export default class Contacts extends Component {
                                         this.setImageVisible(true);
                                     } }>
                                         <View style={styles.viewImg}>
-                                            <Image style={styles.thumb} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
+                                            <Image style={styles.thumb} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg') } />
                                         </View>
                                     </TouchableHighlight>
                                     <View style={{ flexDirection: 'column' }}>
