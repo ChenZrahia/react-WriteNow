@@ -139,6 +139,39 @@ export default class SignUp extends Component {
   };
   
  logIn(){
+   var RSAKey = require('react-native-rsa');
+  const bits = 1024;
+  const exponent = '10001';
+  var rsa = new RSAKey();
+  rsa.generate(bits, exponent);
+  var publicKey = rsa.getPublicString(); 
+  var privateKey = rsa.getPrivateString(); 
+  var rsa2 = new RSAKey();
+  rsa2.setPrivateString(privateKey);
+  var originText = 'Test 123 Test 321';
+  encrypted = rsa2.encrypt(originText);
+  var rsa3 = new RSAKey();
+  rsa3.setPublicString(publicKey);
+  // var decrypted = rsa3.decrypt(encrypted);
+  // console.log(decrypted);
+  // var RSAKey = require('react-native-rsa');
+  // const bits = 1024;
+  // const exponent = '10001'; // must be a string. This is hex string. decimal = 65537
+  // var rsa = new RSAKey();
+  // rsa.generate(bits, exponent);
+  // var publicKey = rsa.getPublicString();
+  // console.log('*********************************');
+  // console.log('public key:' + publicKey); // return json encoded string
+  // var privateKey = rsa.getPrivateString();
+  // console.log('*********************************');
+  //  console.log('privatre key:' + privateKey); // return json encoded string
+  //  rsa.setPrivateString(privateKey);
+  // var originText = 'sample String Value';
+  // var encrypted = rsa.encrypt(originText);
+  // console.log('encrypted: ' + encrypted);
+  // rsa.setPublicString(publicKey);
+  // var decrypted = rsa.decrypt(encrypted); // decrypted == originText
+  //  console.log('decrypted: ' + decrypted);
     Actions.Tabs({ type: 'reset' });
  }
 

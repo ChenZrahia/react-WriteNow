@@ -37,7 +37,7 @@ export default class ChatRoom extends Component {
                 this.setState({
                     messages: data,
                 });
-            }, '938bece7-d81d-4401-93e1-1517263de035');
+            }, this.props.data);
         }, 1000);
 
     }

@@ -3,7 +3,7 @@ import {Actions} from 'react-native-router-flux';
 //import React from 'react-native';
 import './UserAgent';
 import io from 'socket.io-client/socket.io';
-
+// var RSAKey = require('react-native-rsa');
 var SignUp = require('../src/SignUp/SignUp');
 //--------for dev mode only-----------//
 var encryptedUid = 'UIP5n4v1jj24a+dHq6L/QqLwDFtPnSoebPzUe5+DWKOQ+rj5boKTAI6goMgySXHDj4BRMOa16wNV743D3/5WfRlXPrizY6nvi3XEmg/oPQvmNLlchDDjqZpQW8nfAS3IH9jZwDqFjxMKVkMau1SOLJxMroz7hTKVH7gOCGLHzik=';
@@ -66,7 +66,7 @@ export function GetAllMyFriends(callback, isUpdate) {
             return;
         }
         db.transaction((tx) => {
-            tx.executeSql('SELECT * FROM Friends', [], (tx, rs) => {
+            tx.executeSql('SELECT * FROM Friends ORDER BY fullName', [], (tx, rs) => {
                 try {
                     var result = [];
                     for (var i = 0; i < rs.rows.length; i++) {
@@ -160,7 +160,7 @@ export function GetAllUserConv(callback, isUpdate) {
             return;
         }
         db.transaction((tx) => {
-            tx.executeSql('SELECT * FROM Conversation', [], (tx, rs) => {
+            tx.executeSql('SELECT * FROM Conversation ORDER BY lastMessageTime', [], (tx, rs) => {
                 try {
                     var result = [];
                     for (var i = 0; i < rs.rows.length; i++) {
@@ -198,16 +198,15 @@ export function GetAllUserConv(callback, isUpdate) {
 }
 
 //ChatRoom
-
 export function GetConv(callback, convId, isUpdate) {
     try {
         if (_myConvs && _myConvs[convId] && callback && !isUpdate) {
-            callback(_myConvs[convId]);
+            callback(_myConvs[convId].messages);
             return;
         }
 
         db.transaction((tx) => {
-            tx.executeSql('SELECT * FROM Messages WHERE convId = ?', [convId], (tx, rs) => {
+            tx.executeSql('SELECT * FROM Messages WHERE convId = ? AND content IS NOT NULL ORDER BY sendTime DESC', [convId], (tx, rs) => {
                 try {
                     var result = [];
                     for (var i = 0; i < rs.rows.length; i++) {
@@ -226,6 +225,7 @@ export function GetConv(callback, convId, isUpdate) {
                         myChatsJson[rs.rows.item(i).id] = chat;
                         result.push(chat);
                     }
+
                     if (_myConvs[convId]) {
                         _myConvs[convId].messages = result;
                     } else {
@@ -332,13 +332,13 @@ function GetAllUserConv_Server(callback) {
                     if (data[i].deletedConv == true && data[i].id) {
                         tx.executeSql('DELETE FROM Conversation WHERE id=?', [data[i].id]);
                     } else if (data[i].isExist == true) {
-                        tx.executeSql('UPDATE Conversation ' +
+                        tx.executeSql(' UPDATE Conversation ' +
                             ' set isEncrypted = ?, ' +
                             ' manager = ?, ' +
                             ' groupName = ?, ' +
                             ' lastMessage = ?,' +
-                            ' lastMessageTime = ?, ' +
-                            ' WHERE id = ? ', [data[i].isEncrypted, data[i].manager, data[i].groupName, data[i].lastMessage, data[i].lastMessageTime, data[i].id]);
+                            ' lastMessageTime = ? ' +
+                            ' WHERE id = ? ', [data[i].isEncrypted, data[i].manager, data[i].groupName, data[i].lastMessage, data[i].lastMessageTime, data[i].id], null, errorDB);
                     } else {
                         tx.executeSql('INSERT INTO Conversation VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
                             [data[i].id,

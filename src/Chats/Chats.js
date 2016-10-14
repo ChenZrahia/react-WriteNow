@@ -15,7 +15,7 @@ export default class Chats extends Component {
         this.myChats = [];
         this.todayDate = new Date();
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-        this.myChats = this.sortDates(this.myChats);
+        //this.myChats = this.sortDates(this.myChats);
         this.state = {
             dataSource: ds.cloneWithRows(this.myChats)
         };
@@ -28,6 +28,7 @@ export default class Chats extends Component {
                         this.setState({
                             dataSource: ds.cloneWithRows(result)
                         })
+                        
                     } catch (error) {
                         console.log('error');
                         console.log(error);
@@ -98,9 +99,9 @@ export default class Chats extends Component {
         }
     }
 
-    openChat() {
-        console.log('123');
-        Actions.ChatRoom();
+    openChat(rowData) {
+      
+        Actions.ChatRoom(rowData.id);
     }
 
     render() {
@@ -111,7 +112,7 @@ export default class Chats extends Component {
                     dataSource={this.state.dataSource}
                     renderRow={(rowData) =>
                         <TouchableHighlight underlayColor='#ededed' onPress={() => {
-                            this.openChat();
+                            this.openChat(rowData);
                         } }>
                             <View style={styles.row}>
                                 <View style={styles.viewImg}>
