@@ -111,6 +111,12 @@ export default class Contacts extends Component {
             <View style={{ flex: 1, alignSelf: 'stretch' }}>
                 <ListView style={{ paddingTop: 5, flex: 1 }}
                     enableEmptySections={true}
+
+        keyboardShouldPersistTaps={true}
+        automaticallyAdjustContentInsets={false}
+        initialListSize={20}
+        pageSize={20}
+
                     dataSource={this.state.dataSource}
                     renderRow={(rowData) =>
                         <View>
