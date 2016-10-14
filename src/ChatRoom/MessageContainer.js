@@ -138,7 +138,7 @@ renderScrollComponent(props) {
 render() {
   return (
 
-    <View ref='container' style={{ flex: 2, backgroundColor: '#f8f8f8', elevation: 3, }}>
+    <View ref='container' style={{ flex: 2, backgroundColor: '#f8f8f8' }}>
       <ListView
         enableEmptySections={true}
         keyboardShouldPersistTaps={true}

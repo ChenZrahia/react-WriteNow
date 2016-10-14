@@ -36,6 +36,7 @@
 		A14E48A6518A41AB91A1CCAB /* libReactNativeRSAUtil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A69E92622B144BF7A2F7BF55 /* libReactNativeRSAUtil.a */; };
 		EA2CF8D4238C4B47948B433F /* libRNShare.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A507FF370C741DEAF2F67B1 /* libRNShare.a */; };
 		50908A01F47147259F53D27F /* libRCTContacts.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABD97830B5E247C5991F2C16 /* libRCTContacts.a */; };
+		A286F056EEAD45E39AF90581 /* librncrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E4814CC2D2146D6AD318C5B /* librncrypto.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -160,6 +161,8 @@
 		1A507FF370C741DEAF2F67B1 /* libRNShare.a */ = {isa = PBXFileReference; name = "libRNShare.a"; path = "libRNShare.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		6ECC42888FD54E6197646BF6 /* RCTContacts.xcodeproj */ = {isa = PBXFileReference; name = "RCTContacts.xcodeproj"; path = "../node_modules/react-native-contacts/ios/RCTContacts.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		ABD97830B5E247C5991F2C16 /* libRCTContacts.a */ = {isa = PBXFileReference; name = "libRCTContacts.a"; path = "libRCTContacts.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		504DDAFE27F84F48ADF6AC05 /* rncrypto.xcodeproj */ = {isa = PBXFileReference; name = "rncrypto.xcodeproj"; path = "../node_modules/react-native-rncrypto/ios/rncrypto.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		1E4814CC2D2146D6AD318C5B /* librncrypto.a */ = {isa = PBXFileReference; name = "librncrypto.a"; path = "librncrypto.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -191,6 +194,7 @@
 				A14E48A6518A41AB91A1CCAB /* libReactNativeRSAUtil.a in Frameworks */,
 				EA2CF8D4238C4B47948B433F /* libRNShare.a in Frameworks */,
 				50908A01F47147259F53D27F /* libRCTContacts.a in Frameworks */,
+				A286F056EEAD45E39AF90581 /* librncrypto.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -319,6 +323,7 @@
 				67E103958F9D47CCACF6762D /* ReactNativeRSAUtil.xcodeproj */,
 				A837A7903BC0469D96287A3A /* RNShare.xcodeproj */,
 				6ECC42888FD54E6197646BF6 /* RCTContacts.xcodeproj */,
+				504DDAFE27F84F48ADF6AC05 /* rncrypto.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -663,6 +668,7 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
 			name = Debug;
@@ -679,6 +685,7 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WriteNow.app/WriteNow";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -704,6 +711,7 @@
 					"$(SRCROOT)\..\node_modules\react-native-rsa-util\iOS\ReactNativeRSAUtil",
 					"$(SRCROOT)\..\node_modules\react-native-share\ios",
 					"$(SRCROOT)\..\node_modules\react-native-contacts\ios\RCTContacts",
+					"$(SRCROOT)\..\node_modules\react-native-rncrypto\ios\rncrypto/**",
 				);
 				INFOPLIST_FILE = "WriteNow/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -732,6 +740,7 @@
 					"$(SRCROOT)\..\node_modules\react-native-rsa-util\iOS\ReactNativeRSAUtil",
 					"$(SRCROOT)\..\node_modules\react-native-share\ios",
 					"$(SRCROOT)\..\node_modules\react-native-contacts\ios\RCTContacts",
+					"$(SRCROOT)\..\node_modules\react-native-rncrypto\ios\rncrypto/**",
 				);
 				INFOPLIST_FILE = "WriteNow/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -789,6 +798,7 @@
 					"$(SRCROOT)\..\node_modules\react-native-rsa-util\iOS\ReactNativeRSAUtil",
 					"$(SRCROOT)\..\node_modules\react-native-share\ios",
 					"$(SRCROOT)\..\node_modules\react-native-contacts\ios\RCTContacts",
+					"$(SRCROOT)\..\node_modules\react-native-rncrypto\ios\rncrypto/**",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -836,6 +846,7 @@
 					"$(SRCROOT)\..\node_modules\react-native-contacts\ios\RCTContacts",
 					"$(SRCROOT)\..\node_modules\react-native-vector-icons\RNVectorIconsManager",
 					"$(SRCROOT)\..\node_modules\-util\iOS\ReactNativeRSAUtil",
+					"$(SRCROOT)\..\node_modules\react-native-rncrypto\ios\rncrypto/**",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;

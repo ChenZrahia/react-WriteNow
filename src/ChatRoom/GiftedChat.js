@@ -369,6 +369,7 @@ onType(e) {
       messagesContainerHeight: this.prepareMessagesContainerHeight(newMessagesContainerHeight),
     };
   });
+  this.props.onType(newText);
 }
 
 renderInputToolbar() {
