@@ -161,21 +161,8 @@ export default class SignUp extends Component {
     console.log('*********************');
    var encrypted = rsa.encrypt(originText);
    console.log(encrypted);
-  //   var decrypted = rsa.decrypt(encrypted); // decrypted == originText
-  //  console.log('decrypted: ' + decrypted);
 
-  //  ReactNativeRSAUtil.encryptStringWithPrivateKey(originText, privateKey)
-  //   .then((error, data) => {
-  //       if ( !error ) {
-  //           console.log(data);
-  //       }
-  //   });
-  //   ReactNativeRSAUtil.decryptStringWithPublicKey(encrypted, rsa2.getPublicString())
-  //   .then((error, data) => {
-  //       if ( !error ) {
-  //           console.log(data);
-  //       }
-  //   });
+ 
   // rsa2.setPublicString(publicKey);
   // rsa.setPrivateString(privateKey);
   // console.log('*********************');
