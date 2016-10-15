@@ -6,6 +6,10 @@ export function WriteError(stackTrace, e){
         serverSrv.socket.on('WriteErrorOk', function(){
             isOk = true;
         });
+        console.log('--ERROR--');
+        console.log(stackTrace);
+        console.log(e);
+        console.log('--ERROR--');
         serverSrv.socket.emit('WriteError',  e.message, stackTrace);
         setTimeout(() => {
             if(isOk == false){

@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import GiftedChat from './GiftedChat';
 import { Container, Content, Icon } from 'native-base';
-import { Image,
+import {
+    Image,
     ReactNative,
     ListView,
     TouchableHighlight,
@@ -13,10 +14,12 @@ import { Image,
     Dimensions,
     StatusBar,
     ScrollView,
-    View, } from 'react-native';
+    View,
+} from 'react-native';
 
 var serverSrv = require('../../Services/serverSrv');
 var generalStyles = require('../../styles/generalStyle');
+var ErrorHandler = require('../../ErrorHandler');
 
 
 
@@ -32,6 +35,7 @@ export default class ChatRoom extends Component {
         this.indexOnlineMessages = [];
         this.onlineMessages = [];
         serverSrv.onServerTyping(this.onFriendType);
+        //serverSrv.onServerTyping(this.onFriendType);
     }
 
     componentWillMount() {
@@ -40,7 +44,10 @@ export default class ChatRoom extends Component {
                 if (!data) {
                     data = [];
                 }
+                console.log(111111);
+                console.log(this.props.data);
                 this.messages = data;
+                console.log(data);
                 this.setState({
                     messages: GiftedChat.append(this.messages, this.onlineMessages),
                 });
@@ -63,6 +70,9 @@ export default class ChatRoom extends Component {
         if (!this.messages) {
             this.messages = [];
         }
+        if (!msg.id) {
+            msg.id = this.guid();
+        }
         if (!msg._id) {
             msg._id = msg.id;
         }
@@ -83,11 +93,17 @@ export default class ChatRoom extends Component {
             }
         }
 
-        this.setState((previousState) => {
-            return {
-                messages: GiftedChat.append(this.messages, this.onlineMessages),
-            };
-        });
+        if (msg.sendTime) {
+            this.onSend(this.onlineMessages[this.onlineMessages.indexOf(this.indexOnlineMessages[msg._id])]);
+        } else {
+            this.setState((previousState) => {
+                return {
+                    messages: GiftedChat.append(this.messages, this.onlineMessages),
+                };
+            });
+        }
+
+
 
         //this.onSend(this.onlineMessages);
 
@@ -127,10 +143,24 @@ export default class ChatRoom extends Component {
 
     onSend(messages = []) {
         try {
-            messages.forEach((msg) => {
-                this.messages.splice(0,0,msg); //push
-                this.onlineMessages.splice(this.onlineMessages.indexOf(msg),1);
-            }, this);
+            if (!messages.forEach) {
+                messages = [messages];
+            }
+            for (let msg of messages) {
+                if (msg.createdAt) {
+                    msg.sendTime = msg.createdAt;
+                } else {
+                    msg.createdAt = msg.sendTime;
+                }
+                this.messages.splice(0, 0, msg); //push
+                this.onlineMessages.splice(this.onlineMessages.indexOf(this.indexOnlineMessages[msg._id]), 1);
+                if (msg.from == serverSrv._uid) {
+                    serverSrv.saveNewMessage(msg);
+                } else {
+                    
+                }
+                //this.onlineMessages.splice(this.onlineMessages.indexOf(msg), 1);
+            }
             this.setState((previousState) => {
                 return {
                     messages: GiftedChat.append(this.messages, this.onlineMessages),
@@ -155,14 +185,6 @@ export default class ChatRoom extends Component {
             lastTypingTime: Date.now(),
             content: text
         });
-        // this.onFriendType({
-        //     mid: this._messageId,
-        //     id: this._messageId,
-        //     convId: this.convId,
-        //     isEncrypted: false,
-        //     lastTypingTime: Date.now(),
-        //     content: text
-        // });
     }
 
     render() {
