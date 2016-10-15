@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Image,
+import {
+    Image,
     ReactNative,
     ListView,
     TouchableHighlight,
@@ -7,10 +8,12 @@ import { Image,
     RecyclerViewBackedScrollView,
     Text,
     View,
-    Modal } from 'react-native';
+    Modal,
+    TextInput
+} from 'react-native';
 
 var serverSrv = require('../../Services/serverSrv');
-var PhoneContacts = require('react-native-contacts')
+var PhoneContacts = require('react-native-contacts');
 
 export default class Contacts extends Component {
     constructor() {
@@ -23,7 +26,8 @@ export default class Contacts extends Component {
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         this.state = {
             dataSource: ds.cloneWithRows(this.myFriends),
-            imageVisible: false
+            imageVisible: false,
+            filter: ''
         };
 
         serverSrv.GetAllMyFriends((result) => {
@@ -48,18 +52,23 @@ export default class Contacts extends Component {
                 // x.x
             } else {
                 contacts = contacts.filter((user) => {
-                    if (user.phoneNumbers && user.phoneNumbers[0] && this.phnesNumbers.indexOf(user.phoneNumbers[0].number) < 0) {
-                        this.phnesNumbers.push(user.phoneNumbers[0].number);
-                        this.myContacts.push({
+                    if (user.phoneNumbers && user.phoneNumbers[0]) {
+                        var usr = {
                             isOnline: false,
                             isPhoneContact: true,
-                            phoneNumber: (user.phoneNumbers && user.phoneNumbers[0]) ? user.phoneNumbers[0].number.replace(/-/g, '').replace('+972 ', '0') : '',
+                            phoneNumber: (user.phoneNumbers && user.phoneNumbers[0]) ? user.phoneNumbers[0].number.replace(/[+]972/g, '0').replace(/[ ]|[-()]/g, '') : '',
                             publicInfo: {
                                 fullName: user.givenName + (user.middleName ? (' ' + user.middleName) : '') + (user.familyName ? (' ' + user.familyName) : ''),
                                 picture: user.thumbnailPath
                             }
-                        });
-                        return true;
+                        };
+                        if (this.phnesNumbers.indexOf(usr.phoneNumber) >= 0) {
+                            return false;
+                        } else {
+                            this.myContacts.push(usr);
+                            this.phnesNumbers.push(usr.phoneNumber);
+                            return true;
+                        }
                     } else {
                         return false;
                     }
@@ -98,7 +107,7 @@ export default class Contacts extends Component {
                 this.setState({
                     dataSource: ds.cloneWithRows(array)
                 })
-            }, 1000);
+            }, 100);
         }
     }
 
@@ -106,12 +115,39 @@ export default class Contacts extends Component {
         this.setState({ imageVisible: visible });
     }
 
+    onFilterChange(event) {
+        this.setState({
+            filter: event.nativeEvent.text
+        });
+    }
+
+    getDataSource() {
+        //if filter is empty - return original data source
+        if (!this.state.filter) {
+            return this.state.dataSource.cloneWithRows(this.myFriends);
+        }
+        //create filtered datasource
+        let filteredContacts = this.myFriends;
+        filteredContacts = this.myFriends.filter((user) => {
+            return user.publicInfo.fullName.includes(this.state.filter);
+        });
+        return this.state.dataSource.cloneWithRows(filteredContacts);
+    }
+
     render() {
         return (
             <View style={{ flex: 1, alignSelf: 'stretch' }}>
+                <TextInput
+                    style={styles.searchBar}
+                    placeholder={'Search'}
+                    value={this.state.filter}
+                    onChange={this.onFilterChange.bind(this) }
+                    underlineColorAndroid='rgba(0,0,0,0)'
+                    />
                 <ListView style={{ paddingTop: 5, flex: 1 }}
                     enableEmptySections={true}
-                    dataSource={this.state.dataSource}
+                    dataSource={this.getDataSource() }
+                    pageSize={20}
                     renderRow={(rowData) =>
                         <View>
                             <TouchableHighlight underlayColor='#ededed' onPress={() => {
@@ -122,7 +158,7 @@ export default class Contacts extends Component {
                                         this.setImageVisible(true);
                                     } }>
                                         <View style={styles.viewImg}>
-                                            <Image style={styles.thumb} source={ rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg') }/>
+                                            <Image style={styles.thumb} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg') } />
                                         </View>
                                     </TouchableHighlight>
                                     <View style={{ flexDirection: 'column' }}>
@@ -130,7 +166,7 @@ export default class Contacts extends Component {
                                             {rowData.publicInfo.fullName}
                                         </Text>
                                         <Text style={styles.textStatus}>
-                                            {rowData.isPhoneContact ? rowData.phoneNumber : (rowData.publicInfo.isOnline ? 'online' : 'offline') }
+                                            {rowData.phoneNumber}
                                         </Text>
                                     </View>
                                 </View>
@@ -148,7 +184,7 @@ export default class Contacts extends Component {
                         <TouchableHighlight onPress={() => {
                             this.setImageVisible(!this.state.imageVisible)
                         } }>
-                            <Image style={styles.imageInsideModal} source={ this.imgSelected }/>
+                            <Image style={styles.imageInsideModal} source={this.imgSelected} />
                         </TouchableHighlight>
                     </View>
                 </Modal>
@@ -201,5 +237,12 @@ var styles = StyleSheet.create({
         height: 200,
         borderRadius: 10,
         borderWidth: 1
+    },
+    searchBar: {
+        borderWidth: 0.5,
+        alignSelf: 'stretch',
+        height: 40,
+        paddingLeft: 20,
+        margin: 5,
     }
 });

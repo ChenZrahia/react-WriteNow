@@ -33,7 +33,6 @@ public class MainApplication extends Application implements ReactApplication {
                
             new ImagePickerPackage(),
             new ReactNativeContacts()
-
       );
     }
   };

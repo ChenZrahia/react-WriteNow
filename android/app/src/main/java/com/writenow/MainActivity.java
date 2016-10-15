@@ -1,11 +1,11 @@
 package com.writenow;
 
 import com.facebook.react.ReactActivity;
-
-
+import com.imagepicker.ImagePickerPackage;
 import com.rt2zz.reactnativecontacts.ReactNativeContacts;
 import com.imagepicker.ImagePickerPackage;
 import com.rt2zz.reactnativecontacts.ReactNativeContacts;
+import com.imagepicker.ImagePickerPackage;
 
 public class MainActivity extends ReactActivity {
 
@@ -21,5 +21,6 @@ public class MainActivity extends ReactActivity {
     @Override
     protected String getMainComponentName() {
         return "WriteNow";
+        
     }
 }

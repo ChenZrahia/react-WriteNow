@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import GiftedChat from './GiftedChat';
 import { Container, Content, Icon } from 'native-base';
-import { Image,
+import {
+    Image,
     ReactNative,
     ListView,
     TouchableHighlight,
@@ -13,48 +14,186 @@ import { Image,
     Dimensions,
     StatusBar,
     ScrollView,
-    View, } from 'react-native';
+    View,
+} from 'react-native';
 
 var serverSrv = require('../../Services/serverSrv');
 var generalStyles = require('../../styles/generalStyle');
+var ErrorHandler = require('../../ErrorHandler');
 
 
 
 export default class ChatRoom extends Component {
     constructor(props) {
         super(props);
+        this._messageId = null;
         this.state = { messages: [] };
         this.onSend = this.onSend.bind(this);
+        this.onType = this.onType.bind(this);
+        this.onFriendType = this.onFriendType.bind(this);
+        this.messages = [];
+        this.indexOnlineMessages = [];
+        this.onlineMessages = [];
+        serverSrv.onServerTyping(this.onFriendType);
+        //serverSrv.onServerTyping(this.onFriendType);
     }
 
     componentWillMount() {
-        serverSrv.GetAllMyFriends(); //-----
         setTimeout(() => {
             serverSrv.GetConv((data) => {
                 if (!data) {
                     data = [];
                 }
+                this.messages = data;
                 this.setState({
-                    messages: data,
+                    messages: GiftedChat.append(this.messages, this.onlineMessages),
                 });
-            }, this.props.data);
+            }, this.props.id);
         }, 1000);
 
     }
+
+    guid() {
+        function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+        }
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
+    }
+
+    onFriendType(msg) {
+        if (!this.messages) {
+            this.messages = [];
+        }
+        if (!msg.id) {
+            msg.id = this.guid();
+        }
+        if (!msg._id) {
+            msg._id = msg.id;
+        }
+        if (!msg.user) {
+            msg.user = { id: '123', name: 'sagi', avatar: '' };
+        }
+        msg.text = msg.content;
+        if (!this.indexOnlineMessages[msg._id]) { //new message
+            this.indexOnlineMessages[msg._id] = msg;
+            this.onlineMessages.push(this.indexOnlineMessages[msg._id]);
+        } else {
+            this.indexOnlineMessages[msg._id].text = msg.content;
+            this.indexOnlineMessages[msg._id].content = msg.content;
+            if (!msg.content || msg.content.length == 0) {
+                this._messageId = null;
+                this.onlineMessages.splice(this.onlineMessages.indexOf(this.indexOnlineMessages[msg._id]), 1);
+                delete this.indexOnlineMessages[msg._id];
+            }
+        }
+
+        if (msg.sendTime) {
+            this.onSend(this.onlineMessages[this.onlineMessages.indexOf(this.indexOnlineMessages[msg._id])]);
+        } else {
+            this.setState((previousState) => {
+                return {
+                    messages: GiftedChat.append(this.messages, this.onlineMessages),
+                };
+            });
+        }
+
+
+
+        //this.onSend(this.onlineMessages);
+
+        // try {
+        //     if (!msg.content || msg.content.length == 0) {
+        //         if (this.message[msg.from]) {
+        //             this.message[msg.from].content = msg.content;
+        //         }
+        //         //this.messageId = this.guid();
+        //         var index = this.messages.indexOf(this.message[msg.from]);//------
+        //         if (index >= 0) {
+        //             this.messages.splice(index, 1);
+        //         }
+        //         delete this.message[msg.from];
+        //     }
+        //     else if (!this.message[msg.from] || this.messages.indexOf(this.message[msg.from]) < 0) {
+        //         this.message[msg.from] = msg;
+        //         this.messages.push(this.message[msg.from]);
+        //     }
+        //     else if (msg.lastTypingTime > this.message[msg.from].lastTypingTime || true) {
+        //         this.message[msg.from].content = msg.content;
+        //         this.message[msg.from].text = msg.content;
+        //     }
+        //     if (msg.sendTime) {
+        //         this.timeMsgClass(msg);
+        //         if (this.message[msg.from] && this.messages.indexOf(this.message[msg.from]) >= 0) {
+        //             this.messages[this.messages.indexOf(this.message[msg.from])].sendTime = msg.sendTime;
+        //         }
+        //         this.messageId = this.guid();
+        //         delete this.message[msg.from];
+        //     }
+        // } catch (e) {
+        //     console.log(e);
+        //     //this._errorHandlerService.writeError('constructor => typing', e);
+        // }
+    }
+
     onSend(messages = []) {
-        this.setState((previousState) => {
-            return {
-                messages: GiftedChat.append(previousState.messages, messages),
-            };
+        try {
+            if (!messages.forEach) {
+                messages = [messages];
+            }
+            for (let msg of messages) {
+                if (msg.createdAt) {
+                    msg.sendTime = msg.createdAt;
+                } else {
+                    msg.createdAt = msg.sendTime;
+                }
+                this.messages.splice(0, 0, msg); //push
+                this.onlineMessages.splice(this.onlineMessages.indexOf(this.indexOnlineMessages[msg._id]), 1);
+                if (msg.from == serverSrv._uid) {
+                    serverSrv.saveNewMessage(msg);
+                } else {
+                    
+                }
+                //this.onlineMessages.splice(this.onlineMessages.indexOf(msg), 1);
+            }
+            this.setState((previousState) => {
+                return {
+                    messages: GiftedChat.append(this.messages, this.onlineMessages),
+                };
+            });
+        } catch (error) {
+            console.log(error);
+        }
+
+        this._messageId = null;
+    }
+
+    onType(text) {
+        if (this._messageId == null) {
+            this._messageId = this.guid();
+        }
+        serverSrv.Typing({
+            mid: this._messageId,
+            id: this._messageId,
+            convId: this.props.data,
+            isEncrypted: false,
+            lastTypingTime: Date.now(),
+            content: text
         });
     }
+
     render() {
         return (
             <GiftedChat
+                userName={this.props.groupName}
+                userPicture={this.props.groupPicture}
                 messages={this.state.messages}
                 onSend={this.onSend}
+                onType={this.onType}
                 user={{
-                    _id: 'e2317111-a84a-4c70-b0e9-b54b910833fa',
+                    _id: serverSrv._uid,
                 }}
                 />
         );

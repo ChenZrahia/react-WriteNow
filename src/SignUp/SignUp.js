@@ -140,27 +140,26 @@ export default class SignUp extends Component {
   };
   
  logIn(){
-   var RSAKey = require('react-native-rsa');
-    var  ReactNativeRSAUtil = require("react-native-rsa-util");
-  const bits = 1024;
-  const exponent = '10001';
-  var rsa = new RSAKey();
-  rsa.generate(bits, exponent);
-  var publicKey = rsa.getPublicString(); 
-  var privateKey = rsa.getPrivateString();
-   console.log('*********************');
-  console.log('private key : ' + rsa.getPrivateString());
-   console.log('*********************');
-  console.log('public key : ' + rsa.getPublicString()); 
-  var rsa2 = new RSAKey();
-  
-  rsa2.setPublicString(rsa.getPublicString());
-  console.log('*********************');
-  console.log('public key : ' + rsa2.getPublicString());
-    var originText = 'Test 123 Test 321';
-    console.log('*********************');
-   var encrypted = rsa.encrypt(originText);
-   console.log(encrypted);
+  // var RSAKey = require('react-native-rsa');
+  // var  ReactNativeRSAUtil = require("react-native-rsa-util");
+  // const bits = 1024;
+  // const exponent = '10001';
+  // var rsa = new RSAKey();
+  // rsa.generate(bits, exponent);
+  // var publicKey = rsa.getPublicString(); 
+  // var privateKey = rsa.getPrivateString();
+  // console.log('*********************');
+  // console.log('private key : ' + rsa.getPrivateString());
+  // console.log('*********************');
+  // console.log('public key : ' + rsa.getPublicString()); 
+  // var rsa2 = new RSAKey();
+  // rsa2.setPublicString(rsa.getPublicString());
+  // console.log('*********************');
+  // console.log('public key : ' + rsa2.getPublicString());
+  // var originText = 'Test 123 Test 321';
+  // console.log('*********************');
+  // var encrypted = rsa.encrypt(originText);
+  // console.log(encrypted);
 
  
   // rsa2.setPublicString(publicKey);

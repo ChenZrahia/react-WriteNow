@@ -42,6 +42,7 @@ export default class GiftedChat extends React.Component {
   constructor(props) {
     super(props);
 
+
     // default values
     this._isMounted = false;
     this._keyboardHeight = 0;
@@ -369,6 +370,7 @@ onType(e) {
       messagesContainerHeight: this.prepareMessagesContainerHeight(newMessagesContainerHeight),
     };
   });
+  this.props.onType(newText);
 }
 
 renderInputToolbar() {
@@ -413,10 +415,10 @@ render() {
       <View style={styles.chatRoomMain}>
         <View style={generalStyles.styles.appbar}>
           <View style={generalStyles.styles.viewImgChatRoom}>
-            <Image style={generalStyles.styles.ImgChatRoom} source={ require('../../img/user.jpg') }/>
+            <Image style={generalStyles.styles.ImgChatRoom} source={ {uri: this.props.userPicture} }/>
           </View>
           <Text style={generalStyles.styles.titleHeader}>
-            WriteNow
+           {this.props.userName}
           </Text>
           <View style={styles.button} />
         </View>

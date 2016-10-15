@@ -8,6 +8,7 @@ import { Image,
     View, } from 'react-native';
 import {Actions} from 'react-native-router-flux';
 var serverSrv = require('../../Services/serverSrv');
+var ErrorHandler = require('../../ErrorHandler');
 
 export default class Chats extends Component {
     constructor() {
@@ -15,7 +16,7 @@ export default class Chats extends Component {
         this.myChats = [];
         this.todayDate = new Date();
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-        this.myChats = this.sortDates(this.myChats);
+        //this.myChats = this.sortDates(this.myChats);
         this.state = {
             dataSource: ds.cloneWithRows(this.myChats)
         };
@@ -100,8 +101,8 @@ export default class Chats extends Component {
     }
 
     openChat(rowData) {
-      
-        Actions.ChatRoom(rowData.id);
+        
+        Actions.ChatRoom(rowData);
     }
 
     render() {

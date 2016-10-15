@@ -37,6 +37,8 @@
 		EA2CF8D4238C4B47948B433F /* libRNShare.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A507FF370C741DEAF2F67B1 /* libRNShare.a */; };
 		50908A01F47147259F53D27F /* libRCTContacts.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABD97830B5E247C5991F2C16 /* libRCTContacts.a */; };
 		97241D28A8484F858C258C90 /* librncrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 097F810F983646F1BA573630 /* librncrypto.a */; };
+
+		A286F056EEAD45E39AF90581 /* librncrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E4814CC2D2146D6AD318C5B /* librncrypto.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -163,6 +165,8 @@
 		ABD97830B5E247C5991F2C16 /* libRCTContacts.a */ = {isa = PBXFileReference; name = "libRCTContacts.a"; path = "libRCTContacts.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		02E74A5BDB654EA796C4FF9E /* rncrypto.xcodeproj */ = {isa = PBXFileReference; name = "rncrypto.xcodeproj"; path = "../node_modules/react-native-rncrypto/ios/rncrypto.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		097F810F983646F1BA573630 /* librncrypto.a */ = {isa = PBXFileReference; name = "librncrypto.a"; path = "librncrypto.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		504DDAFE27F84F48ADF6AC05 /* rncrypto.xcodeproj */ = {isa = PBXFileReference; name = "rncrypto.xcodeproj"; path = "../node_modules/react-native-rncrypto/ios/rncrypto.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		1E4814CC2D2146D6AD318C5B /* librncrypto.a */ = {isa = PBXFileReference; name = "librncrypto.a"; path = "librncrypto.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -195,6 +199,7 @@
 				EA2CF8D4238C4B47948B433F /* libRNShare.a in Frameworks */,
 				50908A01F47147259F53D27F /* libRCTContacts.a in Frameworks */,
 				97241D28A8484F858C258C90 /* librncrypto.a in Frameworks */,
+				A286F056EEAD45E39AF90581 /* librncrypto.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -324,6 +329,7 @@
 				A837A7903BC0469D96287A3A /* RNShare.xcodeproj */,
 				6ECC42888FD54E6197646BF6 /* RCTContacts.xcodeproj */,
 				02E74A5BDB654EA796C4FF9E /* rncrypto.xcodeproj */,
+				504DDAFE27F84F48ADF6AC05 /* rncrypto.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
