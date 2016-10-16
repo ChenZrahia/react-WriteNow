@@ -15,7 +15,6 @@ import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
 import { Kohana } from 'react-native-textinput-effects';
 import SGListView from 'react-native-sglistview';
 
-var AlphabetListView = require('react-native-alphabetlistview');
 var serverSrv = require('../../Services/serverSrv');
 var PhoneContacts = require('react-native-contacts');
 
