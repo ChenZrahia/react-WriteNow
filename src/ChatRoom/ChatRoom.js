@@ -48,7 +48,7 @@ export default class ChatRoom extends Component {
                 this.setState({
                     messages: GiftedChat.append(this.messages, this.onlineMessages),
                 });
-            }, this.props.data);
+            }, this.props.id);
         }, 1000);
 
     }
@@ -232,6 +232,8 @@ export default class ChatRoom extends Component {
     render() {
         return (
             <GiftedChat
+                userName={this.props.groupName}
+                userPicture={this.props.groupPicture}
                 messages={this.state.messages}
                 onSend={this.onSend}
                 onType={this.onType}

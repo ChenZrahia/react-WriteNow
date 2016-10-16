@@ -1,8 +1,6 @@
 package com.writenow;
-
 import android.app.Application;
 import android.util.Log;
-
 import com.facebook.react.ReactApplication;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.imagepicker.ImagePickerPackage;
@@ -32,6 +30,7 @@ public class MainApplication extends Application implements ReactApplication {
         new SQLitePluginPackage(), 
           new MainReactPackage(),
             new VectorIconsPackage(),
+               
             new ImagePickerPackage(),
             new ReactNativeContacts()
       );

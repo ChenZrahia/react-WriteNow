@@ -101,8 +101,8 @@ export default class Chats extends Component {
     }
 
     openChat(rowData) {
-      
-        Actions.ChatRoom(rowData.id);
+        
+        Actions.ChatRoom(rowData);
     }
 
     render() {
