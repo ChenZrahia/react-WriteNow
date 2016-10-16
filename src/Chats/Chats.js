@@ -8,6 +8,7 @@ import { Image,
     View, } from 'react-native';
 import {Actions} from 'react-native-router-flux';
 var serverSrv = require('../../Services/serverSrv');
+var ErrorHandler = require('../../ErrorHandler');
 
 export default class Chats extends Component {
     constructor() {
