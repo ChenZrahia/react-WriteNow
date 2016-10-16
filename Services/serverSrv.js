@@ -137,7 +137,7 @@ function GetAllMyFriends_Server(callback) {
             db.transaction((tx) => {
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].deletedUser == true && data[i].id) {
-                        tx.executeSql('DELETE FROM Friends WHERE id=?', [data[i].id]);
+                        //tx.executeSql('DELETE FROM Friends WHERE id=?', [data[i].id]);
                     } else {
                         tx.executeSql('INSERT INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
                             [data[i].id,
@@ -261,8 +261,6 @@ export function GetConv(callback, convId, isUpdate) {
                 try {
                     var result = [];
                     for (var i = 0; i < rs.rows.length; i++) {
-                        console.log(i);
-                        console.log(rs.rows.item(i).sendTime);
                         var chat = {
                             id: rs.rows.item(i).id,
                             _id: rs.rows.item(i).id,
@@ -332,28 +330,23 @@ function GetConv_server(convId, callback) {
         // if (_myConvs && _myConvs[convId] && _myConvs[convId].messages && _myConvs[convId].messages.length > 0) {
         //     lastMessageTime = _myConvs[convId].messages[_myConvs[convId].messages.length - 1].sendTime; //last message
         // }
-        console.log(lastMessageTime);
-        console.log('lastMessageTime');
         socket.emit('enterChat', convId);
         socket.emit('GetConvChangesById', convId, lastMessageTime, ((data) => {
             socket.emit('enterChat', convId);
             if (!_myConvs[convId] || !_myConvs[convId].participates) {
                 _myConvs[convId] = { participates: [] };
             }
-            for (var i = 0; i < data.participates.length; i++) {  ///-------------------///-------------------///-------------------///-------------------///-------------------
-                data.participates[i].name = data.participates[i].publicInfo.fullName;
-                data.participates[i].avatar = data.participates[i].publicInfo.picture;
+            for (var i = 0; i < data.participates.length; i++) { 
+                data.participates[i].name = _myFriendsJson[data.participates[i].id].publicInfo.fullName;
+                data.participates[i].avatar = _myFriendsJson[data.participates[i].id].publicInfo.picture;
                 data.participates[i]._id = data.participates[i].id;
                 _myConvs[convId].participates[data.participates[i].id] = data.participates[i];
             }
-            console.log('data.messages');
-            console.log(data);
             db.transaction((tx) => {
                 for (var i = 0; i < data.messages.length; i++) {
                     if (data.messages[i].deletedConv == true && data.messages[i].id) {
                         tx.executeSql('DELETE FROM Messages WHERE id=?', [data.messages[i].id]);
                     } else {
-                        console.log('INSERT' + data.messages[i].content);
                         tx.executeSql('INSERT INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
                             [data.messages[i].id,
                             data.messages[i].convId,
@@ -402,8 +395,6 @@ export function onServerTyping(callback) {
 
 export function saveNewMessage(msg) {
     try {
-        console.log(msg);
-        console.log('msg');
         db.transaction((tx) => {
             tx.executeSql('INSERT INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
                 [msg.id,
@@ -427,8 +418,11 @@ export function login() {
         try {
             tx.executeSql('SELECT * FROM UserInfo', [], (tx, rs) => {
                 if (rs.rows.length > 0) {
-                    var item = rs.rows.item(rs.rows.length - 1 && false);
+                    var item = rs.rows.item(rs.rows.length - 1);
+                    console.log(item);
+                    console.log('item');
                     _uid = item.uid;
+                    _uid = 'e2317111-a84a-4c70-b0e9-b54b910833fa';  //-------------------For Test Only
                     //Actions.Tabs();
 
                     // ReactNativeRSAUtil.encryptStringWithPrivateKey(item.uid, item.privateKey)
