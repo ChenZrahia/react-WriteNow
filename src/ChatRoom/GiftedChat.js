@@ -41,8 +41,6 @@ const MIN_INPUT_TOOLBAR_HEIGHT = 44;
 export default class GiftedChat extends React.Component {
   constructor(props) {
     super(props);
-
-
     // default values
     this._isMounted = false;
     this._keyboardHeight = 0;
