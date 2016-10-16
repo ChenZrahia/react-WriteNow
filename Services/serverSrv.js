@@ -336,11 +336,15 @@ function GetConv_server(convId, callback) {
             if (!_myConvs[convId] || !_myConvs[convId].participates) {
                 _myConvs[convId] = { participates: [] };
             }
-            for (var i = 0; i < data.participates.length; i++) { 
-                data.participates[i].name = _myFriendsJson[data.participates[i].id].publicInfo.fullName;
-                data.participates[i].avatar = _myFriendsJson[data.participates[i].id].publicInfo.picture;
-                data.participates[i]._id = data.participates[i].id;
-                _myConvs[convId].participates[data.participates[i].id] = data.participates[i];
+            for (var i = 0; i < data.participates.length; i++) {
+                try {
+                    data.participates[i].name = _myFriendsJson[data.participates[i].id].publicInfo.fullName;
+                    data.participates[i].avatar = _myFriendsJson[data.participates[i].id].publicInfo.picture;
+                    data.participates[i]._id = data.participates[i].id;
+                    _myConvs[convId].participates[data.participates[i].id] = data.participates[i];
+                } catch (error) {
+                    console.log(error);
+                }
             }
             db.transaction((tx) => {
                 for (var i = 0; i < data.messages.length; i++) {
