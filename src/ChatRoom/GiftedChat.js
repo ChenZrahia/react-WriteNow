@@ -415,7 +415,7 @@ render() {
       <View style={styles.chatRoomMain}>
         <View style={generalStyles.styles.appbar}>
           <View style={generalStyles.styles.viewImgChatRoom}>
-            <Image style={generalStyles.styles.ImgChatRoom} source={ {uri: this.props.userPicture} }/>
+            <Image style={generalStyles.styles.ImgChatRoom} source={ this.props.userPicture ? { uri: this.props.userPicture } :  require('../../img/user.jpg')}/> 
           </View>
           <Text style={generalStyles.styles.titleHeader}>
            {this.props.userName}

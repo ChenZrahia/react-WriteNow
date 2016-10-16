@@ -1,13 +1,17 @@
 import React from 'react';
+import { Container, Content, Icon } from 'native-base';
 import {
   Platform,
   StyleSheet,
   TextInput,
+  View,
 } from 'react-native';
 
 export default class Composer extends React.Component {
   render() {
     return (
+      <View>
+      <Icon name='md-happy' style={styles.icon}/>
       <TextInput
         placeholder={this.props.placeholder}
         placeholderTextColor={this.props.placeholderTextColor}
@@ -23,6 +27,7 @@ export default class Composer extends React.Component {
         underlineColorAndroid="transparent"
         {...this.props.textInputProps}
       />
+      </View>
     );
   }
 }
@@ -42,6 +47,11 @@ const styles = StyleSheet.create({
       android: 3,
     }),
   },
+    icon: {
+        fontSize: 30,
+        padding: 6,
+        paddingBottom: 10
+    },
 });
 
 Composer.defaultProps = {
