@@ -11,6 +11,9 @@ import {
     Modal,
     TextInput
 } from 'react-native';
+import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
+import { Kohana } from 'react-native-textinput-effects';
+import SGListView from 'react-native-sglistview';
 
 var serverSrv = require('../../Services/serverSrv');
 var PhoneContacts = require('react-native-contacts');
@@ -32,17 +35,16 @@ export default class Contacts extends Component {
 
         serverSrv.GetAllMyFriends((result) => {
             if (result && result.length > 0) {
-                // result = result.filter((user) => {
-                //     if (this.phnesNumbers.indexOf(user.phoneNumber) < 0) {
-                //         this.phnesNumbers.push(user.phoneNumber);
-                //     }
-                // })
+                setTimeout(() => {
+                    this.setState({
+                        dataSource: ds.cloneWithRows(result)
+                    })
+                }, 100);
                 if (this.isGetMyFriends == false) {
+                    this.isGetMyFriends = true;
                     this.myFriends = this.myFriends.concat(result);
                 }
                 this.mergeContacts();
-                //this.myFriends = this.myContacts.concat(this.myFriends);
-                this.isGetMyFriends = true;
                 this.updateMyContactsView(ds, this.myFriends);
             }
         });
@@ -56,7 +58,7 @@ export default class Contacts extends Component {
                         var usr = {
                             isOnline: false,
                             isPhoneContact: true,
-                            phoneNumber: (user.phoneNumbers && user.phoneNumbers[0]) ? user.phoneNumbers[0].number.replace(/[+]972/g, '0').replace(/[ ]|[-()]/g, '') : '',
+                            phoneNumber: user.phoneNumbers[0].number.replace('+972', '0').replace(/[ ]|[-()]/g, ''),
                             publicInfo: {
                                 fullName: user.givenName + (user.middleName ? (' ' + user.middleName) : '') + (user.familyName ? (' ' + user.familyName) : ''),
                                 picture: user.thumbnailPath
@@ -64,7 +66,8 @@ export default class Contacts extends Component {
                         };
                         if (this.phnesNumbers.indexOf(usr.phoneNumber) >= 0) {
                             return false;
-                        } else {
+                        }
+                        else {
                             this.myContacts.push(usr);
                             this.phnesNumbers.push(usr.phoneNumber);
                             return true;
@@ -73,9 +76,18 @@ export default class Contacts extends Component {
                         return false;
                     }
                 });
+                serverSrv.InsertMyContacts(this.myContacts, () => {
+                    serverSrv.GetAllMyFriends_Server((result) => {
+                        setTimeout(() => {
+                            this.setState({
+                                dataSource: ds.cloneWithRows(result)
+                            })
+                        }, 200);
+                    });
+                });
             }
             //this.myFriends = this.myFriends.concat(this.myContacts);
-            this.mergeContacts();
+            //this.mergeContacts();
             this.isGetMyContacts = true;
             this.updateMyContactsView(ds, this.myFriends);
         })
@@ -92,22 +104,29 @@ export default class Contacts extends Component {
 
     updateMyContactsView(ds, array) {
         if (this.isGetMyContacts == true && this.isGetMyFriends == true) {
-            array.sort((a, b) => {
-                if (a.publicInfo.fullName.toLowerCase() < b.publicInfo.fullName.toLowerCase()) {
-                    return -1;
-                }
-                else if (a.publicInfo.fullName.toLowerCase() > b.publicInfo.fullName.toLowerCase()) {
-                    return 1;
-                }
-                else {
-                    return 0;
-                }
+            // array.sort((a, b) => {
+            //     if (a.publicInfo.fullName.toLowerCase() < b.publicInfo.fullName.toLowerCase()) {
+            //         return -1;
+            //     }
+            //     else if (a.publicInfo.fullName.toLowerCase() > b.publicInfo.fullName.toLowerCase()) {
+            //         return 1;
+            //     }
+            //     else {
+            //         return 0;
+            //     }
+            // });
+            serverSrv.GetAllMyFriends_Server((result) => {
+                setTimeout(() => {
+                    this.setState({
+                        dataSource: ds.cloneWithRows(result)
+                    })
+                }, 200);
             });
-            setTimeout(() => {
-                this.setState({
-                    dataSource: ds.cloneWithRows(array)
-                })
-            }, 100);
+            // setTimeout(() => {
+            //     this.setState({
+            //         dataSource: ds.cloneWithRows(array)
+            //     })
+            // }, 100);
         }
     }
 
@@ -137,16 +156,24 @@ export default class Contacts extends Component {
     render() {
         return (
             <View style={{ flex: 1, alignSelf: 'stretch' }}>
-                <TextInput
+                <Kohana
                     style={styles.searchBar}
-                    placeholder={'Search'}
+                    label={'Search'}
+                    iconClass={MaterialsIcon}
+                    iconName={'search'}
+                    iconColor={'#91627b'}
+                    labelStyle={{ color: '#91627b', justifyContent: 'center' }}
+                    inputStyle={{ color: '#91627b' }}
                     value={this.state.filter}
-                    onChange={this.onFilterChange.bind(this) }
-                    underlineColorAndroid='rgba(0,0,0,0)'
+                    onChange={this.onFilterChange.bind(this)}
                     />
-                <ListView style={{ paddingTop: 5, flex: 1 }}
+                <SGListView style={{ paddingTop: 5, flex: 1 }}
                     enableEmptySections={true}
-                    dataSource={this.getDataSource() }
+                    dataSource={this.getDataSource()}
+                    initialListSize={1}
+                    stickyHeaderIndices={[]}
+                    onEndReachedThreshold={1}
+                    scrollRenderAheadDistance={20}
                     pageSize={20}
                     renderRow={(rowData) =>
                         <View>
@@ -158,7 +185,7 @@ export default class Contacts extends Component {
                                         this.setImageVisible(true);
                                     } }>
                                         <View style={styles.viewImg}>
-                                            <Image style={styles.thumb} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg') } />
+                                            <Image style={styles.thumb} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
                                         </View>
                                     </TouchableHighlight>
                                     <View style={{ flexDirection: 'column' }}>
@@ -174,24 +201,33 @@ export default class Contacts extends Component {
                         </View>
                     }
                     />
-                <Modal
-                    animationType={"slide"}
-                    transparent={true}
-                    visible={this.state.imageVisible}
-                    onRequestClose={() => { console.log('image closed') } }
-                    >
-                    <View style={styles.imageModal}>
-                        <TouchableHighlight onPress={() => {
-                            this.setImageVisible(!this.state.imageVisible)
-                        } }>
-                            <Image style={styles.imageInsideModal} source={this.imgSelected} />
-                        </TouchableHighlight>
-                    </View>
-                </Modal>
+                {this.openImageModal(this.imgSelected)}
+
             </View>
         );
     }
+
+    openImageModal(image) {
+        return (
+            <Modal
+                animationType={"slide"}
+                transparent={true}
+                visible={this.state.imageVisible}
+                onRequestClose={() => { console.log('image closed') } }
+                >
+                <View style={styles.imageModal}>
+                    <TouchableHighlight onPress={() => {
+                        this.setImageVisible(!this.state.imageVisible)
+                    } }>
+                        <Image style={styles.imageInsideModal} source={image} />
+                    </TouchableHighlight>
+                </View>
+            </Modal>
+        );
+    }
 }
+
+
 
 var styles = StyleSheet.create({
     row: {
@@ -240,9 +276,9 @@ var styles = StyleSheet.create({
     },
     searchBar: {
         borderWidth: 0.5,
-        alignSelf: 'stretch',
-        height: 40,
-        paddingLeft: 20,
-        margin: 5,
+        borderRadius: 4,
+        borderColor: '#91627b',
+        height: 35,
+        margin: 5
     }
 });
