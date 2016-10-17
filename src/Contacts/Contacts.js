@@ -35,17 +35,16 @@ export default class Contacts extends Component {
 
         serverSrv.GetAllMyFriends((result) => {
             if (result && result.length > 0) {
-                // result = result.filter((user) => {
-                //     if (this.phnesNumbers.indexOf(user.phoneNumber) < 0) {
-                //         this.phnesNumbers.push(user.phoneNumber);
-                //     }
-                // })
+                setTimeout(() => {
+                    this.setState({
+                        dataSource: ds.cloneWithRows(result)
+                    })
+                }, 100);
                 if (this.isGetMyFriends == false) {
+                    this.isGetMyFriends = true;
                     this.myFriends = this.myFriends.concat(result);
                 }
                 this.mergeContacts();
-                //this.myFriends = this.myContacts.concat(this.myFriends);
-                this.isGetMyFriends = true;
                 this.updateMyContactsView(ds, this.myFriends);
             }
         });
@@ -59,7 +58,7 @@ export default class Contacts extends Component {
                         var usr = {
                             isOnline: false,
                             isPhoneContact: true,
-                            phoneNumber: (user.phoneNumbers && user.phoneNumbers[0]) ? user.phoneNumbers[0].number.replace('/[+]972/g', '0').replace(/[ ]|[-()]/g, '') : '',
+                            phoneNumber: user.phoneNumbers[0].number.replace('+972', '0').replace(/[ ]|[-()]/g, ''),
                             publicInfo: {
                                 fullName: user.givenName + (user.middleName ? (' ' + user.middleName) : '') + (user.familyName ? (' ' + user.familyName) : ''),
                                 picture: user.thumbnailPath
@@ -77,9 +76,18 @@ export default class Contacts extends Component {
                         return false;
                     }
                 });
+                serverSrv.InsertMyContacts(this.myContacts, () => {
+                    serverSrv.GetAllMyFriends_Server((result) => {
+                        setTimeout(() => {
+                            this.setState({
+                                dataSource: ds.cloneWithRows(result)
+                            })
+                        }, 200);
+                    });
+                });
             }
             //this.myFriends = this.myFriends.concat(this.myContacts);
-            this.mergeContacts();
+            //this.mergeContacts();
             this.isGetMyContacts = true;
             this.updateMyContactsView(ds, this.myFriends);
         })
@@ -96,22 +104,29 @@ export default class Contacts extends Component {
 
     updateMyContactsView(ds, array) {
         if (this.isGetMyContacts == true && this.isGetMyFriends == true) {
-            array.sort((a, b) => {
-                if (a.publicInfo.fullName.toLowerCase() < b.publicInfo.fullName.toLowerCase()) {
-                    return -1;
-                }
-                else if (a.publicInfo.fullName.toLowerCase() > b.publicInfo.fullName.toLowerCase()) {
-                    return 1;
-                }
-                else {
-                    return 0;
-                }
+            // array.sort((a, b) => {
+            //     if (a.publicInfo.fullName.toLowerCase() < b.publicInfo.fullName.toLowerCase()) {
+            //         return -1;
+            //     }
+            //     else if (a.publicInfo.fullName.toLowerCase() > b.publicInfo.fullName.toLowerCase()) {
+            //         return 1;
+            //     }
+            //     else {
+            //         return 0;
+            //     }
+            // });
+            serverSrv.GetAllMyFriends_Server((result) => {
+                setTimeout(() => {
+                    this.setState({
+                        dataSource: ds.cloneWithRows(result)
+                    })
+                }, 200);
             });
-            setTimeout(() => {
-                this.setState({
-                    dataSource: ds.cloneWithRows(array)
-                })
-            }, 100);
+            // setTimeout(() => {
+            //     this.setState({
+            //         dataSource: ds.cloneWithRows(array)
+            //     })
+            // }, 100);
         }
     }
 

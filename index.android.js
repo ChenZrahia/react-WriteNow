@@ -20,9 +20,18 @@ var serverSrv = require('./Services/serverSrv');
 
 //import ReactNativeRSAUtil from 'react-native-rsa-util';
 
+// var JSEncrypt = require('./jsencrypt').JSEncrypt;
 
+// var t = new JSEncrypt();
+// console.log(t);
 
-
+// console.log('***********');
+// console.log('***********');
+// console.log('***********');
+// console.log('***********');
+// console.log('***********');
+// console.log('***********');
+// console.log('***********');
 
 export default class WriteNow extends Component {
   constructor() {

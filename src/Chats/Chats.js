@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
-import { Image,
+import {
+    Image,
     ReactNative,
     ListView,
     TouchableHighlight,
     StyleSheet,
     Text,
-    View, } from 'react-native';
-import {Actions} from 'react-native-router-flux';
+    View,
+} from 'react-native';
+import { Actions } from 'react-native-router-flux';
 var serverSrv = require('../../Services/serverSrv');
 var ErrorHandler = require('../../ErrorHandler');
 
@@ -29,7 +31,7 @@ export default class Chats extends Component {
                         this.setState({
                             dataSource: ds.cloneWithRows(result)
                         })
-                        
+
                     } catch (error) {
                         console.log('error');
                         console.log(error);
@@ -46,6 +48,12 @@ export default class Chats extends Component {
         });
     }
 
+    pad(num, size) {
+        var s = "000000000" + num;
+        return s.substr(s.length - size);
+    }
+
+
     getDateFormated(date) {
         try {
             if (!date) {
@@ -53,14 +61,15 @@ export default class Chats extends Component {
             } else {
                 var todayDate = this.todayDate;
                 var timeSend = new Date(date);
-                if ((todayDate.getTime() - timeSend.getTime()) <= (86400000)) { //checking if the message sent in current day
+                if ((todayDate.getTime() - timeSend.getTime()) <= (86400000) && timeSend.getHours) { //checking if the message sent in current day                    
                     return this.pad(timeSend.getHours(), 2) + ":" + this.pad(timeSend.getMinutes(), 2);
                 } else if ((todayDate.getTime() - timeSend.getTime()) >= (86400000) && (todayDate.getTime() - timeSend.getTime()) <= (172800000)) { //check if it was yesterday
                     return "yesterday";
-                } else {
+                } else if (timeSend.getUTCDate) {
                     var newdate = (timeSend.getUTCDate()) + "/" + (timeSend.getUTCMonth() + 1) + "/" + (timeSend.getUTCFullYear() - 2000);
                     return newdate;
                 }
+                return '';
             }
         } catch (e) {
             ErrorHandler.WriteError('chats.js => getDateFormated', e);
@@ -101,7 +110,7 @@ export default class Chats extends Component {
     }
 
     openChat(rowData) {
-        
+
         Actions.ChatRoom(rowData);
     }
 
@@ -117,15 +126,15 @@ export default class Chats extends Component {
                         } }>
                             <View style={styles.row}>
                                 <View style={styles.viewImg}>
-                                    <Image style={styles.thumb} source={ rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? require('../../img/user.jpg') : require('../../img/user.jpg')) }/>
+                                    <Image style={styles.thumb} source={rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? require('../../img/user.jpg') : require('../../img/user.jpg'))} />
                                 </View>
                                 <View style={{ flexDirection: 'column', flex: 1, marginRight: 7 }}>
                                     <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
                                         <Text style={styles.textName}>
-                                            { rowData.groupName }
+                                            {rowData.groupName}
                                         </Text>
                                         <Text style={styles.textDate}>
-                                            {this.getDateFormated(rowData.lastMessageTime) }
+                                            {this.getDateFormated(rowData.lastMessageTime)}
                                         </Text>
                                     </View>
                                     <Text style={styles.textStatus}>
