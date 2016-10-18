@@ -133,7 +133,7 @@ export default class Contacts extends Component {
         //create filtered datasource
         let filteredContacts = this.myFriends;
         filteredContacts = this.myFriends.filter((user) => {
-            return user.publicInfo.fullName.includes(this.state.filter);
+            return user.publicInfo.fullName.toLowerCase().includes(this.state.filter.toLowerCase());
         });
         return this.state.dataSource.cloneWithRows(filteredContacts);
     }
@@ -160,35 +160,39 @@ export default class Contacts extends Component {
                     onEndReachedThreshold={1}
                     scrollRenderAheadDistance={20}
                     pageSize={20}
-                    renderRow={(rowData) =>
-                        <View>
-                            <TouchableHighlight underlayColor='#ededed' onPress={() => {
-                            } }>
-                                <View style={styles.row}>
-                                    <TouchableHighlight onPress={() => {
-                                        this.imgSelected = rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')
-                                        this.setImageVisible(true);
-                                    } }>
-                                        <View style={styles.viewImg}>
-                                            <Image style={styles.thumb} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
-                                        </View>
-                                    </TouchableHighlight>
-                                    <View style={{ flexDirection: 'column' }}>
-                                        <Text style={styles.textName}>
-                                            {rowData.publicInfo.fullName}
-                                        </Text>
-                                        <Text style={styles.textStatus}>
-                                            {rowData.phoneNumber}
-                                        </Text>
-                                    </View>
-                                </View>
-                            </TouchableHighlight>
-                        </View>
-                    }
+                    renderRow={this.renderRow()}
                     />
                 {this.openImageModal(this.imgSelected)}
-
             </View>
+        );
+    }
+
+    renderRow() {
+        return (
+            (rowData) =>
+                <View>
+                    <TouchableHighlight underlayColor='#ededed' onPress={() => {
+                    } }>
+                        <View style={styles.row}>
+                            <TouchableHighlight onPress={() => {
+                                this.imgSelected = rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')
+                                this.setImageVisible(true);
+                            } }>
+                                <View style={styles.viewImg}>
+                                    <Image style={styles.thumb} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
+                                </View>
+                            </TouchableHighlight>
+                            <View style={{ flexDirection: 'column' }}>
+                                <Text style={styles.textName}>
+                                    {rowData.publicInfo.fullName}
+                                </Text>
+                                <Text style={styles.textStatus}>
+                                    {rowData.phoneNumber}
+                                </Text>
+                            </View>
+                        </View>
+                    </TouchableHighlight>
+                </View>
         );
     }
 
