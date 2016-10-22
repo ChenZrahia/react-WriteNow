@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   TouchableHighlight,
 } from 'react-native';
-import {Actions} from 'react-native-router-flux'
+import { Actions } from 'react-native-router-flux'
 import Toast from 'react-native-root-toast';
 
 var Platform = require('react-native').Platform;
@@ -138,110 +138,82 @@ export default class SignUp extends Component {
       }
     });
   };
-  
- logIn(){
-  // var RSAKey = require('react-native-rsa');
-  // var  ReactNativeRSAUtil = require("react-native-rsa-util");
-  // const bits = 1024;
-  // const exponent = '10001';
-  // var rsa = new RSAKey();
-  // rsa.generate(bits, exponent);
-  // var publicKey = rsa.getPublicString(); 
-  // var privateKey = rsa.getPrivateString();
-  // console.log('*********************');
-  // console.log('private key : ' + rsa.getPrivateString());
-  // console.log('*********************');
-  // console.log('public key : ' + rsa.getPublicString()); 
-  // var rsa2 = new RSAKey();
-  // rsa2.setPublicString(rsa.getPublicString());
-  // console.log('*********************');
-  // console.log('public key : ' + rsa2.getPublicString());
-  // var originText = 'Test 123 Test 321';
-  // console.log('*********************');
-  // var encrypted = rsa.encrypt(originText);
-  // console.log(encrypted);
 
- 
-  // rsa2.setPublicString(publicKey);
-  // rsa.setPrivateString(privateKey);
-  // console.log('*********************');
-  // console.log('private key : ' + rsa.getPrivateString());
-  // var originText = 'Test 123 Test 321';
-  // var encrypted = rsa.encrypt(originText);
-  // console.log('*********************');
-  // console.log(encrypted);
-  // console.log('*********************');
-  // console.log('public key : ' + rsa2.getPublicString());
-  // var decrypted = rsa2.decrypt(encrypted); // decrypted == originText
-  // console.log('decrypted: ' + decrypted);
-
-  // var decrypted = rsa3.decrypt(encrypted);
-  // console.log(decrypted);
-  // var RSAKey = require('react-native-rsa');
-  // const bits = 1024;
-  // const exponent = '10001'; // must be a string. This is hex string. decimal = 65537
-  // var rsa = new RSAKey();
-  // rsa.generate(bits, exponent);
-  // var publicKey = rsa.getPublicString();
-  // console.log('*********************************');
-  // console.log('public key:' + publicKey); // return json encoded string
-  // var privateKey = rsa.getPrivateString();
-  // console.log('*********************************');
-  //  console.log('privatre key:' + privateKey); // return json encoded string
-  //  rsa.setPrivateString(privateKey);
-  // var originText = 'sample String Value';
-  // var encrypted = rsa.encrypt(originText);
-  // console.log('encrypted: ' + encrypted);
-  // rsa.setPublicString(publicKey);
-  // var decrypted = rsa.decrypt(encrypted); // decrypted == originText
-  //  console.log('decrypted: ' + decrypted);
+  logIn() {
     Actions.Tabs({ type: 'reset' });
- }
+  }
+  // <Image source={require('../../img/signUpBAckground.jpg')} style={styles.backgroundImage} />
+
 
   render() {
     return (
       <View style={styles.container}>
-        <Text style = {styles.Welcome}>
-          Welcome to WriteNow!
-        </Text>
-        <TouchableHighlight onPress={this.showImagePicker} underlayColor='#ededed'>
-          <View style={styles.viewImg}>
-            <Image style={styles.UserImage} source={this.state.avatarSource}/>
-          </View>
-        </TouchableHighlight>
-        <TextInput underlineColorAndroid="transparent" autoCapitalize="words"
-          onChangeText={(val) => this.setState({ DisplayName: val }) }
-          style={styles.input} placeholder="Display Name"
-          />
-        <TextInput underlineColorAndroid="transparent" keyboardType="phone-pad"
-          onChangeText={(val) => this.setState({ PhoneNumber: val }) }
-          style={styles.input} placeholder="Phone Number"
-          />
-        <TouchableOpacity disabled={disabled} style = {styles.button} underlayColor='#ededed' onPress={this.SignUpSubmit}>
-          <View>
-            <Text style={styles.buttonText}>Submit</Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity  style = {styles.button} underlayColor='#ededed' onPress={this.logIn}>
-          <View>
-            <Text style={styles.buttonText}>tabs page</Text>
-          </View>
-        </TouchableOpacity>
+
+        <View style={{
+          flex: 1,
+          alignSelf: 'stretch',
+          flexDirection: 'column',
+        }}>
+          <Image source={require("../../img/signUpBAckground.png")} style={{ resizeMode: 'stretch', width: null, height: 20, flex: 1 }}>
+
+            <View style={{
+              flex: 1,
+              alignSelf: 'stretch',
+              flexDirection: 'column',
+          justifyContent: 'space-between',
+            }}>
+              <Text style={styles.Welcome}>
+                Welcome to WriteNow!
+          </Text>
+
+              <TouchableHighlight onPress={this.showImagePicker} underlayColor='#ededed'>
+                <View style={styles.viewImg}>
+                  <Image style={styles.UserImage} source={this.state.avatarSource} />
+                </View>
+              </TouchableHighlight>
+            </View>
+
+
+          </Image>
+        </View>
+
+
+        <View style={{ flex: 1 }}>
+          <TextInput underlineColorAndroid="transparent" autoCapitalize="words"
+            onChangeText={(val) => this.setState({ DisplayName: val })}
+            style={styles.input} placeholder="Display Name"
+            />
+          <TextInput underlineColorAndroid="transparent" keyboardType="phone-pad"
+            onChangeText={(val) => this.setState({ PhoneNumber: val })}
+            style={styles.input} placeholder="Phone Number"
+            />
+          <TouchableOpacity disabled={disabled} style={styles.button} underlayColor='#ededed' onPress={this.SignUpSubmit}>
+            <View>
+              <Text style={styles.buttonText}>Submit</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} underlayColor='#ededed' onPress={this.logIn}>
+            <View>
+              <Text style={styles.buttonText}>Tabs page</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
 }
-
+// padding: 10,
+// paddingTop: 10
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 10,
-    paddingTop: 10
   },
   Welcome: {
     fontSize: 24,
+    alignSelf: 'center',
+    marginTop: 5
   },
   instructions: {
     textAlign: 'center',
@@ -271,8 +243,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginLeft: 10,
     marginTop: 10,
-    justifyContent: 'center'
-
+    justifyContent: 'center',
+    alignSelf: 'center',
   },
   buttonText: {
     fontSize: 18,
@@ -281,8 +253,10 @@ const styles = StyleSheet.create({
   },
   viewImg: {
     borderColor: 'black',
-    elevation: 3,
+    elevation: 8,
     borderRadius: 10,
     margin: 10,
+    alignSelf: 'center',
+    justifyContent: 'center'
   },
 });

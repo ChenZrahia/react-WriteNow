@@ -38,7 +38,6 @@ const styles = StyleSheet.create({
 export default class Tabs extends Component {
   constructor() {
     super();
-    console.log(' ### Tabs init - ' + new Date());
   }
   static propTypes = {
     style: View.propTypes.style,
@@ -57,7 +56,7 @@ export default class Tabs extends Component {
           </Text>
           <View style={styles.button} />
         </View>
-        <ScrollableTabView tabBarBackgroundColor={generalStyle._mainColor} tabBarTextStyle={{color: 'white'}} tabBarUnderlineStyle={{backgroundColor: generalStyle._secondColor}}>
+        <ScrollableTabView tabBarBackgroundColor={generalStyle._mainColor} tabBarTextStyle={{color: 'white'}} tabBarUnderlineStyle={{backgroundColor: generalStyle._secondColor, height: 1}}>
           <Contacts tabLabel="CONTACTS" />
           <Chats tabLabel="CHATS" />
         </ScrollableTabView>
