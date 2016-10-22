@@ -30,7 +30,6 @@ public class MainApplication extends Application implements ReactApplication {
         new SQLitePluginPackage(), 
           new MainReactPackage(),
             new VectorIconsPackage(),
-               
             new ImagePickerPackage(),
             new ReactNativeContacts()
       );

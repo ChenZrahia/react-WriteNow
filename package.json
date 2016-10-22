@@ -18,6 +18,7 @@
     "react-native-root-toast": "^1.0.3",
     "react-native-router-flux": "^3.35.0",
     "react-native-rsa": "0.0.3",
+    "react-native-scrollable-tab-view": "^0.6.0",
     "react-native-sglistview": "^0.3.2",
     "react-native-simple-modal": "^4.0.1",
     "react-native-sqlite-storage": "^3.1.2",

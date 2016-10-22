@@ -6,11 +6,12 @@ import Contacts from './Contacts/Contacts';
 import ChatRoom from './ChatRoom/ChatRoom';
 import SignUp from './SignUp/SignUp'
 import Chats from './Chats/Chats'
-import {Actions, Scene, Router} from 'react-native-router-flux';
+import { Actions, Scene, Router } from 'react-native-router-flux';
 
 var generalStyle = require('../styles/generalStyle');
+var ScrollableTabView = require('react-native-scrollable-tab-view');
 
-const styles = StyleSheet.create({  
+const styles = StyleSheet.create({
   tabbar: {
     backgroundColor: '#9933FF',
     shadowColor: "#000000",
@@ -38,6 +39,7 @@ const styles = StyleSheet.create({
 export default class Tabs extends Component {
   constructor() {
     super();
+    console.log(' ### Tabs init - ' + new Date());
   }
   static propTypes = {
     style: View.propTypes.style,
@@ -98,14 +100,20 @@ export default class Tabs extends Component {
           </Text>
           <View style={styles.button} />
         </View>
-        <TabViewAnimated
-          style={[generalStyle.styles.container, this.props.style]}
-          navigationState={this.state}
-          renderScene={this._renderPage}
-          renderHeader={this._renderHeader}
-          onRequestChangeTab={this._handleChangeTab}
-          />
+        <ScrollableTabView tabBarBackgroundColor={generalStyle._mainColor} tabBarTextStyle={{color: 'white'}} tabBarUnderlineStyle={{backgroundColor: generalStyle._secondColor}}>
+          <Contacts tabLabel="CONTACTS" />
+          <Chats tabLabel="CHATS" />
+        </ScrollableTabView>
       </View>
     );
   }
 }
+
+
+// <TabViewAnimated
+//           style={[generalStyle.styles.container, this.props.style]}
+//           navigationState={this.state}
+//           renderScene={this._renderPage}
+//           renderHeader={this._renderHeader}
+//           onRequestChangeTab={this._handleChangeTab}
+//           />

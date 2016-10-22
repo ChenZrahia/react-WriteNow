@@ -3,6 +3,9 @@ import { StyleSheet } from 'react-native';
 var mainColor = '#9933FF';
 var secondColor = '#f50057';
 
+export var _mainColor= mainColor;
+export var _secondColor= secondColor;
+
 export const styles = StyleSheet.create({
     scrollView: {
         backgroundColor: '#6A85B1',
