@@ -17,14 +17,6 @@ import ChatRoom from './src/ChatRoom/ChatRoom';
 var serverSrv = require('./Services/serverSrv');
 
 var EncryptionUtil = require('writenow-rsa');
-var StatusBarAndroid = require('react-native-android-statusbar');
-
-try {
- //StatusBarAndroid.setHexColor('#AB1223');
-} catch (error) {
-  console.log(error);
-}
-
 
 setTimeout(function () {
   EncryptionUtil.test((result) => {

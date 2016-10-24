@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import { Actions } from 'react-native-router-flux'
 import Toast from 'react-native-root-toast';
+import Fumi from '../../styles/Fumi';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 var Platform = require('react-native').Platform;
 var ImagePicker = require('react-native-image-picker');
@@ -147,44 +149,43 @@ export default class SignUp extends Component {
   render() {
     return (
       <View style={styles.container}>
-
         <View style={{
           flex: 1,
           alignSelf: 'stretch',
           flexDirection: 'column',
         }}>
           <Image source={require("../../img/signUpBAckground.png")} style={{ resizeMode: 'stretch', width: null, height: 20, flex: 1 }}>
-
             <View style={{
               flex: 1,
               alignSelf: 'stretch',
               flexDirection: 'column',
-          justifyContent: 'space-between',
+              justifyContent: 'space-between',
             }}>
               <Text style={styles.Welcome}>
                 Welcome to WriteNow!
           </Text>
-
               <TouchableHighlight onPress={this.showImagePicker} underlayColor='#ededed'>
                 <View style={styles.viewImg}>
                   <Image style={styles.UserImage} source={this.state.avatarSource} />
                 </View>
               </TouchableHighlight>
             </View>
-
-
           </Image>
         </View>
-
-
         <View style={{ flex: 1 }}>
-          <TextInput underlineColorAndroid="transparent" autoCapitalize="words"
-            onChangeText={(val) => this.setState({ DisplayName: val })}
-            style={styles.input} placeholder="Display Name"
+          <Fumi
+            label={'Display Name'}
+            iconClass={FontAwesomeIcon}
+            iconName={'users'}
+            iconColor={'#f50057'}
+            style={styles.input}
             />
-          <TextInput underlineColorAndroid="transparent" keyboardType="phone-pad"
-            onChangeText={(val) => this.setState({ PhoneNumber: val })}
-            style={styles.input} placeholder="Phone Number"
+          <Fumi
+            label={'Phone Number'}
+            iconClass={FontAwesomeIcon}
+            iconName={'phone'}
+            iconColor={'#f50057'}
+            style={styles.input}
             />
           <TouchableOpacity disabled={disabled} style={styles.button} underlayColor='#ededed' onPress={this.SignUpSubmit}>
             <View>
@@ -201,6 +202,15 @@ export default class SignUp extends Component {
     );
   }
 }
+
+// <TextInput underlineColorAndroid="transparent" autoCapitalize="words"
+//             onChangeText={(val) => this.setState({ DisplayName: val })}
+//             style={styles.input} placeholder="Display Name"
+//             />
+//           <TextInput underlineColorAndroid="transparent" keyboardType="phone-pad"
+//             onChangeText={(val) => this.setState({ PhoneNumber: val })}
+//             style={styles.input} placeholder="Phone Number"
+//             />
 // padding: 10,
 // paddingTop: 10
 const styles = StyleSheet.create({
@@ -223,7 +233,7 @@ const styles = StyleSheet.create({
     height: 45,
     width: 300,
     marginTop: 10,
-    padding: 4,
+    padding: 2,
     fontSize: 18,
     borderWidth: 1,
     borderRadius: 15,
