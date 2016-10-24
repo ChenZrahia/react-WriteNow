@@ -7,10 +7,13 @@ import {
     StyleSheet,
     Text,
     View,
+    Modal
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
+
 var serverSrv = require('../../Services/serverSrv');
 var ErrorHandler = require('../../ErrorHandler');
+var generalStyle = require('../../styles/generalStyle');
 
 export default class Chats extends Component {
     constructor() {
@@ -20,7 +23,8 @@ export default class Chats extends Component {
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         //this.myChats = this.sortDates(this.myChats);
         this.state = {
-            dataSource: ds.cloneWithRows(this.myChats)
+            dataSource: ds.cloneWithRows(this.myChats),
+            imageVisible: false
         };
         serverSrv.GetAllUserConv((result) => {
             try {
@@ -52,7 +56,6 @@ export default class Chats extends Component {
         var s = "000000000" + num;
         return s.substr(s.length - size);
     }
-
 
     getDateFormated(date) {
         try {
@@ -110,8 +113,30 @@ export default class Chats extends Component {
     }
 
     openChat(rowData) {
-
         Actions.ChatRoom(rowData);
+    }
+
+    setImageVisible(visible) {
+        this.setState({ imageVisible: visible });
+    }
+
+    openImageModal(image) {
+        return (
+            <Modal
+                animationType={"slide"}
+                transparent={true}
+                visible={this.state.imageVisible}
+                onRequestClose={() => { console.log('image closed') } }
+                >
+                <TouchableHighlight style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
+                    this.setImageVisible(!this.state.imageVisible)
+                } }>
+                    <View style={generalStyle.styles.imageModal}>
+                        <Image style={generalStyle.styles.imageInsideModal} source={image} />
+                    </View>
+                </TouchableHighlight>
+            </Modal>
+        );
     }
 
     render() {
@@ -124,20 +149,25 @@ export default class Chats extends Component {
                         <TouchableHighlight underlayColor='#ededed' onPress={() => {
                             this.openChat(rowData);
                         } }>
-                            <View style={styles.row}>
-                                <View style={styles.viewImg}>
-                                    <Image style={styles.thumb} source={rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? require('../../img/user.jpg') : require('../../img/user.jpg'))} />
-                                </View>
+                            <View style={generalStyle.styles.row}>
+                                <TouchableHighlight onPress={() => {
+                                    this.imgSelected = rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? require('../../img/user.jpg') : require('../../img/user.jpg'))
+                                    this.setImageVisible(true);
+                                } }>
+                                    <View style={generalStyle.styles.viewImg}>
+                                        <Image style={generalStyle.styles.thumb} source={rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? require('../../img/user.jpg') : require('../../img/user.jpg'))} />
+                                    </View>
+                                </TouchableHighlight>
                                 <View style={{ flexDirection: 'column', flex: 1, marginRight: 7 }}>
                                     <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
-                                        <Text style={styles.textName}>
+                                        <Text style={generalStyle.styles.textName}>
                                             {rowData.groupName}
                                         </Text>
-                                        <Text style={styles.textDate}>
+                                        <Text style={generalStyle.styles.textDate}>
                                             {this.getDateFormated(rowData.lastMessageTime)}
                                         </Text>
                                     </View>
-                                    <Text style={styles.textStatus}>
+                                    <Text style={generalStyle.styles.textStatus}>
                                         {rowData.lastMessage}
                                     </Text>
                                 </View>
@@ -145,45 +175,8 @@ export default class Chats extends Component {
                         </TouchableHighlight>
                     }
                     />
+                    {this.openImageModal(this.imgSelected)}
             </View>
         );
     }
 }
-
-var styles = StyleSheet.create({
-    row: {
-        flex: 1,
-        flexDirection: 'row',
-        padding: 5,
-        borderBottomWidth: 0.5,
-        borderColor: '#e7e7e7',
-        backgroundColor: 'white'
-    },
-    viewImg: {
-        borderColor: 'black',
-        elevation: 3,
-        borderRadius: 4,
-    },
-    thumb: {
-        borderRadius: 4,
-        borderWidth: 0.5,
-        width: 40,
-        height: 40,
-        alignSelf: 'flex-end',
-    },
-    textName: {
-        paddingLeft: 10,
-        color: 'black',
-        alignSelf: 'flex-start'
-    },
-    textStatus: {
-        paddingLeft: 10,
-        color: 'gray',
-        alignSelf: 'flex-start'
-    },
-    textDate: {
-        color: 'gray',
-        alignSelf: 'flex-end',
-        fontSize: 12
-    }
-});

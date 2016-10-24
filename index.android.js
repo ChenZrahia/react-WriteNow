@@ -68,7 +68,10 @@ export default class WriteNow extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <StatusBar barStyle="light-content" />
+        <StatusBar
+        barStyle="light-content"
+        animated={true}
+        />
         <View style={styles.statusbar} />
         <InitRout />
       </View>
