@@ -16,13 +16,6 @@ import ChatRoom from './src/ChatRoom/ChatRoom';
 
 var serverSrv = require('./Services/serverSrv');
 
-var EncryptionUtil = require('writenow-rsa');
-
-setTimeout(function () {
-  EncryptionUtil.test((result) => {
-    console.log("result");
-    console.log(result);
-  });
 //   ReactNativeRSAUtil.encryptStringWithPrivateKey("content", `-----BEGIN RSA PRIVATE KEY-----
 // MIIBOAIBAAJAXr3Li0mGG76UPuI2JE1Nf0z0Y8mgMh/NiqtzbhhP4IJouNDFZK5k
 // dk4sj1FciPsJ/TDI2a1Dixzc7Z4XxQmU0QIDAQABAkBX3y9XnDT/rK6w+H0BBJXZ
