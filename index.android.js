@@ -17,6 +17,14 @@ import ChatRoom from './src/ChatRoom/ChatRoom';
 var serverSrv = require('./Services/serverSrv');
 
 var EncryptionUtil = require('writenow-rsa');
+var StatusBarAndroid = require('react-native-android-statusbar');
+
+try {
+ //StatusBarAndroid.setHexColor('#AB1223');
+} catch (error) {
+  console.log(error);
+}
+
 
 setTimeout(function () {
   EncryptionUtil.test((result) => {
@@ -69,10 +77,9 @@ export default class WriteNow extends Component {
     return (
       <View style={styles.container}>
         <StatusBar
-        barStyle="light-content"
+        backgroundColor="#820cf7"
         animated={true}
         />
-        <View style={styles.statusbar} />
         <InitRout />
       </View>
     );

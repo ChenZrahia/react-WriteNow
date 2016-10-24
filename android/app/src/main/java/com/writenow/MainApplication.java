@@ -10,6 +10,7 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.encryptionutil.EncryptionUtilPackage;
+import me.neo.react.StatusBarPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,7 +34,8 @@ public class MainApplication extends Application implements ReactApplication {
             new VectorIconsPackage(),
             new ImagePickerPackage(),
             new ReactNativeContacts(),
-            new EncryptionUtilPackage()
+            new EncryptionUtilPackage(),
+            new StatusBarPackage()
       );
     }
   };

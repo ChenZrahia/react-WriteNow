@@ -18,4 +18,7 @@ project(':react-native-contacts').projectDir = new File(settingsDir, '../node_mo
 include ':writenow-rsa'
 project(':writenow-rsa').projectDir = new File(settingsDir, '../node_modules/writenow-rsa/android')
 
+include ':react-native-android-statusbar'
+project(':react-native-android-statusbar').projectDir = new File(settingsDir, '../node_modules/react-native-android-statusbar')
+
 

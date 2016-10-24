@@ -135,6 +135,7 @@ dependencies {
     compile project(':react-native-vector-icons')
     compile project(':react-native-contacts')
     compile project(':writenow-rsa')
+    compile project(':react-native-android-statusbar')
     
 }
 
