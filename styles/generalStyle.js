@@ -11,18 +11,6 @@ export const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    thumb: {
-        borderRadius: 4,
-        borderWidth: 0.5,
-        width: 40,
-        height: 40,
-        alignSelf: 'flex-end',
-    },
-    viewImg: {
-        borderColor: 'black',
-        elevation: 3,
-        borderRadius: 4,
-    },
     viewImgChatRoom: {
         borderColor: 'black',
         elevation: 3,
@@ -56,9 +44,6 @@ export const styles = StyleSheet.create({
         elevation: 4,
         paddingLeft: 7
     },
-
-
-
     row: {
         flex: 1,
         flexDirection: 'row',
@@ -67,14 +52,27 @@ export const styles = StyleSheet.create({
         borderColor: '#e7e7e7',
         backgroundColor: 'white'
     },
-
+    viewImg: {
+        borderColor: 'black',
+        elevation: 3,
+        borderRadius: 4,
+    },
+    thumb: {
+        borderRadius: 4,
+        borderWidth: 0.5,
+        width: 40,
+        height: 40,
+        alignSelf: 'flex-end',
+    },
     textName: {
         paddingLeft: 10,
+        paddingRight: 10,
         color: 'black',
         alignSelf: 'flex-start'
     },
     textStatus: {
         paddingLeft: 10,
+        paddingRight: 10,
         color: 'gray',
         alignSelf: 'flex-start'
     },
@@ -82,5 +80,18 @@ export const styles = StyleSheet.create({
         color: 'gray',
         alignSelf: 'flex-end',
         fontSize: 12
-    }
+    },
+    imageModal: {
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        flex: 1,
+        alignItems: 'center',
+        alignSelf: 'stretch',
+        justifyContent: 'center'
+    },
+    imageInsideModal: {
+        width: 200,
+        height: 200,
+        borderRadius: 10,
+        borderWidth: 1
+    },
 });

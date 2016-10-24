@@ -12,11 +12,12 @@ import {
     TextInput
 } from 'react-native';
 import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
-import { Kohana } from 'react-native-textinput-effects';
 import SGListView from 'react-native-sglistview';
+import Kohana from '../../styles/Kohana';
 
 var serverSrv = require('../../Services/serverSrv');
 var PhoneContacts = require('react-native-contacts');
+var generalStyle = require('../../styles/generalStyle');
 
 export default class Contacts extends Component {
     constructor() {
@@ -148,7 +149,8 @@ export default class Contacts extends Component {
         //create filtered datasource
         let filteredContacts = this.myFriends;
         filteredContacts = this.myFriends.filter((user) => {
-            return user.publicInfo.fullName.toLowerCase().includes(this.state.filter.toLowerCase());
+            // return user.publicInfo.fullName.toLowerCase().includes(this.state.filter.toLowerCase());
+            return ((user.publicInfo.fullName.toLowerCase().includes(this.state.filter.toLowerCase())) || (user.phoneNumber ? user.phoneNumber.includes(this.state.filter) : false));
         });
         return this.state.dataSource.cloneWithRows(filteredContacts);
     }
@@ -161,9 +163,9 @@ export default class Contacts extends Component {
                     label={'Search'}
                     iconClass={MaterialsIcon}
                     iconName={'search'}
-                    iconColor={'#91627b'}
-                    labelStyle={{ color: '#91627b', justifyContent: 'center' }}
-                    inputStyle={{ color: '#91627b' }}
+                    iconColor={'#f50057'}
+                    labelStyle={{ color: '#f50057', justifyContent: 'center' }}
+                    inputStyle={{ color: '#f50057' }}
                     value={this.state.filter}
                     onChange={this.onFilterChange.bind(this)}
                     />
@@ -188,20 +190,20 @@ export default class Contacts extends Component {
                 <View>
                     <TouchableHighlight underlayColor='#ededed' onPress={() => {
                     } }>
-                        <View style={styles.row}>
+                        <View style={generalStyle.styles.row}>
                             <TouchableHighlight onPress={() => {
                                 this.imgSelected = rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')
                                 this.setImageVisible(true);
                             } }>
-                                <View style={styles.viewImg}>
-                                    <Image style={styles.thumb} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
+                                <View style={generalStyle.styles.viewImg}>
+                                    <Image style={generalStyle.styles.thumb} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
                                 </View>
                             </TouchableHighlight>
                             <View style={{ flexDirection: 'column' }}>
-                                <Text style={styles.textName}>
+                                <Text style={generalStyle.styles.textName}>
                                     {rowData.publicInfo.fullName}
                                 </Text>
-                                <Text style={styles.textStatus}>
+                                <Text style={generalStyle.styles.textStatus}>
                                     {rowData.phoneNumber}
                                 </Text>
                             </View>
@@ -219,69 +221,23 @@ export default class Contacts extends Component {
                 visible={this.state.imageVisible}
                 onRequestClose={() => { console.log('image closed') } }
                 >
-                <View style={styles.imageModal}>
-                    <TouchableHighlight onPress={() => {
-                        this.setImageVisible(!this.state.imageVisible)
-                    } }>
-                        <Image style={styles.imageInsideModal} source={image} />
-                    </TouchableHighlight>
-                </View>
+                <TouchableHighlight style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
+                    this.setImageVisible(!this.state.imageVisible)
+                } }>
+                    <View style={generalStyle.styles.imageModal}>
+                        <Image style={generalStyle.styles.imageInsideModal} source={image} />
+                    </View>
+                </TouchableHighlight>
             </Modal>
         );
     }
 }
 
-
-
 var styles = StyleSheet.create({
-    row: {
-        flex: 1,
-        flexDirection: 'row',
-        padding: 5,
-        borderBottomWidth: 0.5,
-        borderColor: '#e7e7e7',
-        backgroundColor: 'white'
-    },
-    viewImg: {
-        borderColor: 'black',
-        elevation: 3,
-        borderRadius: 4,
-    },
-    thumb: {
-        borderRadius: 4,
-        borderWidth: 0.5,
-        width: 40,
-        height: 40,
-        alignSelf: 'flex-end',
-    },
-    textName: {
-        paddingLeft: 10,
-        paddingRight: 10,
-        color: 'black',
-        alignSelf: 'flex-start'
-    },
-    textStatus: {
-        paddingLeft: 10,
-        paddingRight: 10,
-        color: 'gray',
-        alignSelf: 'flex-start'
-    },
-    imageModal: {
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    imageInsideModal: {
-        width: 200,
-        height: 200,
-        borderRadius: 10,
-        borderWidth: 1
-    },
     searchBar: {
         borderWidth: 0.5,
         borderRadius: 4,
-        borderColor: '#91627b',
+        borderColor: '#f50057',
         height: 35,
         margin: 5
     }

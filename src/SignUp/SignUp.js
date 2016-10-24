@@ -1,4 +1,3 @@
-
 import React, { Component } from 'react';
 import {
   AppRegistry,
@@ -10,12 +9,13 @@ import {
   TouchableOpacity,
   TouchableHighlight,
 } from 'react-native';
-import {Actions} from 'react-native-router-flux'
+import { Actions } from 'react-native-router-flux'
 import Toast from 'react-native-root-toast';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
+import Fumi from '../../styles/Fumi';
 
 var Platform = require('react-native').Platform;
 var ImagePicker = require('react-native-image-picker');
-
 var ErrorHandler = require('../../ErrorHandler');
 var serverSrv = require('../../Services/serverSrv');
 var disabled = false;
@@ -138,91 +138,105 @@ export default class SignUp extends Component {
       }
     });
   };
-  
- logIn(){
-  // var RSAKey = require('react-native-rsa');
-  // var  ReactNativeRSAUtil = require("react-native-rsa-util");
-  // const bits = 1024;
-  // const exponent = '10001';
-  // var rsa = new RSAKey();
-  // rsa.generate(bits, exponent);
-  // var publicKey = rsa.getPublicString(); 
-  // var privateKey = rsa.getPrivateString();
-  // console.log('*********************');
-  // console.log('private key : ' + rsa.getPrivateString());
-  // console.log('*********************');
-  // console.log('public key : ' + rsa.getPublicString()); 
-  // var rsa2 = new RSAKey();
-  // rsa2.setPublicString(rsa.getPublicString());
-  // console.log('*********************');
-  // console.log('public key : ' + rsa2.getPublicString());
-  // var originText = 'Test 123 Test 321';
-  // console.log('*********************');
-  // var encrypted = rsa.encrypt(originText);
-  // console.log(encrypted);
 
- 
-  // rsa2.setPublicString(publicKey);
-  // rsa.setPrivateString(privateKey);
-  // console.log('*********************');
-  // console.log('private key : ' + rsa.getPrivateString());
-  // var originText = 'Test 123 Test 321';
-  // var encrypted = rsa.encrypt(originText);
-  // console.log('*********************');
-  // console.log(encrypted);
-  // console.log('*********************');
-  // console.log('public key : ' + rsa2.getPublicString());
-  // var decrypted = rsa2.decrypt(encrypted); // decrypted == originText
-  // console.log('decrypted: ' + decrypted);
+  logIn() {
+    // var RSAKey = require('react-native-rsa');
+    // var  ReactNativeRSAUtil = require("react-native-rsa-util");
+    // const bits = 1024;
+    // const exponent = '10001';
+    // var rsa = new RSAKey();
+    // rsa.generate(bits, exponent);
+    // var publicKey = rsa.getPublicString(); 
+    // var privateKey = rsa.getPrivateString();
+    // console.log('*********************');
+    // console.log('private key : ' + rsa.getPrivateString());
+    // console.log('*********************');
+    // console.log('public key : ' + rsa.getPublicString()); 
+    // var rsa2 = new RSAKey();
+    // rsa2.setPublicString(rsa.getPublicString());
+    // console.log('*********************');
+    // console.log('public key : ' + rsa2.getPublicString());
+    // var originText = 'Test 123 Test 321';
+    // console.log('*********************');
+    // var encrypted = rsa.encrypt(originText);
+    // console.log(encrypted);
 
-  // var decrypted = rsa3.decrypt(encrypted);
-  // console.log(decrypted);
-  // var RSAKey = require('react-native-rsa');
-  // const bits = 1024;
-  // const exponent = '10001'; // must be a string. This is hex string. decimal = 65537
-  // var rsa = new RSAKey();
-  // rsa.generate(bits, exponent);
-  // var publicKey = rsa.getPublicString();
-  // console.log('*********************************');
-  // console.log('public key:' + publicKey); // return json encoded string
-  // var privateKey = rsa.getPrivateString();
-  // console.log('*********************************');
-  //  console.log('privatre key:' + privateKey); // return json encoded string
-  //  rsa.setPrivateString(privateKey);
-  // var originText = 'sample String Value';
-  // var encrypted = rsa.encrypt(originText);
-  // console.log('encrypted: ' + encrypted);
-  // rsa.setPublicString(publicKey);
-  // var decrypted = rsa.decrypt(encrypted); // decrypted == originText
-  //  console.log('decrypted: ' + decrypted);
+
+    // rsa2.setPublicString(publicKey);
+    // rsa.setPrivateString(privateKey);
+    // console.log('*********************');
+    // console.log('private key : ' + rsa.getPrivateString());
+    // var originText = 'Test 123 Test 321';
+    // var encrypted = rsa.encrypt(originText);
+    // console.log('*********************');
+    // console.log(encrypted);
+    // console.log('*********************');
+    // console.log('public key : ' + rsa2.getPublicString());
+    // var decrypted = rsa2.decrypt(encrypted); // decrypted == originText
+    // console.log('decrypted: ' + decrypted);
+
+    // var decrypted = rsa3.decrypt(encrypted);
+    // console.log(decrypted);
+    // var RSAKey = require('react-native-rsa');
+    // const bits = 1024;
+    // const exponent = '10001'; // must be a string. This is hex string. decimal = 65537
+    // var rsa = new RSAKey();
+    // rsa.generate(bits, exponent);
+    // var publicKey = rsa.getPublicString();
+    // console.log('*********************************');
+    // console.log('public key:' + publicKey); // return json encoded string
+    // var privateKey = rsa.getPrivateString();
+    // console.log('*********************************');
+    //  console.log('privatre key:' + privateKey); // return json encoded string
+    //  rsa.setPrivateString(privateKey);
+    // var originText = 'sample String Value';
+    // var encrypted = rsa.encrypt(originText);
+    // console.log('encrypted: ' + encrypted);
+    // rsa.setPublicString(publicKey);
+    // var decrypted = rsa.decrypt(encrypted); // decrypted == originText
+    //  console.log('decrypted: ' + decrypted);
     Actions.Tabs({ type: 'reset' });
- }
+  }
 
+  // <TextInput underlineColorAndroid="transparent" autoCapitalize="words"
+  //           onChangeText={(val) => this.setState({ DisplayName: val }) }
+  //           style={styles.input} placeholder="Display Name"
+  //           />
+  // <TextInput underlineColorAndroid="transparent" keyboardType="phone-pad"
+  //         onChangeText={(val) => this.setState({ PhoneNumber: val })}
+  //         style={styles.input} placeholder="Phone Number"
+  //         />
   render() {
     return (
       <View style={styles.container}>
-        <Text style = {styles.Welcome}>
+        <Text style={styles.Welcome}>
           Welcome to WriteNow!
         </Text>
         <TouchableHighlight onPress={this.showImagePicker} underlayColor='#ededed'>
           <View style={styles.viewImg}>
-            <Image style={styles.UserImage} source={this.state.avatarSource}/>
+            <Image style={styles.UserImage} source={this.state.avatarSource} />
           </View>
         </TouchableHighlight>
-        <TextInput underlineColorAndroid="transparent" autoCapitalize="words"
-          onChangeText={(val) => this.setState({ DisplayName: val }) }
-          style={styles.input} placeholder="Display Name"
+        <Fumi
+          label={'Display Name'}
+          iconClass={FontAwesomeIcon}
+          iconName={'users'}
+          iconColor={'#f50057'}
+          style={styles.input}
           />
-        <TextInput underlineColorAndroid="transparent" keyboardType="phone-pad"
-          onChangeText={(val) => this.setState({ PhoneNumber: val }) }
-          style={styles.input} placeholder="Phone Number"
+        <Fumi
+          label={'Phone Number'}
+          iconClass={FontAwesomeIcon}
+          iconName={'phone'}
+          iconColor={'#f50057'}
+          style={styles.input}
           />
-        <TouchableOpacity disabled={disabled} style = {styles.button} underlayColor='#ededed' onPress={this.SignUpSubmit}>
+        <TouchableOpacity disabled={disabled} style={styles.button} underlayColor='#ededed' onPress={this.SignUpSubmit}>
           <View>
             <Text style={styles.buttonText}>Submit</Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity  style = {styles.button} underlayColor='#ededed' onPress={this.logIn}>
+        <TouchableOpacity style={styles.button} underlayColor='#ededed' onPress={this.logIn}>
           <View>
             <Text style={styles.buttonText}>tabs page</Text>
           </View>

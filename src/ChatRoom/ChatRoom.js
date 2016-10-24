@@ -21,8 +21,6 @@ var serverSrv = require('../../Services/serverSrv');
 var generalStyles = require('../../styles/generalStyle');
 var ErrorHandler = require('../../ErrorHandler');
 
-
-
 export default class ChatRoom extends Component {
     constructor(props) {
         super(props);
@@ -108,8 +106,6 @@ export default class ChatRoom extends Component {
                 };
             });
         }
-
-
 
         //this.onSend(this.onlineMessages);
 
