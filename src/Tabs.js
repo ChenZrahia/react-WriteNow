@@ -5,6 +5,7 @@ import {
   Text,
 } from 'react-native';
 import { TabViewAnimated, TabViewPage, TabBarTop } from 'react-native-tab-view';
+
 import serverSrv from '../Services/serverSrv';
 import Contacts from './Contacts/Contacts';
 import ChatRoom from './ChatRoom/ChatRoom';
@@ -20,6 +21,7 @@ import Menu, {
 } from 'react-native-popup-menu';
 
 var generalStyle = require('../styles/generalStyle');
+var ScrollableTabView = require('react-native-scrollable-tab-view');
 
 const styles = StyleSheet.create({
   tabbar: {
@@ -57,49 +59,6 @@ export default class Tabs extends Component {
 
   state = {
     index: 1,
-    routes: [
-      { key: '1', title: 'Contacts' },
-      { key: '2', title: 'Chats' },
-      { key: '3', title: 'Other' }
-    ],
-    opened: false
-  };
-
-  _handleChangeTab = (index) => {
-    this.setState({
-      index,
-    });
-  };
-
-  _renderHeader = (props) => {
-    return (
-      <TabBarTop
-        {...props}
-        pressColor='rgba(0, 0, 0, .2)'
-        indicatorStyle={styles.indicator}
-        style={styles.tabbar}
-        labelStyle={styles.label}
-        />
-    );
-  };
-
-  _renderScene = ({ route }) => {
-    switch (route.key) {
-      case '1':
-        return (<View style={[styles.page, { backgroundColor: 'white' }]}><Contacts /></View>);
-      case '2':
-        return <View style={[styles.page, { backgroundColor: 'white' }]}><Chats /></View>;
-      case '3':
-        return (<View style={[styles.page, { backgroundColor: 'white' }]} >
-        </View>);
-
-      default:
-        return null;
-    }
-  };
-
-  _renderPage = (props) => {
-    return <TabViewPage {...props} renderScene={this._renderScene} />;
   };
 
   render() {
@@ -112,13 +71,10 @@ export default class Tabs extends Component {
           <View style={styles.button}>
           </View>
         </View>
-        <TabViewAnimated
-          style={[generalStyle.styles.container, this.props.style]}
-          navigationState={this.state}
-          renderScene={this._renderPage}
-          renderHeader={this._renderHeader}
-          onRequestChangeTab={this._handleChangeTab}
-          />
+        <ScrollableTabView tabBarBackgroundColor={generalStyle._mainColor} tabBarTextStyle={{color: 'white'}} tabBarUnderlineStyle={{backgroundColor: generalStyle._secondColor, height: 1}}>
+          <Contacts tabLabel="CONTACTS" />
+          <Chats tabLabel="CHATS" />
+        </ScrollableTabView>
       </View>
     );
   }

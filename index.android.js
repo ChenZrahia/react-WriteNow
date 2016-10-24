@@ -52,6 +52,10 @@ export default class WriteNow extends Component {
   }
 }
 
+        // <StatusBar barStyle="light-content" />
+        // <View style={styles.statusbar} />
+        // <InitRout />
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
