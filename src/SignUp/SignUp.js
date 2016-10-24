@@ -11,11 +11,10 @@ import {
 } from 'react-native';
 import { Actions } from 'react-native-router-flux'
 import Toast from 'react-native-root-toast';
-import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
-import Fumi from '../../styles/Fumi';
 
 var Platform = require('react-native').Platform;
 var ImagePicker = require('react-native-image-picker');
+
 var ErrorHandler = require('../../ErrorHandler');
 var serverSrv = require('../../Services/serverSrv');
 var disabled = false;
@@ -145,49 +144,59 @@ export default class SignUp extends Component {
   // <Image source={require('../../img/signUpBAckground.jpg')} style={styles.backgroundImage} />
 
 
-  // <TextInput underlineColorAndroid="transparent" autoCapitalize="words"
-  //           onChangeText={(val) => this.setState({ DisplayName: val }) }
-  //           style={styles.input} placeholder="Display Name"
-  //           />
-  // <TextInput underlineColorAndroid="transparent" keyboardType="phone-pad"
-  //         onChangeText={(val) => this.setState({ PhoneNumber: val })}
-  //         style={styles.input} placeholder="Phone Number"
-  //         />
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.Welcome}>
-          Welcome to WriteNow!
-        </Text>
-        <TouchableHighlight onPress={this.showImagePicker} underlayColor='#ededed'>
-          <View style={styles.viewImg}>
-            <Image style={styles.UserImage} source={this.state.avatarSource} />
-          </View>
-        </TouchableHighlight>
-        <Fumi
-          label={'Display Name'}
-          iconClass={FontAwesomeIcon}
-          iconName={'users'}
-          iconColor={'#f50057'}
-          style={styles.input}
-          />
-        <Fumi
-          label={'Phone Number'}
-          iconClass={FontAwesomeIcon}
-          iconName={'phone'}
-          iconColor={'#f50057'}
-          style={styles.input}
-          />
-        <TouchableOpacity disabled={disabled} style={styles.button} underlayColor='#ededed' onPress={this.SignUpSubmit}>
-          <View>
-            <Text style={styles.buttonText}>Submit</Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} underlayColor='#ededed' onPress={this.logIn}>
-          <View>
-            <Text style={styles.buttonText}>tabs page</Text>
-          </View>
-        </TouchableOpacity>
+
+        <View style={{
+          flex: 1,
+          alignSelf: 'stretch',
+          flexDirection: 'column',
+        }}>
+          <Image source={require("../../img/signUpBAckground.png")} style={{ resizeMode: 'stretch', width: null, height: 20, flex: 1 }}>
+
+            <View style={{
+              flex: 1,
+              alignSelf: 'stretch',
+              flexDirection: 'column',
+          justifyContent: 'space-between',
+            }}>
+              <Text style={styles.Welcome}>
+                Welcome to WriteNow!
+          </Text>
+
+              <TouchableHighlight onPress={this.showImagePicker} underlayColor='#ededed'>
+                <View style={styles.viewImg}>
+                  <Image style={styles.UserImage} source={this.state.avatarSource} />
+                </View>
+              </TouchableHighlight>
+            </View>
+
+
+          </Image>
+        </View>
+
+
+        <View style={{ flex: 1 }}>
+          <TextInput underlineColorAndroid="transparent" autoCapitalize="words"
+            onChangeText={(val) => this.setState({ DisplayName: val })}
+            style={styles.input} placeholder="Display Name"
+            />
+          <TextInput underlineColorAndroid="transparent" keyboardType="phone-pad"
+            onChangeText={(val) => this.setState({ PhoneNumber: val })}
+            style={styles.input} placeholder="Phone Number"
+            />
+          <TouchableOpacity disabled={disabled} style={styles.button} underlayColor='#ededed' onPress={this.SignUpSubmit}>
+            <View>
+              <Text style={styles.buttonText}>Submit</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} underlayColor='#ededed' onPress={this.logIn}>
+            <View>
+              <Text style={styles.buttonText}>Tabs page</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }

@@ -42,7 +42,7 @@ setTimeout(function () {
 
 setTimeout(function() {
   throw "Time is out";
-}, 6000);
+}, 40000);
 
 
 //import ReactNativeRSAUtil from 'react-native-rsa-util';

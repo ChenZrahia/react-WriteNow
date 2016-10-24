@@ -71,7 +71,7 @@ export default class Tabs extends Component {
           <View style={styles.button}>
           </View>
         </View>
-        <ScrollableTabView tabBarBackgroundColor={generalStyle._mainColor} tabBarTextStyle={{color: 'white'}} tabBarUnderlineStyle={{backgroundColor: generalStyle._secondColor, height: 1}}>
+        <ScrollableTabView tabBarBackgroundColor={generalStyle._mainColor} tabBarTextStyle={{color: 'white'}} tabBarUnderlineStyle={{backgroundColor: generalStyle._secondColor, height: 2}}>
           <Contacts tabLabel="CONTACTS" />
           <Chats tabLabel="CHATS" />
         </ScrollableTabView>

@@ -125,7 +125,7 @@ export default class Chats extends Component {
             <Modal
                 animationType={"slide"}
                 transparent={true}
-                visible={this.state.imageVisible}
+                visible={this.state.imageVisible == true}
                 onRequestClose={() => { console.log('image closed') } }
                 >
                 <TouchableHighlight style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
