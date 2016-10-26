@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     height: 45,
     width: 300,
     marginTop: 10,
-    padding: 4,
+    padding: 2,
     fontSize: 18,
     borderWidth: 1,
     borderRadius: 15,

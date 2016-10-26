@@ -66,6 +66,8 @@ export default class Fumi extends BaseInput {
             style={{
               position: 'absolute',
               left: PADDING,
+              top: 12,
+              height: 40,
               bottom: focusedAnim.interpolate({
                 inputRange: [0, 0.5, 0.51, 0.7, 1],
                 outputRange: [24, ANIM_PATH, NEGATIVE_ANIM_PATH, NEGATIVE_ANIM_PATH, 24],
@@ -90,7 +92,7 @@ export default class Fumi extends BaseInput {
             height: inputHeight,
             top: focusedAnim.interpolate({
               inputRange: [0, 0.5, 0.51, 0.7, 1],
-              outputRange: [24, ANIM_PATH, NEGATIVE_ANIM_PATH, NEGATIVE_ANIM_PATH, PADDING / 2],
+              outputRange: [10, ANIM_PATH, NEGATIVE_ANIM_PATH, NEGATIVE_ANIM_PATH, -2],
             }),
           }}>
             <Animated.Text style={[styles.label, labelStyle, {
@@ -128,25 +130,28 @@ export default class Fumi extends BaseInput {
 const styles = StyleSheet.create({
   container: {
     overflow: 'hidden',
-    paddingTop: 16,
+    paddingTop: 0,
     backgroundColor: 'white',
   },
   label: {
     fontSize: 18,
     fontFamily: 'Arial',
     fontWeight: 'bold',
+    top: 0,
+    height: 50
   },
   textInput: {
     flex: 1,
     color: 'black',
-    fontSize: 13,
-    padding: 7,
+    fontSize: 18,
     paddingLeft: 0,
+    height: 48,
+    marginTop: 0
   },
   separator: {
     position: 'absolute',
     width: 1,
-    backgroundColor: '#f0f0f0',
-    marginTop: -8,
+    backgroundColor: '#f50057',
+    marginTop: -2
   },
 });

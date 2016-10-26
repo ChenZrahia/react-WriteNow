@@ -61,10 +61,9 @@ export default class WriteNow extends Component {
     return (
       <View style={styles.container}>
         <StatusBar
-        barStyle="light-content"
+        backgroundColor="#820cf7"
         animated={true}
         />
-        <View style={styles.statusbar} />
         <InitRout />
       </View>
     );
