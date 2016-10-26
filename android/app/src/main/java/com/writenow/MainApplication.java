@@ -31,7 +31,7 @@ public class MainApplication extends Application implements ReactApplication {
           new MainReactPackage(),
             new VectorIconsPackage(),
             new ImagePickerPackage(),
-            new ReactNativeContacts(),
+            new ReactNativeContacts()
       );
     }
   };

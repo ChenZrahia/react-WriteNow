@@ -31,7 +31,6 @@ var serverSrv = require('./Services/serverSrv');
 //         console.log(data);
 //       }
 //     });
-}, 1000);
 
 setTimeout(function() {
   throw "Time is out";
