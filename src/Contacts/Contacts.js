@@ -221,7 +221,7 @@ export default class Contacts extends Component {
                 visible={this.state.imageVisible}
                 onRequestClose={() => { console.log('image closed') } }
                 >
-                <TouchableHighlight style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
+                <TouchableHighlight style={{ flex: 1 }} onPress={() => {
                     this.setImageVisible(!this.state.imageVisible)
                 } }>
                     <View style={generalStyle.styles.imageModal}>

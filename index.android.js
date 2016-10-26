@@ -32,11 +32,6 @@ var serverSrv = require('./Services/serverSrv');
 //       }
 //     });
 
-setTimeout(function() {
-  throw "Time is out";
-}, 40000);
-
-
 //import ReactNativeRSAUtil from 'react-native-rsa-util';
 
 // var JSEncrypt = require('./jsencrypt').JSEncrypt;
