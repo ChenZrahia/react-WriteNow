@@ -9,10 +9,15 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  TouchableHighlight,
   View,
+  TextInput
 } from 'react-native';
 import InitRout from './src/InitRout';
 import ChatRoom from './src/ChatRoom/ChatRoom';
+
+
+
 
 var serverSrv = require('./Services/serverSrv');
 
@@ -37,17 +42,28 @@ export default class WriteNow extends Component {
   constructor() {
     super();
     serverSrv.login();
+     
   }
-  render() {
-    return (
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" />
-        <View style={styles.statusbar} />
-        <InitRout />
-      </View>
-    );
+
+
+   render() {
+      return (
+        <View style={styles.container}>     
+         <StatusBar barStyle="light-content" />
+         <View style={styles.statusbar} />
+         <InitRout />
+       </View>
+      );
+ 
+   
   }
 }
+
+  //  <View style={styles.container}>     
+  //       <StatusBar barStyle="light-content" />
+  //        <View style={styles.statusbar} />
+  //        <InitRout />
+  //     </View>
 
 const styles = StyleSheet.create({
   container: {

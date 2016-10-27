@@ -8,12 +8,19 @@ import Composer from './Composer';
 import Send from './Send';
 
 export default class InputToolbar extends React.Component {
+  constructor(props){
+    super(props);
+    // console.log('*****************');
+    // console.log(props);
+  }
+
   renderActions() {
     if (this.props.renderActions) {
       return this.props.renderActions(this.props);
     }
     return null;
   }
+  
 
   renderSend() {
     if (this.props.renderSend) {

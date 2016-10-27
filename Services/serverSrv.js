@@ -438,7 +438,7 @@ export function saveNewMessage(msg) {
                 msg.isEncrypted,
                 msg.from,
                 msg.content,
-                msg.sendTime,
+                msg.sendTime.toString(),
                 msg.lastTypingTime,
                 msg.isSeenByAll
                 ]);

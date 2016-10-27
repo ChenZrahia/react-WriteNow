@@ -26,6 +26,9 @@ var ErrorHandler = require('../../ErrorHandler');
 export default class ChatRoom extends Component {
     constructor(props) {
         super(props);
+        this.state = {
+            emojiPicker: true,
+        };
         this._messageId = null;
         this.state = { messages: [] };
         this.onSend = this.onSend.bind(this);
@@ -232,6 +235,7 @@ export default class ChatRoom extends Component {
     render() {
         return (
             <GiftedChat
+                modalEmoji={this.state.emojiPicker}
                 userName={this.props.groupName}
                 userPicture={this.props.groupPicture}
                 messages={this.state.messages}

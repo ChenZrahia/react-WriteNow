@@ -6,6 +6,7 @@ import {
   StyleSheet,
   View,
   Image,
+  TouchableHighlight,
   Text
 } from 'react-native';
 
@@ -28,6 +29,7 @@ import Send from './Send';
 import Time from './Time';
 var generalStyles = require('../../styles/generalStyle');
 
+
 // Min and max heights of ToolbarInput and Composer
 // Needed for Composer auto grow and ScrollView animation
 // TODO move these values to Constants.js (also with used colors #b2b2b2)
@@ -41,6 +43,10 @@ const MIN_INPUT_TOOLBAR_HEIGHT = 44;
 export default class GiftedChat extends React.Component {
   constructor(props) {
     super(props);
+    console.log('*****************');
+    console.log(props);
+
+    
     // default values
     this._isMounted = false;
     this._keyboardHeight = 0;
@@ -54,6 +60,7 @@ export default class GiftedChat extends React.Component {
 
     this.state = {
       isInitialized: false, // initialization will calculate maxHeight before rendering the chat
+      check: false,
     };
 
     this.onTouchStart = this.onTouchStart.bind(this);
@@ -79,6 +86,9 @@ export default class GiftedChat extends React.Component {
       onKeyboardDidHide: this.onKeyboardDidHide,
     };
   }
+
+
+ 
 
   static append(currentMessages = [], messages) {
     if (!Array.isArray(messages)) {
@@ -440,7 +450,9 @@ render() {
             } }
             >
             {this.renderMessages() }
-            {this.renderInputToolbar() }
+            {this.renderInputToolbar(this.state.check) }
+           
+
           </View>
         </ActionSheet>
       </View>
