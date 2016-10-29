@@ -179,6 +179,8 @@ export default class SignUp extends Component {
             iconName={'users'}
             iconColor={'#f50057'}
             style={styles.input}
+            autoCapitalize="words"
+            onChangeText={(val) => this.setState({ DisplayName: val })}
             />
           <Fumi
             label={'Phone Number'}
@@ -186,6 +188,8 @@ export default class SignUp extends Component {
             iconName={'phone'}
             iconColor={'#f50057'}
             style={styles.input}
+            keyboardType="phone-pad"
+            onChangeText={(val) => this.setState({ PhoneNumber: val })}
             />
           <TouchableOpacity disabled={disabled} style={styles.button} underlayColor='#ededed' onPress={this.SignUpSubmit}>
             <View>
@@ -234,7 +238,6 @@ const styles = StyleSheet.create({
     width: 300,
     marginTop: 10,
     padding: 2,
-    fontSize: 18,
     borderWidth: 1,
     borderRadius: 15,
     borderColor: '#f50057'

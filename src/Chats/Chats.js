@@ -26,6 +26,7 @@ export default class Chats extends Component {
             dataSource: ds.cloneWithRows(this.myChats),
             imageVisible: false
         };
+        
         serverSrv.GetAllUserConv((result) => {
             try {
                 this.myChats = this.sortDates(result);
@@ -52,6 +53,7 @@ export default class Chats extends Component {
         });
     }
 
+    
     pad(num, size) {
         var s = "000000000" + num;
         return s.substr(s.length - size);
@@ -128,7 +130,7 @@ export default class Chats extends Component {
                 visible={this.state.imageVisible == true}
                 onRequestClose={() => { console.log('image closed') } }
                 >
-                <TouchableHighlight style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
+                <TouchableHighlight style={{ flex: 1 }} onPress={() => {
                     this.setImageVisible(!this.state.imageVisible)
                 } }>
                     <View style={generalStyle.styles.imageModal}>

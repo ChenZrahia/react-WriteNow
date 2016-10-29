@@ -3,8 +3,8 @@ import { StyleSheet } from 'react-native';
 var mainColor = '#9933FF';
 var secondColor = '#f50057';
 
-export var _mainColor= mainColor;
-export var _secondColor= secondColor;
+export var _mainColor = mainColor;
+export var _secondColor = secondColor;
 
 export const styles = StyleSheet.create({
     scrollView: {
@@ -88,8 +88,7 @@ export const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         flex: 1,
         alignItems: 'center',
-        alignSelf: 'stretch',
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
     imageInsideModal: {
         width: 200,

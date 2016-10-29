@@ -164,8 +164,8 @@ export default class Contacts extends Component {
                     iconClass={MaterialsIcon}
                     iconName={'search'}
                     iconColor={'#f50057'}
-                    labelStyle={{ color: '#f50057', justifyContent: 'center' }}
-                    inputStyle={{ color: '#f50057' }}
+                    labelStyle={{ color: '#f50057', justifyContent: 'center', alignSelf: 'stretch' }}
+                    inputStyle={{ color: '#f50057', alignSelf: 'stretch' }}
                     value={this.state.filter}
                     onChange={this.onFilterChange.bind(this)}
                     />
@@ -221,7 +221,7 @@ export default class Contacts extends Component {
                 visible={this.state.imageVisible}
                 onRequestClose={() => { console.log('image closed') } }
                 >
-                <TouchableHighlight style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
+                <TouchableHighlight style={{ flex: 1 }} onPress={() => {
                     this.setImageVisible(!this.state.imageVisible)
                 } }>
                     <View style={generalStyle.styles.imageModal}>
