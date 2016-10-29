@@ -27,7 +27,6 @@ var db = SQLite.openDatabase({ name: 'WriteNow.db', location: 'default' }, null,
 var _isFirstTime_Friends = true;
 var _isFirstTime_Chats = true;
 var _isFirstTime_Conv = true;
-var _isAppOpen = true;
 var myChatsJson = {};
 export var _myFriends = null;
 export var _myFriendsJson = {};
@@ -38,13 +37,14 @@ export var _myConvs = {};
 
 export function DeleteDb() {
     db.transaction((tx) => {
-        //tx.executeSql('DELETE FROM UserInfo', [], null, errorDB); //------------------
-        //tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
-        //tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
+        // tx.executeSql('DELETE FROM UserInfo', [], null, errorDB); //------------------
+        // tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
+        // tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
 
-        //tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
-        //  tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
-        //tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
+         tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
     });
 }
 
@@ -53,8 +53,7 @@ setTimeout(() => {
         tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid)', [], null, errorDB); //פונקציה חיצונית
         tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id PRIMARY KEY NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, mail, picture, gender)', [], null, errorDB); //להוציא לפונקציה נפרדת
-        tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime, lastTypingTime, isSeenByAll)', [], null, errorDB); //להוציא לפונקציה נפרדת
-        //tx.executeSql('DELETE FROM Friends', [], null, errorDB);
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll)', [], null, errorDB); //להוציא לפונקציה נפרדת
     });
 }, 500);
 
@@ -431,6 +430,7 @@ export function onServerTyping(callback) {
 
 export function saveNewMessage(msg) {
     try {
+        console.log(msg);
         db.transaction((tx) => {
             tx.executeSql('INSERT INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
                 [msg.id,
@@ -438,7 +438,7 @@ export function saveNewMessage(msg) {
                 msg.isEncrypted,
                 msg.from,
                 msg.content,
-                msg.sendTime,
+                msg.sendTime.toString(),
                 msg.lastTypingTime,
                 msg.isSeenByAll
                 ]);
@@ -476,24 +476,13 @@ export function login() {
                     //         }
                     //     });
 
+                    socket.disconnect();
+                    socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {query: {encryptedUid: encryptedUid, publicKey: item.publicKey, uid: _uid}});
 
-                    // try {
-                    //     socket.disconnect();
-                    //     socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {query: {encryptedUid: encryptedUid, publicKey: item.publicKey}});
-                    // } catch (error) {
-                    //     ErrorHandler.WriteError('constructor => _loggingService.reConnect', error);
-                    // }
                     socket.removeAllListeners("AuthenticationOk");
-                    _isAppOpen = false;
                     socket.on('AuthenticationOk', (ok) => {
                         try {
-                            if (_isAppOpen == false) {
-                                // _zone.run(() => {
-                                //     nav.popToRoot();
-                                //     nav.push(TabsPage);
-                                // });
-                                _isAppOpen = true;
-                            }
+                            Actions.Tabs();
                         } catch (e) {
                             Actions.SignUp({ type: 'replace' });
                             ErrorHandler.WriteError('EnterPage constructor => AuthenticationOk', error);
@@ -502,6 +491,7 @@ export function login() {
                 }
                 else {
                     try {
+                        socket = io.connect('https://server-sagi-uziel.c9users.io:8080');
                         Actions.SignUp({ type: 'replace' });
                     } catch (error) {
                         console.log(error);

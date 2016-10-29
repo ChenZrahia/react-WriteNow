@@ -15,5 +15,5 @@ project(':react-native-vector-icons').projectDir = new File(rootProject.projectD
 include ':react-native-contacts'
 project(':react-native-contacts').projectDir = new File(settingsDir, '../node_modules/react-native-contacts/android')
 
-include ':writenow-rsa'
-project(':writenow-rsa').projectDir = new File(settingsDir, '../node_modules/writenow-rsa/android')
+// include ':writenow-rsa'
+// project(':writenow-rsa').projectDir = new File(settingsDir, '../node_modules/writenow-rsa/android')
