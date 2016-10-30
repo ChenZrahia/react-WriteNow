@@ -7,6 +7,8 @@ import { Image,
     Text,
     View, } from 'react-native';
 import {Actions} from 'react-native-router-flux';
+
+
 var serverSrv = require('../../Services/serverSrv');
 var ErrorHandler = require('../../ErrorHandler');
 
@@ -42,8 +44,23 @@ export default class Chats extends Component {
             } catch (error) {
                 console.log(error);
             }
-
         });
+    }
+
+    showNotification(notification)
+    {
+        try {
+            if(notification)
+            {
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+        catch(e){
+            ErrorHandler.WriteError('chats.js => showNotification', e);
+        }
     }
 
     getDateFormated(date) {
@@ -101,8 +118,25 @@ export default class Chats extends Component {
     }
 
     openChat(rowData) {
-      
         Actions.ChatRoom(rowData.id);
+    }
+
+    _renderCancel(notifications)
+    {
+        if(notifications)
+        {
+            return(
+                <View  style={styles.notification}>
+                    <Text style={styles.notificationText}>
+                        {notifications}
+                    </Text>
+                </View>
+            );
+        }
+        else
+        {
+            return null;
+        }
     }
 
     render() {
@@ -114,7 +148,7 @@ export default class Chats extends Component {
                     renderRow={(rowData) =>
                         <TouchableHighlight underlayColor='#ededed' onPress={() => {
                             this.openChat(rowData);
-                        } }>
+                        }}>
                             <View style={styles.row}>
                                 <View style={styles.viewImg}>
                                     <Image style={styles.thumb} source={ rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? require('../../img/user.jpg') : require('../../img/user.jpg')) }/>
@@ -132,6 +166,7 @@ export default class Chats extends Component {
                                         {rowData.lastMessage}
                                     </Text>
                                 </View>
+                            {this._renderCancel(rowData.notifications)}
                             </View>
                         </TouchableHighlight>
                     }
@@ -142,6 +177,19 @@ export default class Chats extends Component {
 }
 
 var styles = StyleSheet.create({
+    notificationText: {
+        color: '#ffffff',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        textAlignVertical: 'center'
+    },
+    notification:{
+        backgroundColor: '#32cd32',
+        borderRadius: 10, 
+        borderWidth: 0, 
+        width: 20,
+        height: 20
+    },
     row: {
         flex: 1,
         flexDirection: 'row',

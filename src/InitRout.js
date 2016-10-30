@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { TabViewAnimated, TabViewPage, TabBarTop } from 'react-native-tab-view';
 import Contacts from './Contacts/Contacts'
 import SignUp from './SignUp/SignUp'
 import Chats from './Chats/Chats'
