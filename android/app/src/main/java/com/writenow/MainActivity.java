@@ -11,13 +11,6 @@ import com.imagepicker.ImagePickerPackage;
 import com.rt2zz.reactnativecontacts.ReactNativeContacts;
 import com.imagepicker.ImagePickerPackage;
 import com.rt2zz.reactnativecontacts.ReactNativeContacts;
-import com.imagepicker.ImagePickerPackage;
-import com.rt2zz.reactnativecontacts.ReactNativeContacts;
-import com.imagepicker.ImagePickerPackage;
-import com.rt2zz.reactnativecontacts.ReactNativeContacts;
-import com.imagepicker.ImagePickerPackage;
-import com.rt2zz.reactnativecontacts.ReactNativeContacts;
-import com.imagepicker.ImagePickerPackage;
 
 public class MainActivity extends ReactActivity {
 

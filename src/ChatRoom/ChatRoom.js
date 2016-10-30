@@ -21,8 +21,6 @@ var serverSrv = require('../../Services/serverSrv');
 var generalStyles = require('../../styles/generalStyle');
 var ErrorHandler = require('../../ErrorHandler');
 
-
-
 export default class ChatRoom extends Component {
     constructor(props) {
         super(props);
@@ -44,14 +42,11 @@ export default class ChatRoom extends Component {
                 if (!data) {
                     data = [];
                 }
-                console.log(111111);
-                console.log(this.props.data);
                 this.messages = data;
-                console.log(data);
                 this.setState({
                     messages: GiftedChat.append(this.messages, this.onlineMessages),
                 });
-            }, this.props.data);
+            }, this.props.id);
         }, 1000);
 
     }
@@ -67,17 +62,26 @@ export default class ChatRoom extends Component {
     }
 
     onFriendType(msg) {
+        if (msg.from == serverSrv._uid) {
+            return;
+        }
         if (!this.messages) {
             this.messages = [];
         }
+        if (msg.mid) {
+            msg._id = msg.mid;
+            msg.id = msg.mid;
+        }
         if (!msg.id) {
+            console.log(msg);
+            console.log('msg.id--**');
             msg.id = this.guid();
         }
         if (!msg._id) {
             msg._id = msg.id;
         }
         if (!msg.user) {
-            msg.user = { id: '123', name: 'sagi', avatar: '' };
+            msg.user = serverSrv._myFriendsJson[msg.from];
         }
         msg.text = msg.content;
         if (!this.indexOnlineMessages[msg._id]) { //new message
@@ -94,7 +98,7 @@ export default class ChatRoom extends Component {
         }
 
         if (msg.sendTime) {
-            this.onSend(this.onlineMessages[this.onlineMessages.indexOf(this.indexOnlineMessages[msg._id])]);
+            this.onSend(msg);
         } else {
             this.setState((previousState) => {
                 return {
@@ -102,8 +106,6 @@ export default class ChatRoom extends Component {
                 };
             });
         }
-
-
 
         //this.onSend(this.onlineMessages);
 
@@ -152,13 +154,21 @@ export default class ChatRoom extends Component {
                 } else {
                     msg.createdAt = msg.sendTime;
                 }
-                this.messages.splice(0, 0, msg); //push
-                this.onlineMessages.splice(this.onlineMessages.indexOf(this.indexOnlineMessages[msg._id]), 1);
-                if (msg.from == serverSrv._uid) {
+                if (msg._id.indexOf('temp-id') >= 0) {
+                    msg._id = this._messageId;
+                    msg.id = this._messageId;
+                    msg.from = serverSrv._uid;
+                    msg.createdAt = msg.sendTime;
+                    msg.content = msg.text;
+                    msg.convId = this.props.data;
                     serverSrv.saveNewMessage(msg);
-                } else {
-                    
-                }
+                } 
+                console.log(msg);
+                console.log('msg');
+                this.messages.splice(0, 0, msg); //push
+                this.onlineMessages = this.onlineMessages.filter((o_msg) => {
+                    return o_msg.id != msg.id;
+                });
                 //this.onlineMessages.splice(this.onlineMessages.indexOf(msg), 1);
             }
             this.setState((previousState) => {
@@ -169,27 +179,57 @@ export default class ChatRoom extends Component {
         } catch (error) {
             console.log(error);
         }
-
         this._messageId = null;
     }
+
+    // convertChatObjToDbObj(msg) {
+    //     try {
+    //         msg.mid = msg._id;
+    //     } catch (error) {
+
+    //     }
+    // }
 
     onType(text) {
         if (this._messageId == null) {
             this._messageId = this.guid();
         }
-        serverSrv.Typing({
+        var msg = {
             mid: this._messageId,
             id: this._messageId,
+            _id: this._messageId,
             convId: this.props.data,
             isEncrypted: false,
             lastTypingTime: Date.now(),
+            from: serverSrv._uid,
             content: text
+        };
+        serverSrv.Typing(msg);
+        msg.user = { id: '123', name: 'Me', avatar: '' };
+        if (!this.indexOnlineMessages[msg._id]) { //new message
+            this.indexOnlineMessages[msg._id] = msg;
+            this.onlineMessages.push(this.indexOnlineMessages[msg.id]);
+        } else {
+            this.indexOnlineMessages[msg._id].text = msg.content;
+            this.indexOnlineMessages[msg._id].content = msg.content;
+            if (!msg.content || msg.content.length == 0) {
+                this._messageId = null;
+                this.onlineMessages.splice(this.onlineMessages.indexOf(this.indexOnlineMessages[msg._id]), 1);
+                delete this.indexOnlineMessages[msg._id];
+            }
+        }
+        this.setState((previousState) => {
+            return {
+                messages: GiftedChat.append(this.messages, this.onlineMessages),
+            };
         });
     }
 
     render() {
         return (
             <GiftedChat
+                userName={this.props.groupName}
+                userPicture={this.props.groupPicture}
                 messages={this.state.messages}
                 onSend={this.onSend}
                 onType={this.onType}

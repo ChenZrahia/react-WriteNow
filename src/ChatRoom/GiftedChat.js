@@ -6,7 +6,9 @@ import {
   StyleSheet,
   View,
   Image,
-  Text
+  Text,
+  Modal,
+  TouchableHighlight
 } from 'react-native';
 
 import ActionSheet from '@exponent/react-native-action-sheet';
@@ -26,6 +28,7 @@ import Message from './Message';
 import MessageContainer from './MessageContainer';
 import Send from './Send';
 import Time from './Time';
+
 var generalStyles = require('../../styles/generalStyle');
 
 // Min and max heights of ToolbarInput and Composer
@@ -41,7 +44,6 @@ const MIN_INPUT_TOOLBAR_HEIGHT = 44;
 export default class GiftedChat extends React.Component {
   constructor(props) {
     super(props);
-
     // default values
     this._isMounted = false;
     this._keyboardHeight = 0;
@@ -55,6 +57,7 @@ export default class GiftedChat extends React.Component {
 
     this.state = {
       isInitialized: false, // initialization will calculate maxHeight before rendering the chat
+      imageVisible: false
     };
 
     this.onTouchStart = this.onTouchStart.bind(this);
@@ -294,11 +297,11 @@ export default class GiftedChat extends React.Component {
 
           invertibleScrollViewProps={this.invertibleScrollViewProps}
 
-          messages={this.getMessages() }
+          messages={this.getMessages()}
 
           ref={component => this._messageContainerRef = component}
           />
-        {this.renderChatFooter() }
+        {this.renderChatFooter()}
       </AnimatedView>
     );
   }
@@ -408,16 +411,44 @@ renderLoading() {
   return null;
 }
 
+setImageVisible(visible) {
+  this.setState({ imageVisible: visible });
+}
+
+openImageModal(image) {
+  return (
+    <Modal
+      animationType={"slide"}
+      transparent={true}
+      visible={this.state.imageVisible}
+      onRequestClose={() => { console.log('image closed') } }
+      >
+      <TouchableHighlight style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
+        this.setImageVisible(!this.state.imageVisible)
+      } }>
+        <View style={generalStyles.styles.imageModal}>
+          <Image style={generalStyles.styles.imageInsideModal} source={image} />
+        </View>
+      </TouchableHighlight>
+    </Modal>
+  );
+}
+
 render() {
   if (this.state.isInitialized === true) {
     return (
       <View style={styles.chatRoomMain}>
         <View style={generalStyles.styles.appbar}>
-          <View style={generalStyles.styles.viewImgChatRoom}>
-            <Image style={generalStyles.styles.ImgChatRoom} source={ require('../../img/user.jpg') }/>
-          </View>
+          <TouchableHighlight onPress={() => {
+            this.imgSelected = { uri: this.props.userPicture }
+            this.setImageVisible(true);
+          } }>
+            <View style={generalStyles.styles.viewImgChatRoom}>
+              <Image style={generalStyles.styles.ImgChatRoom} source={{ uri: this.props.userPicture }} />
+            </View>
+          </TouchableHighlight>
           <Text style={generalStyles.styles.titleHeader}>
-            WriteNow
+            {this.props.userName}
           </Text>
           <View style={styles.button} />
         </View>
@@ -440,10 +471,11 @@ render() {
               }
             } }
             >
-            {this.renderMessages() }
-            {this.renderInputToolbar() }
+            {this.renderMessages()}
+            {this.renderInputToolbar()}
           </View>
         </ActionSheet>
+        {this.openImageModal(this.imgSelected)}
       </View>
     );
   }
@@ -463,7 +495,7 @@ render() {
         });
       } }
       >
-      {this.renderLoading() }
+      {this.renderLoading()}
     </View>
   );
 }
@@ -549,17 +581,17 @@ GiftedChat.propTypes = {
 };
 
 export {
-GiftedChat,
-Actions,
-Avatar,
-Bubble,
-MessageImage,
-MessageText,
-Composer,
-Day,
-InputToolbar,
-LoadEarlier,
-Message,
-Send,
-Time,
+  GiftedChat,
+  Actions,
+  Avatar,
+  Bubble,
+  MessageImage,
+  MessageText,
+  Composer,
+  Day,
+  InputToolbar,
+  LoadEarlier,
+  Message,
+  Send,
+  Time,
 };
