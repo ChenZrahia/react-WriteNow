@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     color: '#D2D2D2',
   },
   textInput: {
-    //flex: 1,
+    flex: 1,
     justifyContent: 'center',
     paddingHorizontal: PADDING,
     paddingVertical: 0,

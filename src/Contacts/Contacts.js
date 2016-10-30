@@ -123,11 +123,6 @@ export default class Contacts extends Component {
                     })
                 }, 200);
             });
-            // setTimeout(() => {
-            //     this.setState({
-            //         dataSource: ds.cloneWithRows(array)
-            //     })
-            // }, 100);
         }
     }
 
