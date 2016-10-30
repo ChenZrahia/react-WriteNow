@@ -10,8 +10,9 @@ import Send from './Send';
 export default class InputToolbar extends React.Component {
   constructor(props){
     super(props);
-    // console.log('*****************');
-    // console.log(props);
+   
+   
+    
   }
 
   renderActions() {

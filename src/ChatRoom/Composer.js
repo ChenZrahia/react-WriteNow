@@ -29,16 +29,17 @@ import dismissKeyboard from 'react-native-dismiss-keyboard';
 export default class Composer extends React.Component {
   constructor(props) {
     super(props);
+
      
     this.state = {
      showPicker: false,
-    open: false
   };
 
 
   }
   _emojiSelected(emoji) {
-    this.setState({showPicker: false});
+    this.setState({showPicker: false});  
+    this.props.changeText(emoji);
   }
     // <Modal 
     //      animationType={"slide"}
@@ -52,13 +53,15 @@ export default class Composer extends React.Component {
 render(){
    if (this.state.showPicker === true)
    {
-     return( 
+
+     return(
+       <View style={styles.cont} >
         <Modal 
          animationType={"slide"}
           transparent={false}
           onRequestClose={() => {console.log('modal closed')}}
          >
-         
+  
          <View style={styles.viewEmoji}>
       <View style={styles.container}>
         <EmojiPicker 
@@ -68,6 +71,7 @@ render(){
       </View>
         
        </Modal>
+       </View>
        
          
     
@@ -113,6 +117,15 @@ render(){
 // onChangeText = {(title) => {this.setState({text: title})}}
 
 const styles = StyleSheet.create({
+    cont: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 20,
+  },
+  innerContainer: {
+    borderRadius: 10,
+    alignItems: 'center',
+  },
   
  
   viewEmoji:{

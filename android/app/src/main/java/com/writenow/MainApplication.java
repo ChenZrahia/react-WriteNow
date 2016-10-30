@@ -30,9 +30,7 @@ public class MainApplication extends Application implements ReactApplication {
       return Arrays.<ReactPackage>asList(
         new SQLitePluginPackage(),
           new MainReactPackage(),
-         
             new VectorIconsPackage(),
-           
             new ImagePickerPackage(),
             new ReactNativeContacts()
       );
@@ -52,3 +50,5 @@ public class MainApplication extends Application implements ReactApplication {
   //       new MainReactPackage());
   //   }
 }
+
+

@@ -15,13 +15,27 @@ import {
 } from 'react-native';
 import InitRout from './src/InitRout';
 import ChatRoom from './src/ChatRoom/ChatRoom';
-
+import emoji from 'emoji-datasource';
 
 
 
 var serverSrv = require('./Services/serverSrv');
 
-
+//   ReactNativeRSAUtil.encryptStringWithPrivateKey("content", `-----BEGIN RSA PRIVATE KEY-----
+// MIIBOAIBAAJAXr3Li0mGG76UPuI2JE1Nf0z0Y8mgMh/NiqtzbhhP4IJouNDFZK5k
+// dk4sj1FciPsJ/TDI2a1Dixzc7Z4XxQmU0QIDAQABAkBX3y9XnDT/rK6w+H0BBJXZ
+// eZW+q/aiJu8sK8NfHLuRXiDbC2rgBBLi6cQb1VGEWk8JccXGxWtokZorO6x4/N3x
+// AiEAq9L8CaMQYFc3aGKstenmhNwqGsJqfACgHEuJpOatYG0CIQCNJ51PP2q7dqyS
+// U/b6ITSj1z2CbWHgfHInL3ihZSqvdQIgWpqQqIxB0GttHjAaHnrOQXTPBvlJqUWz
+// J/h1Bm1VMykCIFDRVKUyBxcsPGRPhMHzzyLbstEBdZ/FQMqkyGmH9eedAiA/1VRE
+// AHFqyHZtM2qS45D3RjiVSRn2wU3i85lIQ3rA8Q==)
+// -----END RSA PRIVATE KEY-----`)
+//     .then((error, data) => {
+//       console.log(data);
+//       if (!error) {
+//         console.log(data);
+//       }
+//     });
 
 //import ReactNativeRSAUtil from 'react-native-rsa-util';
 
@@ -46,24 +60,25 @@ export default class WriteNow extends Component {
   }
 
 
-   render() {
-      return (
-        <View style={styles.container}>     
-         <StatusBar barStyle="light-content" />
-         <View style={styles.statusbar} />
-         <InitRout />
-       </View>
-      );
- 
-   
+
+
+  render() {
+    return (
+      <View style={styles.container}>
+        <StatusBar
+        backgroundColor="#820cf7"
+        animated={true}
+        />
+        <InitRout />
+      </View>
+    );
   }
 }
 
-  //  <View style={styles.container}>     
-  //       <StatusBar barStyle="light-content" />
-  //        <View style={styles.statusbar} />
-  //        <InitRout />
-  //     </View>
+
+// <StatusBar barStyle="light-content" />
+// <View style={styles.statusbar} />
+// <InitRout />
 
 const styles = StyleSheet.create({
   container: {
