@@ -226,7 +226,15 @@ const styles = StyleSheet.create({
   Welcome: {
     fontSize: 24,
     alignSelf: 'center',
-    marginTop: 5
+    marginTop: 5,
+    color: 'white',
+    fontWeight: 'bold',
+    textShadowColor: 'black',
+    textShadowRadius: 2,
+    textShadowOffset: {
+      height: 1.5,
+      width: 1
+    }
   },
   instructions: {
     textAlign: 'center',

@@ -31,6 +31,7 @@ var myChatsJson = {};
 export var _myFriends = null;
 export var _myFriendsJson = {};
 export var _myChats = null;
+export var _data = [];
 export var _uid = null;
 export var _myConvs = {};
 
@@ -212,6 +213,14 @@ export function GetAllMyFriends_Server(callback) {
 //Conversation
 export function GetAllUserConv(callback, isUpdate) {
     try {
+        if(_data)
+        {
+            console.log('check _data......');
+            console.log(_data.length);
+        }
+        else{
+            console.log('_data is undefined');
+        }
         if (_myChats && callback && !isUpdate) {
             callback(_myChats);
             return;
@@ -221,6 +230,18 @@ export function GetAllUserConv(callback, isUpdate) {
                 try {
                     var result = [];
                     for (var i = 0; i < rs.rows.length; i++) {
+                        var notificationRes;
+                        if(_data)
+                        {    
+                            notificationRes = _data.filter(function(conv){
+                                return conv.id == rs.rows.item(i).id;
+                            })
+                            var _notifications = 0;
+                            if(notificationRes.length > 0)
+                            {
+                                _notifications = notificationRes[0].notifications;
+                            }
+                        }
                         var chat = {
                             id: rs.rows.item(i).id,
                             isEncrypted: rs.rows.item(i).isEncrypted,
@@ -229,11 +250,13 @@ export function GetAllUserConv(callback, isUpdate) {
                             groupPicture: rs.rows.item(i).groupPicture,
                             isGroup: rs.rows.item(i).isGroup,
                             lastMessage: rs.rows.item(i).lastMessage,
-                            lastMessageTime: rs.rows.item(i).lastMessageTime
+                            lastMessageTime: rs.rows.item(i).lastMessageTime,
+                            notifications: _notifications
                         };
                         myChatsJson[rs.rows.item(i).id] = chat;
                         result.push(chat);
                     }
+                    
                     _myChats = result;
                     if (callback) {
                         callback(result);
@@ -287,7 +310,8 @@ function GetAllUserConv_Server(callback) {
                             ]);
                     }
                 }
-                GetAllUserConv(callback, true);
+                _data = data;
+                GetAllUserConv(callback, data, true);
             }, (error) => {
                 ErrorHandler.WriteError('serverSrv.js => GetAllUserConv_Server => GetAllUserConvChanges', error);
             })

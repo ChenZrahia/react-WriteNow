@@ -49,15 +49,29 @@ export default class Chats extends Component {
             } catch (error) {
                 console.log(error);
             }
-
         });
     }
 
-    
+    showNotification(notification)
+    {
+        try {
+            if(notification)
+            {
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+        catch(e){
+            ErrorHandler.WriteError('chats.js => showNotification', e);
+        }
+    }
     pad(num, size) {
         var s = "000000000" + num;
         return s.substr(s.length - size);
     }
+    
 
     getDateFormated(date) {
         try {
@@ -141,6 +155,24 @@ export default class Chats extends Component {
         );
     }
 
+    _renderCancel(notifications)
+    {
+        if(notifications)
+        {
+            return(
+                <View  style={styles.notification}>
+                    <Text style={styles.notificationText}>
+                        {notifications}
+                    </Text>
+                </View>
+            );
+        }
+        else
+        {
+            return null;
+        }
+    }
+
     render() {
         return (
             <View style={{ flex: 1, alignSelf: 'stretch' }}>
@@ -173,6 +205,7 @@ export default class Chats extends Component {
                                         {rowData.lastMessage}
                                     </Text>
                                 </View>
+                            {this._renderCancel(rowData.notifications)}
                             </View>
                         </TouchableHighlight>
                     }
@@ -182,3 +215,20 @@ export default class Chats extends Component {
         );
     }
 }
+
+var styles = StyleSheet.create({
+    notificationText: {
+        color: '#ffffff',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        textAlignVertical: 'center'
+    },
+    notification:{
+        backgroundColor: '#32cd32',
+        borderRadius: 10, 
+        borderWidth: 0, 
+        width: 20,
+        height: 20
+    }
+});
+
