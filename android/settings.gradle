@@ -16,7 +16,3 @@ include ':react-native-contacts'
 project(':react-native-contacts').projectDir = new File(settingsDir, '../node_modules/react-native-contacts/android')
 
 
- 
-
-
-

@@ -3,10 +3,11 @@ import {
   View,
   StyleSheet,
   Text,
+  TouchableHighlight
 } from 'react-native';
 import { TabViewAnimated, TabViewPage, TabBarTop } from 'react-native-tab-view';
 
-import serverSrv from '../Services/serverSrv';
+var serverSrv = require('../Services/serverSrv');
 import Contacts from './Contacts/Contacts';
 import ChatRoom from './ChatRoom/ChatRoom';
 import SignUp from './SignUp/SignUp'
@@ -68,10 +69,15 @@ export default class Tabs extends Component {
           <Text style={generalStyle.styles.titleHeader}>
             WriteNow
         </Text>
+          <TouchableHighlight style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
+            serverSrv.DeleteDb();
+          } }>
+            <Text style={generalStyle.styles.titleHeader}>Delete Db</Text>
+          </TouchableHighlight>
           <View style={styles.button}>
           </View>
         </View>
-        <ScrollableTabView tabBarBackgroundColor={generalStyle._mainColor} tabBarTextStyle={{color: 'white'}} tabBarUnderlineStyle={{backgroundColor: generalStyle._secondColor, height: 2}}>
+        <ScrollableTabView tabBarBackgroundColor={generalStyle._mainColor} tabBarTextStyle={{ color: 'white' }} tabBarUnderlineStyle={{ backgroundColor: generalStyle._secondColor, height: 2 }}>
           <Contacts tabLabel="CONTACTS" />
           <Chats tabLabel="CHATS" />
         </ScrollableTabView>
