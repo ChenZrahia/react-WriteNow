@@ -42,19 +42,21 @@ export function DeleteDb() {
         // tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
         // tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
 
-        tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
+        //  tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
     });
 }
 
 setTimeout(() => {
     db.transaction((tx) => {
-        tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid)', [], null, errorDB); //פונקציה חיצונית
+        tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid)', [], null, errorDB);
         tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime)', [], null, errorDB); //להוציא לפונקציה נפרדת
-        tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id PRIMARY KEY NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, mail, picture, gender)', [], null, errorDB); //להוציא לפונקציה נפרדת
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, mail, picture, gender)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll)', [], null, errorDB); //להוציא לפונקציה נפרדת
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Participates (convId NOT NULL, uid NOT NULL, isGroup, PRIMARY KEY (convId, uid))', [], null, errorDB);
     });
 }, 500);
 
@@ -384,21 +386,25 @@ function GetConv_server(convId, callback) {
         }
         socket.emit('enterChat', convId);
         socket.emit('GetConvChangesById', convId, lastMessageTime, ((data) => {
-            socket.emit('enterChat', convId);
             if (!_myConvs[convId] || !_myConvs[convId].participates) {
                 _myConvs[convId] = { participates: [] };
             }
-            for (var i = 0; i < data.participates.length; i++) {
-                try {
-                    data.participates[i].name = _myFriendsJson[data.participates[i].id].publicInfo.fullName;
-                    data.participates[i].avatar = _myFriendsJson[data.participates[i].id].publicInfo.picture;
-                    data.participates[i]._id = data.participates[i].id;
-                    _myConvs[convId].participates[data.participates[i].id] = data.participates[i];
-                } catch (error) {
-                    console.log(error);
-                }
-            }
             db.transaction((tx) => {
+                for (var i = 0; i < data.participates.length; i++) {
+                    try {
+                        data.participates[i].name = _myFriendsJson[data.participates[i].id].publicInfo.fullName;
+                        data.participates[i].avatar = _myFriendsJson[data.participates[i].id].publicInfo.picture;
+                        data.participates[i]._id = data.participates[i].id;
+                        _myConvs[convId].participates[data.participates[i].id] = data.participates[i];
+                        tx.executeSql('INSERT OR REPLACE INTO Participates VALUES (?, ?, ?)',
+                            [data.participates[i].id,
+                                convId,
+                            data.participates.length > 2
+                            ]);
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }
                 for (var i = 0; i < data.messages.length; i++) {
                     if (data.messages[i].deletedConv == true && data.messages[i].id) {
                         tx.executeSql('DELETE FROM Messages WHERE id=?', [data.messages[i].id]);
@@ -422,6 +428,46 @@ function GetConv_server(convId, callback) {
         }));
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => GetConv_server', error);
+    }
+}
+
+export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate) {
+    try {
+        db.transaction((tx) => {
+            tx.executeSql('SELECT * FROM Participates WHERE uid = ? AND isGroup = ?', [uid, false], (tx, rs) => {
+                try {
+                    if (rs.rows.length > 0) {
+                        GetConv(callback, rs.rows.item(0).convId, true);
+                    } else {
+                        socket.removeAllListeners("returnConv");
+                        socket.on('returnConv', (result) => {
+                            try {
+                                console.log(4);
+                                GetConv(callback, result.id, true);
+                                console.log(result);
+                                console.log('result');
+                                var Fid = result.participates.filter((usr) => { return usr != result.manager; })[0];
+                                _myFriendsJson[Fid] = _myFriendsJson[phoneNumber];
+                                _myFriendsJson[Fid].id = Fid;
+                                db.transaction((tx2) => {
+                                    tx2.executeSql('INSERT OR REPLACE into Participates values(?,?,?)', [result.id.toString(), Fid.toString(), 'false']);
+                                    tx2.executeSql('UPDATE Friends set id = ? WHERE phoneNumber = ?', [Fid.toString(), phoneNumber.toString()]);
+                                });
+                            } catch (error) {
+                                ErrorHandler.WriteError('serverSrv.js => GetConvByContact => returnConv', error);
+                            }
+                        });
+                        socket.emit('GetConvByContact', phoneNumber, fullName);
+                    }
+                } catch (error) {
+                    ErrorHandler.WriteError('serverSrv.js => GetConvByContact => SELECT * FROM Participates => catch', error);
+                }
+            }, errorDB);
+        }, (error) => {
+            ErrorHandler.WriteError('serverSrv.js => GetConvByContact => transaction', error);
+        });
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => GetConvByContact', error);
     }
 }
 

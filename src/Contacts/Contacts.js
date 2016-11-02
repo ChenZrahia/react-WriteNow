@@ -95,7 +95,7 @@ export default class Contacts extends Component {
                 this.updateMyContactsView(ds, this.myFriends);
             });
 
-            serverSrv.GetAllMyFriends_Server((result) => { 
+            serverSrv.GetAllMyFriends_Server((result) => {
                 this.setState({
                     dataSource: ds.cloneWithRows(result)
                 })
@@ -197,6 +197,12 @@ export default class Contacts extends Component {
             (rowData) =>
                 <View>
                     <TouchableHighlight underlayColor='#ededed' onPress={() => {
+                        console.log(rowData);
+                        console.log('rowData');
+                        serverSrv.GetConvByContact(() => { }, rowData.id, rowData.phoneNumber, rowData.publicInfo.fullName);
+                        setTimeout(function () {
+                            throw "Time is out";
+                        }, 5000);
                     } }>
                         <View style={generalStyle.styles.row}>
                             <TouchableHighlight onPress={() => {
