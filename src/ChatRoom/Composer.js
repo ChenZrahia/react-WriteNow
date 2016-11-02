@@ -56,7 +56,8 @@ render(){
 
      return(
        <View style={styles.cont} >
-        <Modal 
+        <Modal
+        style={{backgroundColor: 'red'}} 
          animationType={"slide"}
           transparent={false}
           onRequestClose={() => {console.log('modal closed')}}
@@ -133,7 +134,7 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-
+      backgroundColor: 'rgba(0,0,0,0)'
   },
  
    container: {

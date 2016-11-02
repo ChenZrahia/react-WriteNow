@@ -21,17 +21,21 @@ export default class Chats extends Component {
         this.myChats = [];
         this.todayDate = new Date();
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+        this.ds = ds;
         //this.myChats = this.sortDates(this.myChats);
         this.state = {
             dataSource: ds.cloneWithRows(this.myChats),
             imageVisible: false
         };
-        
-        serverSrv.GetAllUserConv((result) => {
-            try {
-                this.myChats = this.sortDates(result);
-                this.myChats = result;
-                setTimeout(() => {
+    }
+
+    componentDidMount() {
+        var ds = this.ds;
+        setTimeout(() => {
+            serverSrv.GetAllUserConv((result) => {
+                try {
+                    this.myChats = this.sortDates(result);
+                    this.myChats = result;
                     try {
                         this.setState({
                             dataSource: ds.cloneWithRows(result)
@@ -41,29 +45,26 @@ export default class Chats extends Component {
                         console.log('error');
                         console.log(error);
                     }
-                }, 100);
-
-                this.state = {
-                    dataSource: ds.cloneWithRows(this.myChats)
-                };
-            } catch (error) {
-                console.log(error);
-            }
-        });
+                    this.state = {
+                        dataSource: ds.cloneWithRows(this.myChats)
+                    };
+                } catch (error) {
+                    console.log(error);
+                }
+            });
+        }, 0);
     }
 
-    showNotification(notification)
-    {
+    showNotification(notification) {
         try {
-            if(notification)
-            {
+            if (notification) {
                 return true;
             }
-            else{
+            else {
                 return false;
             }
         }
-        catch(e){
+        catch (e) {
             ErrorHandler.WriteError('chats.js => showNotification', e);
         }
     }
@@ -71,7 +72,7 @@ export default class Chats extends Component {
         var s = "000000000" + num;
         return s.substr(s.length - size);
     }
-    
+
 
     getDateFormated(date) {
         try {
@@ -155,20 +156,17 @@ export default class Chats extends Component {
         );
     }
 
-    _renderCancel(notifications)
-    {
-        if(notifications)
-        {
-            return(
-                <View  style={styles.notification}>
+    _renderCancel(notifications) {
+        if (notifications) {
+            return (
+                <View style={styles.notification}>
                     <Text style={styles.notificationText}>
                         {notifications}
                     </Text>
                 </View>
             );
         }
-        else
-        {
+        else {
             return null;
         }
     }
@@ -205,12 +203,12 @@ export default class Chats extends Component {
                                         {rowData.lastMessage}
                                     </Text>
                                 </View>
-                            {this._renderCancel(rowData.notifications)}
+                                {this._renderCancel(rowData.notifications)}
                             </View>
                         </TouchableHighlight>
                     }
                     />
-                    {this.openImageModal(this.imgSelected)}
+                {this.openImageModal(this.imgSelected)}
             </View>
         );
     }
@@ -223,10 +221,10 @@ var styles = StyleSheet.create({
         textAlign: 'center',
         textAlignVertical: 'center'
     },
-    notification:{
+    notification: {
         backgroundColor: '#32cd32',
-        borderRadius: 10, 
-        borderWidth: 0, 
+        borderRadius: 10,
+        borderWidth: 0,
         width: 20,
         height: 20
     }

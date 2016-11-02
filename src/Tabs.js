@@ -58,10 +58,6 @@ export default class Tabs extends Component {
     style: View.propTypes.style,
   };
 
-  state = {
-    index: 1,
-  };
-
   render() {
     return (
       <View style={generalStyle.styles.container}>
@@ -78,8 +74,8 @@ export default class Tabs extends Component {
           </View>
         </View>
         <ScrollableTabView tabBarBackgroundColor={generalStyle._mainColor} tabBarTextStyle={{ color: 'white' }} tabBarUnderlineStyle={{ backgroundColor: generalStyle._secondColor, height: 2 }}>
-          <Contacts tabLabel="CONTACTS" />
           <Chats tabLabel="CHATS" />
+          <Contacts tabLabel="CONTACTS" />
         </ScrollableTabView>
       </View>
     );

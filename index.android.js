@@ -17,8 +17,6 @@ import InitRout from './src/InitRout';
 import ChatRoom from './src/ChatRoom/ChatRoom';
 import emoji from 'emoji-datasource';
 
-
-
 var serverSrv = require('./Services/serverSrv');
 
 // var EncryptionUtil = require('writenow-rsa');
@@ -57,37 +55,28 @@ var serverSrv = require('./Services/serverSrv');
 // var t = new JSEncrypt();
 // console.log(t);
 
-// console.log('***********');
-// console.log('***********');
-// console.log('***********');
-// console.log('***********');
-// console.log('***********');
-// console.log('***********');
-// console.log('***********');
 
 export default class WriteNow extends Component {
   constructor() {
     super();
-    serverSrv.login();
-     
   }
 
-
-
+  componentWillMount() {
+    serverSrv.login();
+  }
 
   render() {
     return (
       <View style={styles.container}>
         <StatusBar
-        backgroundColor="#820cf7"
-        animated={true}
-        />
+          backgroundColor="#820cf7"
+          animated={true}
+          />
         <InitRout />
       </View>
     );
   }
 }
-
 
 // <StatusBar barStyle="light-content" />
 // <View style={styles.statusbar} />

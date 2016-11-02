@@ -27,71 +27,81 @@ export default class Contacts extends Component {
         this.phnesNumbers = [];
         this.myFriends = [];
         this.myContacts = [];
-        const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+        this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         this.state = {
-            dataSource: ds.cloneWithRows(this.myFriends),
+            dataSource: this.ds,
             imageVisible: false,
             filter: ''
         };
 
-        serverSrv.GetAllMyFriends((result) => {
-            if (result && result.length > 0) {
-                setTimeout(() => {
+
+    }
+
+    componentDidMount() {
+        setTimeout(() => {
+            var ds = this.ds;
+            serverSrv.GetAllMyFriends((result) => {
+                if (result && result.length > 0) {
                     this.setState({
                         dataSource: ds.cloneWithRows(result)
                     })
-                }, 100);
-                if (this.isGetMyFriends == false) {
-                    this.isGetMyFriends = true;
-                    this.myFriends = this.myFriends.concat(result);
+                    if (this.isGetMyFriends == false) {
+                        this.isGetMyFriends = true;
+                        this.myFriends = this.myFriends.concat(result);
+                    }
+                    this.mergeContacts();
+                    this.updateMyContactsView(ds, this.myFriends);
                 }
-                this.mergeContacts();
-                this.updateMyContactsView(ds, this.myFriends);
-            }
-        });
+            });
 
-        PhoneContacts.getAll((err, contacts) => {
-            if (err && err.type === 'permissionDenied') {
-                // x.x
-            } else {
-                contacts = contacts.filter((user) => {
-                    if (user.phoneNumbers && user.phoneNumbers[0]) {
-                        var usr = {
-                            isOnline: false,
-                            isPhoneContact: true,
-                            phoneNumber: user.phoneNumbers[0].number.replace('+972', '0').replace(/[ ]|[-()]/g, ''),
-                            publicInfo: {
-                                fullName: user.givenName + (user.middleName ? (' ' + user.middleName) : '') + (user.familyName ? (' ' + user.familyName) : ''),
-                                picture: user.thumbnailPath
+            // לחשוב איך ליעל את זה ------------------------ לא למחוק--------------------------ת
+            PhoneContacts.getAll((err, contacts) => {
+                if (err && err.type === 'permissionDenied') {
+                    // x.x
+                } else {
+                    contacts = contacts.filter((user) => {
+                        if (user.phoneNumbers && user.phoneNumbers[0]) {
+                            var usr = {
+                                isOnline: false,
+                                isPhoneContact: true,
+                                phoneNumber: user.phoneNumbers[0].number.replace('+972', '0').replace(/[ ]|[-()]/g, ''),
+                                publicInfo: {
+                                    fullName: user.givenName + (user.middleName ? (' ' + user.middleName) : '') + (user.familyName ? (' ' + user.familyName) : ''),
+                                    picture: user.thumbnailPath
+                                }
+                            };
+                            if (this.phnesNumbers.indexOf(usr.phoneNumber) >= 0) {
+                                return false;
                             }
-                        };
-                        if (this.phnesNumbers.indexOf(usr.phoneNumber) >= 0) {
+                            else {
+                                this.myContacts.push(usr);
+                                this.phnesNumbers.push(usr.phoneNumber);
+                                return true;
+                            }
+                        } else {
                             return false;
                         }
-                        else {
-                            this.myContacts.push(usr);
-                            this.phnesNumbers.push(usr.phoneNumber);
-                            return true;
-                        }
-                    } else {
-                        return false;
-                    }
-                });
-                serverSrv.InsertMyContacts(this.myContacts, () => {
-                    serverSrv.GetAllMyFriends_Server((result) => {
-                        setTimeout(() => {
+                    });
+
+                    serverSrv.InsertMyContacts(this.myContacts, () => {
+                        serverSrv.GetAllMyFriends_Server((result) => {
                             this.setState({
                                 dataSource: ds.cloneWithRows(result)
                             })
-                        }, 200);
+                        });
                     });
-                });
-            }
-            //this.myFriends = this.myFriends.concat(this.myContacts);
-            //this.mergeContacts();
-            this.isGetMyContacts = true;
-            this.updateMyContactsView(ds, this.myFriends);
-        })
+                }
+                this.isGetMyContacts = true;
+                this.updateMyContactsView(ds, this.myFriends);
+            });
+
+            serverSrv.GetAllMyFriends_Server((result) => { 
+                this.setState({
+                    dataSource: ds.cloneWithRows(result)
+                })
+            });
+
+        }, 0);
     }
 
     mergeContacts() {
@@ -138,7 +148,7 @@ export default class Contacts extends Component {
 
     getDataSource() {
         //if filter is empty - return original data source
-        if (!this.state.filter) {
+        if (!this.state.filter && this.state.dataSource.cloneWithRows) {
             return this.state.dataSource.cloneWithRows(this.myFriends);
         }
         //create filtered datasource
@@ -147,7 +157,10 @@ export default class Contacts extends Component {
             // return user.publicInfo.fullName.toLowerCase().includes(this.state.filter.toLowerCase());
             return ((user.publicInfo.fullName.toLowerCase().includes(this.state.filter.toLowerCase())) || (user.phoneNumber ? user.phoneNumber.includes(this.state.filter) : false));
         });
-        return this.state.dataSource.cloneWithRows(filteredContacts);
+        if (this.state.dataSource.cloneWithRows) {
+            return this.state.dataSource.cloneWithRows(filteredContacts);
+        }
+        return this.state.dataSource;
     }
 
     render() {

@@ -15,7 +15,7 @@ var publicKey = `-----BEGIN PUBLIC KEY-----
 
 // var ReactNativeRSAUtil = React.NativeModules.ReactNativeRSAUtil;
 
-export var socket = io('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: encryptedUid, publicKey: publicKey } });
+export var socket = io('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: encryptedUid, publicKey: publicKey, uid: 'e2317111-a84a-4c70-b0e9-b54b910833fa' } });
 var ErrorHandler = require('../ErrorHandler');
 var SQLite = require('react-native-sqlite-storage')
 
@@ -43,7 +43,7 @@ export function DeleteDb() {
         // tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
 
         tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
-         tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
     });
@@ -213,12 +213,11 @@ export function GetAllMyFriends_Server(callback) {
 //Conversation
 export function GetAllUserConv(callback, isUpdate) {
     try {
-        if(_data)
-        {
+        if (_data) {
             console.log('check _data......');
             console.log(_data.length);
         }
-        else{
+        else {
             console.log('_data is undefined');
         }
         if (_myChats && callback && !isUpdate) {
@@ -231,14 +230,12 @@ export function GetAllUserConv(callback, isUpdate) {
                     var result = [];
                     for (var i = 0; i < rs.rows.length; i++) {
                         var notificationRes;
-                        if(_data)
-                        {    
-                            notificationRes = _data.filter(function(conv){
+                        if (_data) {
+                            notificationRes = _data.filter(function (conv) {
                                 return conv.id == rs.rows.item(i).id;
                             })
                             var _notifications = 0;
-                            if(notificationRes.length > 0)
-                            {
+                            if (notificationRes.length > 0) {
                                 _notifications = notificationRes[0].notifications;
                             }
                         }
@@ -256,7 +253,7 @@ export function GetAllUserConv(callback, isUpdate) {
                         myChatsJson[rs.rows.item(i).id] = chat;
                         result.push(chat);
                     }
-                    
+
                     _myChats = result;
                     if (callback) {
                         callback(result);
@@ -454,7 +451,6 @@ export function onServerTyping(callback) {
 
 export function saveNewMessage(msg) {
     try {
-        console.log(msg);
         db.transaction((tx) => {
             tx.executeSql('INSERT INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
                 [msg.id,
@@ -479,10 +475,10 @@ export function login() {
             tx.executeSql('SELECT * FROM UserInfo', [], (tx, rs) => {
                 if (rs.rows.length > 0) {
                     var item = rs.rows.item(rs.rows.length - 1);
-                    console.log(item);
-                    console.log('item');
                     _uid = item.uid;
                     _uid = 'e2317111-a84a-4c70-b0e9-b54b910833fa';  //-------------------For Test Only
+                    console.log(_uid);
+                    console.log('_uid');
                     //Actions.Tabs();
 
                     // ReactNativeRSAUtil.encryptStringWithPrivateKey(item.uid, item.privateKey)
@@ -501,17 +497,18 @@ export function login() {
                     //     });
 
                     socket.disconnect();
-                    socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {query: {encryptedUid: encryptedUid, publicKey: item.publicKey, uid: _uid}});
+                    socket = io.connect('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: encryptedUid, publicKey: item.publicKey, uid: _uid } });
 
                     socket.removeAllListeners("AuthenticationOk");
-                    socket.on('AuthenticationOk', (ok) => {
-                        try {
-                            Actions.Tabs();
-                        } catch (e) {
-                            Actions.SignUp({ type: 'replace' });
-                            ErrorHandler.WriteError('EnterPage constructor => AuthenticationOk', error);
-                        }
-                    });
+
+                    // socket.on('AuthenticationOk', (ok) => {
+                    //     try {
+                    //         Actions.Tabs();
+                    //     } catch (e) {
+                    //         Actions.SignUp({ type: 'replace' });
+                    //         ErrorHandler.WriteError('EnterPage constructor => AuthenticationOk', error);
+                    //     }
+                    // });
                 }
                 else {
                     try {
