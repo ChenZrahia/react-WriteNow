@@ -476,9 +476,7 @@ export function login() {
                 if (rs.rows.length > 0) {
                     var item = rs.rows.item(rs.rows.length - 1);
                     _uid = item.uid;
-                    _uid = 'e2317111-a84a-4c70-b0e9-b54b910833fa';  //-------------------For Test Only
-                    console.log(_uid);
-                    console.log('_uid');
+                    //_uid = 'e2317111-a84a-4c70-b0e9-b54b910833fa';  //-------------------For Test Only
                     //Actions.Tabs();
 
                     // ReactNativeRSAUtil.encryptStringWithPrivateKey(item.uid, item.privateKey)
