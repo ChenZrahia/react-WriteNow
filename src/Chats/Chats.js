@@ -10,6 +10,8 @@ import {
     Modal
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
+import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
+import Kohana from '../../styles/Kohana';
 
 var serverSrv = require('../../Services/serverSrv');
 var ErrorHandler = require('../../ErrorHandler');
@@ -24,9 +26,10 @@ export default class Chats extends Component {
         //this.myChats = this.sortDates(this.myChats);
         this.state = {
             dataSource: ds.cloneWithRows(this.myChats),
-            imageVisible: false
+            imageVisible: false,
+            filter: ''
         };
-        
+
         serverSrv.GetAllUserConv((result) => {
             try {
                 this.myChats = this.sortDates(result);
@@ -53,7 +56,7 @@ export default class Chats extends Component {
         });
     }
 
-    
+
     pad(num, size) {
         var s = "000000000" + num;
         return s.substr(s.length - size);
@@ -141,12 +144,43 @@ export default class Chats extends Component {
         );
     }
 
+    onFilterChange(event) {
+        this.setState({
+            filter: event.nativeEvent.text
+        });
+    }
+
+    getDataSource() {
+        //if filter is empty - return original data source
+        if (!this.state.filter) {
+            return this.state.dataSource.cloneWithRows(this.myChats);
+        }
+        //create filtered datasource
+        let filteredContacts = this.myChats;
+        filteredContacts = this.myChats.filter((chat) => {
+            // return user.publicInfo.fullName.toLowerCase().includes(this.state.filter.toLowerCase());
+            return ((chat.groupName.toLowerCase().includes(this.state.filter.toLowerCase())));
+        });
+        return this.state.dataSource.cloneWithRows(filteredContacts);
+    }
+
     render() {
         return (
             <View style={{ flex: 1, alignSelf: 'stretch' }}>
+                <Kohana
+                    style={styles.searchBar}
+                    label={'Search'}
+                    iconClass={MaterialsIcon}
+                    iconName={'search'}
+                    iconColor={'#f50057'}
+                    labelStyle={{ color: '#f50057', justifyContent: 'center', alignSelf: 'stretch' }}
+                    inputStyle={{ color: '#f50057', alignSelf: 'stretch' }}
+                    value={this.state.filter}
+                    onChange={this.onFilterChange.bind(this)}
+                    />
                 <ListView style={{ paddingTop: 5, flex: 1 }}
                     enableEmptySections={true}
-                    dataSource={this.state.dataSource}
+                    dataSource={this.getDataSource()}
                     renderRow={(rowData) =>
                         <TouchableHighlight underlayColor='#ededed' onPress={() => {
                             this.openChat(rowData);
@@ -177,8 +211,18 @@ export default class Chats extends Component {
                         </TouchableHighlight>
                     }
                     />
-                    {this.openImageModal(this.imgSelected)}
+                {this.openImageModal(this.imgSelected)}
             </View>
         );
     }
 }
+
+var styles = StyleSheet.create({
+    searchBar: {
+        borderWidth: 0.5,
+        borderRadius: 4,
+        borderColor: '#f50057',
+        height: 35,
+        margin: 5
+    }
+});
