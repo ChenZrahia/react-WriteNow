@@ -534,7 +534,9 @@ export function saveNewMessage(msg) {
                 msg.isSeenByAll
                 ]);
         });
-        socket.emit('saveMessage', msg);
+        if (msg.from == _uid) {
+            socket.emit('saveMessage', msg);
+        }
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => saveNewMessage' + error.message, error);
     }
