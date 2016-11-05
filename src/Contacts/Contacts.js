@@ -14,6 +14,7 @@ import {
 import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
 import SGListView from 'react-native-sglistview';
 import Kohana from '../../styles/Kohana';
+import { Actions } from 'react-native-router-flux';
 
 var serverSrv = require('../../Services/serverSrv');
 var PhoneContacts = require('react-native-contacts');
@@ -197,12 +198,8 @@ export default class Contacts extends Component {
             (rowData) =>
                 <View>
                     <TouchableHighlight underlayColor='#ededed' onPress={() => {
-                        console.log(rowData);
-                        console.log('rowData');
-                        serverSrv.GetConvByContact(() => { }, rowData.id, rowData.phoneNumber, rowData.publicInfo.fullName);
-                        setTimeout(function () {
-                            throw "Time is out";
-                        }, 5000);
+                        rowData.isContact = true;
+                        Actions.ChatRoom(rowData);
                     } }>
                         <View style={generalStyle.styles.row}>
                             <TouchableHighlight onPress={() => {

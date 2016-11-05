@@ -21,6 +21,7 @@ var serverSrv = require('../../Services/serverSrv');
 var generalStyles = require('../../styles/generalStyle');
 var ErrorHandler = require('../../ErrorHandler');
 
+
 export default class ChatRoom extends Component {
     constructor(props) {
         super(props);
@@ -32,19 +33,34 @@ export default class ChatRoom extends Component {
         this.messages = [];
         this.indexOnlineMessages = [];
         this.onlineMessages = [];
+        this.convId = null;
     }
 
     componentDidMount() {
-        serverSrv.onServerTyping(this.onFriendType);
-        serverSrv.GetConv((data) => {
+        var callback = (data, convId) => {
             if (!data) {
                 data = [];
+            }
+            if (convId) {
+                this.convId = convId;
+            } else {
+                this.convId = this.props.id;
             }
             this.messages = data;
             this.setState({
                 messages: GiftedChat.append(this.messages, this.onlineMessages),
             });
-        }, this.props.id);
+        }
+        serverSrv.onServerTyping(this.onFriendType);
+        console.log(this.props);
+        console.log('this.props');
+        if (this.props.isContact == true) {
+            console.log('----this.props.isContact----');
+            serverSrv.GetConvByContact(callback, this.props.id, this.props.phoneNumber, this.props.publicInfo.fullName);
+        } else {
+            console.log('++++++this.props.isContact+++++++');
+            serverSrv.GetConv(callback, this.props.id);
+        }
     }
 
     guid() {
@@ -69,8 +85,6 @@ export default class ChatRoom extends Component {
             msg.id = msg.mid;
         }
         if (!msg.id) {
-            console.log(msg);
-            console.log('msg.id--**');
             msg.id = this.guid();
         }
         if (!msg._id) {
@@ -156,7 +170,7 @@ export default class ChatRoom extends Component {
                     msg.from = serverSrv._uid;
                     msg.createdAt = msg.sendTime;
                     msg.content = msg.text;
-                    msg.convId = this.props.id;
+                    msg.convId = this.convId;
                     serverSrv.saveNewMessage(msg);
                 }
                 this.messages.splice(0, 0, msg); //push
@@ -191,7 +205,7 @@ export default class ChatRoom extends Component {
             mid: this._messageId,
             id: this._messageId,
             _id: this._messageId,
-            convId: this.props.id,
+            convId: this.convId,
             isEncrypted: false,
             lastTypingTime: Date.now(),
             from: serverSrv._uid,
@@ -320,10 +334,6 @@ const styles = StyleSheet.create({
         shadowColor: "#000000",
         shadowOpacity: 0.8,
         shadowRadius: 2,
-        //     shadowOffset: {
-        //     height: 100,
-        //     width: 100
-        // }
     },
     viewImg: {
         borderColor: 'black',
@@ -336,7 +346,6 @@ const styles = StyleSheet.create({
         width: 65,
         height: 65,
         marginLeft: 15
-        // alignSelf: 'flex-end',
     },
     textName: {
         paddingLeft: 10,
@@ -360,38 +369,3 @@ const styles = StyleSheet.create({
         marginBottom: 6,
     }
 });
-//   componentWillMount() {
-//     this.setState({
-//       messages: [
-//         {
-//           _id: 1,
-//           text: 'Hello developer',
-//           createdAt: new Date(),
-//           user: {
-//             _id: 2,
-//             name: 'React Native',
-//             avatar: 'https://facebook.github.io/react/img/logo_og.png',
-//           },
-//         },
-//       ],
-//     });
-//   }
-//   onSend(messages = []) {
-//     this.setState((previousState) => {
-//       return {
-//         messages: GiftedChat.append(previousState.messages, messages),
-//       };
-//     });
-//   }
-//   render() {
-//     return (
-//       <GiftedChat
-//         messages={this.state.messages}
-//         onSend={this.onSend}
-//         user={{
-//           _id: 1,
-//         }}
-//       />
-//     );
-//   }
-// }

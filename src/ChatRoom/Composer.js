@@ -66,7 +66,6 @@ render(){
          <View style={styles.viewEmoji}>
       <View style={styles.container}>
         <EmojiPicker 
-          style={styles.emojiPicker} 
           onPick={emoji => {this._emojiSelected(emoji)}}/>
       </View>
       </View>
