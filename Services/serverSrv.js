@@ -41,9 +41,7 @@ function printTable(tblName) {
         tx.executeSql('SELECT * FROM ' + tblName, [], (tx, rs) => {
             console.log('---------------------------------------');
             for (var i = 0; i < rs.rows.length; i++) {
-                if (rs.rows.item(i).phoneNumber == '0500000000') {
-                    console.log(rs.rows.item(i));
-                }
+                console.log(rs.rows.item(i));
             }
             console.log('---------------------------------------');
         }, errorDB);
@@ -51,7 +49,7 @@ function printTable(tblName) {
 }
 
 setTimeout(function () {
-    printTable('Friends');
+    printTable('Messages');
 }, 200);
 
 export function DeleteDb() {
@@ -525,6 +523,7 @@ export function saveNewMessage(msg) {
                 msg.isSeenByAll
                 ]);
         });
+        socket.emit('saveMessage', msg);
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => saveNewMessage' + error.message, error);
     }

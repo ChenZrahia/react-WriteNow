@@ -106,7 +106,7 @@ export default class ChatRoom extends Component {
                 delete this.indexOnlineMessages[msg._id];
             }
         }
-
+        console.log(msg);
         if (msg.sendTime) {
             this.onSend(msg);
         } else {
