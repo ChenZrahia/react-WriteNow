@@ -22,6 +22,7 @@ var generalStyle = require('../../styles/generalStyle');
 export default class Contacts extends Component {
     constructor() {
         super();
+        console.log('Contacts in');
         this.isGetMyContacts = false;
         this.isGetMyFriends = false;
         this.phnesNumbers = [];
@@ -33,8 +34,6 @@ export default class Contacts extends Component {
             imageVisible: false,
             filter: ''
         };
-
-
     }
 
     componentDidMount() {
