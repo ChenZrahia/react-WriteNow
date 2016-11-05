@@ -15,7 +15,6 @@ import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
 import SGListView from 'react-native-sglistview';
 import Kohana from '../../styles/Kohana';
 import { Actions } from 'react-native-router-flux';
-
 var serverSrv = require('../../Services/serverSrv');
 var PhoneContacts = require('react-native-contacts');
 var generalStyle = require('../../styles/generalStyle');

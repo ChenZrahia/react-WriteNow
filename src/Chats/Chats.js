@@ -10,7 +10,7 @@ import {
     Modal
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
-
+var Event = require('../../Services/Events');
 var serverSrv = require('../../Services/serverSrv');
 var ErrorHandler = require('../../ErrorHandler');
 var generalStyle = require('../../styles/generalStyle');
@@ -27,32 +27,36 @@ export default class Chats extends Component {
             dataSource: ds.cloneWithRows(this.myChats),
             imageVisible: false
         };
+        this.UpdateChatsList = this.UpdateChatsList.bind(this);
+        Event.on('UpdateChatsList', this.UpdateChatsList);
+    }
+
+    UpdateChatsList() {
+        var ds = this.ds;
+        serverSrv.GetAllUserConv((result) => {
+            try {
+                this.myChats = this.sortDates(result);
+                this.myChats = result;
+                try {
+                    this.setState({
+                        dataSource: ds.cloneWithRows(result)
+                    })
+
+                } catch (error) {
+                    console.log('error');
+                    console.log(error);
+                }
+                this.state = {
+                    dataSource: ds.cloneWithRows(this.myChats)
+                };
+            } catch (error) {
+                console.log(error);
+            }
+        });
     }
 
     componentDidMount() {
-        var ds = this.ds;
-        setTimeout(() => {
-            serverSrv.GetAllUserConv((result) => {
-                try {
-                    this.myChats = this.sortDates(result);
-                    this.myChats = result;
-                    try {
-                        this.setState({
-                            dataSource: ds.cloneWithRows(result)
-                        })
-
-                    } catch (error) {
-                        console.log('error');
-                        console.log(error);
-                    }
-                    this.state = {
-                        dataSource: ds.cloneWithRows(this.myChats)
-                    };
-                } catch (error) {
-                    console.log(error);
-                }
-            });
-        }, 0);
+        setTimeout(this.UpdateChatsList, 0);
     }
 
     showNotification(notification) {

@@ -3,7 +3,7 @@ import { Actions } from 'react-native-router-flux';
 //import React from 'react-native';
 import './UserAgent';
 import io from 'socket.io-client/socket.io';
-// var RSAKey = require('react-native-rsa');
+var Event = require('./Events');
 var SignUp = require('../src/SignUp/SignUp');
 //--------for dev mode only-----------//
 var encryptedUid = 'UIP5n4v1jj24a+dHq6L/QqLwDFtPnSoebPzUe5+DWKOQ+rj5boKTAI6goMgySXHDj4BRMOa16wNV743D3/5WfRlXPrizY6nvi3XEmg/oPQvmNLlchDDjqZpQW8nfAS3IH9jZwDqFjxMKVkMau1SOLJxMroz7hTKVH7gOCGLHzik=';
@@ -109,7 +109,7 @@ export function GetAllMyFriends(callback, isUpdate) {
                                 picture: rs.rows.item(i).picture,
                                 gender: rs.rows.item(i).gender
                             }
-                        });                        
+                        });
                         _myFriendsJson[rs.rows.item(i).id] = {
                             id: rs.rows.item(i).id,
                             _id: rs.rows.item(i).id,
@@ -124,7 +124,7 @@ export function GetAllMyFriends(callback, isUpdate) {
                                 picture: rs.rows.item(i).picture,
                                 gender: rs.rows.item(i).gender
                             }
-                        }                        
+                        }
                     }
                     _myFriends = result;
                     if (callback) {
@@ -264,7 +264,6 @@ export function GetAllUserConv(callback, isUpdate) {
                         myChatsJson[rs.rows.item(i).id] = chat;
                         result.push(chat);
                     }
-
                     _myChats = result;
                     if (callback) {
                         callback(result);
@@ -461,11 +460,23 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
                                 }
                                 _myFriendsJson[Fid].id = Fid;
                                 _myFriendsJson[Fid]._id = Fid;
-                                db.transaction((tx2) => {
-                                    tx2.executeSql('INSERT OR REPLACE into Conversation values(?,?,?,?,?,?,?,?)', [result.id.toString(), false, result.manager, _myFriendsJson[Fid].publicInfo.fullName, _myFriendsJson[Fid].publicInfo.picture, false]);
-                                    tx2.executeSql('INSERT OR REPLACE into Participates values(?,?,?)', [result.id.toString(), Fid.toString(), false]);
-                                    tx2.executeSql('UPDATE Friends set id = ? WHERE phoneNumber = ?', [Fid.toString(), phoneNumber.toString()]);
-                                });
+                                if (_myChats.filter((chat) => { return chat.id == result.id; }).length == 0) { //if the chat not axist
+                                    db.transaction((tx2) => {
+                                        tx2.executeSql('INSERT OR REPLACE into Conversation values(?,?,?,?,?,?,?,?)', [result.id.toString(), false, result.manager, _myFriendsJson[Fid].publicInfo.fullName, _myFriendsJson[Fid].publicInfo.picture, false]);
+                                        tx2.executeSql('INSERT OR REPLACE into Participates values(?,?,?)', [result.id.toString(), Fid.toString(), false]);
+                                        tx2.executeSql('UPDATE Friends set id = ? WHERE phoneNumber = ?', [Fid.toString(), phoneNumber.toString()]);
+                                    });
+                                    _myChats.push({
+                                        id: result.id,
+                                        isEncrypted: false,
+                                        manager: result.manager,
+                                        groupName: _myFriendsJson[Fid].publicInfo.fullName,
+                                        groupPicture: _myFriendsJson[Fid].publicInfo.picture,
+                                        isGroup: false
+                                    });
+                                    Event.trigger('UpdateChatsList');
+                                }
+
                                 GetConv(callback, result.id, true);
                             } catch (error) {
                                 ErrorHandler.WriteError('serverSrv.js => GetConvByContact => returnConv', error);
@@ -608,7 +619,7 @@ export function signUpFunc(newUser, callback) {
 
             db.transaction(function (tx) {
                 tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?)', [user.id, '', '', '']);
-                console.log(user.id,'---', newUser.phoneNumber);
+                console.log(user.id, '---', newUser.phoneNumber);
                 tx.executeSql('INSERT INTO Friends VALUES (?,?,?,?,?,?,?,?)', [user.id, newUser.phoneNumber, newUser.ModifyDate, newUser.ModifyPicDate, newUser.publicInfo.fullName, newUser.publicInfo.mail, newUser.publicInfo.picture, newUser.publicInfo.gender]);
             }, (error) => {
                 ErrorHandler.WriteError('signUp => addNewUser => transaction', error);
