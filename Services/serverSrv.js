@@ -58,7 +58,7 @@ export function DeleteDb() {
         // tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
         // tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
 
-        //tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------

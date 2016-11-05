@@ -52,13 +52,9 @@ export default class ChatRoom extends Component {
             });
         }
         serverSrv.onServerTyping(this.onFriendType);
-        console.log(this.props);
-        console.log('this.props');
         if (this.props.isContact == true) {
-            console.log('----this.props.isContact----');
             serverSrv.GetConvByContact(callback, this.props.id, this.props.phoneNumber, this.props.publicInfo.fullName);
         } else {
-            console.log('++++++this.props.isContact+++++++');
             serverSrv.GetConv(callback, this.props.id);
         }
     }
@@ -106,7 +102,6 @@ export default class ChatRoom extends Component {
                 delete this.indexOnlineMessages[msg._id];
             }
         }
-        console.log(msg);
         if (msg.sendTime) {
             this.onSend(msg);
         } else {
@@ -116,41 +111,6 @@ export default class ChatRoom extends Component {
                 };
             });
         }
-
-        //this.onSend(this.onlineMessages);
-
-        // try {
-        //     if (!msg.content || msg.content.length == 0) {
-        //         if (this.message[msg.from]) {
-        //             this.message[msg.from].content = msg.content;
-        //         }
-        //         //this.messageId = this.guid();
-        //         var index = this.messages.indexOf(this.message[msg.from]);//------
-        //         if (index >= 0) {
-        //             this.messages.splice(index, 1);
-        //         }
-        //         delete this.message[msg.from];
-        //     }
-        //     else if (!this.message[msg.from] || this.messages.indexOf(this.message[msg.from]) < 0) {
-        //         this.message[msg.from] = msg;
-        //         this.messages.push(this.message[msg.from]);
-        //     }
-        //     else if (msg.lastTypingTime > this.message[msg.from].lastTypingTime || true) {
-        //         this.message[msg.from].content = msg.content;
-        //         this.message[msg.from].text = msg.content;
-        //     }
-        //     if (msg.sendTime) {
-        //         this.timeMsgClass(msg);
-        //         if (this.message[msg.from] && this.messages.indexOf(this.message[msg.from]) >= 0) {
-        //             this.messages[this.messages.indexOf(this.message[msg.from])].sendTime = msg.sendTime;
-        //         }
-        //         this.messageId = this.guid();
-        //         delete this.message[msg.from];
-        //     }
-        // } catch (e) {
-        //     console.log(e);
-        //     //this._errorHandlerService.writeError('constructor => typing', e);
-        // }
     }
 
     onSend(messages = []) {
