@@ -544,6 +544,9 @@ export function saveNewMessage(msg) {
 
 //connect  login
 export function login() {
+    setTimeout(() => {
+        Actions.SignUp({ type: 'replace' });
+    }, 500);
     db.transaction((tx) => {
         try {
             tx.executeSql('SELECT * FROM UserInfo', [], (tx, rs) => {
@@ -618,15 +621,16 @@ export function signUpFunc(newUser, callback) {
             // var rsa2 = new RSAKey();
             // rsa2.setPrivateString(privateKey);
             // var encryptedUid = rsa2.encrypt(user.id);
-
-            db.transaction(function (tx) {
-                tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?)', [user.id, '', '', '']);
-                console.log(user.id, '---', newUser.phoneNumber);
-                tx.executeSql('INSERT INTO Friends VALUES (?,?,?,?,?,?,?,?)', [user.id, newUser.phoneNumber, newUser.ModifyDate, newUser.ModifyPicDate, newUser.publicInfo.fullName, newUser.publicInfo.mail, newUser.publicInfo.picture, newUser.publicInfo.gender]);
-            }, (error) => {
-                ErrorHandler.WriteError('signUp => addNewUser => transaction', error);
-            }, function () {
-            });
+            if (user.id) {
+                db.transaction(function (tx) {
+                    tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?)', [user.id, '', '', '']);
+                    console.log(user.id, '---', newUser.phoneNumber);
+                    tx.executeSql('INSERT INTO Friends VALUES (?,?,?,?,?,?,?,?)', [user.id, newUser.phoneNumber, newUser.ModifyDate, newUser.ModifyPicDate, newUser.publicInfo.fullName, newUser.publicInfo.mail, newUser.publicInfo.picture, newUser.publicInfo.gender]);
+                }, (error) => {
+                    ErrorHandler.WriteError('signUp => addNewUser => transaction', error);
+                }, function () {
+                });
+            }
             if (callback) {
                 callback(user.id);
             }
