@@ -39,6 +39,7 @@
 		97241D28A8484F858C258C90 /* librncrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 097F810F983646F1BA573630 /* librncrypto.a */; };
 		A286F056EEAD45E39AF90581 /* librncrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E4814CC2D2146D6AD318C5B /* librncrypto.a */; };
 		23DB537FA66D49C2B590E00E /* libWorkers.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B1C362E538F4CDC8099E45C /* libWorkers.a */; };
+		F6A9AA3C814543CEB90F9EF9 /* libRNGCM.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B1FA5CECF7E48968B90FCCF /* libRNGCM.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -169,6 +170,8 @@
 		1E4814CC2D2146D6AD318C5B /* librncrypto.a */ = {isa = PBXFileReference; name = "librncrypto.a"; path = "librncrypto.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		5D541967BA8241BDB9D2C219 /* Workers.xcodeproj */ = {isa = PBXFileReference; name = "Workers.xcodeproj"; path = "../node_modules/react-native-workers/ios/Workers.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		8B1C362E538F4CDC8099E45C /* libWorkers.a */ = {isa = PBXFileReference; name = "libWorkers.a"; path = "libWorkers.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		3631A85E6F664DE5980DA161 /* RNGCM.xcodeproj */ = {isa = PBXFileReference; name = "RNGCM.xcodeproj"; path = "../node_modules/react-native-gcm-push-notification/ios/RNGCM.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		2B1FA5CECF7E48968B90FCCF /* libRNGCM.a */ = {isa = PBXFileReference; name = "libRNGCM.a"; path = "libRNGCM.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -203,6 +206,7 @@
 				97241D28A8484F858C258C90 /* librncrypto.a in Frameworks */,
 				A286F056EEAD45E39AF90581 /* librncrypto.a in Frameworks */,
 				23DB537FA66D49C2B590E00E /* libWorkers.a in Frameworks */,
+				F6A9AA3C814543CEB90F9EF9 /* libRNGCM.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -334,6 +338,7 @@
 				02E74A5BDB654EA796C4FF9E /* rncrypto.xcodeproj */,
 				504DDAFE27F84F48ADF6AC05 /* rncrypto.xcodeproj */,
 				5D541967BA8241BDB9D2C219 /* Workers.xcodeproj */,
+				3631A85E6F664DE5980DA161 /* RNGCM.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -680,6 +685,7 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
 			name = Debug;
@@ -696,6 +702,7 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WriteNow.app/WriteNow";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -725,6 +732,7 @@
 					"$(SRCROOT)\..\node_modules\react-native-contacts\ios\RCTContacts",
 					"$(SRCROOT)\..\node_modules\react-native-rncrypto\ios\rncrypto/**",
 					"$(SRCROOT)\..\node_modules\react-native-workers\ios\Workers",
+					"$(SRCROOT)\..\node_modules\react-native-gcm-push-notification\ios",
 				);
 				INFOPLIST_FILE = "WriteNow/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -755,6 +763,7 @@
 					"$(SRCROOT)\..\node_modules\react-native-contacts\ios\RCTContacts",
 					"$(SRCROOT)\..\node_modules\react-native-rncrypto\ios\rncrypto/**",
 					"$(SRCROOT)\..\node_modules\react-native-workers\ios\Workers",
+					"$(SRCROOT)\..\node_modules\react-native-gcm-push-notification\ios",
 				);
 				INFOPLIST_FILE = "WriteNow/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -814,6 +823,7 @@
 					"$(SRCROOT)\..\node_modules\react-native-contacts\ios\RCTContacts",
 					"$(SRCROOT)\..\node_modules\react-native-rncrypto\ios\rncrypto/**",
 					"$(SRCROOT)\..\node_modules\react-native-workers\ios\Workers",
+					"$(SRCROOT)\..\node_modules\react-native-gcm-push-notification\ios",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -863,6 +873,7 @@
 					"$(SRCROOT)\..\node_modules\-util\iOS\ReactNativeRSAUtil",
 					"$(SRCROOT)\..\node_modules\react-native-rncrypto\ios\rncrypto/**",
 					"$(SRCROOT)\..\node_modules\react-native-workers\ios\Workers",
+					"$(SRCROOT)\..\node_modules\react-native-gcm-push-notification\ios",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;

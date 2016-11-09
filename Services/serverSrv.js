@@ -544,9 +544,9 @@ export function saveNewMessage(msg) {
 
 //connect  login
 export function login() {
-    setTimeout(() => {
-        Actions.SignUp({ type: 'replace' });
-    }, 500);
+    // setTimeout(() => {
+    //     Actions.SignUp({ type: 'replace' });
+    // }, 500);
     db.transaction((tx) => {
         try {
             tx.executeSql('SELECT * FROM UserInfo', [], (tx, rs) => {
