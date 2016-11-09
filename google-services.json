@@ -1,0 +1,35 @@
+{
+  "project_info": {
+    "project_number": "486059628270",
+    "project_id": "writenow-react"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:486059628270:android:cc8864369cb41384",
+        "android_client_info": {
+          "package_name": "com.writenow"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSY3JdDyuOjCXXtykOPEo45dvrDntec9E"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
