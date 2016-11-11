@@ -12,7 +12,6 @@ import {
     Text,
     TextInput,
     Dimensions,
-    StatusBar,
     ScrollView,
     View,
 } from 'react-native';
@@ -20,7 +19,7 @@ import {
 var serverSrv = require('../../Services/serverSrv');
 var generalStyles = require('../../styles/generalStyle');
 var ErrorHandler = require('../../ErrorHandler');
-
+var moment = require('moment');
 
 export default class ChatRoom extends Component {
     constructor(props) {
@@ -86,6 +85,7 @@ export default class ChatRoom extends Component {
         if (!msg._id) {
             msg._id = msg.id;
         }
+
         if (!msg.user) {
             msg.user = serverSrv._myFriendsJson[msg.from];
         }
@@ -120,9 +120,9 @@ export default class ChatRoom extends Component {
             }
             for (let msg of messages) {
                 if (msg.createdAt) {
-                    msg.sendTime = msg.createdAt;
+                    msg.sendTime = moment(msg.createdAt).format();
                 } else {
-                    msg.createdAt = msg.sendTime;
+                    msg.createdAt = moment(msg.sendTime).format();
                 }
                 if (msg._id.indexOf('temp-id') >= 0) {
                     msg._id = this._messageId;
@@ -133,6 +133,8 @@ export default class ChatRoom extends Component {
                     msg.convId = this.convId;
                     serverSrv.saveNewMessage(msg);
                 }
+                
+                msg.user = serverSrv._myFriendsJson[msg.user._id];
                 this.messages.splice(0, 0, msg); //push
                 this.onlineMessages = this.onlineMessages.filter((o_msg) => {
                     return o_msg.id != msg.id;
@@ -172,7 +174,7 @@ export default class ChatRoom extends Component {
             content: text
         };
         serverSrv.Typing(msg);
-        msg.user = { id: '123', name: 'Me', avatar: '' };
+        msg.user = serverSrv._myFriendsJson[msg.from];
         if (!this.indexOnlineMessages[msg._id]) { //new message
             this.indexOnlineMessages[msg._id] = msg;
             this.onlineMessages.push(this.indexOnlineMessages[msg.id]);
@@ -207,66 +209,6 @@ export default class ChatRoom extends Component {
         );
     }
 }
-
-
-// export default class ChatRoom extends Component {
-//     constructor(props) {
-//         super(props);
-//         this.state = { messages: [], text: '' };
-//     }
-
-//     render() {
-//         return (
-//             <View style={styles.chatRoomMain}>
-//                 <StatusBar barStyle="light-content" />
-// <View style={generalStyles.styles.appbar}>
-//     <View style={generalStyles.styles.viewImgChatRoom}>
-//         <Image style={generalStyles.styles.ImgChatRoom} source={ require('../../img/user.jpg') }/>
-//     </View>
-//     <Text style={generalStyles.styles.titleHeader}>
-//         WriteNow
-//     </Text>
-//     <View style={styles.button} />
-// </View>
-
-//                 <ScrollView
-//                     ref={(scrollView) => { _scrollView = scrollView; } }
-//                     automaticallyAdjustContentInsets={false}
-//                     onScroll={() => { console.log('onScroll!'); } }
-//                     scrollEventThrottle={200}
-//                     style={generalStyles.styles.scrollView}>
-//                 </ScrollView>
-
-//                 <View style={styles.row}>
-//                     <Icon name='md-happy' style={styles.icon}/>
-//                     <TextInput underlineColorAndroid="transparent"
-//                         multiline = {true}
-//                         style={styles.textArea}
-//                         placeholder="Type message..."
-//                         numberOfLines = {4}
-//                         onChangeText={(text) => this.setState({ text }) }>
-//                     </TextInput>
-//                     <Icon name='md-send' style={styles.icon}/>
-//                 </View>
-
-
-//             </View>
-
-//         );
-//     }
-
-
-
-//     _onPressIcons() {
-//         console.log('icons show');
-//     }
-
-//     _onPressSend() {
-//         console.log('send message..');
-//     }
-
-// }
-
 
 const styles = StyleSheet.create({
     chatRoomMain: {

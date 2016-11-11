@@ -43,7 +43,6 @@ export default class Chats extends Component {
                     })
 
                 } catch (error) {
-                    console.log('error');
                     console.log(error);
                 }
                 this.state = {
@@ -104,21 +103,21 @@ export default class Chats extends Component {
         try {
             return dataSource.sort((a, b) => {
                 try {
-                    if (a.lastMessageTime && b.lastMessageTime) {
-                        if (a.lastMessageTime > b.lastMessageTime) {
+                    if (a.sendTime && b.sendTime) {
+                        if (a.sendTime > b.sendTime) {
                             return -1;
                         }
-                        else if (a.lastMessageTime < b.lastMessageTime) {
+                        else if (a.sendTime < b.sendTime) {
                             return 1;
                         }
                         else {
                             return 0;
                         }
                     }
-                    else if (a.lastMessageTime && !b.lastMessageTime) {
+                    else if (a.sendTime && !b.sendTime) {
                         return -1;
                     }
-                    else if (!a.lastMessageTime && b.lastMessageTime) {
+                    else if (!a.sendTime && b.sendTime) {
                         return 1;
                     }
                     else {

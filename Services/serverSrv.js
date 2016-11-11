@@ -5,6 +5,8 @@ import './UserAgent';
 import io from 'socket.io-client/socket.io';
 var Event = require('./Events');
 var SignUp = require('../src/SignUp/SignUp');
+var moment = require('moment');
+
 //--------for dev mode only-----------//
 var encryptedUid = 'UIP5n4v1jj24a+dHq6L/QqLwDFtPnSoebPzUe5+DWKOQ+rj5boKTAI6goMgySXHDj4BRMOa16wNV743D3/5WfRlXPrizY6nvi3XEmg/oPQvmNLlchDDjqZpQW8nfAS3IH9jZwDqFjxMKVkMau1SOLJxMroz7hTKVH7gOCGLHzik=';
 var publicKey = `-----BEGIN PUBLIC KEY-----
@@ -35,10 +37,9 @@ export var _data = [];
 export var _uid = null;
 export var _myConvs = {};
 
-
 function printTable(tblName) {
     db.transaction((tx) => {
-        tx.executeSql('SELECT * FROM ' + tblName, [], (tx, rs) => {
+        tx.executeSql('SELECT sendTime FROM Messages WHERE content IS NOT NULL ORDER BY sendTime DESC' , [], (tx, rs) => {
             console.log('---------------------------------------');
             for (var i = 0; i < rs.rows.length; i++) {
                 console.log(rs.rows.item(i));
@@ -50,7 +51,7 @@ function printTable(tblName) {
 
 setTimeout(function () {
     printTable('Messages');
-}, 200);
+}, 500);
 
 export function DeleteDb() {
     db.transaction((tx) => {
@@ -63,6 +64,12 @@ export function DeleteDb() {
         tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
+
+        tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid)', [], null, errorDB);
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime)', [], null, errorDB); //להוציא לפונקציה נפרדת
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, mail, picture, gender, isMyContact)', [], null, errorDB); //להוציא לפונקציה נפרדת
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll)', [], null, errorDB); //להוציא לפונקציה נפרדת
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Participates (convId NOT NULL, uid NOT NULL, isGroup, PRIMARY KEY (convId, uid))', [], null, errorDB);
     });
 }
 
@@ -70,27 +77,21 @@ setTimeout(() => {
     db.transaction((tx) => {
         tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid)', [], null, errorDB);
         tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime)', [], null, errorDB); //להוציא לפונקציה נפרדת
-        tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, mail, picture, gender)', [], null, errorDB); //להוציא לפונקציה נפרדת
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, mail, picture, gender, isMyContact)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Participates (convId NOT NULL, uid NOT NULL, isGroup, PRIMARY KEY (convId, uid))', [], null, errorDB);
     });
 }, 100);
 
-export function InitTabsDs(contactsCallback, chatsCallback) {
-    try {
-
-    } catch (error) {
-
-    }
-}
-
 //Users
 export function GetAllMyFriends(callback, isUpdate) {
     try {
-        // if (_myFriends && callback && !isUpdate) {
-        //     callback(_myFriends);
-        //     return;
-        // }
+        if (_myFriends && _myFriends.length > 0 && callback && !isUpdate) {
+            console.log('stop');
+            console.log(_myFriends);
+            callback(_myFriends);
+            return;
+        }
         db.transaction((tx) => {
             tx.executeSql('SELECT * FROM Friends ORDER BY fullName', [], (tx, rs) => {
                 try {
@@ -129,13 +130,13 @@ export function GetAllMyFriends(callback, isUpdate) {
                     _myFriends = result;
                     if (callback) {
                         callback(result);
-                        // if (_isFirstTime_Friends == true) {
-                        //     _isFirstTime_Friends = false;
-                        //     GetAllMyFriends_Server(callback);
-                        // }
+                        if (_isFirstTime_Friends == true) {
+                            _isFirstTime_Friends = false;
+                            GetAllMyFriends_Server(callback);
+                        }
                     }
                 } catch (error) {
-                    ErrorHandler.WriteError('serverSrv.js => SELECT * FROM Friends => catch', error);
+                    ErrorHandler.WriteError('serverSrv.js => GetAllMyFriends => SELECT * FROM Friends => catch', error);
                 }
             }, errorDB);
         }, (error) => {
@@ -146,7 +147,7 @@ export function GetAllMyFriends(callback, isUpdate) {
     }
 }
 
-export function InsertMyContacts(contacts) {
+export function InsertMyContacts(contacts, isMyContact, convId) {
     try {
         db.transaction((tx) => {
             tx.executeSql('SELECT phoneNumber FROM Friends', [], (tx, result) => {
@@ -158,23 +159,43 @@ export function InsertMyContacts(contacts) {
                     if (contacts[i].phoneNumber && f_phoneNumbers.indexOf(contacts[i].phoneNumber) < 0) {
                         try {
                             f_phoneNumbers.push(contacts[i].phoneNumber);
-                            tx.executeSql('INSERT INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-                                [contacts[i].phoneNumber,
+                            var newId = '';
+                            if (contacts[i].id) {
+                                newId = contacts[i].id;
+                            } else {
+                                newId = contacts[i].phoneNumber;
+                            }
+                            if (convId && _myConvs[convId]) {
+                                contacts[i].name = contacts[i].publicInfo.fullName;
+                                contacts[i].avatar = contacts[i].publicInfo.picture;
+                                contacts[i]._id = contacts[i].id;
+                                _myConvs[convId].participates[contacts[i].id] = contacts[i];
+                                if (!_myFriendsJson[contacts[i].id]) {
+                                    _myFriendsJson[contacts[i].id] = contacts[i];
+                                    //_myFriends.push(contacts[i]);
+                                }
+                                tx.executeSql('INSERT OR REPLACE INTO Participates VALUES (?, ?, ?)',
+                                    [contacts[i].id,
+                                        convId,
+                                    _myConvs[convId].participates.length > 2
+                                    ]);
+                            }
+                            tx.executeSql('INSERT INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                                [newId,
                                 contacts[i].phoneNumber,
                                     '',
                                     '',
                                 contacts[i].publicInfo.fullName,
                                     '',
                                 contacts[i].publicInfo.picture,
-                                    ''], null, (error) => { alert(error.message); console.log(error); });
+                                    '',
+                                isMyContact]);
                         } catch (error) {
                             console.log(error);
                         }
                     }
                 }
-                //---
-                if (f_phoneNumbers.indexOf(contacts[i].phoneNumber) < 0) {
-                }
+                Event.trigger('updateFriends', true);
             }, errorDB);
 
         }, (error) => {
@@ -185,6 +206,29 @@ export function InsertMyContacts(contacts) {
     }
 }
 
+export function getAllPhoneNumbers(callback) {
+    try {
+        db.transaction((tx) => {
+            tx.executeSql('SELECT phoneNumber FROM Friends', [], (tx, rs) => {
+                try {
+                    var result = [];
+                     for (var i = 0; i < rs.rows.length; i++) {
+                         result.push(rs.rows.item(i).phoneNumber);
+                     }
+                    callback(result);
+                } catch (error) {
+                    ErrorHandler.WriteError('serverSrv.js => GetAllMyFriends => SELECT * FROM Friends => catch', error);
+                }
+            }, errorDB);
+        }, (error) => {
+            ErrorHandler.WriteError('serverSrv.js => getAllPhoneNumbers => transaction', error);
+        });
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => getAllPhoneNumbers', error);
+    }
+}
+
+//-not in use?
 export function GetAllMyFriends_Server(callback) {
     try {
         var friends = [];
@@ -207,7 +251,7 @@ export function GetAllMyFriends_Server(callback) {
                         //tx.executeSql('DELETE FROM Friends WHERE id=?', [data[i].id]);
                     } else {
                         tx.executeSql('DELETE FROM Friends WHERE id = ?', [data[i].phoneNumber]);
-                        tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                        tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                             [data[i].id,
                             data[i].phoneNumber,
                             data[i].ModifyDate,
@@ -215,7 +259,8 @@ export function GetAllMyFriends_Server(callback) {
                             data[i].publicInfo.fullName,
                             data[i].publicInfo.mail,
                             data[i].publicInfo.picture,
-                            data[i].publicInfo.gender], null, (err) => { console.log(err); });
+                            data[i].publicInfo.gender,
+                            true]);
                     }
                 }
                 GetAllMyFriends(callback, true);
@@ -236,7 +281,7 @@ export function GetAllUserConv(callback, isUpdate) {
             return;
         }
         db.transaction((tx) => {
-            tx.executeSql('SELECT * FROM Conversation ORDER BY lastMessageTime', [], (tx, rs) => {
+            tx.executeSql('SELECT * FROM Conversation ORDER BY lastMessageTime DESC', [], (tx, rs) => {
                 try {
                     var result = [];
                     for (var i = 0; i < rs.rows.length; i++) {
@@ -315,13 +360,13 @@ function GetAllUserConv_Server(callback) {
                             data[i].lastMessage,
                             data[i].lastMessageTime
                             ]);
+                         }
                     }
-                }
-                _data = data;
-                GetAllUserConv(callback, data, true);
-            }, (error) => {
-                ErrorHandler.WriteError('serverSrv.js => GetAllUserConv_Server => GetAllUserConvChanges', error);
-            })
+                    _data = data;
+                    GetAllUserConv(callback, data, true);
+                }, (error) => {
+                    ErrorHandler.WriteError('serverSrv.js => GetAllUserConv_Server => GetAllUserConvChanges', error);
+                })
         }));
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => GetAllUserConv_Server', error);
@@ -335,7 +380,7 @@ export function GetConv(callback, convId, isUpdate) {
         //     callback(_myConvs[convId].messages);
         //     return;
         // }
-
+            
         db.transaction((tx) => {
             tx.executeSql('SELECT * FROM Messages WHERE convId = ? AND content IS NOT NULL ORDER BY sendTime DESC', [convId], (tx, rs) => {
                 try {
@@ -389,6 +434,7 @@ export function GetConv(callback, convId, isUpdate) {
 function GetConv_server(convId, callback) {
     try {
         var lastMessageTime = null;
+        var newParticipates = [];
         if (_myConvs && _myConvs[convId]) {
             lastMessageTime = _myConvs[convId].lastMessageTime; //last message time
         }
@@ -400,20 +446,27 @@ function GetConv_server(convId, callback) {
             db.transaction((tx) => {
                 for (var i = 0; i < data.participates.length; i++) {
                     try {
-                        console.log(data.participates[i]);
-                        console.log(_myFriendsJson[data.participates[i].id]);
-                        data.participates[i].name = _myFriendsJson[data.participates[i].id].publicInfo.fullName;
-                        data.participates[i].avatar = _myFriendsJson[data.participates[i].id].publicInfo.picture;
-                        data.participates[i]._id = data.participates[i].id;
-                        _myConvs[convId].participates[data.participates[i].id] = data.participates[i];
-                        tx.executeSql('INSERT OR REPLACE INTO Participates VALUES (?, ?, ?)',
-                            [data.participates[i].id,
-                                convId,
-                            data.participates.length > 2
-                            ]);
+                        if (!_myFriendsJson[data.participates[i].id]) {
+                            newParticipates.push(data.participates[i].id);
+                        } else {
+                            data.participates[i].name = _myFriendsJson[data.participates[i].id].publicInfo.fullName;
+                            data.participates[i].avatar = _myFriendsJson[data.participates[i].id].publicInfo.picture;
+                            data.participates[i]._id = data.participates[i].id;
+                            _myConvs[convId].participates[data.participates[i].id] = data.participates[i];
+                            tx.executeSql('INSERT OR REPLACE INTO Participates VALUES (?, ?, ?)',
+                                [data.participates[i].id,
+                                    convId,
+                                data.participates.length > 2
+                                ]);
+                        }
                     } catch (error) {
                         console.log(error);
                     }
+                }
+                if (newParticipates.length > 0) {
+                    socket.emit('getUsers',newParticipates, (result) => {
+                        InsertMyContacts(result, false, convId);
+                    });
                 }
                 for (var i = 0; i < data.messages.length; i++) {
                     if (data.messages[i].deletedConv == true && data.messages[i].id) {
@@ -529,7 +582,7 @@ export function saveNewMessage(msg) {
                 msg.isEncrypted,
                 msg.from,
                 msg.content,
-                msg.sendTime.toString(),
+                moment(msg.sendTime).toISOString(),
                 msg.lastTypingTime,
                 msg.isSeenByAll
                 ]);
@@ -624,8 +677,7 @@ export function signUpFunc(newUser, callback) {
             if (user.id) {
                 db.transaction(function (tx) {
                     tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?)', [user.id, '', '', '']);
-                    console.log(user.id, '---', newUser.phoneNumber);
-                    tx.executeSql('INSERT INTO Friends VALUES (?,?,?,?,?,?,?,?)', [user.id, newUser.phoneNumber, newUser.ModifyDate, newUser.ModifyPicDate, newUser.publicInfo.fullName, newUser.publicInfo.mail, newUser.publicInfo.picture, newUser.publicInfo.gender]);
+                    tx.executeSql('INSERT INTO Friends VALUES (?,?,?,?,?,?,?,?,?)', [user.id, newUser.phoneNumber, newUser.ModifyDate, newUser.ModifyPicDate, newUser.publicInfo.fullName, newUser.publicInfo.mail, newUser.publicInfo.picture, newUser.publicInfo.gender, false]);
                 }, (error) => {
                     ErrorHandler.WriteError('signUp => addNewUser => transaction', error);
                 }, function () {

@@ -18,11 +18,12 @@ import { Actions } from 'react-native-router-flux';
 var serverSrv = require('../../Services/serverSrv');
 var PhoneContacts = require('react-native-contacts');
 var generalStyle = require('../../styles/generalStyle');
+var Event = require('../../Services/Events');
+var ErrorHandler = require('../../ErrorHandler');
 
 export default class Contacts extends Component {
     constructor() {
         super();
-        console.log('Contacts in');
         this.isGetMyContacts = false;
         this.isGetMyFriends = false;
         this.phnesNumbers = [];
@@ -34,104 +35,42 @@ export default class Contacts extends Component {
             imageVisible: false,
             filter: ''
         };
+        this.UpdateMyFriends = this.UpdateMyFriends.bind(this);
     }
 
     componentDidMount() {
-        setTimeout(() => {
-            var ds = this.ds;
-            serverSrv.GetAllMyFriends((result) => {
-                if (result && result.length > 0) {
-                    this.setState({
-                        dataSource: ds.cloneWithRows(result)
-                    })
-                    if (this.isGetMyFriends == false) {
-                        this.isGetMyFriends = true;
-                        this.myFriends = this.myFriends.concat(result);
-                    }
-                    this.mergeContacts();
-                    this.updateMyContactsView(ds, this.myFriends);
-                }
-            });
+        try {
+            setTimeout(() => {
+                var ds = this.ds;
+                Event.on('updateFriends', this.reloadFriendFromDB);
+                Event.on('UpdateMyFriends', this.UpdateMyFriends);
+                this.reloadFriendFromDB();
+            }, 0);
+        } catch (error) {
+            ErrorHandler.WriteError("Contacts.js => componentDidMount", error);
+        }
+    }
 
-            // לחשוב איך ליעל את זה ------------------------ לא למחוק--------------------------ת
-            PhoneContacts.getAll((err, contacts) => {
-                if (err && err.type === 'permissionDenied') {
-                    // x.x
-                } else {
-                    contacts = contacts.filter((user) => {
-                        if (user.phoneNumbers && user.phoneNumbers[0]) {
-                            var usr = {
-                                isOnline: false,
-                                isPhoneContact: true,
-                                phoneNumber: user.phoneNumbers[0].number.replace('+972', '0').replace(/[ ]|[-()]/g, ''),
-                                publicInfo: {
-                                    fullName: user.givenName + (user.middleName ? (' ' + user.middleName) : '') + (user.familyName ? (' ' + user.familyName) : ''),
-                                    picture: user.thumbnailPath
-                                }
-                            };
-                            if (this.phnesNumbers.indexOf(usr.phoneNumber) >= 0) {
-                                return false;
-                            }
-                            else {
-                                this.myContacts.push(usr);
-                                this.phnesNumbers.push(usr.phoneNumber);
-                                return true;
-                            }
-                        } else {
-                            return false;
-                        }
-                    });
+    reloadFriendFromDB(isUpdate){
+        console.log('reloadFriendFromDB: ' + isUpdate);
+        serverSrv.GetAllMyFriends(this.UpdateMyFriends, isUpdate);
+    }
 
-                    serverSrv.InsertMyContacts(this.myContacts, () => {
-                        serverSrv.GetAllMyFriends_Server((result) => {
-                            this.setState({
-                                dataSource: ds.cloneWithRows(result)
-                            })
-                        });
-                    });
-                }
-                this.isGetMyContacts = true;
-                this.updateMyContactsView(ds, this.myFriends);
-            });
-
-            serverSrv.GetAllMyFriends_Server((result) => {
+    UpdateMyFriends(result) {
+        try {
+            console.log('UpdateMyFriends');
+            console.log(result);
+            if (!result) {
+                result = [];
+            }
+            setTimeout(() => {
                 this.setState({
-                    dataSource: ds.cloneWithRows(result)
+                    dataSource: this.ds.cloneWithRows(result)
                 })
-            });
-
-        }, 0);
-    }
-
-    mergeContacts() {
-        if (this.isGetMyContacts == true && this.isGetMyFriends == false) {
-            this.myFriends = this.myFriends.concat(this.myContacts)
-        }
-        else if (this.isGetMyContacts == false && this.isGetMyFriends == true) {
-            this.myFriends = this.myContacts.concat(this.myFriends);
-        }
-    }
-
-    updateMyContactsView(ds, array) {
-        if (this.isGetMyContacts == true && this.isGetMyFriends == true) {
-            // array.sort((a, b) => {
-            //     if (a.publicInfo.fullName.toLowerCase() < b.publicInfo.fullName.toLowerCase()) {
-            //         return -1;
-            //     }
-            //     else if (a.publicInfo.fullName.toLowerCase() > b.publicInfo.fullName.toLowerCase()) {
-            //         return 1;
-            //     }
-            //     else {
-            //         return 0;
-            //     }
-            // });
-            serverSrv.GetAllMyFriends_Server((result) => {
-                setTimeout(() => {
-                    this.setState({
-                        dataSource: ds.cloneWithRows(result)
-                    })
-                }, 200);
-            });
+            }, 20);
+            this.myFriends = result;
+        } catch (error) {
+            ErrorHandler.WriteError("Contacts.js => UpdateMyFriends", error);
         }
     }
 
@@ -146,20 +85,24 @@ export default class Contacts extends Component {
     }
 
     getDataSource() {
-        //if filter is empty - return original data source
-        if (!this.state.filter && this.state.dataSource.cloneWithRows) {
-            return this.state.dataSource.cloneWithRows(this.myFriends);
+        try {
+            //if filter is empty - return original data source
+            if (!this.state.filter && this.state.dataSource.cloneWithRows) {
+                return this.state.dataSource.cloneWithRows(this.myFriends);
+            }
+            //create filtered datasource
+            let filteredContacts = this.myFriends;
+            filteredContacts = this.myFriends.filter((user) => {
+                // return user.publicInfo.fullName.toLowerCase().includes(this.state.filter.toLowerCase());
+                return ((user.publicInfo.fullName.toLowerCase().includes(this.state.filter.toLowerCase())) || (user.phoneNumber ? user.phoneNumber.includes(this.state.filter) : false));
+            });
+            if (this.state.dataSource.cloneWithRows) {
+                return this.state.dataSource.cloneWithRows(filteredContacts);
+            }
+            return this.state.dataSource;
+        } catch (error) {
+            ErrorHandler.WriteError("Contacts.js => getDataSource", error);
         }
-        //create filtered datasource
-        let filteredContacts = this.myFriends;
-        filteredContacts = this.myFriends.filter((user) => {
-            // return user.publicInfo.fullName.toLowerCase().includes(this.state.filter.toLowerCase());
-            return ((user.publicInfo.fullName.toLowerCase().includes(this.state.filter.toLowerCase())) || (user.phoneNumber ? user.phoneNumber.includes(this.state.filter) : false));
-        });
-        if (this.state.dataSource.cloneWithRows) {
-            return this.state.dataSource.cloneWithRows(filteredContacts);
-        }
-        return this.state.dataSource;
     }
 
     render() {
