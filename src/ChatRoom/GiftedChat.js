@@ -28,9 +28,10 @@ import Message from './Message';
 import MessageContainer from './MessageContainer';
 import Send from './Send';
 import Time from './Time';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
+var Event = require('../../Services/Events');
 var generalStyles = require('../../styles/generalStyle');
-
 
 // Min and max heights of ToolbarInput and Composer
 // Needed for Composer auto grow and ScrollView animation
@@ -45,9 +46,9 @@ const MIN_INPUT_TOOLBAR_HEIGHT = 44;
 export default class GiftedChat extends React.Component {
   constructor(props) {
     super(props);
-    
 
-    
+
+
     // default values
     this._isMounted = false;
     this._keyboardHeight = 0;
@@ -62,7 +63,7 @@ export default class GiftedChat extends React.Component {
     this.state = {
       isInitialized: false, // initialization will calculate maxHeight before rendering the chat
       imageVisible: false,
-     
+
     };
 
     this.onTouchStart = this.onTouchStart.bind(this);
@@ -90,7 +91,7 @@ export default class GiftedChat extends React.Component {
   }
 
 
- 
+
 
   static append(currentMessages = [], messages) {
     if (!Array.isArray(messages)) {
@@ -384,10 +385,10 @@ onType(e) {
   this.props.onType(newText);
 }
 
- changeText = (data) => {
-    this.setState({ text: this.state.text + data });
-  }
- 
+changeText = (data) => {
+  this.setState({ text: this.state.text + data });
+}
+
 
 renderInputToolbar() {
   const inputToolbarProps = {
@@ -403,8 +404,8 @@ if (this.props.renderInputToolbar) {
 }
 return (
   <InputToolbar
-  changeText= {this.changeText}
-   textInput= {this.state.text}
+    changeText={this.changeText}
+    textInput={this.state.text}
     {...inputToolbarProps}
     />
 );
@@ -434,7 +435,6 @@ setImageVisible(visible) {
 openImageModal(image) {
   return (
     <Modal
-      animationType={"slide"}
       transparent={true}
       visible={this.state.imageVisible}
       onRequestClose={() => { console.log('image closed') } }
@@ -461,12 +461,27 @@ render() {
             this.setImageVisible(true);
           } }>
             <View style={generalStyles.styles.viewImgChatRoom}>
-              <Image style={generalStyles.styles.ImgChatRoom} source={ this.props.userPicture ? { uri: this.props.userPicture } :  require('../../img/user.jpg')}/> 
+              <Image style={generalStyles.styles.ImgChatRoom} source={this.props.userPicture ? { uri: this.props.userPicture } : require('../../img/user.jpg')} />
+
+
+
             </View>
           </TouchableHighlight>
           <Text style={generalStyles.styles.titleHeader}>
             {this.props.userName}
           </Text>
+          <TouchableHighlight style={{margin:7}} onPress={() => {
+            Event.trigger('showImagePicker');
+          } }>
+            <Icon name="photo-camera" size={25} color="rgb(177,100,255)" />
+          </TouchableHighlight>
+
+          <TouchableHighlight style={{margin:7}} onPress={() => {
+            Event.trigger('showSignature');
+          } }>
+            <Icon name="brush" size={25} color="rgb(177,100,255)" />
+          </TouchableHighlight>
+
           <View style={styles.button} />
         </View>
         <ActionSheet ref={component => this._actionSheetRef = component}>
@@ -488,8 +503,8 @@ render() {
               }
             } }
             >
-            {this.renderMessages() }
-            {this.renderInputToolbar() }
+            {this.renderMessages()}
+            {this.renderInputToolbar()}
 
           </View>
         </ActionSheet>

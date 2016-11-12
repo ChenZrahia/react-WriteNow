@@ -15,11 +15,14 @@ import {
     ScrollView,
     View,
 } from 'react-native';
-
+import { Actions } from 'react-native-router-flux';
+var ImagePicker = require('react-native-image-picker');
 var serverSrv = require('../../Services/serverSrv');
 var generalStyles = require('../../styles/generalStyle');
 var ErrorHandler = require('../../ErrorHandler');
 var moment = require('moment');
+var Event = require('../../Services/Events');
+var Platform = require('react-native').Platform;
 
 export default class ChatRoom extends Component {
     constructor(props) {
@@ -29,10 +32,17 @@ export default class ChatRoom extends Component {
         this.onSend = this.onSend.bind(this);
         this.onType = this.onType.bind(this);
         this.onFriendType = this.onFriendType.bind(this);
+        this.showImagePicker = this.showImagePicker.bind(this);
         this.messages = [];
         this.indexOnlineMessages = [];
         this.onlineMessages = [];
         this.convId = null;
+        Event.removeAllListeners('showImagePicker');
+        Event.removeAllListeners('showSignature');
+        Event.removeAllListeners('sendSegnature');
+        Event.on('showImagePicker', this.showImagePicker);
+        Event.on('showSignature', this.showSignature);
+        Event.on('sendSegnature', this.sendImageMessage);
     }
 
     componentDidMount() {
@@ -68,48 +78,130 @@ export default class ChatRoom extends Component {
             s4() + '-' + s4() + s4() + s4();
     }
 
-    onFriendType(msg) {
-        if (msg.from == serverSrv._uid) {
-            return;
+    showSignature() {
+        try {
+            Actions.Signature();
+        } catch (error) {
+            ErrorHandler.WriteError('ChatRoom.js => showSignature', error);
         }
-        if (!this.messages) {
-            this.messages = [];
-        }
-        if (msg.mid) {
-            msg._id = msg.mid;
-            msg.id = msg.mid;
-        }
-        if (!msg.id) {
-            msg.id = this.guid();
-        }
-        if (!msg._id) {
-            msg._id = msg.id;
-        }
+    }
 
-        if (!msg.user) {
-            msg.user = serverSrv._myFriendsJson[msg.from];
-        }
-        msg.text = msg.content;
-        if (!this.indexOnlineMessages[msg._id]) { //new message
-            this.indexOnlineMessages[msg._id] = msg;
-            this.onlineMessages.push(this.indexOnlineMessages[msg._id]);
-        } else {
-            this.indexOnlineMessages[msg._id].text = msg.content;
-            this.indexOnlineMessages[msg._id].content = msg.content;
-            if (!msg.content || msg.content.length == 0) {
-                this._messageId = null;
-                this.onlineMessages.splice(this.onlineMessages.indexOf(this.indexOnlineMessages[msg._id]), 1);
-                delete this.indexOnlineMessages[msg._id];
-            }
-        }
-        if (msg.sendTime) {
-            this.onSend(msg);
-        } else {
-            this.setState((previousState) => {
-                return {
-                    messages: GiftedChat.append(this.messages, this.onlineMessages),
-                };
+    showImagePicker() {
+        try {
+            var options = {
+                title: 'Select Image',
+                storageOptions: {
+                    skipBackup: true,
+                    path: 'images'
+                }
+            };
+            console.log(ImagePicker);
+            console.log('ImagePicker');
+            ImagePicker.showImagePicker(options, (response) => {
+                console.log('Response = ', response);
+
+                if (response.didCancel) {
+                    console.log('User cancelled image picker');
+                }
+                else if (response.error) {
+                    console.log('ImagePicker Error: ', response.error);
+                }
+                else if (response.customButton) {
+                    console.log('User tapped custom button: ', response.customButton);
+                }
+                else {
+                    // You can display the image using either data...
+                    const source = { uri: 'data:image/jpeg;base64,' + response.data, isStatic: true };
+                    // or a reference to the platform specific asset location
+                    if (Platform.OS === 'ios') {
+                        const source = { uri: response.uri.replace('file://', ''), isStatic: true };
+                    } else {
+                        const source = { uri: response.uri, isStatic: true };
+                    }
+                    var img = response.data;
+                    var img2 = source;
+                    // console.log(response.data);
+                    // console.log('response.data');
+                    // console.log(source);
+                    // console.log('source');
+                    this.sendImageMessage('data:image/jpeg;base64,' + response.data);
+                }
             });
+        } catch (error) {
+            ErrorHandler.WriteError('ChatRoom.js => showImagePicker', error);
+        }
+    };
+
+    sendImageMessage(img) {
+        try {
+            console.log(img);
+            this._messageId = this.guid();
+            var msg = {
+                mid: this._messageId,
+                id: this._messageId,
+                _id: this._messageId,
+                convId: this.convId,
+                isEncrypted: false,
+                lastTypingTime: Date.now(),
+                sendTime: Date.now(),
+                from: serverSrv._uid,
+                user: serverSrv._myFriendsJson[serverSrv._uid],
+                createdAt: Date.now(),
+                text: 'חג שמח',
+                image: img
+            };
+            this.onFriendType(msg, true);
+        } catch (error) {
+            ErrorHandler.WriteError('ChatRoom.js => sendImageMessage', error);
+        }
+    }
+
+    onFriendType(msg, isImage) {
+        try {
+            if (msg.from == serverSrv._uid && !isImage) {
+                return;
+            }
+            if (!this.messages) {
+                this.messages = [];
+            }
+            if (msg.mid) {
+                msg._id = msg.mid;
+                msg.id = msg.mid;
+            }
+            if (!msg.id) {
+                msg.id = this.guid();
+            }
+            if (!msg._id) {
+                msg._id = msg.id;
+            }
+
+            if (!msg.user) {
+                msg.user = serverSrv._myFriendsJson[msg.from];
+            }
+            msg.text = msg.content;
+            if (!this.indexOnlineMessages[msg._id]) { //new message
+                this.indexOnlineMessages[msg._id] = msg;
+                this.onlineMessages.push(this.indexOnlineMessages[msg._id]);
+            } else {
+                this.indexOnlineMessages[msg._id].text = msg.content;
+                this.indexOnlineMessages[msg._id].content = msg.content;
+                if (!msg.content || msg.content.length == 0) {
+                    this._messageId = null;
+                    this.onlineMessages.splice(this.onlineMessages.indexOf(this.indexOnlineMessages[msg._id]), 1);
+                    delete this.indexOnlineMessages[msg._id];
+                }
+            }
+            if (msg.sendTime) {
+                this.onSend(msg);
+            } else {
+                this.setState((previousState) => {
+                    return {
+                        messages: GiftedChat.append(this.messages, this.onlineMessages),
+                    };
+                });
+            }
+        } catch (error) {
+            ErrorHandler.WriteError('ChatRoom.js => onFriendType', error);
         }
     }
 
@@ -124,7 +216,7 @@ export default class ChatRoom extends Component {
                 } else {
                     msg.createdAt = moment(msg.sendTime).format();
                 }
-                if (msg._id.indexOf('temp-id') >= 0) {
+                if (msg._id.indexOf('temp-id') >= 0 || (msg.image && msg.from == serverSrv._uid)) {
                     msg._id = this._messageId;
                     msg.id = this._messageId;
                     msg.from = serverSrv._uid;
@@ -133,7 +225,6 @@ export default class ChatRoom extends Component {
                     msg.convId = this.convId;
                     serverSrv.saveNewMessage(msg);
                 }
-                
                 msg.user = serverSrv._myFriendsJson[msg.user._id];
                 this.messages.splice(0, 0, msg); //push
                 this.onlineMessages = this.onlineMessages.filter((o_msg) => {

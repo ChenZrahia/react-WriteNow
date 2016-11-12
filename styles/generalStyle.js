@@ -45,7 +45,8 @@ export const styles = StyleSheet.create({
         height: 56,
         backgroundColor: mainColor,
         elevation: 4,
-        paddingLeft: 7
+        paddingLeft: 7,
+        justifyContent: 'space-between',
     },
     row: {
         flex: 1,
