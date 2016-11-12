@@ -14,6 +14,7 @@ import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
 import Kohana from '../../styles/Kohana';
 
 var dismissKeyboard = require('dismissKeyboard');
+var Event = require('../../Services/Events');
 var serverSrv = require('../../Services/serverSrv');
 var ErrorHandler = require('../../ErrorHandler');
 var generalStyle = require('../../styles/generalStyle');
@@ -32,32 +33,35 @@ export default class Chats extends Component {
             imageVisible: false,
             filter: ''
         };
+        this.UpdateChatsList = this.UpdateChatsList.bind(this);
+        Event.on('UpdateChatsList', this.UpdateChatsList);
     }
 
-    componentDidMount() {
+    UpdateChatsList() {
         var ds = this.ds;
-        setTimeout(() => {
-            serverSrv.GetAllUserConv((result) => {
+        serverSrv.GetAllUserConv((result) => {
+            try {
+                this.myChats = this.sortDates(result);
+                this.myChats = result;
                 try {
-                    this.myChats = this.sortDates(result);
-                    this.myChats = result;
-                    try {
-                        this.setState({
-                            dataSource: ds.cloneWithRows(result)
-                        })
+                    this.setState({
+                        dataSource: ds.cloneWithRows(result)
+                    })
 
-                    } catch (error) {
-                        console.log('error');
-                        console.log(error);
-                    }
-                    this.state = {
-                        dataSource: ds.cloneWithRows(this.myChats)
-                    };
                 } catch (error) {
                     console.log(error);
                 }
-            });
-        }, 0);
+                this.state = {
+                    dataSource: ds.cloneWithRows(this.myChats)
+                };
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    componentDidMount() {
+        setTimeout(this.UpdateChatsList, 0);
     }
 
     showNotification(notification) {
@@ -105,21 +109,21 @@ export default class Chats extends Component {
         try {
             return dataSource.sort((a, b) => {
                 try {
-                    if (a.lastMessageTime && b.lastMessageTime) {
-                        if (a.lastMessageTime > b.lastMessageTime) {
+                    if (a.sendTime && b.sendTime) {
+                        if (a.sendTime > b.sendTime) {
                             return -1;
                         }
-                        else if (a.lastMessageTime < b.lastMessageTime) {
+                        else if (a.sendTime < b.sendTime) {
                             return 1;
                         }
                         else {
                             return 0;
                         }
                     }
-                    else if (a.lastMessageTime && !b.lastMessageTime) {
+                    else if (a.sendTime && !b.sendTime) {
                         return -1;
                     }
-                    else if (!a.lastMessageTime && b.lastMessageTime) {
+                    else if (!a.sendTime && b.sendTime) {
                         return 1;
                     }
                     else {

@@ -13,10 +13,12 @@ import { Actions } from 'react-native-router-flux'
 import Toast from 'react-native-root-toast';
 import Fumi from '../../styles/Fumi';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
+import Spinner from 'react-native-loading-spinner-overlay';
 
+var Event = require('../../Services/Events');
 var Platform = require('react-native').Platform;
 var ImagePicker = require('react-native-image-picker');
-
+var generalStyles = require('../../styles/generalStyle');
 var ErrorHandler = require('../../ErrorHandler');
 var serverSrv = require('../../Services/serverSrv');
 var disabled = false;
@@ -35,19 +37,21 @@ export default class SignUp extends Component {
     this.state = {
       DisplayName: "",
       PhoneNumber: "",
-      avatarSource: require('../../img/user.jpg')
+      avatarSource: require('../../img/user.jpg'),
+      SpinnerVisible: false
     }
   }
   // Add a Toast on screen.
   componentDidMount() {
   }
 
+
+
   SignUpSubmit = (() => {
     try {
       if (disabled == true) {
         return;
       }
-
       var msg = '';
       if (!this.state.PhoneNumber) {
         msg = 'Enter Your Phone Number';
@@ -68,6 +72,10 @@ export default class SignUp extends Component {
         return;
       }
       disabled = true;
+      
+      this.setState({
+        SpinnerVisible: true
+      });
 
       var newUser = {
         pkey: '',
@@ -88,6 +96,9 @@ export default class SignUp extends Component {
       };
 
       serverSrv.signUpFunc(newUser, (userId) => {
+        this.setState({
+          SpinnerVisible: false
+        });
         if (userId) {
           Actions.Tabs({ type: 'reset' });
         } else {
@@ -142,8 +153,12 @@ export default class SignUp extends Component {
   }
 
   render() {
+
     return (
       <View style={styles.container}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,1)', position: 'absolute' }} visible={this.state.SpinnerVisible}>
+          <Spinner visible={this.state.SpinnerVisible} />
+        </View>
         <View style={{
           flex: 1,
           alignSelf: 'stretch',
