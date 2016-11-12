@@ -40,7 +40,7 @@ export var _myConvs = {};
 
 function printTable(tblName) {
     db.transaction((tx) => {
-        tx.executeSql('SELECT sendTime FROM Messages WHERE content IS NOT NULL ORDER BY sendTime DESC' , [], (tx, rs) => {
+        tx.executeSql('SELECT * FROM Messages WHERE image IS NOT NULL ORDER BY sendTime DESC' , [], (tx, rs) => {
             console.log('---------------------------------------');
             for (var i = 0; i < rs.rows.length; i++) {
                 console.log(rs.rows.item(i));
@@ -69,7 +69,7 @@ export function DeleteDb() {
         tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid)', [], null, errorDB);
         tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, mail, picture, gender, isMyContact)', [], null, errorDB); //להוציא לפונקציה נפרדת
-        tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll)', [], null, errorDB); //להוציא לפונקציה נפרדת
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll, image)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Participates (convId NOT NULL, uid NOT NULL, isGroup, PRIMARY KEY (convId, uid))', [], null, errorDB);
     });
 }
@@ -79,7 +79,7 @@ setTimeout(() => {
         tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid)', [], null, errorDB);
         tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, mail, picture, gender, isMyContact)', [], null, errorDB); //להוציא לפונקציה נפרדת
-        tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll)', [], null, errorDB); //להוציא לפונקציה נפרדת
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll, image)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Participates (convId NOT NULL, uid NOT NULL, isGroup, PRIMARY KEY (convId, uid))', [], null, errorDB);
     });
 }, 100);
@@ -218,7 +218,7 @@ export function getAllPhoneNumbers(callback) {
                      }
                     callback(result);
                 } catch (error) {
-                    ErrorHandler.WriteError('serverSrv.js => GetAllMyFriends => SELECT * FROM Friends => catch', error);
+                    ErrorHandler.WriteError('serverSrv.js => getAllPhoneNumbers => SELECT * FROM Friends => catch', error);
                 }
             }, errorDB);
         }, (error) => {
@@ -383,7 +383,7 @@ export function GetConv(callback, convId, isUpdate) {
         // }
             
         db.transaction((tx) => {
-            tx.executeSql('SELECT * FROM Messages WHERE convId = ? AND content IS NOT NULL ORDER BY sendTime DESC', [convId], (tx, rs) => {
+            tx.executeSql('SELECT * FROM Messages WHERE convId = ? AND (content IS NOT NULL OR image IS NOT NULL) ORDER BY sendTime DESC', [convId], (tx, rs) => {
                 try {
                     var result = [];
                     for (var i = 0; i < rs.rows.length; i++) {
@@ -393,6 +393,7 @@ export function GetConv(callback, convId, isUpdate) {
                             isEncrypted: rs.rows.item(i).isEncrypted,
                             from: rs.rows.item(i).msgFrom,
                             text: rs.rows.item(i).content,
+                            image: rs.rows.item(i).image,
                             sendTime: rs.rows.item(i).sendTime,
                             createdAt: rs.rows.item(i).sendTime,
                             lastTypingTime: rs.rows.item(i).lastTypingTime,
@@ -473,7 +474,7 @@ function GetConv_server(convId, callback) {
                     if (data.messages[i].deletedConv == true && data.messages[i].id) {
                         tx.executeSql('DELETE FROM Messages WHERE id=?', [data.messages[i].id]);
                     } else {
-                        tx.executeSql('INSERT INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                        tx.executeSql('INSERT INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                             [data.messages[i].id,
                             data.messages[i].convId,
                             data.messages[i].isEncrypted,
@@ -481,7 +482,8 @@ function GetConv_server(convId, callback) {
                             data.messages[i].content,
                             data.messages[i].sendTime,
                             data.messages[i].lastTypingTime,
-                            data.messages[i].isSeenByAll
+                            data.messages[i].isSeenByAll,
+                            data.messages[i].image
                             ]);
                     }
                 }
@@ -577,7 +579,7 @@ export function onServerTyping(callback) {
 export function saveNewMessage(msg) {
     try {
         db.transaction((tx) => {
-            tx.executeSql('INSERT INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            tx.executeSql('INSERT INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 [msg.id,
                 msg.convId,
                 msg.isEncrypted,
@@ -585,7 +587,8 @@ export function saveNewMessage(msg) {
                 msg.content,
                 moment(msg.sendTime).toISOString(),
                 msg.lastTypingTime,
-                msg.isSeenByAll
+                msg.isSeenByAll,
+                msg.image
                 ]);
         });
         if (msg.from == _uid) {

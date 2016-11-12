@@ -8,9 +8,9 @@ var generalStyles = require('../../styles/generalStyle');
 export default class MessageImage extends React.Component {
   render() {
     return (
-      <View style={[styles.container, this.props.containerStyle, generalStyles.Styles.viewImg]}>
+      <View style={[styles.container, this.props.containerStyle]}>
         <Image
-          style={[styles.image, this.props.imageStyle, generalStyles.Styles.ImgChatRoom]}
+          style={[styles.image, this.props.imageStyle]}
           source={{ uri: this.props.currentMessage.image }}
           />
       </View>

@@ -42,7 +42,6 @@ export default class Composer extends React.Component {
     this.props.changeText(emoji);
   }
     // <Modal 
-    //      animationType={"slide"}
     //       transparent={false}
     //       onRequestClose={() => {console.log('modal closed')}}
     //      >
@@ -58,7 +57,6 @@ render(){
        <View style={styles.cont} >
         <Modal
         style={{backgroundColor: 'red'}} 
-         animationType={"slide"}
           transparent={false}
           onRequestClose={() => {console.log('modal closed')}}
          >

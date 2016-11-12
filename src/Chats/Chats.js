@@ -154,7 +154,6 @@ export default class Chats extends Component {
     openImageModal(image) {
         return (
             <Modal
-                animationType={"slide"}
                 transparent={true}
                 visible={this.state.imageVisible == true}
                 onRequestClose={() => { console.log('image closed') } }

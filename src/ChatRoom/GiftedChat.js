@@ -30,9 +30,10 @@ import Message from './Message';
 import MessageContainer from './MessageContainer';
 import Send from './Send';
 import Time from './Time';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
+var Event = require('../../Services/Events');
 var generalStyles = require('../../styles/generalStyle');
-
 
 // Min and max heights of ToolbarInput and Composer
 // Needed for Composer auto grow and ScrollView animation
@@ -436,7 +437,6 @@ setImageVisible(visible) {
 openImageModal(image) {
   return (
     <Modal
-      animationType={"slide"}
       transparent={true}
       visible={this.state.imageVisible}
       onRequestClose={() => { console.log('image closed') } }
@@ -473,6 +473,18 @@ render() {
           <Text style={generalStyles.styles.titleHeader}>
             {this.props.userName}
           </Text>
+          <TouchableHighlight style={{margin:7}} onPress={() => {
+            Event.trigger('showImagePicker');
+          } }>
+            <Icon name="photo-camera" size={25} color="rgb(177,100,255)" />
+          </TouchableHighlight>
+
+          <TouchableHighlight style={{margin:7}} onPress={() => {
+            Event.trigger('showSignature');
+          } }>
+            <Icon name="brush" size={25} color="rgb(177,100,255)" />
+          </TouchableHighlight>
+
           <View style={styles.button} />
         </View>
         <ActionSheet ref={component => this._actionSheetRef = component}>

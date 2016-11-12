@@ -2,6 +2,7 @@ package com.writenow;
 import android.app.Application;
 import android.util.Log;
 import com.facebook.react.ReactApplication;
+import com.rssignaturecapture.RSSignatureCapturePackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.imagepicker.ImagePickerPackage;
 import com.rt2zz.reactnativecontacts.ReactNativeContacts;
@@ -18,6 +19,7 @@ import org.pgsqlite.SQLitePluginPackage; //added by sagi uziel 1.10.16
 import com.rt2zz.reactnativecontacts.ReactNativeContacts;
 import android.content.Intent;
 //import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage; 
+import com.rssignaturecapture.RSSignatureCapturePackage; 
 
 public class MainApplication extends Application implements ReactApplication {
 //private ReactNativePushNotificationPackage mReactNativePushNotificationPackage; // <------ Add Package Variable
@@ -32,9 +34,12 @@ public class MainApplication extends Application implements ReactApplication {
       return Arrays.<ReactPackage>asList(
         new SQLitePluginPackage(),
           new MainReactPackage(),
+            new RSSignatureCapturePackage(),
             new VectorIconsPackage(),
             new ImagePickerPackage(),
-            new ReactNativeContacts()
+            new ReactNativeContacts(),
+            new ReactNativePushNotificationPackage(),
+            new RSSignatureCapturePackage()
       );
     }
   };
