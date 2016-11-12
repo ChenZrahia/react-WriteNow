@@ -38,11 +38,9 @@ export default class SignUp extends Component {
       avatarSource: require('../../img/user.jpg')
     }
   }
-  test = (() => { });
-
-
   // Add a Toast on screen.
-
+  componentDidMount() {
+  }
 
   SignUpSubmit = (() => {
     try {
@@ -73,7 +71,7 @@ export default class SignUp extends Component {
 
       var newUser = {
         pkey: '',
-        lastSeen: Date.now,
+        lastSeen: Date.now(),
         isOnline: true,
         ModifyDate: Date.now(),
         ModifyPicDate: Date.now(),
@@ -132,7 +130,6 @@ export default class SignUp extends Component {
           const source = { uri: response.uri, isStatic: true };
         }
         profileImg = response.data;
-
         this.setState({
           avatarSource: source
         });
@@ -143,8 +140,6 @@ export default class SignUp extends Component {
   logIn() {
     Actions.Tabs({ type: 'reset' });
   }
-  // <Image source={require('../../img/signUpBAckground.jpg')} style={styles.backgroundImage} />
-
 
   render() {
     return (
@@ -207,16 +202,6 @@ export default class SignUp extends Component {
   }
 }
 
-// <TextInput underlineColorAndroid="transparent" autoCapitalize="words"
-//             onChangeText={(val) => this.setState({ DisplayName: val })}
-//             style={styles.input} placeholder="Display Name"
-//             />
-//           <TextInput underlineColorAndroid="transparent" keyboardType="phone-pad"
-//             onChangeText={(val) => this.setState({ PhoneNumber: val })}
-//             style={styles.input} placeholder="Phone Number"
-//             />
-// padding: 10,
-// paddingTop: 10
 const styles = StyleSheet.create({
   container: {
     flex: 1,

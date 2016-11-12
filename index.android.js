@@ -9,10 +9,13 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  TouchableHighlight,
   View,
+  TextInput
 } from 'react-native';
 import InitRout from './src/InitRout';
 import ChatRoom from './src/ChatRoom/ChatRoom';
+import emoji from 'emoji-datasource';
 
 var serverSrv = require('./Services/serverSrv');
 
@@ -41,9 +44,7 @@ var serverSrv = require('./Services/serverSrv');
 //     });
 //}, 1000);
 
-// setTimeout(function() {
-//   throw "Time is out";
-// }, 25000);
+
 
 //import ReactNativeRSAUtil from 'react-native-rsa-util';
 
@@ -52,26 +53,23 @@ var serverSrv = require('./Services/serverSrv');
 // var t = new JSEncrypt();
 // console.log(t);
 
-// console.log('***********');
-// console.log('***********');
-// console.log('***********');
-// console.log('***********');
-// console.log('***********');
-// console.log('***********');
-// console.log('***********');
 
 export default class WriteNow extends Component {
   constructor() {
     super();
+  }
+
+  componentWillMount() {
     serverSrv.login();
   }
+
   render() {
     return (
       <View style={styles.container}>
         <StatusBar
-        backgroundColor="#820cf7"
-        animated={true}
-        />
+          backgroundColor="#820cf7"
+          animated={true}
+          />
         <InitRout />
       </View>
     );

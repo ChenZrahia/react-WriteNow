@@ -20,10 +20,12 @@ import {
 var serverSrv = require('../../Services/serverSrv');
 var generalStyles = require('../../styles/generalStyle');
 var ErrorHandler = require('../../ErrorHandler');
+var dismissKeyboard = require('dismissKeyboard');
 
 export default class ChatRoom extends Component {
     constructor(props) {
         super(props);
+        dismissKeyboard();
         this._messageId = null;
         this.state = { messages: [] };
         this.onSend = this.onSend.bind(this);
@@ -32,23 +34,19 @@ export default class ChatRoom extends Component {
         this.messages = [];
         this.indexOnlineMessages = [];
         this.onlineMessages = [];
-        serverSrv.onServerTyping(this.onFriendType);
-        //serverSrv.onServerTyping(this.onFriendType);
     }
 
-    componentWillMount() {
-        setTimeout(() => {
-            serverSrv.GetConv((data) => {
-                if (!data) {
-                    data = [];
-                }
-                this.messages = data;
-                this.setState({
-                    messages: GiftedChat.append(this.messages, this.onlineMessages),
-                });
-            }, this.props.id);
-        }, 1000);
-
+    componentDidMount() {
+        serverSrv.onServerTyping(this.onFriendType);
+        serverSrv.GetConv((data) => {
+            if (!data) {
+                data = [];
+            }
+            this.messages = data;
+            this.setState({
+                messages: GiftedChat.append(this.messages, this.onlineMessages),
+            });
+        }, this.props.id);
     }
 
     guid() {
@@ -160,11 +158,9 @@ export default class ChatRoom extends Component {
                     msg.from = serverSrv._uid;
                     msg.createdAt = msg.sendTime;
                     msg.content = msg.text;
-                    msg.convId = this.props.data;
+                    msg.convId = this.props.id;
                     serverSrv.saveNewMessage(msg);
-                } 
-                console.log(msg);
-                console.log('msg');
+                }
                 this.messages.splice(0, 0, msg); //push
                 this.onlineMessages = this.onlineMessages.filter((o_msg) => {
                     return o_msg.id != msg.id;
@@ -186,7 +182,6 @@ export default class ChatRoom extends Component {
     //     try {
     //         msg.mid = msg._id;
     //     } catch (error) {
-
     //     }
     // }
 
@@ -198,7 +193,7 @@ export default class ChatRoom extends Component {
             mid: this._messageId,
             id: this._messageId,
             _id: this._messageId,
-            convId: this.props.data,
+            convId: this.props.id,
             isEncrypted: false,
             lastTypingTime: Date.now(),
             from: serverSrv._uid,
@@ -402,9 +397,3 @@ const styles = StyleSheet.create({
 //     );
 //   }
 // }
-
-
-
-// setTimeout(() => {
-//     throw "rugbin";
-// }, 20000);

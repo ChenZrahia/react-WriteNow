@@ -6,9 +6,9 @@ import {
   StyleSheet,
   View,
   Image,
+  TouchableHighlight,
   Text,
   Modal,
-  TouchableHighlight
 } from 'react-native';
 
 import ActionSheet from '@exponent/react-native-action-sheet';
@@ -31,6 +31,7 @@ import Time from './Time';
 
 var generalStyles = require('../../styles/generalStyle');
 
+
 // Min and max heights of ToolbarInput and Composer
 // Needed for Composer auto grow and ScrollView animation
 // TODO move these values to Constants.js (also with used colors #b2b2b2)
@@ -44,6 +45,9 @@ const MIN_INPUT_TOOLBAR_HEIGHT = 44;
 export default class GiftedChat extends React.Component {
   constructor(props) {
     super(props);
+    
+
+    
     // default values
     this._isMounted = false;
     this._keyboardHeight = 0;
@@ -57,7 +61,8 @@ export default class GiftedChat extends React.Component {
 
     this.state = {
       isInitialized: false, // initialization will calculate maxHeight before rendering the chat
-      imageVisible: false
+      imageVisible: false,
+     
     };
 
     this.onTouchStart = this.onTouchStart.bind(this);
@@ -83,6 +88,9 @@ export default class GiftedChat extends React.Component {
       onKeyboardDidHide: this.onKeyboardDidHide,
     };
   }
+
+
+ 
 
   static append(currentMessages = [], messages) {
     if (!Array.isArray(messages)) {
@@ -375,6 +383,11 @@ onType(e) {
   this.props.onType(newText);
 }
 
+ changeText = (data) => {
+    this.setState({ text: this.state.text + data });
+  }
+ 
+
 renderInputToolbar() {
   const inputToolbarProps = {
       ...this.props,
@@ -389,6 +402,8 @@ if (this.props.renderInputToolbar) {
 }
 return (
   <InputToolbar
+  changeText= {this.changeText}
+   textInput= {this.state.text}
     {...inputToolbarProps}
     />
 );
@@ -439,12 +454,13 @@ render() {
     return (
       <View style={styles.chatRoomMain}>
         <View style={generalStyles.styles.appbar}>
+
           <TouchableHighlight onPress={() => {
             this.imgSelected = { uri: this.props.userPicture }
             this.setImageVisible(true);
           } }>
             <View style={generalStyles.styles.viewImgChatRoom}>
-              <Image style={generalStyles.styles.ImgChatRoom} source={{ uri: this.props.userPicture }} />
+              <Image style={generalStyles.styles.ImgChatRoom} source={ this.props.userPicture ? { uri: this.props.userPicture } :  require('../../img/user.jpg')}/> 
             </View>
           </TouchableHighlight>
           <Text style={generalStyles.styles.titleHeader}>
@@ -471,8 +487,9 @@ render() {
               }
             } }
             >
-            {this.renderMessages()}
-            {this.renderInputToolbar()}
+            {this.renderMessages() }
+            {this.renderInputToolbar() }
+
           </View>
         </ActionSheet>
         {this.openImageModal(this.imgSelected)}
@@ -500,6 +517,7 @@ render() {
   );
 }
 }
+
 
 const styles = StyleSheet.create({
   chatRoomMain: {

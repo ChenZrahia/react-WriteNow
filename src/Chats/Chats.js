@@ -13,6 +13,7 @@ import { Actions } from 'react-native-router-flux';
 import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
 import Kohana from '../../styles/Kohana';
 
+var dismissKeyboard = require('dismissKeyboard');
 var serverSrv = require('../../Services/serverSrv');
 var ErrorHandler = require('../../ErrorHandler');
 var generalStyle = require('../../styles/generalStyle');
@@ -20,21 +21,26 @@ var generalStyle = require('../../styles/generalStyle');
 export default class Chats extends Component {
     constructor() {
         super();
+        dismissKeyboard();
         this.myChats = [];
         this.todayDate = new Date();
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+        this.ds = ds;
         //this.myChats = this.sortDates(this.myChats);
         this.state = {
             dataSource: ds.cloneWithRows(this.myChats),
             imageVisible: false,
             filter: ''
         };
+    }
 
-        serverSrv.GetAllUserConv((result) => {
-            try {
-                this.myChats = this.sortDates(result);
-                this.myChats = result;
-                setTimeout(() => {
+    componentDidMount() {
+        var ds = this.ds;
+        setTimeout(() => {
+            serverSrv.GetAllUserConv((result) => {
+                try {
+                    this.myChats = this.sortDates(result);
+                    this.myChats = result;
                     try {
                         this.setState({
                             dataSource: ds.cloneWithRows(result)
@@ -44,18 +50,29 @@ export default class Chats extends Component {
                         console.log('error');
                         console.log(error);
                     }
-                }, 100);
-
-                this.state = {
-                    dataSource: ds.cloneWithRows(this.myChats)
-                };
-            } catch (error) {
-                console.log(error);
-            }
-
-        });
+                    this.state = {
+                        dataSource: ds.cloneWithRows(this.myChats)
+                    };
+                } catch (error) {
+                    console.log(error);
+                }
+            });
+        }, 0);
     }
 
+    showNotification(notification) {
+        try {
+            if (notification) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        catch (e) {
+            ErrorHandler.WriteError('chats.js => showNotification', e);
+        }
+    }
 
     pad(num, size) {
         var s = "000000000" + num;
@@ -158,10 +175,24 @@ export default class Chats extends Component {
         //create filtered datasource
         let filteredContacts = this.myChats;
         filteredContacts = this.myChats.filter((chat) => {
-            // return user.publicInfo.fullName.toLowerCase().includes(this.state.filter.toLowerCase());
             return ((chat.groupName.toLowerCase().includes(this.state.filter.toLowerCase())));
         });
         return this.state.dataSource.cloneWithRows(filteredContacts);
+    }
+
+    _renderCancel(notifications) {
+        if (notifications) {
+            return (
+                <View style={styles.notification}>
+                    <Text style={styles.notificationText}>
+                        {notifications}
+                    </Text>
+                </View>
+            );
+        }
+        else {
+            return null;
+        }
     }
 
     render() {
@@ -207,6 +238,7 @@ export default class Chats extends Component {
                                         {rowData.lastMessage}
                                     </Text>
                                 </View>
+                                {this._renderCancel(rowData.notifications)}
                             </View>
                         </TouchableHighlight>
                     }
@@ -224,5 +256,18 @@ var styles = StyleSheet.create({
         borderColor: '#f50057',
         height: 35,
         margin: 5
+    },
+    notificationText: {
+        color: '#ffffff',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        textAlignVertical: 'center'
+    },
+    notification: {
+        backgroundColor: '#32cd32',
+        borderRadius: 10,
+        borderWidth: 0,
+        width: 20,
+        height: 20
     }
 });
