@@ -14,23 +14,9 @@ export const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    viewImgChatRoom: {
-        borderColor: 'black',
-        elevation: 3,
-        borderRadius: 4,
-        paddingRight: 7,
-
-    },
-    ImgChatRoom: {
-        borderRadius: 4,
-        borderWidth: 0.5,
-        width: 40,
-        height: 40,
-        alignSelf: 'flex-end'
-    },
     titleHeader: {
         flex: 1,
-        margin: 16,
+        margin: 10,
         textAlign: 'left',
         fontSize: 18,
         color: 'white',
@@ -57,8 +43,10 @@ export const styles = StyleSheet.create({
     },
     viewImg: {
         borderColor: 'black',
-        elevation: 3,
+        elevation: 4,
         borderRadius: 4,
+        paddingRight: 2,
+        paddingBottom: 2
     },
     thumb: {
         borderRadius: 4,

@@ -27,14 +27,19 @@ export default class Chats extends Component {
         this.todayDate = new Date();
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         this.ds = ds;
+        this.mounted = false;
         //this.myChats = this.sortDates(this.myChats);
         this.state = {
             dataSource: ds.cloneWithRows(this.myChats),
             imageVisible: false,
             filter: ''
         };
-        this.UpdateChatsList = this.UpdateChatsList.bind(this);
-        Event.on('UpdateChatsList', this.UpdateChatsList);
+            this.UpdateChatsList = this.UpdateChatsList.bind(this);
+            Event.on('UpdateChatsList', this.UpdateChatsList);
+    }
+
+    componentDidMount() {
+        this.mounted = true;
     }
 
     UpdateChatsList() {
