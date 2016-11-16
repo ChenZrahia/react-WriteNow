@@ -14,6 +14,8 @@ import {
 import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
 import SGListView from 'react-native-sglistview';
 import Kohana from '../../styles/Kohana';
+
+var dismissKeyboard = require('dismissKeyboard');
 import { Actions } from 'react-native-router-flux';
 var serverSrv = require('../../Services/serverSrv');
 var PhoneContacts = require('react-native-contacts');
@@ -24,6 +26,7 @@ var ErrorHandler = require('../../ErrorHandler');
 export default class Contacts extends Component {
     constructor() {
         super();
+        dismissKeyboard();
         this.isGetMyContacts = false;
         this.isGetMyFriends = false;
         this.phnesNumbers = [];

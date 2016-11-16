@@ -10,6 +10,10 @@ import {
     Modal
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
+import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
+import Kohana from '../../styles/Kohana';
+
+var dismissKeyboard = require('dismissKeyboard');
 var Event = require('../../Services/Events');
 var serverSrv = require('../../Services/serverSrv');
 var ErrorHandler = require('../../ErrorHandler');
@@ -18,17 +22,24 @@ var generalStyle = require('../../styles/generalStyle');
 export default class Chats extends Component {
     constructor() {
         super();
+        dismissKeyboard();
         this.myChats = [];
         this.todayDate = new Date();
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         this.ds = ds;
+        this.mounted = false;
         //this.myChats = this.sortDates(this.myChats);
         this.state = {
             dataSource: ds.cloneWithRows(this.myChats),
-            imageVisible: false
+            imageVisible: false,
+            filter: ''
         };
-        this.UpdateChatsList = this.UpdateChatsList.bind(this);
-        Event.on('UpdateChatsList', this.UpdateChatsList);
+            this.UpdateChatsList = this.UpdateChatsList.bind(this);
+            Event.on('UpdateChatsList', this.UpdateChatsList);
+    }
+
+    componentDidMount() {
+        this.mounted = true;
     }
 
     UpdateChatsList() {
@@ -159,6 +170,25 @@ export default class Chats extends Component {
         );
     }
 
+    onFilterChange(event) {
+        this.setState({
+            filter: event.nativeEvent.text
+        });
+    }
+
+    getDataSource() {
+        //if filter is empty - return original data source
+        if (!this.state.filter) {
+            return this.state.dataSource.cloneWithRows(this.myChats);
+        }
+        //create filtered datasource
+        let filteredContacts = this.myChats;
+        filteredContacts = this.myChats.filter((chat) => {
+            return ((chat.groupName.toLowerCase().includes(this.state.filter.toLowerCase())));
+        });
+        return this.state.dataSource.cloneWithRows(filteredContacts);
+    }
+
     _renderCancel(notifications) {
         if (notifications) {
             return (
@@ -177,9 +207,20 @@ export default class Chats extends Component {
     render() {
         return (
             <View style={{ flex: 1, alignSelf: 'stretch' }}>
+                <Kohana
+                    style={styles.searchBar}
+                    label={'Search'}
+                    iconClass={MaterialsIcon}
+                    iconName={'search'}
+                    iconColor={'#f50057'}
+                    labelStyle={{ color: '#f50057', justifyContent: 'center', alignSelf: 'stretch' }}
+                    inputStyle={{ color: '#f50057', alignSelf: 'stretch' }}
+                    value={this.state.filter}
+                    onChange={this.onFilterChange.bind(this)}
+                    />
                 <ListView style={{ paddingTop: 5, flex: 1 }}
                     enableEmptySections={true}
-                    dataSource={this.state.dataSource}
+                    dataSource={this.getDataSource()}
                     renderRow={(rowData) =>
                         <TouchableHighlight underlayColor='#ededed' onPress={() => {
                             this.openChat(rowData);
@@ -218,6 +259,13 @@ export default class Chats extends Component {
 }
 
 var styles = StyleSheet.create({
+    searchBar: {
+        borderWidth: 0.5,
+        borderRadius: 4,
+        borderColor: '#f50057',
+        height: 35,
+        margin: 5
+    },
     notificationText: {
         color: '#ffffff',
         fontWeight: 'bold',
@@ -232,4 +280,3 @@ var styles = StyleSheet.create({
         height: 20
     }
 });
-

@@ -22,6 +22,7 @@ var ImagePicker = require('react-native-image-picker');
 var serverSrv = require('../../Services/serverSrv');
 var generalStyles = require('../../styles/generalStyle');
 var ErrorHandler = require('../../ErrorHandler');
+var dismissKeyboard = require('dismissKeyboard');
 var moment = require('moment');
 var Event = require('../../Services/Events');
 var Platform = require('react-native').Platform;
@@ -29,6 +30,7 @@ var Platform = require('react-native').Platform;
 export default class ChatRoom extends Component {
     constructor(props) {
         super(props);
+        dismissKeyboard();
         this._messageId = null;
         this.state = { messages: [] };
         this.onSend = this.onSend.bind(this);

@@ -30,6 +30,7 @@ var _isFirstTime_Friends = true;
 var _isFirstTime_Chats = true;
 var _isFirstTime_Conv = true;
 var myChatsJson = {};
+var userIsConnected = false;
 export var _myFriends = null;
 export var _myFriendsJson = {};
 export var _myChats = null;
@@ -638,14 +639,16 @@ export function login() {
 
                     socket.removeAllListeners("AuthenticationOk");
 
-                    // socket.on('AuthenticationOk', (ok) => {
-                    //     try {
-                    //         Actions.Tabs();
-                    //     } catch (e) {
-                    //         Actions.SignUp({ type: 'replace' });
-                    //         ErrorHandler.WriteError('EnterPage constructor => AuthenticationOk', error);
-                    //     }
-                    // });
+                    socket.on('AuthenticationOk', (ok) => {
+                        try {
+                            //Actions.Tabs();
+                            console.log('connected');
+                            this.userIsConnected = true;
+                        } catch (e) {
+                            //Actions.SignUp({ type: 'replace' });
+                            ErrorHandler.WriteError('EnterPage constructor => AuthenticationOk', error);
+                        }
+                    });
                 }
                 else {
                     try {

@@ -9,7 +9,6 @@ project(':reactnativesignaturecapture').projectDir = new File(settingsDir, '../n
 include ':react-native-image-to-base64'
 project(':react-native-image-to-base64').projectDir = new File(settingsDir, '../node_modules/react-native-image-to-base64/android')
 
-
 include ':react-native-push-notification'
 project(':react-native-push-notification').projectDir = file('../node_modules/react-native-push-notification/android')
 

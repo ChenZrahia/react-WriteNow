@@ -174,11 +174,11 @@ export default class SignUp extends Component {
               <Text style={styles.Welcome}>
                 Welcome to WriteNow!
           </Text>
-              <TouchableHighlight onPress={this.showImagePicker} underlayColor='#ededed'>
+              <TouchableOpacity onPress={this.showImagePicker} >
                 <View style={styles.viewImg}>
                   <Image style={styles.UserImage} source={this.state.avatarSource} />
                 </View>
-              </TouchableHighlight>
+              </TouchableOpacity>
             </View>
           </Image>
         </View>

@@ -7,6 +7,7 @@ import {
   View,
   Image,
   TouchableHighlight,
+  TouchableOpacity,
   Text,
   Modal,
 } from 'react-native';
@@ -14,6 +15,7 @@ import {
 import ActionSheet from '@exponent/react-native-action-sheet';
 import dismissKeyboard from 'react-native-dismiss-keyboard';
 import moment from 'moment/min/moment-with-locales.min';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 import Actions from './Actions';
 import Avatar from './Avatar';
@@ -455,18 +457,19 @@ render() {
     return (
       <View style={styles.chatRoomMain}>
         <View style={generalStyles.styles.appbar}>
-
-          <TouchableHighlight onPress={() => {
+          <TouchableOpacity onPress={() => {
+            //לחזור למסך הקודם
+          } }>
+            <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => {
             this.imgSelected = { uri: this.props.userPicture }
             this.setImageVisible(true);
           } }>
-            <View style={generalStyles.styles.viewImgChatRoom}>
-              <Image style={generalStyles.styles.ImgChatRoom} source={this.props.userPicture ? { uri: this.props.userPicture } : require('../../img/user.jpg')} />
-
-
-
+            <View style={generalStyles.styles.viewImg}>
+              <Image style={generalStyles.styles.thumb} source={this.props.userPicture ? { uri: this.props.userPicture } : require('../../img/user.jpg')} />
             </View>
-          </TouchableHighlight>
+          </TouchableOpacity>
           <Text style={generalStyles.styles.titleHeader}>
             {this.props.userName}
           </Text>
