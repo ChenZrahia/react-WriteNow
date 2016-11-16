@@ -37,17 +37,17 @@ export const styles = StyleSheet.create({
     row: {
         flex: 1,
         flexDirection: 'row',
-        padding: 5,
+        paddingRight: 5,
+        paddingLeft: 5,
         borderBottomWidth: 0.5,
         borderColor: '#e7e7e7',
         backgroundColor: 'white'
     },
     viewImg: {
         borderColor: 'black',
-        elevation: 4,
+        elevation: 3,
         borderRadius: 4,
-        paddingRight: 2,
-        paddingBottom: 2
+        margin: 4
     },
     thumb: {
         borderRadius: 4,
@@ -65,6 +65,7 @@ export const styles = StyleSheet.create({
     textStatus: {
         paddingLeft: 10,
         paddingRight: 10,
+        paddingBottom: 5,
         color: 'gray',
         alignSelf: 'flex-start'
     },
