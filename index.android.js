@@ -20,7 +20,7 @@ var Event = require('./Services/Events');
 var serverSrv = require('./Services/serverSrv');
 var PushNotification = require('react-native-push-notification');
 var PhoneContacts = require('react-native-contacts');
-
+var ErrorHandler = require('./ErrorHandler');
 // var EncryptionUtil = require('writenow-rsa');
 
 // setTimeout(function () {
@@ -148,8 +148,12 @@ export default class WriteNow extends Component {
         //     requestPermissions: true,
         // });
 
-        serverSrv.GetAllMyFriends(() => {
-            Event.trigger('UpdateMyFriends', result);
+        serverSrv.GetAllMyFriends((result) => {
+            try {
+                Event.trigger('UpdateMyFriends', result);
+            } catch (error) {
+                ErrorHandler.WriteError(error);
+            }
         });
     }
 

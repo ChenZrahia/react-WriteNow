@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import GiftedChat from './GiftedChat';
-import { Container, Content, Icon } from 'native-base';
+import { Container, Content } from 'native-base';
 import {
     Image,
     ReactNative,
@@ -14,8 +14,10 @@ import {
     Dimensions,
     ScrollView,
     View,
+    NativeModules
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
+import ImageResizer from 'react-native-image-resizer';
 var ImagePicker = require('react-native-image-picker');
 var serverSrv = require('../../Services/serverSrv');
 var generalStyles = require('../../styles/generalStyle');
@@ -33,8 +35,11 @@ export default class ChatRoom extends Component {
         this.state = { messages: [] };
         this.onSend = this.onSend.bind(this);
         this.onType = this.onType.bind(this);
+        this.guid = this.guid.bind(this);
         this.onFriendType = this.onFriendType.bind(this);
         this.showImagePicker = this.showImagePicker.bind(this);
+        this.sendImageMessage = this.sendImageMessage.bind(this);
+        this.LoadNewChat = this.LoadNewChat.bind(this);
         this.messages = [];
         this.indexOnlineMessages = [];
         this.onlineMessages = [];
@@ -46,9 +51,21 @@ export default class ChatRoom extends Component {
         Event.on('showSignature', this.showSignature);
         Event.on('sendSegnature', this.sendImageMessage);
     }
-
+  
     componentDidMount() {
+        this.LoadNewChat();
+        Event.on('LoadNewChat', this.LoadNewChat);
+    }
+
+    LoadNewChat(convId){
         var callback = (data, convId) => {
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].text == "654") {
+                    console.log(data[i]);
+                } else {
+
+                }
+            }
             if (!data) {
                 data = [];
             }
@@ -97,8 +114,6 @@ export default class ChatRoom extends Component {
                     path: 'images'
                 }
             };
-            console.log(ImagePicker);
-            console.log('ImagePicker');
             ImagePicker.showImagePicker(options, (response) => {
                 console.log('Response = ', response);
 
@@ -122,11 +137,19 @@ export default class ChatRoom extends Component {
                     }
                     var img = response.data;
                     var img2 = source;
-                    // console.log(response.data);
-                    // console.log('response.data');
-                    // console.log(source);
-                    // console.log('source');
-                    this.sendImageMessage('data:image/jpeg;base64,' + response.data);
+                    console.log(response.uri);
+                    console.log('response.uri');
+                    ImageResizer.createResizedImage(response.uri, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
+                        NativeModules.RNImageToBase64.getBase64String(resizedImageUri, (err, base64) => {
+                            this.sendImageMessage( 'data:image/jpeg;base64,' + base64);
+                            //error check
+                        })
+                    }).catch((err) => {
+                        console.log(err);
+                        console.log('err');
+                    });
+
+                  // this.sendImageMessage('data:image/jpeg;base64,' + response.data);
                 }
             });
         } catch (error) {

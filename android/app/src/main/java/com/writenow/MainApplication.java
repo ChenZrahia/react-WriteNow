@@ -2,6 +2,8 @@ package com.writenow;
 import android.app.Application;
 import android.util.Log;
 import com.facebook.react.ReactApplication;
+import com.github.xfumihiro.react_native_image_to_base64.ImageToBase64Package;
+import fr.bamlab.rnimageresizer.ImageResizerPackage;
 import com.rssignaturecapture.RSSignatureCapturePackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.imagepicker.ImagePickerPackage;
@@ -18,7 +20,7 @@ import java.util.List;
 import org.pgsqlite.SQLitePluginPackage; //added by sagi uziel 1.10.16
 import com.rt2zz.reactnativecontacts.ReactNativeContacts;
 import android.content.Intent;
-//import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage; 
+import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage; 
 import com.rssignaturecapture.RSSignatureCapturePackage; 
 
 public class MainApplication extends Application implements ReactApplication {
@@ -34,7 +36,8 @@ public class MainApplication extends Application implements ReactApplication {
       return Arrays.<ReactPackage>asList(
         new SQLitePluginPackage(),
           new MainReactPackage(),
-            new RSSignatureCapturePackage(),
+            new ImageToBase64Package(),
+            new ImageResizerPackage(),
             new VectorIconsPackage(),
             new ImagePickerPackage(),
             new ReactNativeContacts(),

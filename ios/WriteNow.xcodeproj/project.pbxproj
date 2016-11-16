@@ -41,6 +41,8 @@
 		23DB537FA66D49C2B590E00E /* libWorkers.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B1C362E538F4CDC8099E45C /* libWorkers.a */; };
 		F6A9AA3C814543CEB90F9EF9 /* libRNGCM.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B1FA5CECF7E48968B90FCCF /* libRNGCM.a */; };
 		69AF19EBD8464556BF76ED63 /* libRSSignatureCapture.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B3D0BDEF269E4C0DB7993733 /* libRSSignatureCapture.a */; };
+		88404832B16849758BBFFA42 /* libRCTImageResizer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 876C66972A0248529DED6913 /* libRCTImageResizer.a */; };
+		D4A15622125B4FB69B8A7F41 /* libRNImageToBase64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F30C5598C364DC796626613 /* libRNImageToBase64.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -175,6 +177,10 @@
 		2B1FA5CECF7E48968B90FCCF /* libRNGCM.a */ = {isa = PBXFileReference; name = "libRNGCM.a"; path = "libRNGCM.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		41012BBEBFB449EEA8949F34 /* RSSignatureCapture.xcodeproj */ = {isa = PBXFileReference; name = "RSSignatureCapture.xcodeproj"; path = "../node_modules/react-native-signature-capture/ios/RSSignatureCapture.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		B3D0BDEF269E4C0DB7993733 /* libRSSignatureCapture.a */ = {isa = PBXFileReference; name = "libRSSignatureCapture.a"; path = "libRSSignatureCapture.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		21CC7063C36D465CBDA79D38 /* RCTImageResizer.xcodeproj */ = {isa = PBXFileReference; name = "RCTImageResizer.xcodeproj"; path = "../node_modules/react-native-image-resizer/ios/RCTImageResizer.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		876C66972A0248529DED6913 /* libRCTImageResizer.a */ = {isa = PBXFileReference; name = "libRCTImageResizer.a"; path = "libRCTImageResizer.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		DFCE601B6B264BB9B8BF626A /* RNImageToBase64.xcodeproj */ = {isa = PBXFileReference; name = "RNImageToBase64.xcodeproj"; path = "../node_modules/react-native-image-to-base64/ios/RNImageToBase64.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		7F30C5598C364DC796626613 /* libRNImageToBase64.a */ = {isa = PBXFileReference; name = "libRNImageToBase64.a"; path = "libRNImageToBase64.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -211,6 +217,8 @@
 				23DB537FA66D49C2B590E00E /* libWorkers.a in Frameworks */,
 				F6A9AA3C814543CEB90F9EF9 /* libRNGCM.a in Frameworks */,
 				69AF19EBD8464556BF76ED63 /* libRSSignatureCapture.a in Frameworks */,
+				88404832B16849758BBFFA42 /* libRCTImageResizer.a in Frameworks */,
+				D4A15622125B4FB69B8A7F41 /* libRNImageToBase64.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -344,6 +352,8 @@
 				5D541967BA8241BDB9D2C219 /* Workers.xcodeproj */,
 				3631A85E6F664DE5980DA161 /* RNGCM.xcodeproj */,
 				41012BBEBFB449EEA8949F34 /* RSSignatureCapture.xcodeproj */,
+				21CC7063C36D465CBDA79D38 /* RCTImageResizer.xcodeproj */,
+				DFCE601B6B264BB9B8BF626A /* RNImageToBase64.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -692,6 +702,8 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
 			name = Debug;
@@ -708,6 +720,8 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WriteNow.app/WriteNow";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -741,6 +755,8 @@
 					"$(SRCROOT)\..\node_modules\react-native-workers\ios\Workers",
 					"$(SRCROOT)\..\node_modules\react-native-gcm-push-notification\ios",
 					"$(SRCROOT)\..\node_modules\react-native-signature-capture\ios/**",
+					"$(SRCROOT)\..\node_modules\react-native-image-resizer\ios\RCTImageResizer",
+					"$(SRCROOT)\..\node_modules\react-native-image-to-base64\ios",
 				);
 				INFOPLIST_FILE = "WriteNow/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -773,6 +789,8 @@
 					"$(SRCROOT)\..\node_modules\react-native-workers\ios\Workers",
 					"$(SRCROOT)\..\node_modules\react-native-gcm-push-notification\ios",
 					"$(SRCROOT)\..\node_modules\react-native-signature-capture\ios/**",
+					"$(SRCROOT)\..\node_modules\react-native-image-resizer\ios\RCTImageResizer",
+					"$(SRCROOT)\..\node_modules\react-native-image-to-base64\ios",
 				);
 				INFOPLIST_FILE = "WriteNow/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -834,6 +852,8 @@
 					"$(SRCROOT)\..\node_modules\react-native-workers\ios\Workers",
 					"$(SRCROOT)\..\node_modules\react-native-gcm-push-notification\ios",
 					"$(SRCROOT)\..\node_modules\react-native-signature-capture\ios/**",
+					"$(SRCROOT)\..\node_modules\react-native-image-resizer\ios\RCTImageResizer",
+					"$(SRCROOT)\..\node_modules\react-native-image-to-base64\ios",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -885,6 +905,8 @@
 					"$(SRCROOT)\..\node_modules\react-native-workers\ios\Workers",
 					"$(SRCROOT)\..\node_modules\react-native-gcm-push-notification\ios",
 					"$(SRCROOT)\..\node_modules\react-native-signature-capture\ios/**",
+					"$(SRCROOT)\..\node_modules\react-native-image-resizer\ios\RCTImageResizer",
+					"$(SRCROOT)\..\node_modules\react-native-image-to-base64\ios",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;

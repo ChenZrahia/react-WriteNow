@@ -30,7 +30,7 @@ import Message from './Message';
 import MessageContainer from './MessageContainer';
 import Send from './Send';
 import Time from './Time';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import IconMat from 'react-native-vector-icons/MaterialIcons';
 
 var Event = require('../../Services/Events');
 var generalStyles = require('../../styles/generalStyle');
@@ -476,13 +476,13 @@ render() {
           <TouchableHighlight style={{margin:7}} onPress={() => {
             Event.trigger('showImagePicker');
           } }>
-            <Icon name="photo-camera" size={25} color="rgb(177,100,255)" />
+            <IconMat name="photo-camera" size={25} color="rgb(177,100,255)" />
           </TouchableHighlight>
 
           <TouchableHighlight style={{margin:7}} onPress={() => {
             Event.trigger('showSignature');
           } }>
-            <Icon name="brush" size={25} color="rgb(177,100,255)" />
+            <IconMat name="brush" size={25} color="rgb(177,100,255)" />
           </TouchableHighlight>
 
           <View style={styles.button} />
