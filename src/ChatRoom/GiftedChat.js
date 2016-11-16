@@ -16,8 +16,9 @@ import ActionSheet from '@exponent/react-native-action-sheet';
 import dismissKeyboard from 'react-native-dismiss-keyboard';
 import moment from 'moment/min/moment-with-locales.min';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {Actions} from 'react-native-router-flux';
 
-import Actions from './Actions';
+//import Actions from './Actions';
 import Avatar from './Avatar';
 import Bubble from './Bubble';
 import MessageImage from './MessageImage';
@@ -458,13 +459,16 @@ render() {
       <View style={styles.chatRoomMain}>
         <View style={generalStyles.styles.appbar}>
           <TouchableOpacity onPress={() => {
-            //לחזור למסך הקודם
+            Actions.pop()
           } }>
             <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => {
-            this.imgSelected = { uri: this.props.userPicture }
-            this.setImageVisible(true);
+            //this.imgSelected = { uri: this.props.userPicture }
+            this.imgSelected =  this.props.userPicture ? { uri: this.props.userPicture} : null
+            if(this.imgSelected){
+              this.setImageVisible(true);
+            }
           } }>
             <View style={generalStyles.styles.viewImg}>
               <Image style={generalStyles.styles.thumb} source={this.props.userPicture ? { uri: this.props.userPicture } : require('../../img/user.jpg')} />
