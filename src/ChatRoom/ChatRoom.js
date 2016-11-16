@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import GiftedChat from './GiftedChat';
-import { Container, Content, Icon } from 'native-base';
+import { Container, Content } from 'native-base';
 import {
     Image,
     ReactNative,

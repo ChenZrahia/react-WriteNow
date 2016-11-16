@@ -20,7 +20,7 @@ import java.util.List;
 import org.pgsqlite.SQLitePluginPackage; //added by sagi uziel 1.10.16
 import com.rt2zz.reactnativecontacts.ReactNativeContacts;
 import android.content.Intent;
-//import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage; 
+import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage; 
 import com.rssignaturecapture.RSSignatureCapturePackage; 
 
 public class MainApplication extends Application implements ReactApplication {

@@ -135,10 +135,10 @@ dependencies {
     compile project(':react-native-contacts')
     //compile 'com.google.android.gms:play-services-gcm:8.3.0' // <- Add this line
 
-    // compile project(':react-native-push-notification')
-    // compile ('com.google.android.gms:play-services-gcm:8.3.0') {
-    //     force = true;
-    // }
+     compile project(':react-native-push-notification')
+     compile ('com.google.android.gms:play-services-gcm:8.3.0') {
+         force = true;
+     }
     compile project(':reactnativesignaturecapture')
     compile project(':react-native-image-resizer')
     compile project(':react-native-image-to-base64')
