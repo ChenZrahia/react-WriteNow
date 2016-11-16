@@ -133,6 +133,7 @@ export default class Chats extends Component {
     }
 
     openChat(rowData) {
+        Event.trigger('LoadNewChat',rowData.id);
         Actions.ChatRoom(rowData);
     }
 

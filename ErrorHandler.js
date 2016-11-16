@@ -10,6 +10,8 @@ export function WriteError(stackTrace, e){
         // console.log(stackTrace);
         // console.log(e);
         // console.log('--ERROR--');
+
+        console.log(e.message, stackTrace);
         serverSrv.socket.emit('WriteError',  e.message, stackTrace);
         setTimeout(() => {
             if(isOk == false){

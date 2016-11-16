@@ -2,6 +2,8 @@ package com.writenow;
 import android.app.Application;
 import android.util.Log;
 import com.facebook.react.ReactApplication;
+import com.github.xfumihiro.react_native_image_to_base64.ImageToBase64Package;
+import fr.bamlab.rnimageresizer.ImageResizerPackage;
 import com.rssignaturecapture.RSSignatureCapturePackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.imagepicker.ImagePickerPackage;
@@ -34,7 +36,8 @@ private ReactNativePushNotificationPackage mReactNativePushNotificationPackage; 
       return Arrays.<ReactPackage>asList(
         new SQLitePluginPackage(),
           new MainReactPackage(),
-            new RSSignatureCapturePackage(),
+            new ImageToBase64Package(),
+            new ImageResizerPackage(),
             new VectorIconsPackage(),
             new ImagePickerPackage(),
             new ReactNativeContacts(),

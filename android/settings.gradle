@@ -1,7 +1,14 @@
 rootProject.name = 'WriteNow'
 
+include ':react-native-image-resizer',':app'
+project(':react-native-image-resizer').projectDir = new File(settingsDir, '../node_modules/react-native-image-resizer/android')
+
 include ':reactnativesignaturecapture',':app'
 project(':reactnativesignaturecapture').projectDir = new File(settingsDir, '../node_modules/react-native-signature-capture/android')
+
+include ':react-native-image-to-base64'
+project(':react-native-image-to-base64').projectDir = new File(settingsDir, '../node_modules/react-native-image-to-base64/android')
+
 
 include ':react-native-push-notification'
 project(':react-native-push-notification').projectDir = file('../node_modules/react-native-push-notification/android')

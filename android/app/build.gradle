@@ -140,6 +140,8 @@ dependencies {
         force = true;
     }
     compile project(':reactnativesignaturecapture')
+    compile project(':react-native-image-resizer')
+    compile project(':react-native-image-to-base64')
 }
 
 // Run this once to be able to run the application with BUCK
