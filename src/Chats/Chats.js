@@ -144,8 +144,8 @@ export default class Chats extends Component {
     }
 
     openChat(rowData) {
-        Event.trigger('LoadNewChat',rowData.id);
         Actions.ChatRoom(rowData);
+        Event.trigger('LoadNewChat',rowData.id);
     }
 
     setImageVisible(visible) {

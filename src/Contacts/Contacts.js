@@ -144,6 +144,7 @@ export default class Contacts extends Component {
                     <TouchableHighlight underlayColor='#ededed' onPress={() => {
                         rowData.isContact = true;
                         Actions.ChatRoom(rowData);
+                        Event.trigger('LoadNewChat', rowData.id);
                     } }>
                         <View style={generalStyle.styles.row}>
                             <TouchableHighlight onPress={() => {

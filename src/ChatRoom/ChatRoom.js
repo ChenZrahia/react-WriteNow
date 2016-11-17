@@ -58,6 +58,7 @@ export default class ChatRoom extends Component {
     }
 
     LoadNewChat(convId){
+        this.setState({messages: []});
         var callback = (data, convId) => {
             for (var i = 0; i < data.length; i++) {
                 if (data[i].text == "654") {
@@ -80,10 +81,15 @@ export default class ChatRoom extends Component {
             });
         }
         serverSrv.onServerTyping(this.onFriendType);
-        if (this.props.isContact == true) {
-            serverSrv.GetConvByContact(callback, this.props.id, this.props.phoneNumber, this.props.publicInfo.fullName);
+        if (convId && convId != null) {
+            this.convId = convId;
         } else {
-            serverSrv.GetConv(callback, this.props.id);
+            this.convId = this.props.id;
+        }
+        if (this.props.isContact == true) {
+            serverSrv.GetConvByContact(callback, this.convId, this.props.phoneNumber, this.props.publicInfo.fullName);
+        } else {
+            serverSrv.GetConv(callback, this.convId);
         }
     }
 
