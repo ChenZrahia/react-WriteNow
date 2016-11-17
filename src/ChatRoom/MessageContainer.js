@@ -1,10 +1,8 @@
 import React from 'react';
-
 import {
   ListView,
   View,
 } from 'react-native';
-
 import shallowequal from 'shallowequal';
 import InvertibleScrollView from 'react-native-invertible-scroll-view';
 import md5 from 'md5';
@@ -90,7 +88,7 @@ renderLoadEarlier() {
     return this.props.renderLoadEarlier(loadEarlierProps);
   }
   return (
-    <LoadEarlier {...loadEarlierProps}/>
+    <LoadEarlier {...loadEarlierProps} />
   );
 }
 return null;
@@ -121,7 +119,7 @@ renderRow(message, sectionId, rowId) {
 if (this.props.renderMessage) {
   return this.props.renderMessage(messageProps);
 }
-return <Message {...messageProps}/>;
+return <Message {...messageProps} />;
   }
 
 renderScrollComponent(props) {
@@ -137,7 +135,6 @@ renderScrollComponent(props) {
 
 render() {
   return (
-
     <View ref='container' style={{ flex: 2, backgroundColor: '#f8f8f8' }}>
       <ListView
         enableEmptySections={true}
@@ -145,9 +142,7 @@ render() {
         automaticallyAdjustContentInsets={false}
         initialListSize={20}
         pageSize={20}
-
         dataSource={this.state.dataSource}
-
         renderRow={this.renderRow}
         renderHeader={this.renderFooter}
         renderFooter={this.renderLoadEarlier}

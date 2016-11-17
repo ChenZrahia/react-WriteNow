@@ -3,7 +3,7 @@ import {
     Image,
     ReactNative,
     ListView,
-    TouchableHighlight,
+    TouchableOpacity,
     StyleSheet,
     Text,
     View,
@@ -159,13 +159,13 @@ export default class Chats extends Component {
                 visible={this.state.imageVisible == true}
                 onRequestClose={() => { console.log('image closed') } }
                 >
-                <TouchableHighlight style={{ flex: 1 }} onPress={() => {
+                <TouchableOpacity style={{ flex: 1 }} onPress={() => {
                     this.setImageVisible(!this.state.imageVisible)
                 } }>
                     <View style={generalStyle.styles.imageModal}>
                         <Image style={generalStyle.styles.imageInsideModal} source={image} />
                     </View>
-                </TouchableHighlight>
+                </TouchableOpacity>
             </Modal>
         );
     }
@@ -222,18 +222,18 @@ export default class Chats extends Component {
                     enableEmptySections={true}
                     dataSource={this.getDataSource()}
                     renderRow={(rowData) =>
-                        <TouchableHighlight underlayColor='#ededed' onPress={() => {
+                        <TouchableOpacity onPress={() => {
                             this.openChat(rowData);
                         } }>
                             <View style={generalStyle.styles.row}>
-                                <TouchableHighlight onPress={() => {
+                                <TouchableOpacity onPress={() => {
                                     this.imgSelected = rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? require('../../img/user.jpg') : require('../../img/user.jpg'))
                                     this.setImageVisible(true);
                                 } }>
                                     <View style={generalStyle.styles.viewImg}>
                                         <Image style={generalStyle.styles.thumb} source={rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? require('../../img/user.jpg') : require('../../img/user.jpg'))} />
                                     </View>
-                                </TouchableHighlight>
+                                </TouchableOpacity>
                                 <View style={{ flexDirection: 'column', flex: 1, marginRight: 7 }}>
                                     <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
                                         <Text style={generalStyle.styles.textName}>
@@ -249,7 +249,7 @@ export default class Chats extends Component {
                                 </View>
                                 {this._renderCancel(rowData.notifications)}
                             </View>
-                        </TouchableHighlight>
+                        </TouchableOpacity>
                     }
                     />
                 {this.openImageModal(this.imgSelected)}

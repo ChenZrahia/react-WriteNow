@@ -6,7 +6,6 @@ import {
   StyleSheet,
   View,
   Image,
-  TouchableHighlight,
   TouchableOpacity,
   Text,
   Modal,
@@ -442,13 +441,13 @@ openImageModal(image) {
       visible={this.state.imageVisible}
       onRequestClose={() => { console.log('image closed') } }
       >
-      <TouchableHighlight style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
+      <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
         this.setImageVisible(!this.state.imageVisible)
       } }>
         <View style={generalStyles.styles.imageModal}>
           <Image style={generalStyles.styles.imageInsideModal} source={image} />
         </View>
-      </TouchableHighlight>
+      </TouchableOpacity>
     </Modal>
   );
 }
@@ -477,17 +476,17 @@ render() {
           <Text style={generalStyles.styles.titleHeader}>
             {this.props.userName}
           </Text>
-          <TouchableHighlight style={{margin:7}} onPress={() => {
+          <TouchableOpacity style={{margin:7}} onPress={() => {
             Event.trigger('showImagePicker');
           } }>
             <IconMat name="photo-camera" size={25} color="rgb(177,100,255)" />
-          </TouchableHighlight>
+          </TouchableOpacity>
 
-          <TouchableHighlight style={{margin:7}} onPress={() => {
+          <TouchableOpacity style={{margin:7}} onPress={() => {
             Event.trigger('showSignature');
           } }>
             <IconMat name="brush" size={25} color="rgb(177,100,255)" />
-          </TouchableHighlight>
+          </TouchableOpacity>
 
           <View style={styles.button} />
         </View>

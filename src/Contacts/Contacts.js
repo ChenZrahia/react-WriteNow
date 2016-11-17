@@ -3,7 +3,7 @@ import {
     Image,
     ReactNative,
     ListView,
-    TouchableHighlight,
+    TouchableOpacity,
     StyleSheet,
     RecyclerViewBackedScrollView,
     Text,
@@ -141,19 +141,19 @@ export default class Contacts extends Component {
         return (
             (rowData) =>
                 <View>
-                    <TouchableHighlight underlayColor='#ededed' onPress={() => {
+                    <TouchableOpacity onPress={() => {
                         rowData.isContact = true;
                         Actions.ChatRoom(rowData);
                     } }>
                         <View style={generalStyle.styles.row}>
-                            <TouchableHighlight onPress={() => {
+                            <TouchableOpacity onPress={() => {
                                 this.imgSelected = rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')
                                 this.setImageVisible(true);
                             } }>
                                 <View style={generalStyle.styles.viewImg}>
                                     <Image style={generalStyle.styles.thumb} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
                                 </View>
-                            </TouchableHighlight>
+                            </TouchableOpacity>
                             <View style={{ flexDirection: 'column' }}>
                                 <Text style={generalStyle.styles.textName}>
                                     {rowData.publicInfo.fullName}
@@ -163,7 +163,7 @@ export default class Contacts extends Component {
                                 </Text>
                             </View>
                         </View>
-                    </TouchableHighlight>
+                    </TouchableOpacity>
                 </View>
         );
     }
@@ -175,13 +175,13 @@ export default class Contacts extends Component {
                 visible={this.state.imageVisible}
                 onRequestClose={() => { console.log('image closed') } }
                 >
-                <TouchableHighlight style={{ flex: 1 }} onPress={() => {
+                <TouchableOpacity style={{ flex: 1 }} onPress={() => {
                     this.setImageVisible(!this.state.imageVisible)
                 } }>
                     <View style={generalStyle.styles.imageModal}>
                         <Image style={generalStyle.styles.imageInsideModal} source={image} />
                     </View>
-                </TouchableHighlight>
+                </TouchableOpacity>
             </Modal>
         );
     }

@@ -36,7 +36,7 @@ export default class Bubble extends React.Component {
       if (this.props.renderMessageText) {
         return this.props.renderMessageText(messageTextProps);
       }
-      return <MessageText {...messageTextProps}/>;
+      return <MessageText {...messageTextProps} />;
     }
     return null;
   }
@@ -47,7 +47,7 @@ export default class Bubble extends React.Component {
       if (this.props.renderMessageImage) {
         return this.props.renderMessageImage(messageImageProps);
       }
-      return <MessageImage {...messageImageProps}/>;
+      return <MessageImage {...messageImageProps} />;
     }
     return null;
   }
@@ -58,7 +58,7 @@ export default class Bubble extends React.Component {
       if (this.props.renderTime) {
         return this.props.renderTime(timeProps);
       }
-      return <Time {...timeProps}/>;
+      return <Time {...timeProps} />;
     }
     return null;
   }
@@ -84,13 +84,13 @@ export default class Bubble extends React.Component {
           options,
           cancelButtonIndex,
         },
-        (buttonIndex) => {
-          switch (buttonIndex) {
-            case 0:
-              Clipboard.setString(this.props.currentMessage.text);
-              break;
-          }
-        });
+          (buttonIndex) => {
+            switch (buttonIndex) {
+              case 0:
+                Clipboard.setString(this.props.currentMessage.text);
+                break;
+            }
+          });
       }
     }
   }
@@ -102,7 +102,7 @@ export default class Bubble extends React.Component {
           <TouchableWithoutFeedback
             onLongPress={this.onLongPress}
             {...this.props.touchableProps}
-          >
+            >
             <View>
               {this.renderCustomView()}
               {this.renderMessageImage()}
@@ -170,8 +170,8 @@ Bubble.defaultProps = {
   renderMessageText: null,
   renderCustomView: null,
   renderTime: null,
-  isSameUser: () => {},
-  isSameDay: () => {},
+  isSameUser: () => { },
+  isSameDay: () => { },
   position: 'left',
   currentMessage: {
     text: null,
