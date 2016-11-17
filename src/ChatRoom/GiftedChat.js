@@ -6,7 +6,6 @@ import {
   StyleSheet,
   View,
   Image,
-  TouchableHighlight,
   TouchableOpacity,
   Text,
   Modal,
@@ -16,8 +15,9 @@ import ActionSheet from '@exponent/react-native-action-sheet';
 import dismissKeyboard from 'react-native-dismiss-keyboard';
 import moment from 'moment/min/moment-with-locales.min';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {Actions} from 'react-native-router-flux';
 
-import Actions from './Actions';
+//import Actions from './Actions';
 import Avatar from './Avatar';
 import Bubble from './Bubble';
 import MessageImage from './MessageImage';
@@ -441,13 +441,13 @@ openImageModal(image) {
       visible={this.state.imageVisible}
       onRequestClose={() => { console.log('image closed') } }
       >
-      <TouchableHighlight style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
+      <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
         this.setImageVisible(!this.state.imageVisible)
       } }>
         <View style={generalStyles.styles.imageModal}>
           <Image style={generalStyles.styles.imageInsideModal} source={image} />
         </View>
-      </TouchableHighlight>
+      </TouchableOpacity>
     </Modal>
   );
 }
@@ -458,13 +458,16 @@ render() {
       <View style={styles.chatRoomMain}>
         <View style={generalStyles.styles.appbar}>
           <TouchableOpacity onPress={() => {
-            //לחזור למסך הקודם
+            Actions.pop()
           } }>
             <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => {
-            this.imgSelected = { uri: this.props.userPicture }
-            this.setImageVisible(true);
+            //this.imgSelected = { uri: this.props.userPicture }
+            this.imgSelected =  this.props.userPicture ? { uri: this.props.userPicture} : null
+            if(this.imgSelected){
+              this.setImageVisible(true);
+            }
           } }>
             <View style={generalStyles.styles.viewImg}>
               <Image style={generalStyles.styles.thumb} source={this.props.userPicture ? { uri: this.props.userPicture } : require('../../img/user.jpg')} />
@@ -473,17 +476,17 @@ render() {
           <Text style={generalStyles.styles.titleHeader}>
             {this.props.userName}
           </Text>
-          <TouchableHighlight style={{margin:7}} onPress={() => {
+          <TouchableOpacity style={{margin:7}} onPress={() => {
             Event.trigger('showImagePicker');
           } }>
             <IconMat name="photo-camera" size={25} color="rgb(177,100,255)" />
-          </TouchableHighlight>
+          </TouchableOpacity>
 
-          <TouchableHighlight style={{margin:7}} onPress={() => {
+          <TouchableOpacity style={{margin:7}} onPress={() => {
             Event.trigger('showSignature');
           } }>
             <IconMat name="brush" size={25} color="rgb(177,100,255)" />
-          </TouchableHighlight>
+          </TouchableOpacity>
 
           <View style={styles.button} />
         </View>

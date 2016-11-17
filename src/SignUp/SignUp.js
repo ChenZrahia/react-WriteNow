@@ -7,7 +7,6 @@ import {
   Image,
   View,
   TouchableOpacity,
-  TouchableHighlight,
 } from 'react-native';
 import { Actions } from 'react-native-router-flux'
 import Toast from 'react-native-root-toast';

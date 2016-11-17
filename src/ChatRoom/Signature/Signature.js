@@ -8,7 +8,8 @@ var {
     AppRegistry,
     StyleSheet,
     Text,
-    View, TouchableHighlight,
+    View,
+    TouchableOpacity,
     NativeModules
 } = ReactNative;
 import { Actions } from 'react-native-router-flux';
@@ -19,7 +20,7 @@ export default class Signature extends Component {
         return (
             <View style={{ flex: 1, flexDirection: "column" }}>
                 <SignatureCapture
-                    style={[{ flex: 2 }, styles.signature]}
+                    style={[{ flex: 1 }, styles.signature]}
                     ref="sign"
                     onSaveEvent={this._onSaveEvent}
                     onDragEvent={this._onDragEvent}
@@ -27,21 +28,21 @@ export default class Signature extends Component {
                     showNativeButtons={false}
                     viewMode={"portrait"} />
 
-                <View style={{ flex: 1, flexDirection: "row" }}>
-                    <TouchableHighlight style={styles.buttonStyle}
+                <View style={{ flexDirection: "row" }}>
+                    <TouchableOpacity style={styles.buttonStyle}
                         onPress={() => { this.saveSign() } } >
-                        <Text>Send</Text>
-                    </TouchableHighlight>
+                        <Text style={{ color: 'white'}}>Send</Text>
+                    </TouchableOpacity>
 
-                    <TouchableHighlight style={styles.buttonStyle}
+                    <TouchableOpacity style={styles.buttonStyle}
                         onPress={() => { this.resetSign() } } >
-                        <Text>Reset</Text>
-                    </TouchableHighlight>
+                        <Text style={{ color: 'white'}}>Reset</Text>
+                    </TouchableOpacity>
 
-                    <TouchableHighlight style={styles.buttonStyle}
+                    <TouchableOpacity style={styles.buttonStyle}
                         onPress={() => { this.cancelSign() } } >
-                        <Text>Cancel</Text>
-                    </TouchableHighlight>
+                        <Text style={{ color: 'white'}}>Cancel</Text>
+                    </TouchableOpacity>
                 </View>
 
             </View>
@@ -57,7 +58,7 @@ export default class Signature extends Component {
     }
 
     cancelSign() {
-        //close modal
+        Actions.pop();
     }
 
     _onSaveEvent(result) {
@@ -89,8 +90,12 @@ const styles = StyleSheet.create({
         borderWidth: 1,
     },
     buttonStyle: {
-        flex: 1, justifyContent: "center", alignItems: "center", height: 30,
-        backgroundColor: "#eeeeee",
-        margin: 10
+        flex: 1, justifyContent: "center", alignItems: "center", height: 35,
+        alignSelf: 'flex-end',
+        backgroundColor: "#9933FF",
+        borderColor: "#9933FF",
+        borderRadius: 6,
+        borderWidth: 0.5,
+        margin: 10,
     }
 });

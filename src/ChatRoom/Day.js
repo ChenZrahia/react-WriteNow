@@ -52,7 +52,7 @@ Day.contextTypes = {
 };
 
 Day.defaultProps = {
-  isSameDay: () => {},
+  isSameDay: () => { },
   currentMessage: {
     // TODO test if crash when createdAt === null
     createdAt: null,

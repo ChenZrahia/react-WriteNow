@@ -19,18 +19,18 @@ export default class Actions extends React.Component {
       options,
       cancelButtonIndex,
     },
-    (buttonIndex) => {
-      let i = 0;
-      for (let key in this.props.options) {
-        if (this.props.options.hasOwnProperty(key)) {
-          if (buttonIndex === i) {
-            this.props.options[key](this.props);
-            return;
+      (buttonIndex) => {
+        let i = 0;
+        for (let key in this.props.options) {
+          if (this.props.options.hasOwnProperty(key)) {
+            if (buttonIndex === i) {
+              this.props.options[key](this.props);
+              return;
+            }
+            i++;
           }
-          i++;
         }
-      }
-    });
+      });
   }
 
   renderIcon() {
@@ -40,10 +40,10 @@ export default class Actions extends React.Component {
     return (
       <View
         style={[styles.wrapper, this.props.wrapperStyle]}
-      >
+        >
         <Text
           style={[styles.iconText, this.props.iconTextStyle]}
-        >
+          >
           +
         </Text>
       </View>
@@ -55,7 +55,7 @@ export default class Actions extends React.Component {
       <TouchableOpacity
         style={[styles.container, this.props.containerStyle]}
         onPress={this.onActionsPress}
-      >
+        >
         {this.renderIcon()}
       </TouchableOpacity>
     );
@@ -89,7 +89,7 @@ Actions.contextTypes = {
 };
 
 Actions.defaultProps = {
-  onSend: () => {},
+  onSend: () => { },
   options: {},
   icon: null,
   containerStyle: {},

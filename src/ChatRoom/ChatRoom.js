@@ -5,7 +5,6 @@ import {
     Image,
     ReactNative,
     ListView,
-    TouchableHighlight,
     AppRegistry,
     TouchableOpacity,
     StyleSheet,
@@ -51,7 +50,7 @@ export default class ChatRoom extends Component {
         Event.on('showSignature', this.showSignature);
         Event.on('sendSegnature', this.sendImageMessage);
     }
-  
+
     componentDidMount() {
         this.LoadNewChat();
         Event.on('LoadNewChat', this.LoadNewChat);
@@ -147,15 +146,14 @@ export default class ChatRoom extends Component {
                     console.log('response.uri');
                     ImageResizer.createResizedImage(response.uri, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
                         NativeModules.RNImageToBase64.getBase64String(resizedImageUri, (err, base64) => {
-                            this.sendImageMessage( 'data:image/jpeg;base64,' + base64);
+                            this.sendImageMessage('data:image/jpeg;base64,' + base64);
                             //error check
                         })
                     }).catch((err) => {
                         console.log(err);
                         console.log('err');
                     });
-
-                  // this.sendImageMessage('data:image/jpeg;base64,' + response.data);
+                    // this.sendImageMessage('data:image/jpeg;base64,' + response.data);
                 }
             });
         } catch (error) {

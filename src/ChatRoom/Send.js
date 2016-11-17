@@ -19,14 +19,14 @@ export default class Send extends React.Component {
         <TouchableOpacity
           style={[styles.container, this.props.containerStyle]}
           onPress={() => {
-            this.props.onSend({text: this.props.text.trim()}, true);
-          }}
-        >
+            this.props.onSend({ text: this.props.text.trim() }, true);
+          } }
+          >
           <Text style={[styles.text, this.props.textStyle]}>{this.props.label}</Text>
         </TouchableOpacity>
       );
     }
-    return <View/>;
+    return <View />;
   }
 }
 
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
 
 Send.defaultProps = {
   text: '',
-  onSend: () => {},
+  onSend: () => { },
   label: 'Send',
   containerStyle: {},
   textStyle: {},
