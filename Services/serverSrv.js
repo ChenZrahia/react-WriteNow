@@ -277,10 +277,10 @@ export function GetAllMyFriends_Server(callback) {
 //Conversation
 export function GetAllUserConv(callback, isUpdate) {
     try {
-        if (_myChats && callback && !isUpdate) {
-            callback(_myChats);
-            return;
-        }
+        // if (_myChats && callback && !isUpdate) {
+        //     callback(_myChats);
+        //     return;
+        // }
         db.transaction((tx) => {
             tx.executeSql('SELECT * FROM Conversation ORDER BY lastMessageTime DESC', [], (tx, rs) => {
                 try {
@@ -492,6 +492,12 @@ function GetConv_server(convId, callback) {
                             data.messages[i].lastTypingTime,
                             data.messages[i].isSeenByAll,
                             data.messages[i].image
+                            ]);
+                        tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ? WHERE id = ? AND lastMessageTime < ?',
+                            [   data.messages[i].content,
+                                data.messages[i].sendTime,
+                                data.messages[i].convId,
+                                data.messages[i].sendTime
                             ]);
                     }
                 }
