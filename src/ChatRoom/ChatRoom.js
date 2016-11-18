@@ -15,6 +15,9 @@ import {
     View,
     NativeModules
 } from 'react-native';
+    
+
+
 import { Actions } from 'react-native-router-flux';
 import ImageResizer from 'react-native-image-resizer';
 var ImagePicker = require('react-native-image-picker');
@@ -316,7 +319,8 @@ export default class ChatRoom extends Component {
 
     render() {
         return (
-            <GiftedChat
+            
+                   <GiftedChat
                 userName={this.props.groupName}
                 userPicture={this.props.groupPicture}
                 messages={this.state.messages}
@@ -326,6 +330,7 @@ export default class ChatRoom extends Component {
                     _id: serverSrv._uid,
                 }}
                 />
+         
         );
     }
 }

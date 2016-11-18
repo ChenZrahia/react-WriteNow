@@ -13,6 +13,9 @@ import {
     View,
     TextInput
 } from 'react-native';
+
+
+
 import InitRout from './src/InitRout';
 import ChatRoom from './src/ChatRoom/ChatRoom';
 import emoji from 'emoji-datasource';
@@ -58,8 +61,8 @@ var ErrorHandler = require('./ErrorHandler');
 
 export default class WriteNow extends Component {
     constructor() {
-        super();
-    }
+    super();
+  }
 
     componentWillMount() {
         serverSrv.login();
@@ -156,6 +159,8 @@ export default class WriteNow extends Component {
             }
         });
     }
+    
+
 
     render() {
         return (
@@ -166,9 +171,11 @@ export default class WriteNow extends Component {
                     />
                 <InitRout />
             </View>
+
         );
     }
 }
+
 
 // <StatusBar barStyle="light-content" />
 // <View style={styles.statusbar} />

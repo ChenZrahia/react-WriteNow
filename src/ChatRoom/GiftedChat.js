@@ -10,6 +10,7 @@ import {
   Text,
   Modal,
 } from 'react-native';
+import Menu, { MenuContext, MenuOptions, MenuOption, MenuTrigger } from 'react-native-menu';
 
 import ActionSheet from '@exponent/react-native-action-sheet';
 import dismissKeyboard from 'react-native-dismiss-keyboard';
@@ -51,6 +52,8 @@ export default class GiftedChat extends React.Component {
 
 
 
+
+
     // default values
     this._isMounted = false;
     this._keyboardHeight = 0;
@@ -65,6 +68,7 @@ export default class GiftedChat extends React.Component {
     this.state = {
       isInitialized: false, // initialization will calculate maxHeight before rendering the chat
       imageVisible: false,
+      showMenu: false,
 
     };
 
@@ -434,6 +438,11 @@ setImageVisible(visible) {
   this.setState({ imageVisible: visible });
 }
 
+menuOption()
+{
+  this.setState({ showMenu: !this.state.showMenu});
+}
+
 openImageModal(image) {
   return (
     <Modal
@@ -452,7 +461,34 @@ openImageModal(image) {
   );
 }
 
+
+
 render() {
+  if(this.state.showMenu == true){
+     return (
+        <MenuContext style={{ flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-end', backgroundColor: 'rgba(0,0,0,0.1)'}}>
+        <View style={{width: 200, height:250, backgroundColor: 'white'}}> 
+        <Menu onSelect={(value) => alert(`User selected the number ${value}`)}>
+          <MenuTrigger>
+           <Text style={{ fontSize: 20 }}>&#8942;</Text>
+          </MenuTrigger>
+          <MenuOptions>
+            <MenuOption value={1}>
+              <Text>One</Text>
+            </MenuOption>
+            <MenuOption value={2}>
+              <Text>Two</Text>
+            </MenuOption>
+          </MenuOptions>
+        </Menu>
+        </View>
+       </MenuContext>
+    )
+  }
+  
   if (this.state.isInitialized === true) {
     return (
       <View style={styles.chatRoomMain}>
@@ -486,6 +522,12 @@ render() {
             Event.trigger('showSignature');
           } }>
             <IconMat name="brush" size={25} color="rgb(177,100,255)" />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={{margin:7}} onPress={() => {
+            this.menuOption();
+          } }>
+            <IconMat name="more-vert" size={25} color="rgb(177,100,255)" />
           </TouchableOpacity>
 
           <View style={styles.button} />
