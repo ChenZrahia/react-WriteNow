@@ -24,6 +24,40 @@ import Menu, {
 var generalStyle = require('../styles/generalStyle');
 var ScrollableTabView = require('react-native-scrollable-tab-view');
 
+
+
+var SinchVerification = require('react-native-sinch-verification');
+var custom = "A custom string to be sent to your server backend, through Sinch's callback URL";
+ 
+// init with app key 
+SinchVerification.init('your-app-key');
+ 
+// sms verification 
+SinchVerification.sms('0546902592', custom, (err, res) => {
+  if (!err) {
+      // for android, verification is done, because the sms has been read automatically 
+      // for ios, this means the sms has been sent out, you need to call verify with the received code 
+  }
+});
+ 
+// verify the received code (not needed on android) 
+SinchVerification.verify('the-received-code', (err, res) => {
+  if (!err) {
+      // done! 
+  }
+});
+ 
+// flash call verification (android only) 
+SinchVerification.flashCall('0546902592', custom, (err, res) => {
+  if (!err) {
+      // done! 
+  }
+});
+ 
+
+
+
+
 const styles = StyleSheet.create({
   tabbar: {
     backgroundColor: '#9933FF',

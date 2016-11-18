@@ -13,6 +13,7 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 //import com.encryptionutil.EncryptionUtilPackage;
+import com.kevinresol.sinchverification.SinchVerificationPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -42,7 +43,8 @@ public class MainApplication extends Application implements ReactApplication {
             new ImagePickerPackage(),
             new ReactNativeContacts(),
             new ReactNativePushNotificationPackage(),
-            new RSSignatureCapturePackage()
+            new RSSignatureCapturePackage(),
+            new SinchVerificationPackage()
       );
     }
   };
