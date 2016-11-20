@@ -17,6 +17,7 @@ import dismissKeyboard from 'react-native-dismiss-keyboard';
 import moment from 'moment/min/moment-with-locales.min';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {Actions} from 'react-native-router-flux';
+import renderIf from './renderIf'
 
 //import Actions from './Actions';
 import Avatar from './Avatar';
@@ -71,6 +72,8 @@ export default class GiftedChat extends React.Component {
       showMenu: false,
 
     };
+
+ 
 
     this.onTouchStart = this.onTouchStart.bind(this);
     this.onTouchMove = this.onTouchMove.bind(this);
@@ -461,34 +464,33 @@ openImageModal(image) {
   );
 }
 
+    // visible={this.state.isMenuOpen}
+//
+ newList(){
+   console.log('new list is working well');
+   this.setState({ showMenu: !this.state.showMenu});
+ }
+ encryptMessage(){
+   console.log('encrypt Message is working well');
+   this.setState({ showMenu: !this.state.showMenu});
+ }
+ viewProfile(){
+   console.log('view Profile is working well');
+   this.setState({ showMenu: !this.state.showMenu});
+ }
+ settings(){
+    console.log('settings is working well');
+   this.setState({ showMenu: !this.state.showMenu});
+ }
+ walkieTalkie(){
+   console.log('walkieTalkie is working well');
+   this.setState({ showMenu: !this.state.showMenu});
+ }
 
 
 render() {
-  if(this.state.showMenu == true){
-     return (
-        <MenuContext style={{ flex: 1,
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        alignItems: 'flex-end', backgroundColor: 'rgba(0,0,0,0.1)'}}>
-        <View style={{width: 200, height:250, backgroundColor: 'white'}}> 
-        <Menu onSelect={(value) => alert(`User selected the number ${value}`)}>
-          <MenuTrigger>
-           <Text style={{ fontSize: 20 }}>&#8942;</Text>
-          </MenuTrigger>
-          <MenuOptions>
-            <MenuOption value={1}>
-              <Text>One</Text>
-            </MenuOption>
-            <MenuOption value={2}>
-              <Text>Two</Text>
-            </MenuOption>
-          </MenuOptions>
-        </Menu>
-        </View>
-       </MenuContext>
-    )
-  }
-  
+
+ 
   if (this.state.isInitialized === true) {
     return (
       <View style={styles.chatRoomMain}>
@@ -523,12 +525,63 @@ render() {
           } }>
             <IconMat name="brush" size={25} color="rgb(177,100,255)" />
           </TouchableOpacity>
-
           <TouchableOpacity style={{margin:7}} onPress={() => {
-            this.menuOption();
-          } }>
+            this.menuOption();}}>
             <IconMat name="more-vert" size={25} color="rgb(177,100,255)" />
-          </TouchableOpacity>
+          </TouchableOpacity>  
+
+          {renderIf(this.state.showMenu)(
+            <Modal
+              onRequestClose={() => {}}
+              style={{flex:1}}
+              transparent={true}
+             >
+              
+            <View style={{
+            width: 160,
+            height: 150,
+            backgroundColor: 'white',
+            position: 'absolute',
+            top: 35,
+            right: 25,
+          }}
+          >
+          <TouchableOpacity onPress={() => {
+            this.viewProfile();}}>
+          <Text style={{margin: 5,marginTop: 7, left: 6}}>
+          View Profile
+         </Text>
+         </TouchableOpacity> 
+          <TouchableOpacity onPress={() => {
+            this.encryptMessage();}}>
+          <Text style={{margin: 5, left: 6}}>
+           Encrypt Message
+         </Text>
+         </TouchableOpacity> 
+           <TouchableOpacity onPress={() => {
+            this.newList();}}>
+          <Text style={{margin: 5, left: 6}}>
+            New List
+         </Text>
+         </TouchableOpacity> 
+            <TouchableOpacity onPress={() => {
+            this.walkieTalkie();}}>
+          <Text style={{margin: 5, left: 6}}>
+           Walkie-Talkie
+         </Text>
+         </TouchableOpacity> 
+           <TouchableOpacity onPress={() => {
+            this.settings();}}>
+          <Text style={{margin: 5, left: 6}}>
+           Settings
+         </Text>
+         </TouchableOpacity> 
+        </View>
+        
+        </Modal>
+       )}
+      
+              
 
           <View style={styles.button} />
         </View>
@@ -632,6 +685,11 @@ GiftedChat.defaultProps = {
   bottomOffset: 0,
   isLoadingEarlier: false,
 };
+//  Modal.propTypes = {
+    
+//     onPressBackdrop:this.walkieTalkie() ,
+  
+//   },
 
 GiftedChat.propTypes = {
   messages: React.PropTypes.array,

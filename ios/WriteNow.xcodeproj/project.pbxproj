@@ -44,6 +44,7 @@
 		88404832B16849758BBFFA42 /* libRCTImageResizer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 876C66972A0248529DED6913 /* libRCTImageResizer.a */; };
 		D4A15622125B4FB69B8A7F41 /* libRNImageToBase64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F30C5598C364DC796626613 /* libRNImageToBase64.a */; };
 		C4C57AD64C1B44C4BD546D0E /* libRNBlur.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EC95F84251948C686B5650B /* libRNBlur.a */; };
+		12E3550E790646B58CC9E5CB /* libRNOpenPGP.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D5AE35BAB245BF906F77D2 /* libRNOpenPGP.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -184,6 +185,8 @@
 		7F30C5598C364DC796626613 /* libRNImageToBase64.a */ = {isa = PBXFileReference; name = "libRNImageToBase64.a"; path = "libRNImageToBase64.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		70DC44A190074D29A75E2978 /* RNBlur.xcodeproj */ = {isa = PBXFileReference; name = "RNBlur.xcodeproj"; path = "../node_modules/react-native-blur/ios/RNBlur.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		3EC95F84251948C686B5650B /* libRNBlur.a */ = {isa = PBXFileReference; name = "libRNBlur.a"; path = "libRNBlur.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		703A63ED0C464B8397092A57 /* RNOpenPGP.xcodeproj */ = {isa = PBXFileReference; name = "RNOpenPGP.xcodeproj"; path = "../node_modules/react-native-openpgp/iOS/RNOpenPGP.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		84D5AE35BAB245BF906F77D2 /* libRNOpenPGP.a */ = {isa = PBXFileReference; name = "libRNOpenPGP.a"; path = "libRNOpenPGP.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -223,6 +226,7 @@
 				88404832B16849758BBFFA42 /* libRCTImageResizer.a in Frameworks */,
 				D4A15622125B4FB69B8A7F41 /* libRNImageToBase64.a in Frameworks */,
 				C4C57AD64C1B44C4BD546D0E /* libRNBlur.a in Frameworks */,
+				12E3550E790646B58CC9E5CB /* libRNOpenPGP.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -359,6 +363,7 @@
 				21CC7063C36D465CBDA79D38 /* RCTImageResizer.xcodeproj */,
 				DFCE601B6B264BB9B8BF626A /* RNImageToBase64.xcodeproj */,
 				70DC44A190074D29A75E2978 /* RNBlur.xcodeproj */,
+				703A63ED0C464B8397092A57 /* RNOpenPGP.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -710,6 +715,7 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
 			name = Debug;
@@ -726,6 +732,7 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WriteNow.app/WriteNow";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -765,6 +772,7 @@
 					"$(SRCROOT)\..\node_modules\react-native-image-resizer\ios\RCTImageResizer",
 					"$(SRCROOT)\..\node_modules\react-native-image-to-base64\ios",
 					"$(SRCROOT)\..\node_modules\react-native-blur\ios",
+					"$(SRCROOT)\..\node_modules\react-native-openpgp\iOS",
 				);
 				INFOPLIST_FILE = "WriteNow/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -800,6 +808,7 @@
 					"$(SRCROOT)\..\node_modules\react-native-image-resizer\ios\RCTImageResizer",
 					"$(SRCROOT)\..\node_modules\react-native-image-to-base64\ios",
 					"$(SRCROOT)\..\node_modules\react-native-blur\ios",
+					"$(SRCROOT)\..\node_modules\react-native-openpgp\iOS",
 				);
 				INFOPLIST_FILE = "WriteNow/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -864,6 +873,7 @@
 					"$(SRCROOT)\..\node_modules\react-native-image-resizer\ios\RCTImageResizer",
 					"$(SRCROOT)\..\node_modules\react-native-image-to-base64\ios",
 					"$(SRCROOT)\..\node_modules\react-native-blur\ios",
+					"$(SRCROOT)\..\node_modules\react-native-openpgp\iOS",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -918,6 +928,7 @@
 					"$(SRCROOT)\..\node_modules\react-native-image-resizer\ios\RCTImageResizer",
 					"$(SRCROOT)\..\node_modules\react-native-image-to-base64\ios",
 					"$(SRCROOT)\..\node_modules\react-native-blur\ios",
+					"$(SRCROOT)\..\node_modules\react-native-openpgp\iOS",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;

@@ -605,6 +605,15 @@ export function saveNewMessage(msg) {
                 msg.image
                 ]);
         });
+        tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ? WHERE id = ? AND lastMessageTime < ?',
+            [   msg.content,
+                moment(msg.sendTime).toISOString(),
+                msg.convId,
+                moment(msg.sendTime)
+            ], (rs) => {
+                console.log(rs);
+                console.log(rs);
+            });
         if (msg.from == _uid) {
             socket.emit('saveMessage', msg);
         }
