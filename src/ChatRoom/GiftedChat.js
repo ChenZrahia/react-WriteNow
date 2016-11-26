@@ -10,12 +10,14 @@ import {
   Text,
   Modal,
 } from 'react-native';
+import Menu, { MenuContext, MenuOptions, MenuOption, MenuTrigger } from 'react-native-menu';
 
 import ActionSheet from '@exponent/react-native-action-sheet';
 import dismissKeyboard from 'react-native-dismiss-keyboard';
 import moment from 'moment/min/moment-with-locales.min';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { Actions } from 'react-native-router-flux';
+import {Actions} from 'react-native-router-flux';
+import renderIf from './renderIf'
 
 //import Actions from './Actions';
 import Avatar from './Avatar';
@@ -34,7 +36,6 @@ import IconMat from 'react-native-vector-icons/MaterialIcons';
 
 var Event = require('../../Services/Events');
 var generalStyles = require('../../styles/generalStyle');
-var ErrorHandler = require('../../ErrorHandler');
 
 // Min and max heights of ToolbarInput and Composer
 // Needed for Composer auto grow and ScrollView animation
@@ -49,433 +50,299 @@ const MIN_INPUT_TOOLBAR_HEIGHT = 44;
 export default class GiftedChat extends React.Component {
   constructor(props) {
     super(props);
-    try {
-      // default values
-      this._isMounted = false;
-      this._keyboardHeight = 0;
-      this._bottomOffset = 0;
-      this._maxHeight = null;
-      this._touchStarted = false;
-      this._isFirstLayout = true;
-      this._isTypingDisabled = false;
-      this._locale = 'en';
-      this._messages = [];
 
-      this.state = {
-        isInitialized: false, // initialization will calculate maxHeight before rendering the chat
-        imageVisible: false,
 
-      };
 
-      this.onTouchStart = this.onTouchStart.bind(this);
-      this.onTouchMove = this.onTouchMove.bind(this);
-      this.onTouchEnd = this.onTouchEnd.bind(this);
-      this.onKeyboardWillShow = this.onKeyboardWillShow.bind(this);
-      this.onKeyboardWillHide = this.onKeyboardWillHide.bind(this);
-      this.onKeyboardDidShow = this.onKeyboardDidShow.bind(this);
-      this.onKeyboardDidHide = this.onKeyboardDidHide.bind(this);
-      this.onType = this.onType.bind(this);
-      this.onSend = this.onSend.bind(this);
-      this.getLocale = this.getLocale.bind(this);
 
-      this.invertibleScrollViewProps = {
-        inverted: true,
-        keyboardShouldPersistTaps: true,
-        onTouchStart: this.onTouchStart,
-        onTouchMove: this.onTouchMove,
-        onTouchEnd: this.onTouchEnd,
-        onKeyboardWillShow: this.onKeyboardWillShow,
-        onKeyboardWillHide: this.onKeyboardWillHide,
-        onKeyboardDidShow: this.onKeyboardDidShow,
-        onKeyboardDidHide: this.onKeyboardDidHide,
-      };
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => constructor', e);
-    }
+
+    // default values
+    this._isMounted = false;
+    this._keyboardHeight = 0;
+    this._bottomOffset = 0;
+    this._maxHeight = null;
+    this._touchStarted = false;
+    this._isFirstLayout = true;
+    this._isTypingDisabled = false;
+    this._locale = 'en';
+    this._messages = [];
+
+    this.state = {
+      isInitialized: false, // initialization will calculate maxHeight before rendering the chat
+      imageVisible: false,
+      showMenu: false,
+
+    };
+
+ 
+
+    this.onTouchStart = this.onTouchStart.bind(this);
+    this.onTouchMove = this.onTouchMove.bind(this);
+    this.onTouchEnd = this.onTouchEnd.bind(this);
+    this.onKeyboardWillShow = this.onKeyboardWillShow.bind(this);
+    this.onKeyboardWillHide = this.onKeyboardWillHide.bind(this);
+    this.onKeyboardDidShow = this.onKeyboardDidShow.bind(this);
+    this.onKeyboardDidHide = this.onKeyboardDidHide.bind(this);
+    this.onType = this.onType.bind(this);
+    this.onSend = this.onSend.bind(this);
+    this.getLocale = this.getLocale.bind(this);
+
+    this.invertibleScrollViewProps = {
+      inverted: true,
+      keyboardShouldPersistTaps: true,
+      onTouchStart: this.onTouchStart,
+      onTouchMove: this.onTouchMove,
+      onTouchEnd: this.onTouchEnd,
+      onKeyboardWillShow: this.onKeyboardWillShow,
+      onKeyboardWillHide: this.onKeyboardWillHide,
+      onKeyboardDidShow: this.onKeyboardDidShow,
+      onKeyboardDidHide: this.onKeyboardDidHide,
+    };
   }
 
+
+
+
   static append(currentMessages = [], messages) {
-    try {
-      if (!Array.isArray(messages)) {
-        messages = [messages];
-      }
-      var allMessages = messages.concat(currentMessages);
-      return allMessages;
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => append', e);
+    if (!Array.isArray(messages)) {
+      messages = [messages];
     }
+    var allMessages = messages.concat(currentMessages);
+    return allMessages;
   }
 
   static prepend(currentMessages = [], messages) {
-    try {
-      if (!Array.isArray(messages)) {
-        messages = [messages];
-      }
-      return currentMessages.concat(messages);
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => prepend', e);
+    if (!Array.isArray(messages)) {
+      messages = [messages];
     }
+    return currentMessages.concat(messages);
   }
 
   getChildContext() {
-    try {
-      return {
-        actionSheet: () => this._actionSheetRef,
-        getLocale: this.getLocale,
-      };
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => getChildContext', e);
-    }
+    return {
+      actionSheet: () => this._actionSheetRef,
+      getLocale: this.getLocale,
+    };
   }
 
   componentWillMount() {
-    try {
-      this.setIsMounted(true);
-      this.initLocale();
-      this.initMessages(this.props.messages);
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => componentWillMount', e);
-    }
+    this.setIsMounted(true);
+    this.initLocale();
+    this.initMessages(this.props.messages);
   }
 
   componentWillUnmount() {
-    try {
-      this.setIsMounted(false);
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => componentWillUnmount', e);
-    }
+    this.setIsMounted(false);
   }
 
   componentWillReceiveProps(nextProps = {}) {
-    try {
-      this.initMessages(nextProps.messages);
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => componentWillReceiveProps', e);
-    }
+    this.initMessages(nextProps.messages);
   }
 
   initLocale() {
-    try {
-      if (this.props.locale === null || moment.locales().indexOf(this.props.locale) === -1) {
-        this.setLocale('en');
-      } else {
-        this.setLocale(this.props.locale);
-      }
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => initLocale', e);
+    if (this.props.locale === null || moment.locales().indexOf(this.props.locale) === -1) {
+      this.setLocale('en');
+    } else {
+      this.setLocale(this.props.locale);
     }
   }
 
   initMessages(messages = []) {
-    try {
-      this.setMessages(messages);
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => initMessages', e);
-    }
+    this.setMessages(messages);
   }
 
   setLocale(locale) {
-    try {
-      this._locale = locale;
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => setLocale', e);
-    }
+    this._locale = locale;
   }
 
   getLocale() {
-    try {
-      return this._locale;
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => getLocale', e);
-    }
+    return this._locale;
   }
 
   setMessages(messages) {
-    try {
-      this._messages = messages;
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => setMessages', e);
-    }
+    this._messages = messages;
   }
 
   getMessages() {
-    try {
-      return this._messages;
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => getMessages', e);
-    }
+    return this._messages;
   }
 
   setMaxHeight(height) {
-    try {
-      this._maxHeight = height;
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => setMaxHeight', e);
-    }
+    this._maxHeight = height;
   }
 
   getMaxHeight() {
-    try {
-      return this._maxHeight;
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => getMaxHeight', e);
-    }
+    return this._maxHeight;
   }
 
   setKeyboardHeight(height) {
-    try {
-      this._keyboardHeight = height;
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => setKeyboardHeight', e);
-    }
+    this._keyboardHeight = height;
   }
 
   getKeyboardHeight() {
-    try {
-      return this._keyboardHeight;
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => getKeyboardHeight', e);
-    }
+    return this._keyboardHeight;
   }
 
   setBottomOffset(value) {
-    try {
-      this._bottomOffset = value;
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => setBottomOffset', e);
-    }
+    this._bottomOffset = value;
   }
 
   getBottomOffset() {
-    try {
-      return this._bottomOffset;
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => getBottomOffset', e);
-    }
+    return this._bottomOffset;
   }
 
   setIsFirstLayout(value) {
-    try {
-      this._isFirstLayout = value;
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => setIsFirstLayout', e);
-    }
+    this._isFirstLayout = value;
   }
 
   getIsFirstLayout() {
-    try {
-      return this._isFirstLayout;
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => getIsFirstLayout', e);
-    }
+    return this._isFirstLayout;
   }
 
   setIsTypingDisabled(value) {
-    try {
-      this._isTypingDisabled = value;
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => setIsTypingDisabled', e);
-    }
+    this._isTypingDisabled = value;
   }
 
   getIsTypingDisabled() {
-    try {
-      return this._isTypingDisabled;
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => getIsTypingDisabled', e);
-    }
+    return this._isTypingDisabled;
   }
 
   setIsMounted(value) {
-    try {
-      this._isMounted = value;
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => setIsMounted', e);
-    }
+    this._isMounted = value;
   }
 
   getIsMounted() {
-    try {
-      return this._isMounted;
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => getIsMounted', e);
-    }
+    return this._isMounted;
   }
 
   // TODO
   // setMinInputToolbarHeight
   getMinInputToolbarHeight() {
-    try {
-      if (this.props.renderAccessory) {
-        return MIN_INPUT_TOOLBAR_HEIGHT * 2;
-      }
-      return MIN_INPUT_TOOLBAR_HEIGHT;
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => getMinInputToolbarHeight', e);
+    if (this.props.renderAccessory) {
+      return MIN_INPUT_TOOLBAR_HEIGHT * 2;
     }
+    return MIN_INPUT_TOOLBAR_HEIGHT;
   }
 
   prepareMessagesContainerHeight(value) {
-    try {
-      if (this.props.isAnimated === true) {
-        return new Animated.Value(value);
-      }
-      return value;
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => prepareMessagesContainerHeight', e);
+    if (this.props.isAnimated === true) {
+      return new Animated.Value(value);
     }
+    return value;
   }
 
   onKeyboardWillShow(e) {
-    try {
-      this.setIsTypingDisabled(true);
-      this.setKeyboardHeight(e.endCoordinates ? e.endCoordinates.height : e.end.height);
-      this.setBottomOffset(this.props.bottomOffset);
-      const newMessagesContainerHeight = (this.getMaxHeight() - (this.state.composerHeight + (this.getMinInputToolbarHeight() - MIN_COMPOSER_HEIGHT))) - this.getKeyboardHeight() + this.getBottomOffset();
-      if (this.props.isAnimated === true) {
-        Animated.timing(this.state.messagesContainerHeight, {
-          toValue: newMessagesContainerHeight,
-          duration: 210,
-        }).start();
-      } else {
-        this.setState((previousState) => {
-          return {
-            messagesContainerHeight: newMessagesContainerHeight,
-          };
-        });
-      }
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => onKeyboardWillShow', e);
+    this.setIsTypingDisabled(true);
+    this.setKeyboardHeight(e.endCoordinates ? e.endCoordinates.height : e.end.height);
+    this.setBottomOffset(this.props.bottomOffset);
+    const newMessagesContainerHeight = (this.getMaxHeight() - (this.state.composerHeight + (this.getMinInputToolbarHeight() - MIN_COMPOSER_HEIGHT))) - this.getKeyboardHeight() + this.getBottomOffset();
+    if (this.props.isAnimated === true) {
+      Animated.timing(this.state.messagesContainerHeight, {
+        toValue: newMessagesContainerHeight,
+        duration: 210,
+      }).start();
+    } else {
+      this.setState((previousState) => {
+        return {
+          messagesContainerHeight: newMessagesContainerHeight,
+        };
+      });
     }
   }
 
   onKeyboardWillHide() {
-    try {
-      this.setIsTypingDisabled(true);
-      this.setKeyboardHeight(0);
-      this.setBottomOffset(0);
-      const newMessagesContainerHeight = this.getMaxHeight() - (this.state.composerHeight + (this.getMinInputToolbarHeight() - MIN_COMPOSER_HEIGHT));
-      if (this.props.isAnimated === true) {
-        Animated.timing(this.state.messagesContainerHeight, {
-          toValue: newMessagesContainerHeight,
-          duration: 210,
-        }).start();
-      } else {
-        this.setState((previousState) => {
-          return {
-            messagesContainerHeight: newMessagesContainerHeight,
-          };
-        });
-      }
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => onKeyboardWillHide', e);
+    this.setIsTypingDisabled(true);
+    this.setKeyboardHeight(0);
+    this.setBottomOffset(0);
+    const newMessagesContainerHeight = this.getMaxHeight() - (this.state.composerHeight + (this.getMinInputToolbarHeight() - MIN_COMPOSER_HEIGHT));
+    if (this.props.isAnimated === true) {
+      Animated.timing(this.state.messagesContainerHeight, {
+        toValue: newMessagesContainerHeight,
+        duration: 210,
+      }).start();
+    } else {
+      this.setState((previousState) => {
+        return {
+          messagesContainerHeight: newMessagesContainerHeight,
+        };
+      });
     }
   }
 
   onKeyboardDidShow(e) {
-    try {
-      if (Platform.OS === 'android') {
-        this.onKeyboardWillShow(e);
-      }
-      this.setIsTypingDisabled(false);
-    } catch (err) {
-      ErrorHandler.WriteError('GiftedChat.js => onKeyboardDidShow', err);
+    if (Platform.OS === 'android') {
+      this.onKeyboardWillShow(e);
     }
+    this.setIsTypingDisabled(false);
   }
 
   onKeyboardDidHide(e) {
-    try {
-      if (Platform.OS === 'android') {
-        this.onKeyboardWillHide(e);
-      }
-      this.setIsTypingDisabled(false);
-    } catch (err) {
-      ErrorHandler.WriteError('GiftedChat.js => onKeyboardDidHide', err);
+    if (Platform.OS === 'android') {
+      this.onKeyboardWillHide(e);
     }
+    this.setIsTypingDisabled(false);
   }
 
   scrollToBottom(animated = true) {
-    try {
-      this._messageContainerRef.scrollTo({
-        y: 0,
-        animated,
-      });
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => scrollToBottom', e);
-    }
+    this._messageContainerRef.scrollTo({
+      y: 0,
+      animated,
+    });
   }
 
   onTouchStart() {
-    try {
-      this._touchStarted = true;
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => onTouchStart', e);
-    }
+    this._touchStarted = true;
   }
 
   onTouchMove() {
-    try {
-      this._touchStarted = false;
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => onTouchMove', e);
-    }
+    this._touchStarted = false;
   }
 
   // handle Tap event to dismiss keyboard
   onTouchEnd() {
-    try {
-      if (this._touchStarted === true) {
-        dismissKeyboard();
-      }
-      this._touchStarted = false;
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => onTouchEnd', e);
+    if (this._touchStarted === true) {
+      dismissKeyboard();
     }
+    this._touchStarted = false;
   }
 
   renderMessages() {
-    try {
-      const AnimatedView = this.props.isAnimated === true ? Animated.View : View;
-      return (
-        <AnimatedView style={{
-          height: this.state.messagesContainerHeight,
-        }}>
-          <MessageContainer
-            {...this.props}
+    const AnimatedView = this.props.isAnimated === true ? Animated.View : View;
+    return (
+      <AnimatedView style={{
+        height: this.state.messagesContainerHeight,
+      }}>
+        <MessageContainer
+          {...this.props}
 
-            invertibleScrollViewProps={this.invertibleScrollViewProps}
+          invertibleScrollViewProps={this.invertibleScrollViewProps}
 
-            messages={this.getMessages()}
+          messages={this.getMessages()}
 
-            ref={component => this._messageContainerRef = component}
-            />
-          {this.renderChatFooter()}
-        </AnimatedView>
-      );
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => renderMessages', e);
-    }
+          ref={component => this._messageContainerRef = component}
+          />
+        {this.renderChatFooter()}
+      </AnimatedView>
+    );
   }
 
   onSend(messages = [], shouldResetInputToolbar = false) {
-    try {
-      if (!Array.isArray(messages)) {
-        messages = [messages];
-      }
+    if (!Array.isArray(messages)) {
+      messages = [messages];
+    }
 
-      messages = messages.map((message) => {
-        return {
+    messages = messages.map((message) => {
+      return {
         ...message,
-        user: this.props.user,
-        createdAt: new Date(),
-        _id: 'temp-id-' + Math.round(Math.random() * 1000000),
+      user: this.props.user,
+      createdAt: new Date(),
+      _id: 'temp-id-' + Math.round(Math.random() * 1000000),
       };
-  });
+});
 
-  if(shouldResetInputToolbar === true) {
-    this.setIsTypingDisabled(true);
-    this.resetInputToolbar();
-  }
+if (shouldResetInputToolbar === true) {
+  this.setIsTypingDisabled(true);
+  this.resetInputToolbar();
+}
 
 this.props.onSend(messages);
 this.scrollToBottom();
@@ -487,239 +354,278 @@ if (shouldResetInputToolbar === true) {
     }
   }, 200);
 }
-    } catch (e) {
-  ErrorHandler.WriteError('GiftedChat.js => onSend', e);
-}
   }
 
 resetInputToolbar() {
-  try {
-    this.setState((previousState) => {
-      return {
-        text: '',
-        composerHeight: MIN_COMPOSER_HEIGHT,
-        messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight() - this.getKeyboardHeight() + this.getBottomOffset()),
-      };
-    });
-  } catch (e) {
-    ErrorHandler.WriteError('GiftedChat.js => renderInputToolbar', e);
-  }
+  this.setState((previousState) => {
+    return {
+      text: '',
+      composerHeight: MIN_COMPOSER_HEIGHT,
+      messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight() - this.getKeyboardHeight() + this.getBottomOffset()),
+    };
+  });
 }
 
 calculateInputToolbarHeight(newComposerHeight) {
-  try {
-    return newComposerHeight + (this.getMinInputToolbarHeight() - MIN_COMPOSER_HEIGHT);
-  } catch (e) {
-    ErrorHandler.WriteError('GiftedChat.js => calculateInputToolbarHeight', e);
-  }
+  return newComposerHeight + (this.getMinInputToolbarHeight() - MIN_COMPOSER_HEIGHT);
 }
 
 onType(e) {
-  try {
-    if (this.getIsTypingDisabled() === true) {
-      return;
-    }
-
-    let newComposerHeight = null;
-    if (e.nativeEvent && e.nativeEvent.contentSize) {
-      newComposerHeight = Math.max(MIN_COMPOSER_HEIGHT, Math.min(MAX_COMPOSER_HEIGHT, e.nativeEvent.contentSize.height));
-    } else {
-      newComposerHeight = MIN_COMPOSER_HEIGHT;
-    }
-
-    const newMessagesContainerHeight = this.getMaxHeight() - this.calculateInputToolbarHeight(newComposerHeight) - this.getKeyboardHeight() + this.getBottomOffset();
-    const newText = e.nativeEvent.text;
-    this.setState((previousState) => {
-      return {
-        text: newText,
-        composerHeight: newComposerHeight,
-        messagesContainerHeight: this.prepareMessagesContainerHeight(newMessagesContainerHeight),
-      };
-    });
-    this.props.onType(newText);
-  } catch (e) {
-    ErrorHandler.WriteError('GiftedChat.js => onType', e);
+  if (this.getIsTypingDisabled() === true) {
+    return;
   }
+
+  let newComposerHeight = null;
+  if (e.nativeEvent && e.nativeEvent.contentSize) {
+    newComposerHeight = Math.max(MIN_COMPOSER_HEIGHT, Math.min(MAX_COMPOSER_HEIGHT, e.nativeEvent.contentSize.height));
+  } else {
+    newComposerHeight = MIN_COMPOSER_HEIGHT;
+  }
+
+  const newMessagesContainerHeight = this.getMaxHeight() - this.calculateInputToolbarHeight(newComposerHeight) - this.getKeyboardHeight() + this.getBottomOffset();
+  const newText = e.nativeEvent.text;
+  this.setState((previousState) => {
+    return {
+      text: newText,
+      composerHeight: newComposerHeight,
+      messagesContainerHeight: this.prepareMessagesContainerHeight(newMessagesContainerHeight),
+    };
+  });
+  this.props.onType(newText);
 }
 
 changeText = (data) => {
-  try {
-    this.setState({ text: this.state.text + data });
-  } catch (e) {
-    ErrorHandler.WriteError('GiftedChat.js => changeText', e);
-  }
+  this.setState({ text: this.state.text + data });
 }
 
 
 renderInputToolbar() {
-  try {
-    const inputToolbarProps = {
+  const inputToolbarProps = {
       ...this.props,
-      text: this.state.text,
-        composerHeight: Math.max(MIN_COMPOSER_HEIGHT, this.state.composerHeight),
-          onChange: this.onType,
-            onSend: this.onSend,
+    text: this.state.text,
+      composerHeight: Math.max(MIN_COMPOSER_HEIGHT, this.state.composerHeight),
+        onChange: this.onType,
+          onSend: this.onSend,
     };
 
-  if (this.props.renderInputToolbar) {
-    return this.props.renderInputToolbar(inputToolbarProps);
-  }
-  return (
-    <InputToolbar
-      changeText={this.changeText}
-      textInput={this.state.text}
-      {...inputToolbarProps}
-      />
-  );
-} catch (e) {
-  ErrorHandler.WriteError('GiftedChat.js => renderInputToolbar', e);
+if (this.props.renderInputToolbar) {
+  return this.props.renderInputToolbar(inputToolbarProps);
 }
+return (
+  <InputToolbar
+    changeText={this.changeText}
+    textInput={this.state.text}
+    {...inputToolbarProps}
+    />
+);
   }
 
 renderChatFooter() {
-  try {
-    if (this.props.renderChatFooter) {
-      const footerProps = {
+  if (this.props.renderChatFooter) {
+    const footerProps = {
         ...this.props,
       };
-    return this.props.renderChatFooter(footerProps);
-  }
-return null;
-} catch (e) {
-  ErrorHandler.WriteError('GiftedChat.js => renderChatFooter', e);
+  return this.props.renderChatFooter(footerProps);
 }
+return null;
   }
 
 renderLoading() {
-  try {
-    if (this.props.renderLoading) {
-      return this.props.renderLoading();
-    }
-    return null;
-  } catch (e) {
-    ErrorHandler.WriteError('GiftedChat.js => renderLoading', e);
+  if (this.props.renderLoading) {
+    return this.props.renderLoading();
   }
+  return null;
 }
 
 setImageVisible(visible) {
-  try {
-    this.setState({ imageVisible: visible });
-  } catch (e) {
-    ErrorHandler.WriteError('GiftedChat.js => setImageVisible', e);
-  }
+  this.setState({ imageVisible: visible });
+}
+
+menuOption()
+{
+  this.setState({ showMenu: !this.state.showMenu});
 }
 
 openImageModal(image) {
-  try {
-    return (
-      <Modal
-        transparent={true}
-        visible={this.state.imageVisible}
-        onRequestClose={() => { console.log('image closed') } }
-        >
-        <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
-          this.setImageVisible(!this.state.imageVisible)
-        } }>
-          <View style={generalStyles.styles.imageModal}>
-            <Image style={generalStyles.styles.imageInsideModal} source={image} />
-          </View>
-        </TouchableOpacity>
-      </Modal>
-    );
-  } catch (e) {
-    ErrorHandler.WriteError('GiftedChat.js => openImageModal', e);
-  }
+  return (
+    <Modal
+      transparent={true}
+      visible={this.state.imageVisible}
+      onRequestClose={() => { console.log('image closed') } }
+      >
+      <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
+        this.setImageVisible(!this.state.imageVisible)
+      } }>
+        <View style={generalStyles.styles.imageModal}>
+          <Image style={generalStyles.styles.imageInsideModal} source={image} />
+        </View>
+      </TouchableOpacity>
+    </Modal>
+  );
 }
 
+    // visible={this.state.isMenuOpen}
+//
+ newList(){
+   console.log('new list is working well');
+   this.setState({ showMenu: !this.state.showMenu});
+ }
+ encryptMessage(){
+   console.log('encrypt Message is working well');
+   this.setState({ showMenu: !this.state.showMenu});
+ }
+ viewProfile(){
+   console.log('view Profile is working well');
+   this.setState({ showMenu: !this.state.showMenu});
+ }
+ settings(){
+    console.log('settings is working well');
+   this.setState({ showMenu: !this.state.showMenu});
+ }
+ walkieTalkie(){
+   console.log('walkieTalkie is working well');
+   this.setState({ showMenu: !this.state.showMenu});
+ }
+
+
 render() {
-  try {
-    if (this.state.isInitialized === true) {
-      return (
-        <View style={styles.chatRoomMain}>
-          <View style={generalStyles.styles.appbar}>
-            <TouchableOpacity onPress={() => {
-              Actions.pop()
-            } }>
-              <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => {
-              //this.imgSelected = { uri: this.props.userPicture }
-              this.imgSelected = this.props.userPicture ? { uri: this.props.userPicture } : null
-              if (this.imgSelected) {
-                this.setImageVisible(true);
-              }
-            } }>
-              <View style={generalStyles.styles.viewImg}>
-                <Image style={generalStyles.styles.thumb} source={this.props.userPicture ? { uri: this.props.userPicture } : require('../../img/user.jpg')} />
-              </View>
-            </TouchableOpacity>
-            <Text style={generalStyles.styles.titleHeader}>
-              {this.props.userName}
-            </Text>
-            <TouchableOpacity style={{ margin: 7 }} onPress={() => {
-              Event.trigger('showImagePicker');
-            } }>
-              <IconMat name="photo-camera" size={25} color="rgb(177,100,255)" />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={{ margin: 7 }} onPress={() => {
-              Event.trigger('showSignature');
-            } }>
-              <IconMat name="brush" size={25} color="rgb(177,100,255)" />
-            </TouchableOpacity>
-
-            <View style={styles.button} />
-          </View>
-          <ActionSheet ref={component => this._actionSheetRef = component}>
-            <View
-              style={styles.container}
-              onLayout={(e) => {
-                if (Platform.OS === 'android') {
-                  // fix an issue when keyboard is dismissing during the initialization
-                  const layout = e.nativeEvent.layout;
-                  if (this.getMaxHeight() !== layout.height && this.getIsFirstLayout() === true) {
-                    this.setMaxHeight(layout.height);
-                    this.setState({
-                      messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight()),
-                    });
-                  }
-                }
-                if (this.getIsFirstLayout() === true) {
-                  this.setIsFirstLayout(false);
-                }
-              } }
-              >
-              {this.renderMessages()}
-              {this.renderInputToolbar()}
-
-            </View>
-          </ActionSheet>
-          {this.openImageModal(this.imgSelected)}
-        </View>
-      );
-    }
+  if (this.state.isInitialized === true) {
     return (
-      <View
-        style={styles.container}
-        onLayout={(e) => {
-          const layout = e.nativeEvent.layout;
-          this.setMaxHeight(layout.height);
-          InteractionManager.runAfterInteractions(() => {
-            this.setState({
-              isInitialized: true,
-              text: '',
-              composerHeight: MIN_COMPOSER_HEIGHT,
-              messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight()),
-            });
-          });
-        } }
-        >
-        {this.renderLoading()}
+      <View style={styles.chatRoomMain}>
+        <View style={generalStyles.styles.appbar}>
+          <TouchableOpacity onPress={() => {
+            Actions.pop()
+          } }>
+            <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => {
+            //this.imgSelected = { uri: this.props.userPicture }
+            this.imgSelected =  this.props.userPicture ? { uri: this.props.userPicture} : null
+            if(this.imgSelected){
+              this.setImageVisible(true);
+            }
+          } }>
+            <View style={generalStyles.styles.viewImg}>
+              <Image style={generalStyles.styles.thumb} source={this.props.userPicture ? { uri: this.props.userPicture } : require('../../img/user.jpg')} />
+            </View>
+          </TouchableOpacity>
+          <Text style={generalStyles.styles.titleHeader}>
+            {this.props.userName}
+          </Text>
+          <TouchableOpacity style={{margin:7}} onPress={() => {
+            Event.trigger('showImagePicker');
+          } }>
+            <IconMat name="photo-camera" size={25} color="rgb(177,100,255)" />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={{margin:7}} onPress={() => {
+            Event.trigger('showSignature');
+          } }>
+            <IconMat name="brush" size={25} color="rgb(177,100,255)" />
+          </TouchableOpacity>
+          <TouchableOpacity style={{margin:7}} onPress={() => {
+            this.menuOption();}}>
+            <IconMat name="more-vert" size={25} color="rgb(177,100,255)" />
+          </TouchableOpacity>  
+
+          {renderIf(this.state.showMenu)(
+            <Modal
+              onRequestClose={() => {}}
+              style={{flex:1}}
+              transparent={true}
+             >
+            <View style={{
+            width: 160,
+            height: 150,
+            backgroundColor: 'white',
+            position: 'absolute',
+            top: 35,
+            right: 25,
+          }}
+          >
+          <TouchableOpacity onPress={() => {
+            this.viewProfile();}}>
+          <Text style={{margin: 5,marginTop: 7, left: 6}}>
+          View Profile
+         </Text>
+         </TouchableOpacity> 
+          <TouchableOpacity onPress={() => {
+            this.encryptMessage();}}>
+          <Text style={{margin: 5, left: 6}}>
+           Encrypt Message
+         </Text>
+         </TouchableOpacity> 
+           <TouchableOpacity onPress={() => {
+            this.newList();}}>
+          <Text style={{margin: 5, left: 6}}>
+            New List
+         </Text>
+         </TouchableOpacity> 
+            <TouchableOpacity onPress={() => {
+            this.walkieTalkie();}}>
+          <Text style={{margin: 5, left: 6}}>
+           Walkie-Talkie
+         </Text>
+         </TouchableOpacity> 
+           <TouchableOpacity onPress={() => {
+            this.settings();}}>
+          <Text style={{margin: 5, left: 6}}>
+           Settings
+         </Text>
+         </TouchableOpacity> 
+        </View>
+        
+        </Modal>
+       )}
+          <View style={styles.button} />
+        </View>
+        <ActionSheet ref={component => this._actionSheetRef = component}>
+          <View
+            style={styles.container}
+            onLayout={(e) => {
+              if (Platform.OS === 'android') {
+                // fix an issue when keyboard is dismissing during the initialization
+                const layout = e.nativeEvent.layout;
+                if (this.getMaxHeight() !== layout.height && this.getIsFirstLayout() === true) {
+                  this.setMaxHeight(layout.height);
+                  this.setState({
+                    messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight()),
+                  });
+                }
+              }
+              if (this.getIsFirstLayout() === true) {
+                this.setIsFirstLayout(false);
+              }
+            } }
+            >
+            {this.renderMessages()}
+            {this.renderInputToolbar()}
+
+          </View>
+        </ActionSheet>
+        {this.openImageModal(this.imgSelected)}
       </View>
     );
-  } catch (e) {
-    ErrorHandler.WriteError('GiftedChat.js => render', e);
   }
+  return (
+    <View
+      style={styles.container}
+      onLayout={(e) => {
+        const layout = e.nativeEvent.layout;
+        this.setMaxHeight(layout.height);
+        InteractionManager.runAfterInteractions(() => {
+          this.setState({
+            isInitialized: true,
+            text: '',
+            composerHeight: MIN_COMPOSER_HEIGHT,
+            messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight()),
+          });
+        });
+      } }
+      >
+      {this.renderLoading()}
+    </View>
+  );
 }
 }
 
@@ -773,6 +679,11 @@ GiftedChat.defaultProps = {
   bottomOffset: 0,
   isLoadingEarlier: false,
 };
+//  Modal.propTypes = {
+    
+//     onPressBackdrop:this.walkieTalkie() ,
+  
+//   },
 
 GiftedChat.propTypes = {
   messages: React.PropTypes.array,

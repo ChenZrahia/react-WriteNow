@@ -13,47 +13,86 @@ import {
     View,
     TextInput
 } from 'react-native';
+
+
+
 import InitRout from './src/InitRout';
 import ChatRoom from './src/ChatRoom/ChatRoom';
 import emoji from 'emoji-datasource';
 var Event = require('./Services/Events');
 var serverSrv = require('./Services/serverSrv');
-var PushNotification = require('react-native-push-notification');
+// var PushNotification = require('react-native-push-notification');
 var PhoneContacts = require('react-native-contacts');
 var ErrorHandler = require('./ErrorHandler');
-// var EncryptionUtil = require('writenow-rsa');
-
-// setTimeout(function () {
-//   EncryptionUtil.test((result) => {
-//     console.log("result");
-//     console.log(result);
-//   });
-
-//   ReactNativeRSAUtil.encryptStringWithPrivateKey("content", `-----BEGIN RSA PRIVATE KEY-----
-// MIIBOAIBAAJAXr3Li0mGG76UPuI2JE1Nf0z0Y8mgMh/NiqtzbhhP4IJouNDFZK5k
-// dk4sj1FciPsJ/TDI2a1Dixzc7Z4XxQmU0QIDAQABAkBX3y9XnDT/rK6w+H0BBJXZ
-// eZW+q/aiJu8sK8NfHLuRXiDbC2rgBBLi6cQb1VGEWk8JccXGxWtokZorO6x4/N3x
-// AiEAq9L8CaMQYFc3aGKstenmhNwqGsJqfACgHEuJpOatYG0CIQCNJ51PP2q7dqyS
-// U/b6ITSj1z2CbWHgfHInL3ihZSqvdQIgWpqQqIxB0GttHjAaHnrOQXTPBvlJqUWz
-// J/h1Bm1VMykCIFDRVKUyBxcsPGRPhMHzzyLbstEBdZ/FQMqkyGmH9eedAiA/1VRE
-// AHFqyHZtM2qS45D3RjiVSRn2wU3i85lIQ3rA8Q==)
-// -----END RSA PRIVATE KEY-----`)
-//     .then((error, data) => {
-//       console.log(data);
-//       if (!error) {
-//         console.log(data);
-//       }
-//     });
-//}, 1000);
-
-
 
 //import ReactNativeRSAUtil from 'react-native-rsa-util';
 
-// var JSEncrypt = require('./jsencrypt').JSEncrypt;
+// var openpgp = require('react-native-openpgp');
 
-// var t = new JSEncrypt();
-// console.log(t);
+
+
+
+
+// try {
+
+//     var options = {
+//         userIds: [{ name: 'Jon Smith', email: 'jon@example.com' }], // multiple user IDs 
+//         numBits: 512,                                            // RSA key size 
+//         passphrase: 'my-secret-password'         // protects the private key 
+//     };
+
+//     openpgp.generateKey(options).then((key) => {
+//         var privkey = key.privateKeyArmored; // '-----BEGIN PGP PRIVATE KEY BLOCK ... ' 
+//         var pubkey = key.publicKeyArmored;   // '-----BEGIN PGP PUBLIC KEY BLOCK ... ' 
+
+//         var pub = openpgp.readArmoredKey(pubkey);
+//         var priv = openpgp.readArmoredKey(privkey);
+
+//         // decrypt the private key with password
+//         var success = priv.keys[0].decrypt('my-secret-password');
+
+//         var options = {
+//             data: 'Hello, World!',
+//             publicKeys: pub.keys,
+//             privateKeys: priv.keys // for signing (optional)
+//         };
+
+//         openpgp.encrypt(options).then((ciphertext) => {
+//             console.log(ciphertext.data);
+//             console.log(ciphertext);
+//           // encrypted = ciphertext.message.packets.write(); // get raw encrypted packets as Uint8Array 
+
+//             options2 = {
+//                 message: openpgp.readBinaryMessage(ciphertext),             // parse encrypted bytes 
+//                 publicKeys: pub.keys,     // for verification (optional) 
+//                 privateKey: priv.keys, // for decryption 
+//                 format: 'binary'                                      // output as Uint8Array 
+//             };
+
+//             openpgp.decrypt(options2).then((plaintext) => {
+//                 console.log('OK');
+//                 return plaintext.data // Uint8Array([0x01, 0x01, 0x01]) 
+//             }, (error) => {
+//                 console.log(error);
+//                 console.log('3');
+//             });
+
+//         }, (error) => {
+//             console.log(error);
+//             console.log('1');
+//         });
+//     }, (error) => {
+//         console.log('2');
+//     });
+
+
+// } catch (error) {
+//     console.log(error);
+//     console.log('error catch');
+// }
+
+
+
 
 
 export default class WriteNow extends Component {
@@ -157,6 +196,8 @@ export default class WriteNow extends Component {
         });
     }
 
+
+
     render() {
         return (
             <View style={styles.container}>
@@ -166,9 +207,11 @@ export default class WriteNow extends Component {
                     />
                 <InitRout />
             </View>
+
         );
     }
 }
+
 
 // <StatusBar barStyle="light-content" />
 // <View style={styles.statusbar} />

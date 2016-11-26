@@ -162,6 +162,7 @@ export default class Contacts extends Component {
                         <TouchableOpacity onPress={() => {
                             rowData.isContact = true;
                             Actions.ChatRoom(rowData);
+                            Event.trigger('LoadNewChat', rowData.id);
                         } }>
                             <View style={generalStyle.styles.row}>
                                 <TouchableOpacity onPress={() => {

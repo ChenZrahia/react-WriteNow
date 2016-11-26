@@ -16,6 +16,9 @@ import {
     NativeModules,
     Modal
 } from 'react-native';
+    
+
+
 import { Actions } from 'react-native-router-flux';
 import ImageResizer from 'react-native-image-resizer';
 import InputToolbar from './InputToolbar';
@@ -67,6 +70,7 @@ export default class ChatRoom extends Component {
         }
     }
 
+<<<<<<< HEAD
     LoadNewChat(convId) {
         try {
             var callback = (data, convId) => {
@@ -74,6 +78,15 @@ export default class ChatRoom extends Component {
                     if (data[i].text == "654") {
                         console.log(data[i]);
                     } else {
+=======
+    LoadNewChat(convId){
+        this.setState({messages: []});
+        var callback = (data, convId) => {
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].text == "654") {
+                    console.log(data[i]);
+                } else {
+>>>>>>> 0b01b68cb81aaa6284c4cd03ecfbabb91d712558
 
                     }
                 }
@@ -96,8 +109,26 @@ export default class ChatRoom extends Component {
             } else {
                 serverSrv.GetConv(callback, this.props.id);
             }
+<<<<<<< HEAD
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => LoadNewChat', e);
+=======
+            this.messages = data;
+            this.setState({
+                messages: GiftedChat.append(this.messages, this.onlineMessages),
+            });
+        }
+        serverSrv.onServerTyping(this.onFriendType);
+        if (convId && convId != null) {
+            this.convId = convId;
+        } else {
+            this.convId = this.props.id;
+        }
+        if (this.props.isContact == true) {
+            serverSrv.GetConvByContact(callback, this.convId, this.props.phoneNumber, this.props.publicInfo.fullName);
+        } else {
+            serverSrv.GetConv(callback, this.convId);
+>>>>>>> 0b01b68cb81aaa6284c4cd03ecfbabb91d712558
         }
     }
 
@@ -396,10 +427,17 @@ onType(text) {
     }
 }
 
+<<<<<<< HEAD
 render() {
     return (
         <View style={{ flex: 1, alignSelf: 'stretch' }} >
             <GiftedChat
+=======
+    render() {
+        return (
+            
+                   <GiftedChat
+>>>>>>> 0b01b68cb81aaa6284c4cd03ecfbabb91d712558
                 userName={this.props.groupName}
                 userPicture={this.props.groupPicture}
                 messages={this.state.messages}
@@ -409,11 +447,17 @@ render() {
                     _id: serverSrv._uid,
                 }}
                 />
+<<<<<<< HEAD
 
             {this.openImageModal(this.state.imgToMsg)}
         </View>
     );
 }
+=======
+         
+        );
+    }
+>>>>>>> 0b01b68cb81aaa6284c4cd03ecfbabb91d712558
 }
 
 const styles = StyleSheet.create({

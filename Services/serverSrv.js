@@ -17,7 +17,7 @@ var publicKey = `-----BEGIN PUBLIC KEY-----
 
 // var ReactNativeRSAUtil = React.NativeModules.ReactNativeRSAUtil;
 
-export var socket = io('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: encryptedUid, publicKey: publicKey, uid: 'e2317111-a84a-4c70-b0e9-b54b910833fa' } });
+export var socket = io('https://server-sagi-uziel.c9users.io:8080', { });
 var ErrorHandler = require('../ErrorHandler');
 var SQLite = require('react-native-sqlite-storage')
 
@@ -277,10 +277,10 @@ export function GetAllMyFriends_Server(callback) {
 //Conversation
 export function GetAllUserConv(callback, isUpdate) {
     try {
-        if (_myChats && callback && !isUpdate) {
-            callback(_myChats);
-            return;
-        }
+        // if (_myChats && callback && !isUpdate) {
+        //     callback(_myChats);
+        //     return;
+        // }
         db.transaction((tx) => {
             tx.executeSql('SELECT * FROM Conversation ORDER BY lastMessageTime DESC', [], (tx, rs) => {
                 try {
@@ -381,6 +381,8 @@ export function GetConv(callback, convId, isUpdate) {
         //     callback(_myConvs[convId].messages);
         //     return;
         // }
+        console.log(convId);
+        console.log('convId');
         db.transaction((tx) => {
             tx.executeSql('SELECT * FROM Messages WHERE convId = ? AND (content IS NOT NULL OR image IS NOT NULL) ORDER BY sendTime DESC', [convId], (tx, rs) => {
                 try {
@@ -491,6 +493,12 @@ function GetConv_server(convId, callback) {
                             data.messages[i].isSeenByAll,
                             data.messages[i].image
                             ]);
+                        tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ? WHERE id = ? AND lastMessageTime < ?',
+                            [   data.messages[i].content,
+                                data.messages[i].sendTime,
+                                data.messages[i].convId,
+                                data.messages[i].sendTime
+                            ]);
                     }
                 }
                 GetConv(callback, convId, true);
@@ -597,6 +605,15 @@ export function saveNewMessage(msg) {
                 msg.image
                 ]);
         });
+        tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ? WHERE id = ? AND lastMessageTime < ?',
+            [   msg.content,
+                moment(msg.sendTime).toISOString(),
+                msg.convId,
+                moment(msg.sendTime)
+            ], (rs) => {
+                console.log(rs);
+                console.log(rs);
+            });
         if (msg.from == _uid) {
             socket.emit('saveMessage', msg);
         }

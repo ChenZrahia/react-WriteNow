@@ -47,7 +47,7 @@ export default class Chats extends Component {
             var ds = this.ds;
             serverSrv.GetAllUserConv((result) => {
                 try {
-                    this.myChats = this.sortDates(result);
+                    //this.myChats = this.sortDates(result);
                     this.myChats = result;
                     try {
                         this.setState({
