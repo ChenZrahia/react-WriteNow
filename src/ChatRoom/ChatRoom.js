@@ -49,9 +49,11 @@ export default class ChatRoom extends Component {
         Event.removeAllListeners('showImagePicker');
         Event.removeAllListeners('showSignature');
         Event.removeAllListeners('sendSegnature');
+        Event.removeAllListeners('imojiType');
         Event.on('showImagePicker', this.showImagePicker);
         Event.on('showSignature', this.showSignature);
         Event.on('sendSegnature', this.sendImageMessage);
+        Event.on('imojiType', this.onType);
     }
 
     componentDidMount() {
