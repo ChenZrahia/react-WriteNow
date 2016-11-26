@@ -2,6 +2,7 @@ package com.writenow;
 import android.app.Application;
 import android.util.Log;
 import com.facebook.react.ReactApplication;
+import com.evollu.react.fcm.FIRMessagingPackage;
 import com.github.orhan.openpgp.RNOpenPGPPackage;
 import com.github.xfumihiro.react_native_image_to_base64.ImageToBase64Package;
 import fr.bamlab.rnimageresizer.ImageResizerPackage;
@@ -37,6 +38,7 @@ public class MainApplication extends Application implements ReactApplication {
       return Arrays.<ReactPackage>asList(
         new SQLitePluginPackage(),
           new MainReactPackage(),
+            new FIRMessagingPackage(),
             new RNOpenPGPPackage(),
             new ImageToBase64Package(),
             new ImageResizerPackage(),

@@ -60,15 +60,15 @@ export function DeleteDb() {
         // tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
         // tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
 
-        //tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
-        //tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
-        //tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
-        tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
-        //tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
+        // tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
+        // tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
+        // tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
+        // tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
+        // tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
 
         tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid)', [], null, errorDB);
         tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime)', [], null, errorDB); //להוציא לפונקציה נפרדת
-        tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, mail, picture, gender, isMyContact)', [], null, errorDB); //להוציא לפונקציה נפרדת
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, picture, isMyContact)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll, image)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Participates (convId NOT NULL, uid NOT NULL, isGroup, PRIMARY KEY (convId, uid))', [], null, errorDB);
     });
@@ -78,7 +78,7 @@ setTimeout(() => {
     db.transaction((tx) => {
         tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid)', [], null, errorDB);
         tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime)', [], null, errorDB); //להוציא לפונקציה נפרדת
-        tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, mail, picture, gender, isMyContact)', [], null, errorDB); //להוציא לפונקציה נפרדת
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, picture, isMyContact)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll, image)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Participates (convId NOT NULL, uid NOT NULL, isGroup, PRIMARY KEY (convId, uid))', [], null, errorDB);
     });
@@ -103,9 +103,7 @@ export function GetAllMyFriends(callback, isUpdate) {
                             ModifyPicDate: rs.rows.item(i).ModifyPicDate,
                             publicInfo: {
                                 fullName: rs.rows.item(i).fullName,
-                                mail: rs.rows.item(i).mail,
-                                picture: rs.rows.item(i).picture,
-                                gender: rs.rows.item(i).gender
+                                picture: rs.rows.item(i).picture
                             }
                         });
                         _myFriendsJson[rs.rows.item(i).id] = {
@@ -118,9 +116,7 @@ export function GetAllMyFriends(callback, isUpdate) {
                             ModifyPicDate: rs.rows.item(i).ModifyPicDate,
                             publicInfo: {
                                 fullName: rs.rows.item(i).fullName,
-                                mail: rs.rows.item(i).mail,
-                                picture: rs.rows.item(i).picture,
-                                gender: rs.rows.item(i).gender
+                                picture: rs.rows.item(i).picture
                             }
                         }
                     }
@@ -177,15 +173,13 @@ export function InsertMyContacts(contacts, isMyContact, convId) {
                                     _myConvs[convId].participates.length > 2
                                     ]);
                             }
-                            tx.executeSql('INSERT INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                            tx.executeSql('INSERT INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?)',
                                 [newId,
                                     contacts[i].phoneNumber,
                                     '',
                                     '',
                                     contacts[i].publicInfo.fullName,
-                                    '',
                                     contacts[i].publicInfo.picture,
-                                    '',
                                     isMyContact]);
                         } catch (error) {
                             console.log(error);
@@ -255,9 +249,7 @@ export function GetAllMyFriends_Server(callback) {
                                 data[i].ModifyDate,
                                 data[i].ModifyPicDate,
                                 data[i].publicInfo.fullName,
-                                data[i].publicInfo.mail,
                                 data[i].publicInfo.picture,
-                                data[i].publicInfo.gender,
                                     true]);
                         }
                     }
@@ -612,7 +604,6 @@ export function saveNewMessage(msg) {
                 moment(msg.sendTime)
             ], (rs) => {
                 console.log(rs);
-                console.log(rs);
             });
         if (msg.from == _uid) {
             socket.emit('saveMessage', msg);
@@ -624,13 +615,12 @@ export function saveNewMessage(msg) {
 
 //connect  login
 export function login() {
-    // setTimeout(() => {
-    //     Actions.SignUp({ type: 'replace' });
-    // }, 500);
+    console.log('rs.rows.length <> 0');
     db.transaction((tx) => {
         try {
             tx.executeSql('SELECT * FROM UserInfo', [], (tx, rs) => {
                 if (rs.rows.length > 0) {
+                    console.log('rs.rows.length > 0');
                     var item = rs.rows.item(rs.rows.length - 1);
                     _uid = item.uid;
                     //_uid = 'e2317111-a84a-4c70-b0e9-b54b910833fa';  //-------------------For Test Only
@@ -669,10 +659,14 @@ export function login() {
                 }
                 else {
                     try {
+                    console.log('rs.rows.length < 0');
+                        
                         socket = io.connect('https://server-sagi-uziel.c9users.io:8080');
+                    console.log('rs.rows.length < 0');
                         Actions.SignUp({ type: 'replace' });
+                    console.log('rs.rows.length < 0');
                     } catch (error) {
-                        console.log(error);
+                        ErrorHandler.WriteError('EnterPage constructor => userNotExist in DB ', error);
                     }
                 }
             }, (error) => {
@@ -705,8 +699,9 @@ export function signUpFunc(newUser, callback) {
             // var encryptedUid = rsa2.encrypt(user.id);
             if (user.id) {
                 db.transaction(function (tx) {
+                    this._uid = user.id;
                     tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?)', [user.id, '', '', '']);
-                    tx.executeSql('INSERT INTO Friends VALUES (?,?,?,?,?,?,?,?,?)', [user.id, newUser.phoneNumber, newUser.ModifyDate, newUser.ModifyPicDate, newUser.publicInfo.fullName, newUser.publicInfo.mail, newUser.publicInfo.picture, newUser.publicInfo.gender, false]);
+                    tx.executeSql('INSERT INTO Friends VALUES (?,?,?,?,?,?,?)', [user.id, newUser.phoneNumber, newUser.ModifyDate, newUser.ModifyPicDate, newUser.publicInfo.fullName, newUser.publicInfo.picture]);
                 }, (error) => {
                     ErrorHandler.WriteError('signUp => addNewUser => transaction', error);
                 }, function () {

@@ -25,6 +25,9 @@ var serverSrv = require('./Services/serverSrv');
 var PhoneContacts = require('react-native-contacts');
 var ErrorHandler = require('./ErrorHandler');
 
+import FCM from 'react-native-fcm';
+
+
 //import ReactNativeRSAUtil from 'react-native-rsa-util';
 
 // var openpgp = require('react-native-openpgp');
@@ -92,9 +95,6 @@ var ErrorHandler = require('./ErrorHandler');
 // }
 
 
-
-
-
 export default class WriteNow extends Component {
     constructor() {
         super();
@@ -103,7 +103,6 @@ export default class WriteNow extends Component {
     componentWillMount() {
         serverSrv.login();
     }
-
 
     loadContacts() {
         serverSrv.getAllPhoneNumbers((phnesNumbers) => {
@@ -147,56 +146,23 @@ export default class WriteNow extends Component {
 
     componentDidMount() {
         this.loadContacts();
-        // PushNotification.configure({
+        try {
+            FCM.getFCMToken().then(token => {
+                console.log(token);
+                // store fcm token in your server
+            });
 
-        //     // (optional) Called when Token is generated (iOS and Android)
-        //     onRegister: function(token) {
-        //         console.log('TOKEN:', token);
-        //     },
-
-        //     // (required) Called when a remote or local notification is opened or received
-        //     onNotification: function(notification) {
-        //         try {
-        //             PushNotification.localNotification(notification);
-        //         } catch (error) {
-
-        //         }
-        //     },
-
-        //     popInitialNotification: function(notification) {
-        //         try {
-        //             PushNotification.localNotification(notification);
-        //         } catch (error) {
-
-        //         }
-        //     },
-
-
-        //     // ANDROID ONLY: GCM Sender ID (optional - not required for local notifications, but is need to receive remote push notifications) 
-        //     senderID: "486059628270",
-
-        //     // Should the initial notification be popped automatically
-        //     // default: true
-        //     //popInitialNotification: true,
-
-        //     /**
-        //       * (optional) default: true
-        //       * - Specified if permissions (ios) and token (android and ios) will requested or not,
-        //       * - if not, you must call PushNotificationsHandler.requestPermissions() later
-        //       */
-        //     requestPermissions: true,
-        // });
-
-        serverSrv.GetAllMyFriends((result) => {
-            try {
-                Event.trigger('UpdateMyFriends', result);
-            } catch (error) {
-                ErrorHandler.WriteError(error);
-            }
-        });
+            serverSrv.GetAllMyFriends((result) => {
+                try {
+                    Event.trigger('UpdateMyFriends', result);
+                } catch (error) {
+                    ErrorHandler.WriteError(error);
+                }
+            });
+        } catch (error) {
+            console.log(error);
+        }
     }
-
-
 
     render() {
         return (

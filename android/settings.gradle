@@ -28,3 +28,7 @@ project(':react-native-contacts').projectDir = new File(settingsDir, '../node_mo
 include ':react-native-openpgp'
 project(':react-native-openpgp').projectDir = new File(settingsDir, '../node_modules/react-native-openpgp/android/app')
 
+include ':react-native-fcm'
+project(':react-native-fcm').projectDir = new File(settingsDir, '../node_modules/react-native-fcm/android')
+
+

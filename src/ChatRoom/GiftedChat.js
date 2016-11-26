@@ -17,7 +17,7 @@ import dismissKeyboard from 'react-native-dismiss-keyboard';
 import moment from 'moment/min/moment-with-locales.min';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {Actions} from 'react-native-router-flux';
-import renderIf from './renderIf'
+import renderIf from '../../plugins/renderIf'
 
 //import Actions from './Actions';
 import Avatar from './Avatar';
@@ -395,6 +395,7 @@ onType(e) {
 }
 
 changeText = (data) => {
+  Event.trigger('imojiType', this.state.text + data);
   this.setState({ text: this.state.text + data });
 }
 
@@ -534,7 +535,11 @@ render() {
               style={{flex:1}}
               transparent={true}
              >
-            <View style={{
+              
+         <TouchableOpacity style={{ flex: 1 }} onPress={() => {
+                    this.setState({ showMenu: !this.state.showMenu})
+                } }>
+                                <View style={{
             width: 160,
             height: 150,
             backgroundColor: 'white',
@@ -574,7 +579,7 @@ render() {
          </Text>
          </TouchableOpacity> 
         </View>
-        
+                </TouchableOpacity>
         </Modal>
        )}
           <View style={styles.button} />
