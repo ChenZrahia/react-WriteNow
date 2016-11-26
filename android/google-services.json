@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1097347643123",
+    "firebase_url": "https://writenow-277de.firebaseio.com",
+    "project_id": "writenow-277de",
+    "storage_bucket": "writenow-277de.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1097347643123:android:cc8864369cb41384",
+        "android_client_info": {
+          "package_name": "com.writenow"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1097347643123-dlvhod3b9jvgjb2e4rh1rb253k9tq63o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.writenow",
+            "certificate_hash": "BFF3FF90326F2C261F485D735C8195F4B5E7507A"
+          }
+        },
+        {
+          "client_id": "1097347643123-1cr88ln7ie87grqrmfrtuonuvuuqe39a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA47js58xBimtGnLRUHTDjuNwRLBDrTZpU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1097347643123-1cr88ln7ie87grqrmfrtuonuvuuqe39a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
