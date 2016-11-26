@@ -10,109 +10,147 @@ import MessageText from './MessageText';
 import MessageImage from './MessageImage';
 import Time from './Time';
 
+var ErrorHandler = require('../../ErrorHandler');
+
 export default class Bubble extends React.Component {
   constructor(props) {
     super(props);
-    this.onLongPress = this.onLongPress.bind(this);
+    try {
+      this.onLongPress = this.onLongPress.bind(this);
+    } catch (e) {
+      ErrorHandler.WriteError('Bubble.js => constructor', e);
+    }
   }
 
   handleBubbleToNext() {
-    if (this.props.isSameUser(this.props.currentMessage, this.props.nextMessage) && this.props.isSameDay(this.props.currentMessage, this.props.nextMessage)) {
-      return StyleSheet.flatten([styles[this.props.position].containerToNext, this.props.containerToNextStyle[this.props.position]]);
+    try {
+      if (this.props.isSameUser(this.props.currentMessage, this.props.nextMessage) && this.props.isSameDay(this.props.currentMessage, this.props.nextMessage)) {
+        return StyleSheet.flatten([styles[this.props.position].containerToNext, this.props.containerToNextStyle[this.props.position]]);
+      }
+      return null;
+    } catch (e) {
+      ErrorHandler.WriteError('Bubble.js => handleBubbleToNext', e);
     }
-    return null;
   }
 
   handleBubbleToPrevious() {
-    if (this.props.isSameUser(this.props.currentMessage, this.props.previousMessage) && this.props.isSameDay(this.props.currentMessage, this.props.previousMessage)) {
-      return StyleSheet.flatten([styles[this.props.position].containerToPrevious, this.props.containerToPreviousStyle[this.props.position]]);
+    try {
+      if (this.props.isSameUser(this.props.currentMessage, this.props.previousMessage) && this.props.isSameDay(this.props.currentMessage, this.props.previousMessage)) {
+        return StyleSheet.flatten([styles[this.props.position].containerToPrevious, this.props.containerToPreviousStyle[this.props.position]]);
+      }
+      return null;
+    } catch (e) {
+      ErrorHandler.WriteError('Bubble.js => handleBubbleToPrevious', e);
     }
-    return null;
   }
 
   renderMessageText() {
-    if (this.props.currentMessage.text) {
-      const {containerStyle, wrapperStyle, ...messageTextProps} = this.props;
-      if (this.props.renderMessageText) {
-        return this.props.renderMessageText(messageTextProps);
+    try {
+      if (this.props.currentMessage.text) {
+        const {containerStyle, wrapperStyle, ...messageTextProps} = this.props;
+        if (this.props.renderMessageText) {
+          return this.props.renderMessageText(messageTextProps);
+        }
+        return <MessageText {...messageTextProps} />;
       }
-      return <MessageText {...messageTextProps} />;
+      return null;
+    } catch (e) {
+      ErrorHandler.WriteError('Bubble.js => renderMessageText', e);
     }
-    return null;
   }
 
   renderMessageImage() {
-    if (this.props.currentMessage.image) {
-      const {containerStyle, wrapperStyle, ...messageImageProps} = this.props;
-      if (this.props.renderMessageImage) {
-        return this.props.renderMessageImage(messageImageProps);
+    try {
+      if (this.props.currentMessage.image) {
+        const {containerStyle, wrapperStyle, ...messageImageProps} = this.props;
+        if (this.props.renderMessageImage) {
+          return this.props.renderMessageImage(messageImageProps);
+        }
+        return <MessageImage {...messageImageProps} />;
       }
-      return <MessageImage {...messageImageProps} />;
+      return null;
+    } catch (e) {
+      ErrorHandler.WriteError('Bubble.js => renderMessageImage', e);
     }
-    return null;
   }
 
   renderTime() {
-    if (this.props.currentMessage.createdAt) {
-      const {containerStyle, wrapperStyle, ...timeProps} = this.props;
-      if (this.props.renderTime) {
-        return this.props.renderTime(timeProps);
+    try {
+      if (this.props.currentMessage.createdAt) {
+        const {containerStyle, wrapperStyle, ...timeProps} = this.props;
+        if (this.props.renderTime) {
+          return this.props.renderTime(timeProps);
+        }
+        return <Time {...timeProps} />;
       }
-      return <Time {...timeProps} />;
+      return null;
+    } catch (e) {
+      ErrorHandler.WriteError('Bubble.js => renderTime', e);
     }
-    return null;
   }
 
   renderCustomView() {
-    if (this.props.renderCustomView) {
-      return this.props.renderCustomView(this.props);
+    try {
+      if (this.props.renderCustomView) {
+        return this.props.renderCustomView(this.props);
+      }
+      return null;
+    } catch (e) {
+      ErrorHandler.WriteError('Bubble.js => renderCustomView', e);
     }
-    return null;
   }
 
   onLongPress() {
-    if (this.props.onLongPress) {
-      this.props.onLongPress(this.context);
-    } else {
-      if (this.props.currentMessage.text) {
-        const options = [
-          'Copy Text',
-          'Cancel',
-        ];
-        const cancelButtonIndex = options.length - 1;
-        this.context.actionSheet().showActionSheetWithOptions({
-          options,
-          cancelButtonIndex,
-        },
-          (buttonIndex) => {
-            switch (buttonIndex) {
-              case 0:
-                Clipboard.setString(this.props.currentMessage.text);
-                break;
-            }
-          });
+    try {
+      if (this.props.onLongPress) {
+        this.props.onLongPress(this.context);
+      } else {
+        if (this.props.currentMessage.text) {
+          const options = [
+            'Copy Text',
+            'Cancel',
+          ];
+          const cancelButtonIndex = options.length - 1;
+          this.context.actionSheet().showActionSheetWithOptions({
+            options,
+            cancelButtonIndex,
+          },
+            (buttonIndex) => {
+              switch (buttonIndex) {
+                case 0:
+                  Clipboard.setString(this.props.currentMessage.text);
+                  break;
+              }
+            });
+        }
       }
+    } catch (e) {
+      ErrorHandler.WriteError('Bubble.js => onLongPress', e);
     }
   }
 
   render() {
-    return (
-      <View style={[styles[this.props.position].container, this.props.containerStyle[this.props.position]]}>
-        <View style={[styles[this.props.position].wrapper, this.props.wrapperStyle[this.props.position], this.handleBubbleToNext(), this.handleBubbleToPrevious()]}>
-          <TouchableWithoutFeedback
-            onLongPress={this.onLongPress}
-            {...this.props.touchableProps}
-            >
-            <View>
-              {this.renderCustomView()}
-              {this.renderMessageImage()}
-              {this.renderMessageText()}
-              {this.renderTime()}
-            </View>
-          </TouchableWithoutFeedback>
+    try {
+      return (
+        <View style={[styles[this.props.position].container, this.props.containerStyle[this.props.position]]}>
+          <View style={[styles[this.props.position].wrapper, this.props.wrapperStyle[this.props.position], this.handleBubbleToNext(), this.handleBubbleToPrevious()]}>
+            <TouchableWithoutFeedback
+              onLongPress={this.onLongPress}
+              {...this.props.touchableProps}
+              >
+              <View>
+                {this.renderCustomView()}
+                {this.renderMessageImage()}
+                {this.renderMessageText()}
+                {this.renderTime()}
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
         </View>
-      </View>
-    );
+      );
+    } catch (e) {
+      ErrorHandler.WriteError('Bubble.js => render', e);
+    }
   }
 }
 

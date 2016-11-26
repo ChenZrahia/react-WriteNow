@@ -7,15 +7,21 @@ import {
 
 import moment from 'moment/min/moment-with-locales.min';
 
+var ErrorHandler = require('../../ErrorHandler');
+
 export default class Time extends React.Component {
   render() {
-    return (
-      <View style={[styles[this.props.position].container, this.props.containerStyle[this.props.position]]}>
-        <Text style={[styles[this.props.position].text, this.props.textStyle[this.props.position]]}>
-          {moment(this.props.currentMessage.createdAt).locale(this.context.getLocale()).format('LT')}
-        </Text>
-      </View>
-    );
+    try {
+      return (
+        <View style={[styles[this.props.position].container, this.props.containerStyle[this.props.position]]}>
+          <Text style={[styles[this.props.position].text, this.props.textStyle[this.props.position]]}>
+            {moment(this.props.currentMessage.createdAt).locale(this.context.getLocale()).format('LT')}
+          </Text>
+        </View>
+      );
+    } catch (e) {
+      ErrorHandler.WriteError('Time.js => render', e);
+    }
   }
 }
 
@@ -36,17 +42,17 @@ const styles = {
     container: {
       ...containerStyle,
     },
-    text: {
-      color: '#aaa',
+  text: {
+    color: '#aaa',
       ...textStyle,
     },
   }),
-  right: StyleSheet.create({
-    container: {
+right: StyleSheet.create({
+  container: {
       ...containerStyle,
     },
-    text: {
-      color: '#aaa', //#fff
+  text: {
+    color: '#aaa', //#fff
       ...textStyle,
     },
   }),

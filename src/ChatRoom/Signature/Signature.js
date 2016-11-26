@@ -15,71 +15,97 @@ var {
 import { Actions } from 'react-native-router-flux';
 import SignatureCapture from 'react-native-signature-capture';
 import ImageResizer from 'react-native-image-resizer';
+
+var ErrorHandler = require('../../../ErrorHandler');
+
 export default class Signature extends Component {
     render() {
-        return (
-            <View style={{ flex: 1, flexDirection: "column" }}>
-                <SignatureCapture
-                    style={[{ flex: 1 }, styles.signature]}
-                    ref="sign"
-                    onSaveEvent={this._onSaveEvent}
-                    onDragEvent={this._onDragEvent}
-                    saveImageFileInExtStorage={false}
-                    showNativeButtons={false}
-                    viewMode={"portrait"} />
+        try {
+            return (
+                <View style={{ flex: 1, flexDirection: "column" }}>
+                    <SignatureCapture
+                        style={[{ flex: 1 }, styles.signature]}
+                        ref="sign"
+                        onSaveEvent={this._onSaveEvent}
+                        onDragEvent={this._onDragEvent}
+                        saveImageFileInExtStorage={false}
+                        showNativeButtons={false}
+                        viewMode={"portrait"} />
 
-                <View style={{ flexDirection: "row" }}>
-                    <TouchableOpacity style={styles.buttonStyle}
-                        onPress={() => { this.saveSign() } } >
-                        <Text style={{ color: 'white'}}>Send</Text>
-                    </TouchableOpacity>
+                    <View style={{ flexDirection: "row" }}>
+                        <TouchableOpacity style={styles.buttonStyle}
+                            onPress={() => { this.saveSign() } } >
+                            <Text style={{ color: 'white' }}>Send</Text>
+                        </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.buttonStyle}
-                        onPress={() => { this.resetSign() } } >
-                        <Text style={{ color: 'white'}}>Reset</Text>
-                    </TouchableOpacity>
+                        <TouchableOpacity style={styles.buttonStyle}
+                            onPress={() => { this.resetSign() } } >
+                            <Text style={{ color: 'white' }}>Reset</Text>
+                        </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.buttonStyle}
-                        onPress={() => { this.cancelSign() } } >
-                        <Text style={{ color: 'white'}}>Cancel</Text>
-                    </TouchableOpacity>
+                        <TouchableOpacity style={styles.buttonStyle}
+                            onPress={() => { this.cancelSign() } } >
+                            <Text style={{ color: 'white' }}>Cancel</Text>
+                        </TouchableOpacity>
+                    </View>
+
                 </View>
-
-            </View>
-        );
+            );
+        } catch (e) {
+            ErrorHandler.WriteError('Signature.js => render', e);
+        }
     }
 
     saveSign() {
-        this.refs["sign"].saveImage();
+        try {
+            this.refs["sign"].saveImage();
+        } catch (e) {
+            ErrorHandler.WriteError('Signature.js => saveSign', e);
+        }
     }
 
     resetSign() {
-        this.refs["sign"].resetImage();
+        try {
+            this.refs["sign"].resetImage();
+        } catch (e) {
+            ErrorHandler.WriteError('Signature.js => resetSign', e);
+        }
     }
 
     cancelSign() {
-        Actions.pop();
+        try {
+            Actions.pop();
+        } catch (e) {
+            ErrorHandler.WriteError('Signature.js => cancelSign', e);
+        }
     }
 
     _onSaveEvent(result) {
-        //result.encoded - for the base64 encoded png
-        //result.pathName - for the file path name
-        ImageResizer.createResizedImage('data:image/jpeg;base64,' + result.encoded, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
-        console.log(resizedImageUri);
-            NativeModules.RNImageToBase64.getBase64String(resizedImageUri, (err, base64) => {
-        console.log(33333);
-                Event.trigger('sendSegnature', 'data:image/jpeg;base64,' + base64);
-                //error check
-            })
-        }).catch((err) => {
-            console.log(err);
-            console.log('err');
-        });
-        Actions.pop();
+        try {
+            //result.encoded - for the base64 encoded png
+            //result.pathName - for the file path name
+            ImageResizer.createResizedImage('data:image/jpeg;base64,' + result.encoded, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
+                NativeModules.RNImageToBase64.getBase64String(resizedImageUri, (err, base64) => {
+                    Event.trigger('sendSegnature', 'data:image/jpeg;base64,' + base64);
+                    //error check
+                })
+            }).catch((err) => {
+                console.log(err);
+                console.log('err');
+            });
+            Actions.pop();
+        } catch (e) {
+            ErrorHandler.WriteError('Signature.js => _onSaveEvent', e);
+        }
     }
+
     _onDragEvent() {
-        // This callback will be called when the user enters signature
-        console.log("dragged");
+        try {
+            // This callback will be called when the user enters signature
+            console.log("dragged");
+        } catch (e) {
+            ErrorHandler.WriteError('Signature.js => _onDragEvent', e);
+        }
     }
 }
 

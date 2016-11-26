@@ -6,6 +6,8 @@ import {
   View,
 } from 'react-native';
 
+var ErrorHandler = require('../../ErrorHandler');
+
 export default class Send extends React.Component {
   // shouldComponentUpdate(nextProps, nextState) {
   //   if (this.props.text.trim().length === 0 && nextProps.text.trim().length > 0 || this.props.text.trim().length > 0 && nextProps.text.trim().length === 0) {
@@ -14,19 +16,23 @@ export default class Send extends React.Component {
   //   return false;
   // }
   render() {
-    if (this.props.text.trim().length > 0) {
-      return (
-        <TouchableOpacity
-          style={[styles.container, this.props.containerStyle]}
-          onPress={() => {
-            this.props.onSend({ text: this.props.text.trim() }, true);
-          } }
-          >
-          <Text style={[styles.text, this.props.textStyle]}>{this.props.label}</Text>
-        </TouchableOpacity>
-      );
+    try {
+      if (this.props.text.trim().length > 0) {
+        return (
+          <TouchableOpacity
+            style={[styles.container, this.props.containerStyle]}
+            onPress={() => {
+              this.props.onSend({ text: this.props.text.trim() }, true);
+            } }
+            >
+            <Text style={[styles.text, this.props.textStyle]}>{this.props.label}</Text>
+          </TouchableOpacity>
+        );
+      }
+      return <View />;
+    } catch (e) {
+      ErrorHandler.WriteError('Send.js => render', e);
     }
-    return <View />;
   }
 }
 

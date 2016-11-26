@@ -7,20 +7,26 @@ import {
 
 import moment from 'moment/min/moment-with-locales.min';
 
+var ErrorHandler = require('../../ErrorHandler');
+
 export default class Day extends React.Component {
   render() {
-    if (!this.props.isSameDay(this.props.currentMessage, this.props.previousMessage)) {
-      return (
-        <View style={[styles.container, this.props.containerStyle]}>
-          <View style={[styles.wrapper, this.props.wrapperStyle]}>
-            <Text style={[styles.text, this.props.textStyle]}>
-              {moment(this.props.currentMessage.createdAt).locale(this.context.getLocale()).format('ll').toUpperCase()}
-            </Text>
+    try {
+      if (!this.props.isSameDay(this.props.currentMessage, this.props.previousMessage)) {
+        return (
+          <View style={[styles.container, this.props.containerStyle]}>
+            <View style={[styles.wrapper, this.props.wrapperStyle]}>
+              <Text style={[styles.text, this.props.textStyle]}>
+                {moment(this.props.currentMessage.createdAt).locale(this.context.getLocale()).format('ll').toUpperCase()}
+              </Text>
+            </View>
           </View>
-        </View>
-      );
+        );
+      }
+      return null;
+    } catch (e) {
+      ErrorHandler.WriteError('Day.js => render', e);
     }
-    return null;
   }
 }
 

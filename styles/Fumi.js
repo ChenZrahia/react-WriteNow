@@ -55,7 +55,7 @@ export default class Fumi extends BaseInput {
     const AnimatedIcon = Animated.createAnimatedComponent(iconClass);
     const ANIM_PATH = PADDING + inputHeight;
     const NEGATIVE_ANIM_PATH = ANIM_PATH * -1;
-
+    
     return (
       <View style={[containerStyle, styles.container]} onLayout={this._onLayout}>
         <TouchableWithoutFeedback onPress={this._focus}>
@@ -77,14 +77,14 @@ export default class Fumi extends BaseInput {
                 outputRange: ['#a3a3a3', iconColor, iconColor],
               }),
             }}
-          />
+            />
         </TouchableWithoutFeedback>
         <View
           style={[styles.separator, {
             height: inputHeight,
             left: ICON_WIDTH + 8,
           }]}
-        />
+          />
         <TouchableWithoutFeedback onPress={this._focus}>
           <Animated.View style={{
             position: 'absolute',
@@ -121,7 +121,7 @@ export default class Fumi extends BaseInput {
           onFocus={this._onFocus}
           onChange={this._onChange}
           underlineColorAndroid={'transparent'}
-        />
+          />
       </View>
     );
   }

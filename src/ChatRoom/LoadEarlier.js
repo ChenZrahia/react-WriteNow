@@ -8,46 +8,57 @@ import {
   View,
 } from 'react-native';
 
+var ErrorHandler = require('../../ErrorHandler');
+
 export default class LoadEarlier extends React.Component {
   renderLoading() {
-    if (this.props.isLoadingEarlier === false) {
+    try {
+      if (this.props.isLoadingEarlier === false) {
+        return (
+          <Text style={[styles.text, this.props.textStyle]}>
+            {this.props.label}
+          </Text>
+        );
+      }
       return (
-        <Text style={[styles.text, this.props.textStyle]}>
-          {this.props.label}
-        </Text>
-      );
-    }
-    return (
-      <View>
-        <Text style={[styles.text, this.props.textStyle, {
+        <View>
+          <Text style={[styles.text, this.props.textStyle, {
             opacity: 0,
           }]}>
-          {this.props.label}
-        </Text>
-        <ActivityIndicator
-          color='white'
-          size='small'
-          style={[styles.activityIndicator, this.props.activityIndicatorStyle]}
-        />
-      </View>
-    );
-  }
-  render() {
-    return (
-      <TouchableOpacity
-        style={[styles.container, this.props.containerStyle]}
-        onPress={() => {
-          if (this.props.onLoadEarlier) {
-            this.props.onLoadEarlier();
-          }
-        }}
-        disabled={this.props.isLoadingEarlier === true}
-      >
-        <View style={[styles.wrapper, this.props.wrapperStyle]}>
-          {this.renderLoading()}
+            {this.props.label}
+          </Text>
+          <ActivityIndicator
+            color='white'
+            size='small'
+            style={[styles.activityIndicator, this.props.activityIndicatorStyle]}
+            />
         </View>
-      </TouchableOpacity>
-    );
+      );
+    } catch (e) {
+      ErrorHandler.WriteError('LoadEarlier.js => renderLoading', e);
+    }
+  }
+
+  render() {
+    try {
+      return (
+        <TouchableOpacity
+          style={[styles.container, this.props.containerStyle]}
+          onPress={() => {
+            if (this.props.onLoadEarlier) {
+              this.props.onLoadEarlier();
+            }
+          } }
+          disabled={this.props.isLoadingEarlier === true}
+          >
+          <View style={[styles.wrapper, this.props.wrapperStyle]}>
+            {this.renderLoading()}
+          </View>
+        </TouchableOpacity>
+      );
+    } catch (e) {
+      ErrorHandler.WriteError('LoadEarlier.js => render', e);
+    }
   }
 }
 
@@ -80,7 +91,7 @@ const styles = StyleSheet.create({
 });
 
 LoadEarlier.defaultProps = {
-  onLoadEarlier: () => {},
+  onLoadEarlier: () => { },
   isLoadingEarlier: false,
   label: 'Load earlier messages',
   containerStyle: {},

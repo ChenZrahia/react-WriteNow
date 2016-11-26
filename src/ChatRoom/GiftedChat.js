@@ -490,8 +490,6 @@ openImageModal(image) {
 
 
 render() {
-
- 
   if (this.state.isInitialized === true) {
     return (
       <View style={styles.chatRoomMain}>
@@ -538,7 +536,6 @@ render() {
               transparent={true}
              >
               
-
          <TouchableOpacity style={{ flex: 1 }} onPress={() => {
                     this.setState({ showMenu: !this.state.showMenu})
                 } }>
@@ -585,9 +582,6 @@ render() {
                 </TouchableOpacity>
         </Modal>
        )}
-      
-              
-
           <View style={styles.button} />
         </View>
         <ActionSheet ref={component => this._actionSheetRef = component}>
