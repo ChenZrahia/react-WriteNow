@@ -7,60 +7,81 @@ import {
 import Composer from './Composer';
 import Send from './Send';
 
+var ErrorHandler = require('../../ErrorHandler');
+
 export default class InputToolbar extends React.Component {
   constructor(props) {
     super(props);
   }
 
   renderActions() {
-    if (this.props.renderActions) {
-      return this.props.renderActions(this.props);
+    try {
+      if (this.props.renderActions) {
+        return this.props.renderActions(this.props);
+      }
+      return null;
+    } catch (e) {
+      ErrorHandler.WriteError('InputToolbar.js => renderActions', e);
     }
-    return null;
   }
 
-
   renderSend() {
-    if (this.props.renderSend) {
-      return this.props.renderSend(this.props);
+    try {
+      if (this.props.renderSend) {
+        return this.props.renderSend(this.props);
+      }
+      return <Send {...this.props} />;
+    } catch (e) {
+      ErrorHandler.WriteError('InputToolbar.js => renderSend', e);
     }
-    return <Send {...this.props} />;
   }
 
   renderComposer() {
-    if (this.props.renderComposer) {
-      return this.props.renderComposer(this.props);
-    }
+    try {
+      if (this.props.renderComposer) {
+        return this.props.renderComposer(this.props);
+      }
 
-    return (
-      <Composer
-        {...this.props}
-        />
-    );
+      return (
+        <Composer
+          {...this.props}
+          />
+      );
+    } catch (e) {
+      ErrorHandler.WriteError('InputToolbar.js => renderComposer', e);
+    }
   }
 
   renderAccessory() {
-    if (this.props.renderAccessory) {
-      return (
-        <View style={[styles.accessory, this.props.accessoryStyle]}>
-          {this.props.renderAccessory(this.props)}
-        </View>
-      );
+    try {
+      if (this.props.renderAccessory) {
+        return (
+          <View style={[styles.accessory, this.props.accessoryStyle]}>
+            {this.props.renderAccessory(this.props)}
+          </View>
+        );
+      }
+      return null;
+    } catch (e) {
+      ErrorHandler.WriteError('InputToolbar.js => renderAccessory', e);
     }
-    return null;
   }
 
   render() {
-    return (
-      <View style={[styles.container, this.props.containerStyle]}>
-        <View style={[styles.primary, this.props.primaryStyle]}>
-          {this.renderActions()}
-          {this.renderComposer()}
-          {this.renderSend()}
+    try {
+      return (
+        <View style={[styles.container, this.props.containerStyle]}>
+          <View style={[styles.primary, this.props.primaryStyle]}>
+            {this.renderActions()}
+            {this.renderComposer()}
+            {this.renderSend()}
+          </View>
+          {this.renderAccessory()}
         </View>
-        {this.renderAccessory()}
-      </View>
-    );
+      );
+    } catch (e) {
+      ErrorHandler.WriteError('InputToolbar.js => render', e);
+    }
   }
 }
 

@@ -9,12 +9,13 @@ import Signature from './ChatRoom/Signature/Signature'
 import { Actions, Scene, Router } from 'react-native-router-flux';
 
 var serverSrv = require('../Services/serverSrv');
+var ErrorHandler = require('../ErrorHandler');
 
 //unmountScenes
 const scenes = Actions.create(
     <Scene key="root" hideNavBar={true}>
         <Scene key="SignUp" component={SignUp} title="SignUp" duration="0" />
-        <Scene key="Tabs" component={Tabs} title="Tabs" initial={true} duration="0"/>
+        <Scene key="Tabs" component={Tabs} title="Tabs" initial={true} duration="0" />
         <Scene key="ChatRoom" component={ChatRoom} title="ChatRoom" />
         <Scene key="Signature" component={Signature} title="Signature" />
     </Scene>

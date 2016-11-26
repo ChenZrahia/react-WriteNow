@@ -16,18 +16,28 @@ import emoji from 'emoji-datasource';
 import ActionSheet from '@exponent/react-native-action-sheet';
 import dismissKeyboard from 'react-native-dismiss-keyboard';
 
+var ErrorHandler = require('../../ErrorHandler');
+
 // const EmojiPicker = require('react-native-emoji-picker');
 // const { EmojiOverlay } = require('react-native-emoji-picker');
 export default class Composer extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      showPicker: false,
-    };
+    try {
+      this.state = {
+        showPicker: false,
+      };
+    } catch (e) {
+      ErrorHandler.WriteError('Composer.js => constructor', e);
+    }
   }
   _emojiSelected(emoji) {
-    this.setState({ showPicker: false });
-    this.props.changeText(emoji);
+    try {
+      this.setState({ showPicker: false });
+      this.props.changeText(emoji);
+    } catch (e) {
+      ErrorHandler.WriteError('Composer.js => _emojiSelected', e);
+    }
   }
   // <Modal 
   //       transparent={false}
@@ -36,57 +46,58 @@ export default class Composer extends React.Component {
   //    </Modal>
 
   render() {
-    if (this.state.showPicker === true) {
-      return (
-        <View style={styles.cont} >
-          <Modal
-            style={{ backgroundColor: 'red' }}
-            transparent={false}
-            onRequestClose={() => { console.log('modal closed') } }
-            >
-            <View style={styles.viewEmoji}>
-              <View style={styles.container}>
-                <EmojiPicker
-                  onPick={emoji => { this._emojiSelected(emoji) } } />
+    try {
+      if (this.state.showPicker === true) {
+        return (
+          <View style={styles.cont} >
+            <Modal
+              style={{ backgroundColor: 'red' }}
+              transparent={false}
+              onRequestClose={() => { console.log('modal closed') } }
+              >
+              <View style={styles.viewEmoji}>
+                <View style={styles.container}>
+                  <EmojiPicker
+                    onPick={emoji => { this._emojiSelected(emoji) } } />
+                </View>
               </View>
-            </View>
-          </Modal>
-        </View>
-      )
-    }
-
-    return (
-      <View style={styles.row}>
-        <TouchableOpacity onPress={() => this.setState({
-          showPicker: true
-        })}>
-          <View>
-            <Icon name='md-happy' style={styles.icon} />
+            </Modal>
           </View>
-        </TouchableOpacity>
-        <TextInput
-          placeholder={this.props.placeholder}
-          placeholderTextColor={this.props.placeholderTextColor}
-          multiline={this.props.multiline}
-          onChange={(e) => {
-            this.props.onChange(e);
-          }
-          }
-          style={[styles.textInput, this.props.textInputStyle, {
-            height: this.props.composerHeight,
-          }]}
-          value={this.props.text}
-          enablesReturnKeyAutomatically={true}
-          underlineColorAndroid="transparent"
-          {...this.props.textInputProps}
-          />
-      </View>
-    )
+        );
+      }
+
+      return (
+        <View style={styles.row}>
+          <TouchableOpacity onPress={() => this.setState({
+            showPicker: true
+          })}>
+            <View>
+              <Icon name='md-happy' style={styles.icon} />
+            </View>
+          </TouchableOpacity>
+          <TextInput
+            placeholder={this.props.placeholder}
+            placeholderTextColor={this.props.placeholderTextColor}
+            multiline={this.props.multiline}
+            onChange={(e) => {
+              this.props.onChange(e);
+            }
+            }
+            style={[styles.textInput, this.props.textInputStyle, {
+              height: this.props.composerHeight,
+            }]}
+            value={this.props.text}
+            enablesReturnKeyAutomatically={true}
+            underlineColorAndroid="transparent"
+            {...this.props.textInputProps}
+            />
+        </View>
+      );
+    } catch (e) {
+      ErrorHandler.WriteError('Composer.js => render', e);
+    }
   }
 }
-
-
-
 
 // onChangeText = {(title) => {this.setState({text: title})}}
 

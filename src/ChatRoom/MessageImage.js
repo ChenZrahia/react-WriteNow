@@ -4,17 +4,24 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+
 var generalStyles = require('../../styles/generalStyle');
+var ErrorHandler = require('../../ErrorHandler');
+
 export default class MessageImage extends React.Component {
   render() {
-    return (
-      <View style={[styles.container, this.props.containerStyle]}>
-        <Image
-          style={[styles.image, this.props.imageStyle]}
-          source={{ uri: this.props.currentMessage.image }}
-          />
-      </View>
-    );
+    try {
+      return (
+        <View style={[styles.container, this.props.containerStyle]}>
+          <Image
+            style={[styles.image, this.props.imageStyle]}
+            source={{ uri: this.props.currentMessage.image }}
+            />
+        </View>
+      );
+    } catch (e) {
+      ErrorHandler.WriteError('MessageImage.js => render', e);
+    }
   }
 }
 

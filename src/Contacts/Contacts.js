@@ -26,19 +26,23 @@ var ErrorHandler = require('../../ErrorHandler');
 export default class Contacts extends Component {
     constructor() {
         super();
-        dismissKeyboard();
-        this.isGetMyContacts = false;
-        this.isGetMyFriends = false;
-        this.phnesNumbers = [];
-        this.myFriends = [];
-        this.myContacts = [];
-        this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-        this.state = {
-            dataSource: this.ds,
-            imageVisible: false,
-            filter: ''
-        };
-        this.UpdateMyFriends = this.UpdateMyFriends.bind(this);
+        try {
+            dismissKeyboard();
+            this.isGetMyContacts = false;
+            this.isGetMyFriends = false;
+            this.phnesNumbers = [];
+            this.myFriends = [];
+            this.myContacts = [];
+            this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+            this.state = {
+                dataSource: this.ds,
+                imageVisible: false,
+                filter: ''
+            };
+            this.UpdateMyFriends = this.UpdateMyFriends.bind(this);
+        } catch (e) {
+            ErrorHandler.WriteError("Contacts.js => constructor", e);
+        }
     }
 
     componentDidMount() {
@@ -49,20 +53,21 @@ export default class Contacts extends Component {
                 Event.on('UpdateMyFriends', this.UpdateMyFriends);
                 this.reloadFriendFromDB();
             }, 0);
-        } catch (error) {
-            ErrorHandler.WriteError("Contacts.js => componentDidMount", error);
+        } catch (e) {
+            ErrorHandler.WriteError("Contacts.js => componentDidMount", e);
         }
     }
 
-    reloadFriendFromDB(isUpdate){
-        console.log('reloadFriendFromDB: ' + isUpdate);
-        serverSrv.GetAllMyFriends(this.UpdateMyFriends, isUpdate);
+    reloadFriendFromDB(isUpdate) {
+        try {
+            serverSrv.GetAllMyFriends(this.UpdateMyFriends, isUpdate);
+        } catch (e) {
+            ErrorHandler.WriteError("Contacts.js => reloadFriendFromDB", e);
+        }
     }
 
     UpdateMyFriends(result) {
         try {
-            console.log('UpdateMyFriends');
-            console.log(result);
             if (!result) {
                 result = [];
             }
@@ -72,19 +77,27 @@ export default class Contacts extends Component {
                 })
             }, 20);
             this.myFriends = result;
-        } catch (error) {
-            ErrorHandler.WriteError("Contacts.js => UpdateMyFriends", error);
+        } catch (e) {
+            ErrorHandler.WriteError("Contacts.js => UpdateMyFriends", e);
         }
     }
 
     setImageVisible(visible) {
-        this.setState({ imageVisible: visible });
+        try {
+            this.setState({ imageVisible: visible });
+        } catch (e) {
+            ErrorHandler.WriteError("Contacts.js => setImageVisible", e);
+        }
     }
 
     onFilterChange(event) {
-        this.setState({
-            filter: event.nativeEvent.text
-        });
+        try {
+            this.setState({
+                filter: event.nativeEvent.text
+            });
+        } catch (e) {
+            ErrorHandler.WriteError("Contacts.js => onFilterChange", e);
+        }
     }
 
     getDataSource() {
@@ -103,87 +116,99 @@ export default class Contacts extends Component {
                 return this.state.dataSource.cloneWithRows(filteredContacts);
             }
             return this.state.dataSource;
-        } catch (error) {
-            ErrorHandler.WriteError("Contacts.js => getDataSource", error);
+        } catch (e) {
+            ErrorHandler.WriteError("Contacts.js => getDataSource", e);
         }
     }
 
     render() {
-        return (
-            <View style={{ flex: 1, alignSelf: 'stretch' }}>
-                <Kohana
-                    style={styles.searchBar}
-                    label={'Search'}
-                    iconClass={MaterialsIcon}
-                    iconName={'search'}
-                    iconColor={'#f50057'}
-                    labelStyle={{ color: '#f50057', justifyContent: 'center', alignSelf: 'stretch' }}
-                    inputStyle={{ color: '#f50057', alignSelf: 'stretch' }}
-                    value={this.state.filter}
-                    onChange={this.onFilterChange.bind(this)}
-                    />
-                <SGListView style={{ paddingTop: 5, flex: 1 }}
-                    enableEmptySections={true}
-                    dataSource={this.getDataSource()}
-                    initialListSize={1}
-                    stickyHeaderIndices={[]}
-                    onEndReachedThreshold={1}
-                    scrollRenderAheadDistance={20}
-                    pageSize={20}
-                    renderRow={this.renderRow()}
-                    />
-                {this.openImageModal(this.imgSelected)}
-            </View>
-        );
+        try {
+            return (
+                <View style={{ flex: 1, alignSelf: 'stretch' }}>
+                    <Kohana
+                        style={styles.searchBar}
+                        label={'Search'}
+                        iconClass={MaterialsIcon}
+                        iconName={'search'}
+                        iconColor={'#f50057'}
+                        labelStyle={{ color: '#f50057', justifyContent: 'center', alignSelf: 'stretch' }}
+                        inputStyle={{ color: '#f50057', alignSelf: 'stretch' }}
+                        value={this.state.filter}
+                        onChange={this.onFilterChange.bind(this)}
+                        />
+                    <SGListView style={{ paddingTop: 5, flex: 1 }}
+                        enableEmptySections={true}
+                        dataSource={this.getDataSource()}
+                        initialListSize={1}
+                        stickyHeaderIndices={[]}
+                        onEndReachedThreshold={1}
+                        scrollRenderAheadDistance={20}
+                        pageSize={20}
+                        renderRow={this.renderRow()}
+                        />
+                    {this.openImageModal(this.imgSelected)}
+                </View>
+            );
+        } catch (e) {
+            ErrorHandler.WriteError("Contacts.js => render", e);
+        }
     }
 
     renderRow() {
-        return (
-            (rowData) =>
-                <View>
-                    <TouchableOpacity onPress={() => {
-                        rowData.isContact = true;
-                        Actions.ChatRoom(rowData);
-                    } }>
-                        <View style={generalStyle.styles.row}>
-                            <TouchableOpacity onPress={() => {
-                                this.imgSelected = rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')
-                                this.setImageVisible(true);
-                            } }>
-                                <View style={generalStyle.styles.viewImg}>
-                                    <Image style={generalStyle.styles.thumb} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
+        try {
+            return (
+                (rowData) =>
+                    <View>
+                        <TouchableOpacity onPress={() => {
+                            rowData.isContact = true;
+                            Actions.ChatRoom(rowData);
+                        } }>
+                            <View style={generalStyle.styles.row}>
+                                <TouchableOpacity onPress={() => {
+                                    this.imgSelected = rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')
+                                    this.setImageVisible(true);
+                                } }>
+                                    <View style={generalStyle.styles.viewImg}>
+                                        <Image style={generalStyle.styles.thumb} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
+                                    </View>
+                                </TouchableOpacity>
+                                <View style={{ flexDirection: 'column' }}>
+                                    <Text style={generalStyle.styles.textName}>
+                                        {rowData.publicInfo.fullName}
+                                    </Text>
+                                    <Text style={generalStyle.styles.textStatus}>
+                                        {rowData.phoneNumber}
+                                    </Text>
                                 </View>
-                            </TouchableOpacity>
-                            <View style={{ flexDirection: 'column' }}>
-                                <Text style={generalStyle.styles.textName}>
-                                    {rowData.publicInfo.fullName}
-                                </Text>
-                                <Text style={generalStyle.styles.textStatus}>
-                                    {rowData.phoneNumber}
-                                </Text>
                             </View>
-                        </View>
-                    </TouchableOpacity>
-                </View>
-        );
+                        </TouchableOpacity>
+                    </View>
+            );
+        } catch (e) {
+            ErrorHandler.WriteError("Contacts.js => renderRow", e);
+        }
     }
 
     openImageModal(image) {
-        return (
-            <Modal
-                transparent={true}
-                visible={this.state.imageVisible}
-                onRequestClose={() => { console.log('image closed') } }
-                >
-                <TouchableOpacity style={{ flex: 1 }} onPress={() => {
-                    this.setImageVisible(!this.state.imageVisible)
-                } }>
-                    <View style={generalStyle.styles.imageModal}>
-                        <Image style={generalStyle.styles.imageInsideModal} source={image} />
-                    </View>
-                </TouchableOpacity>
-            </Modal>
-        );
+        try {
+            return (
+                <Modal
+                    transparent={true}
+                    visible={this.state.imageVisible}
+                    onRequestClose={() => { console.log('image closed') } }
+                    >
+                    <TouchableOpacity style={{ flex: 1 }} onPress={() => {
+                        this.setImageVisible(!this.state.imageVisible)
+                    } }>
+                        <View style={generalStyle.styles.imageModal}>
+                            <Image style={generalStyle.styles.imageInsideModal} source={image} />
+                        </View>
+                    </TouchableOpacity>
+                </Modal>
+            );
+        } catch (e) {
+            ErrorHandler.WriteError("Contacts.js => openImageModal", e);
+        }
     }
 }
 
