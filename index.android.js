@@ -96,18 +96,13 @@ import FCM from 'react-native-fcm';
 
 
 export default class WriteNow extends Component {
-
     constructor() {
         super();
     }
 
-    componentWillUnmount() {
-        //serverSrv.login();
-        // prevent leaking
-        this.refreshUnsubscribe();
-        this.notificationUnsubscribe();
+    componentWillMount() {
+        serverSrv.login();
     }
-
 
     loadContacts() {
         serverSrv.getAllPhoneNumbers((phnesNumbers) => {

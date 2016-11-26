@@ -31,11 +31,13 @@ var Platform = require('react-native').Platform;
 
 export default class ChatRoom extends Component {
     constructor(props) {
-        super(props);
+        super(props);        
         dismissKeyboard();
         try {
             this._messageId = null;
-            this.state = { messages: [] };
+            this.state = { messages: [],
+                imageVisible: false,
+                text: '' };
             this.onSend = this.onSend.bind(this);
             this.onType = this.onType.bind(this);
             this.guid = this.guid.bind(this);
@@ -71,8 +73,8 @@ export default class ChatRoom extends Component {
 
     LoadNewChat(convId){
         try {
-        this.setState({messages: []});
-        var callback = (data, convId) => {
+            this.setState({messages: []});
+            var callback = (data, convId) => {
                 if (!data) {
                     data = [];
                 }
@@ -97,10 +99,10 @@ export default class ChatRoom extends Component {
             } else {
                 serverSrv.GetConv(callback, this.props.id);
             }
-            } catch (error) {
+        } catch (error) {
             ErrorHandler.WriteError('ChatRoom.js => LoadNewChat', error);
         }
-        }
+    }
 
     guid() {
         try {
@@ -196,16 +198,20 @@ export default class ChatRoom extends Component {
                     onRequestClose={() => { console.log('image closed') } }
                     >
                     <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
-                        this.setImageVisible(!this.state.imageVisible)
+                        
                     } }>
-                        <View style={{ backgroundColor: 'black', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                        <View style={{ backgroundColor: 'rgba(0,0,0,0.7)', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                             <TouchableOpacity onPress={() => {
-                                this.sendImageMessage(image);
+                                this.sendImageMessage(image, this.state.text);
+                                this.setImageVisible(!this.state.imageVisible)
                             } }>
-                                <Image style={{ width: 300, height: 300, borderRadius: 10, borderWidth: 1 }} source={{ uri: image }} />
-                                <InputToolbar
-                                style={{ backgroundColor: 'white'}} 
-                                placeholder="test" />
+                                <Image style={{ width: 300, height: 300, borderRadius: 0, borderWidth: 1 }} source={{ uri: image }} />
+                                <TextInput
+                                    style={{height: 40, borderColor: 'gray', backgroundColor: 'white', borderWidth: 1}}
+                                    placeholder="Type a message..."
+                                    onChangeText={(text) => this.setState({text})}
+                                    value={this.state.text}
+                                />
                             </TouchableOpacity>
                         </View>
                     </TouchableOpacity>
@@ -216,7 +222,10 @@ export default class ChatRoom extends Component {
         }
     }
 
-    sendImageMessage(img) {
+    sendImageMessage(img, _text) {
+        console.log(_text);
+        console.log(_text);
+        console.log('text');
         try {
             this._messageId = this.guid();
             var msg = {
@@ -230,7 +239,7 @@ export default class ChatRoom extends Component {
                 from: serverSrv._uid,
                 user: serverSrv._myFriendsJson[serverSrv._uid],
                 createdAt: Date.now(),
-                text: 'חג שמח',
+                text: _text,
                 image: img
             };
             this.onFriendType(msg, true);
@@ -261,7 +270,11 @@ export default class ChatRoom extends Component {
             if (!msg.user) {
                 msg.user = serverSrv._myFriendsJson[msg.from];
             }
-            msg.text = msg.content;
+
+            if(!isImage){
+                msg.text = msg.content;
+            }
+
             if (!this.indexOnlineMessages[msg._id]) { //new message
                 this.indexOnlineMessages[msg._id] = msg;
                 this.onlineMessages.push(this.indexOnlineMessages[msg._id]);
