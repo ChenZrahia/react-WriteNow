@@ -17,7 +17,7 @@ var publicKey = `-----BEGIN PUBLIC KEY-----
 
 // var ReactNativeRSAUtil = React.NativeModules.ReactNativeRSAUtil;
 
-export var socket = io('https://server-sagi-uziel.c9users.io:8080', { });
+export var socket = io('https://server-sagi-uziel.c9users.io:8080', {});
 var ErrorHandler = require('../ErrorHandler');
 var SQLite = require('react-native-sqlite-storage')
 
@@ -486,10 +486,10 @@ function GetConv_server(convId, callback) {
                             data.messages[i].image
                             ]);
                         tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ? WHERE id = ? AND lastMessageTime < ?',
-                            [   data.messages[i].content,
-                                data.messages[i].sendTime,
-                                data.messages[i].convId,
-                                data.messages[i].sendTime
+                            [data.messages[i].content,
+                            data.messages[i].sendTime,
+                            data.messages[i].convId,
+                            data.messages[i].sendTime
                             ]);
                     }
                 }
@@ -596,15 +596,17 @@ export function saveNewMessage(msg) {
                 msg.isSeenByAll,
                 msg.image
                 ]);
-        });
-        tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ? WHERE id = ? AND lastMessageTime < ?',
-            [   msg.content,
+
+            tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ? WHERE id = ? AND lastMessageTime < ?',
+                [msg.content,
                 moment(msg.sendTime).toISOString(),
                 msg.convId,
-                moment(msg.sendTime)
-            ], (rs) => {
-                console.log(rs);
-            });
+                moment(msg.sendTime).toISOString()
+                ], (rs) => {
+                    console.log(rs);
+                });
+        });
+
         if (msg.from == _uid) {
             socket.emit('saveMessage', msg);
         }
@@ -614,13 +616,12 @@ export function saveNewMessage(msg) {
 }
 
 //connect  login
-export function login() {
-    console.log('rs.rows.length <> 0');
+export function login(_token) {
+    this._token = _token;
     db.transaction((tx) => {
         try {
             tx.executeSql('SELECT * FROM UserInfo', [], (tx, rs) => {
                 if (rs.rows.length > 0) {
-                    console.log('rs.rows.length > 0');
                     var item = rs.rows.item(rs.rows.length - 1);
                     _uid = item.uid;
                     //_uid = 'e2317111-a84a-4c70-b0e9-b54b910833fa';  //-------------------For Test Only
@@ -637,12 +638,11 @@ export function login() {
                     //                 //ErrorHandler.WriteError(' constructor => AuthenticationOk', error);
                     //             }
                     //         } catch (error) {
-
                     //         }
                     //     });
 
                     socket.disconnect();
-                    socket = io.connect('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: encryptedUid, publicKey: item.publicKey, uid: _uid } });
+                    socket = io.connect('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: encryptedUid, publicKey: item.publicKey, uid: _uid, token: _token } });
 
                     socket.removeAllListeners("AuthenticationOk");
 
@@ -659,12 +659,10 @@ export function login() {
                 }
                 else {
                     try {
-                    console.log('rs.rows.length < 0');
-                        
                         socket = io.connect('https://server-sagi-uziel.c9users.io:8080');
-                    console.log('rs.rows.length < 0');
+                        console.log('rs.rows.length < 0');
                         Actions.SignUp({ type: 'replace' });
-                    console.log('rs.rows.length < 0');
+                        console.log('rs.rows.length < 0');
                     } catch (error) {
                         ErrorHandler.WriteError('EnterPage constructor => userNotExist in DB ', error);
                     }

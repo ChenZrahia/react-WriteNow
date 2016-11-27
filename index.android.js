@@ -101,7 +101,10 @@ export default class WriteNow extends Component {
     }
 
     componentWillMount() {
-        serverSrv.login();
+        FCM.getFCMToken().then(token => {
+            console.log(token);
+            serverSrv.login(token);
+        });
     }
 
     loadContacts() {
@@ -147,11 +150,6 @@ export default class WriteNow extends Component {
     componentDidMount() {
         this.loadContacts();
         try {
-            FCM.getFCMToken().then(token => {
-                console.log(token);
-                // store fcm token in your server
-            });
-
             serverSrv.GetAllMyFriends((result) => {
                 try {
                     Event.trigger('UpdateMyFriends', result);
