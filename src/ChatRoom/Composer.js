@@ -39,11 +39,6 @@ export default class Composer extends React.Component {
       ErrorHandler.WriteError('Composer.js => _emojiSelected', e);
     }
   }
-  // <Modal 
-  //       transparent={false}
-  //       onRequestClose={() => {console.log('modal closed')}}
-  //      >
-  //    </Modal>
 
   render() {
     try {

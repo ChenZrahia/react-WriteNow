@@ -41,7 +41,6 @@ export default class SignUp extends Component {
         }
     }
 
-    // Add a Toast on screen.
     componentDidMount() {
     }
 

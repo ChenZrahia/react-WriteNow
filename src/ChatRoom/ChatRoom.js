@@ -73,15 +73,17 @@ export default class ChatRoom extends Component {
 
     LoadNewChat(convId){
         try {
-            this.setState({messages: []});
+            console.log(convId);
+            console.log(convId);
+            //this.setState({messages: []});
+            if (convId) {
+                this.convId = convId;
+            } else {
+                this.convId = this.props.id;
+            }
             var callback = (data, convId) => {
                 if (!data) {
                     data = [];
-                }
-                if (convId) {
-                    this.convId = convId;
-                } else {
-                    this.convId = this.props.id;
                 }
                 this.messages = data;
                 this.setState({
@@ -95,9 +97,9 @@ export default class ChatRoom extends Component {
                 this.convId = this.props.id;
             }
             if (this.props.isContact == true) {
-                serverSrv.GetConvByContact(callback, this.props.id, this.props.phoneNumber, this.props.publicInfo.fullName);
+                serverSrv.GetConvByContact(callback, this.convId, this.props.phoneNumber, this.props.publicInfo.fullName);
             } else {
-                serverSrv.GetConv(callback, this.props.id);
+                serverSrv.GetConv(callback, this.convId);
             }
         } catch (error) {
             ErrorHandler.WriteError('ChatRoom.js => LoadNewChat', error);
