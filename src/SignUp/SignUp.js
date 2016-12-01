@@ -6,6 +6,8 @@ import {
     TextInput,
     Image,
     View,
+    Modal,
+    NativeModules,
     TouchableOpacity,
 } from 'react-native';
 import { Actions } from 'react-native-router-flux'
@@ -13,6 +15,7 @@ import Toast from 'react-native-root-toast';
 import Fumi from '../../styles/Fumi';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import Spinner from 'react-native-loading-spinner-overlay';
+import ImageResizer from 'react-native-image-resizer';
 
 var Event = require('../../Services/Events');
 var Platform = require('react-native').Platform;
@@ -132,7 +135,16 @@ export default class SignUp extends Component {
                 } else {
                     const source = { uri: response.uri, isStatic: true };
                 }
-                profileImg = response.data;
+                //profileImg = response.data;
+
+                ImageResizer.createResizedImage(response.uri, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
+                    NativeModules.RNImageToBase64.getBase64String(resizedImageUri, (err, base64) => {
+                        profileImg = 'data:image/jpeg;base64,' + base64;
+                    })
+                }).catch((err) => {
+                    ErrorHandler.WriteError('SignUp.js => showImagePicker => createResizedImage', err);
+                });
+
                 this.setState({
                     avatarSource: source
                 });
@@ -142,15 +154,32 @@ export default class SignUp extends Component {
 
     logIn() {
         Actions.Tabs({ type: 'reset' });
-    }
+    }//this.state.SpinnerVisible
+    //style={{ flex:1, backgroundColor: 'rgba(0,0,0,1)', position: 'absolute' }}
+    // <View style={{ flex:1, backgroundColor: 'green', position: 'absolute' }}  visible={true}>
+     //                   <Spinner  visible={true} />
+     // <Spinner  visible={true} />
+      //              </View>
+        // <Modal
+        //             transparent={false}
+        //             visible={this.state.imageVisible}
+        //             onRequestClose={() => { console.log('image closed') } }
+        //             >
+        //             <View  style={{ flex:1, alignSelf: 'stretch', backgroundColor: 'blue', position: 'absolute' }}>
+        //             <Spinner  visible={true} />
+        //             </View>
+                      
+        //         </Modal>
 
     render() {
         try {
             return (
+              
+               
+              
                 <View style={styles.container}>
-                    <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,1)', position: 'absolute' }} visible={this.state.SpinnerVisible}>
-                        <Spinner visible={this.state.SpinnerVisible} />
-                    </View>
+                
+                 
                     <View style={{
                         flex: 1,
                         alignSelf: 'stretch',
@@ -217,6 +246,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        
     },
     Welcome: {
         fontSize: 24,

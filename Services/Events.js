@@ -16,11 +16,11 @@ export function on(_eventName, _func) {
     }
 }
 
-export function trigger(_eventName, _args) {
+export function trigger(_eventName, ..._args) {
     try {
         if (listeners[_eventName]) {
             for (var i = 0; i < listeners[_eventName].length; i++) {
-                listeners[_eventName][i].function(_args);
+                listeners[_eventName][i].function(..._args);
             }
         }
     } catch (error) {

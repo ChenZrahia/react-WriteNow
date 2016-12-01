@@ -31,6 +31,7 @@ var _isFirstTime_Chats = true;
 var _isFirstTime_Conv = true;
 var myChatsJson = {};
 var userIsConnected = false;
+var _ActiveConvId = '';
 export var _myFriends = null;
 export var _myFriendsJson = {};
 export var _myChats = null;
@@ -40,13 +41,21 @@ export var _myConvs = {};
 
 function printTable(tblName) {
     db.transaction((tx) => {
-        tx.executeSql('SELECT id FROM Friends WHERE id = ? or 1=1', ['ea68f053-3c9e-4e14-9784-d88dc562274c'], (tx, rs) => {
+        tx.executeSql('SELECT * FROM UserInfo', [], (tx, rs) => {
             console.log('---------------------------------------');
             for (var i = 0; i < rs.rows.length; i++) {
                 console.log(rs.rows.item(i));
             }
             console.log('---------------------------------------');
         }, errorDB);
+        tx.executeSql('SELECT * FROM Friends', [], (tx, rs) => {
+            console.log('---------------------------------------');
+            for (var i = 0; i < rs.rows.length; i++) {
+                console.log(rs.rows.item(i).id);
+            }
+            console.log('---------------------------------------');
+        }, errorDB);
+
     });
 }
 
@@ -55,16 +64,21 @@ setTimeout(function () {
 }, 500);
 
 export function DeleteDb() {
+    console.log('delete 1');
     db.transaction((tx) => {
-        // tx.executeSql('DELETE FROM UserInfo', [], null, errorDB); //------------------
-        // tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
-        // tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM UserInfo', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Participates', [], null, errorDB); //------------------
 
-        // tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
-        // tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
-        // tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
-        // tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
-        // tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
+        console.log('delete 2');
+
+        tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
 
         tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid)', [], null, errorDB);
         tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime)', [], null, errorDB); //להוציא לפונקציה נפרדת
@@ -96,16 +110,23 @@ export function GetAllMyFriends(callback, isUpdate) {
                 try {
                     var finalResult = [];
                     for (var i = 0; i < rs.rows.length; i++) {
-                        finalResult.push({
-                            id: rs.rows.item(i).id,
-                            phoneNumber: rs.rows.item(i).phoneNumber,
-                            ModifyDate: rs.rows.item(i).ModifyDate,
-                            ModifyPicDate: rs.rows.item(i).ModifyPicDate,
-                            publicInfo: {
-                                fullName: rs.rows.item(i).fullName,
-                                picture: rs.rows.item(i).picture
-                            }
-                        });
+                        if (rs.rows.item(i).id != this._uid) {
+                            finalResult.push({
+                                id: rs.rows.item(i).id,
+                                phoneNumber: rs.rows.item(i).phoneNumber,
+                                ModifyDate: rs.rows.item(i).ModifyDate,
+                                ModifyPicDate: rs.rows.item(i).ModifyPicDate,
+                                publicInfo: {
+                                    fullName: rs.rows.item(i).fullName,
+                                    picture: rs.rows.item(i).picture
+                                }
+                            });
+                            console.log(rs.rows.item(i).id, this._uid);
+                            console.log('rs.rows.item(i).id == this._uid');
+                            
+                        } else {
+                            console.log('rs.rows.item(i).id == _uid');
+                        }
                         _myFriendsJson[rs.rows.item(i).id] = {
                             id: rs.rows.item(i).id,
                             _id: rs.rows.item(i).id,
@@ -514,6 +535,7 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
                         socket.removeAllListeners("returnConv");
                         socket.on('returnConv', (result) => {
                             try {
+                                _ActiveConvId = result.id;
                                 var Fid = result.participates.filter((usr) => {
                                     return usr.id != result.manager;
                                 })[0].id;
@@ -538,7 +560,6 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
                                     });
                                     Event.trigger('UpdateChatsList');
                                 }
-
                                 GetConv(callback, result.id, true);
                             } catch (error) {
                                 ErrorHandler.WriteError('serverSrv.js => GetConvByContact => returnConv', error);
@@ -558,8 +579,22 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
     }
 }
 
+function UpdatePhoneNumberToId(phoneNumber, id){
+    try {
+         db.transaction((tx) => {
+            tx.executeSql('UPDATE Friends SET id = ? WHERE phoneNumber = ?', [id, phoneNumber], (tx, rs) => {});
+            tx.executeSql('UPDATE Participates SET uid = ? WHERE uid = ?', [id, phoneNumber], (tx, rs) => {});
+        });
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => UpdatePhoneNumberToId', error);
+    }
+}
+
 export function Typing(msg) {
     try {
+        if (_ActiveConvId) {
+            msg.convId = _ActiveConvId;
+        }
         msg.from = _uid;
         socket.emit('typing', msg);
     } catch (error) {
@@ -617,13 +652,16 @@ export function saveNewMessage(msg) {
 
 //connect  login
 export function login(_token) {
-    this._token = _token;
+    if (_token && _token.length > 50) {
+        this._token = _token;
+    } 
     db.transaction((tx) => {
         try {
             tx.executeSql('SELECT * FROM UserInfo', [], (tx, rs) => {
                 if (rs.rows.length > 0) {
                     var item = rs.rows.item(rs.rows.length - 1);
                     _uid = item.uid;
+                    this._uid = item.uid;
                     //_uid = 'e2317111-a84a-4c70-b0e9-b54b910833fa';  //-------------------For Test Only
                     //Actions.Tabs();
 
@@ -642,7 +680,7 @@ export function login(_token) {
                     //     });
 
                     socket.disconnect();
-                    socket = io.connect('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: encryptedUid, publicKey: item.publicKey, uid: _uid, token: _token } });
+                    socket = io.connect('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: encryptedUid, publicKey: item.publicKey, uid: _uid, token: this._token } });
 
                     socket.removeAllListeners("AuthenticationOk");
 
@@ -691,6 +729,7 @@ export function signUpFunc(newUser, callback) {
         // rsa.generate(bits, exponent);
         // var publicKey = rsa.getPublicString(); // return json encoded string
         // var privateKey = rsa.getPrivateString(); // return json encoded string
+        console.log(newUser);
         socket.emit('addNewUser', newUser, (user) => {
             // var rsa2 = new RSAKey();
             // rsa2.setPrivateString(privateKey);
@@ -698,6 +737,7 @@ export function signUpFunc(newUser, callback) {
             if (user.id) {
                 db.transaction(function (tx) {
                     this._uid = user.id;
+                    login();
                     tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?)', [user.id, '', '', '']);
                     tx.executeSql('INSERT INTO Friends VALUES (?,?,?,?,?,?,?)', [user.id, newUser.phoneNumber, newUser.ModifyDate, newUser.ModifyPicDate, newUser.publicInfo.fullName, newUser.publicInfo.picture]);
                 }, (error) => {

@@ -64,28 +64,41 @@ export default class ChatRoom extends Component {
 
     componentDidMount() {
         try {
-            this.LoadNewChat();
+            this.LoadNewChat(this.props.id, this.props.isContact, this.props.id, this.props.phoneNumber, this.props.fullName);
             Event.on('LoadNewChat', this.LoadNewChat);
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => componentDidMount', e);
         }
     }
 
-    LoadNewChat(convId){
+    LoadNewChat(convId, isContact, uid, phoneNumber, fullName){
+            console.log(convId, isContact, uid, phoneNumber, fullName);
+            console.log(convId, isContact, uid, phoneNumber, fullName);
+
         try {
-            console.log(convId);
-            console.log(convId);
-            //this.setState({messages: []});
-            if (convId) {
+            setTimeout(() => {
+                 if (this.props.publicInfo) {
+                    this.setState({groupName: this.props.publicInfo.fullName});
+                } else {
+                    this.setState({groupName: this.props.groupName});
+                }
+                if (this.props.publicInfo) {
+                    this.setState({groupPicture: this.props.publicInfo.picture});
+                } else {
+                    this.setState({groupPicture: this.props.groupPicture});
+                }
+            }, 100);
+           
+            if (convId && !isContact) {
                 this.convId = convId;
-            } else {
-                this.convId = this.props.id;
-            }
+            } 
+            
             var callback = (data, convId) => {
                 if (!data) {
                     data = [];
                 }
                 this.messages = data;
+                this.convId = convId;
                 this.setState({
                     messages: GiftedChat.append(this.messages, this.onlineMessages),
                 });
@@ -96,9 +109,13 @@ export default class ChatRoom extends Component {
             } else {
                 this.convId = this.props.id;
             }
-            if (this.props.isContact == true) {
-                serverSrv.GetConvByContact(callback, this.convId, this.props.phoneNumber, this.props.publicInfo.fullName);
+            if (isContact == true) {
+                setTimeout(() => {
+                    console.log('isContact == true');
+                    serverSrv.GetConvByContact(callback, uid, phoneNumber, this.props.publicInfo.fullName);
+                }, 100);
             } else {
+                    console.log('isContact == false');
                 serverSrv.GetConv(callback, this.convId);
             }
         } catch (error) {
@@ -225,9 +242,6 @@ export default class ChatRoom extends Component {
     }
 
     sendImageMessage(img, _text) {
-        console.log(_text);
-        console.log(_text);
-        console.log('text');
         try {
             this._messageId = this.guid();
             var msg = {
@@ -328,7 +342,7 @@ export default class ChatRoom extends Component {
                 this.onlineMessages = this.onlineMessages.filter((o_msg) => {
                     return o_msg.id != msg.id;
                 });
-                //this.onlineMessages.splice(this.onlineMessages.indexOf(msg), 1);
+                Event.trigger('newMessage', msg);
             }
             this.setState((previousState) => {
                 return {
@@ -346,6 +360,8 @@ export default class ChatRoom extends Component {
             if (this._messageId == null) {
                 this._messageId = this.guid();
             }
+            console.log(this.convId);
+            console.log('this.convId');
             var msg = {
                 mid: this._messageId,
                 id: this._messageId,
@@ -384,9 +400,8 @@ export default class ChatRoom extends Component {
         return (
             <View style={{ flex: 1, alignSelf: 'stretch' }} >
                 <GiftedChat
-
-                    userName={this.props.groupName}
-                    userPicture={this.props.groupPicture}
+                    userName={this.state.groupName}
+                    userPicture={this.state.groupPicture}
                     messages={this.state.messages}
                     onSend={this.onSend}
                     onType={this.onType}

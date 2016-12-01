@@ -36,7 +36,9 @@ export default class Chats extends Component {
                 filter: ''
             };
             this.UpdateChatsList = this.UpdateChatsList.bind(this);
+            this.newMessage = this.newMessage.bind(this);
             Event.on('UpdateChatsList', this.UpdateChatsList);
+            Event.on('newMessage', this.newMessage);
         } catch (e) {
             ErrorHandler.WriteError("Chats.js -> constructor", e);
         }
@@ -66,6 +68,17 @@ export default class Chats extends Component {
             });
         } catch (e) {
             ErrorHandler.WriteError("Chats.js -> UpdateChatsList", e);
+        }
+    }
+
+    newMessage (msg){
+        try {
+            var sorted = this.sortDates(this.state.dataSource._dataBlob.s1);
+            this.setState({
+                dataSource: this.ds.cloneWithRows(sorted)
+            });
+        } catch (error) {
+            ErrorHandler.WriteError("Chats.js -> newMessage", error);
         }
     }
 
@@ -157,8 +170,8 @@ export default class Chats extends Component {
 
     openChat(rowData) {
         try {
-            Event.trigger('LoadNewChat', rowData.id);
             Actions.ChatRoom(rowData);
+            Event.trigger('LoadNewChat', rowData.id, false);
         } catch (e) {
             ErrorHandler.WriteError('Chats.js => openChat', e);
         }
@@ -268,11 +281,13 @@ export default class Chats extends Component {
                             } }>
                                 <View style={generalStyle.styles.row}>
                                     <TouchableOpacity onPress={() => {
-                                        this.imgSelected = rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? require('../../img/user.jpg') : require('../../img/user.jpg'))
+                                        console.log(rowData);
+                                        console.log('rowData.groupPicture');
+                                        this.imgSelected = rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ?  rowData.isGroup : require('../../img/user.jpg'))
                                         this.setImageVisible(true);
                                     } }>
                                         <View style={generalStyle.styles.viewImg}>
-                                            <Image style={generalStyle.styles.thumb} source={rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? require('../../img/user.jpg') : require('../../img/user.jpg'))} />
+                                            <Image style={generalStyle.styles.thumb} source={rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? rowData.isGroup : require('../../img/user.jpg'))} />
                                         </View>
                                     </TouchableOpacity>
                                     <View style={{ flexDirection: 'column', flex: 1, marginRight: 7 }}>

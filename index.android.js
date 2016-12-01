@@ -102,8 +102,8 @@ export default class WriteNow extends Component {
 
     componentWillMount() {
         FCM.getFCMToken().then(token => {
-            console.log(token);
             serverSrv.login(token);
+            console.log(token);
         });
     }
 
@@ -164,7 +164,9 @@ export default class WriteNow extends Component {
 
     render() {
         return (
-            <View style={styles.container}>
+
+
+   <View style={styles.container}>
                 <StatusBar
                     backgroundColor="#820cf7"
                     animated={true}
@@ -172,9 +174,12 @@ export default class WriteNow extends Component {
                 <InitRout />
             </View>
 
+
         );
     }
 }
+
+         
 
 
 // <StatusBar barStyle="light-content" />
