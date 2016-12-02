@@ -535,7 +535,10 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
                         socket.removeAllListeners("returnConv");
                         socket.on('returnConv', (result) => {
                             try {
-                                _ActiveConvId = result.id;
+                                if (result.newUsr && uid == phoneNumber) {
+                                    UpdatePhoneNumberToId(result.newUsr[0].phoneNumber, result.newUsr[0].id);
+                                } 
+                                _ActiveConvId = result.id;                                
                                 var Fid = result.participates.filter((usr) => {
                                     return usr.id != result.manager;
                                 })[0].id;
@@ -581,6 +584,11 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
 
 function UpdatePhoneNumberToId(phoneNumber, id){
     try {
+        console.log(phoneNumber, id);
+        console.log(phoneNumber, id);
+        console.log(phoneNumber, id);
+        console.log('phoneNumber, id');
+        _myFriendsJson[id] = _myFriendsJson[phoneNumber];
          db.transaction((tx) => {
             tx.executeSql('UPDATE Friends SET id = ? WHERE phoneNumber = ?', [id, phoneNumber], (tx, rs) => {});
             tx.executeSql('UPDATE Participates SET uid = ? WHERE uid = ?', [id, phoneNumber], (tx, rs) => {});
