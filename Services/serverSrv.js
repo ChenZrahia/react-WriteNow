@@ -121,11 +121,6 @@ export function GetAllMyFriends(callback, isUpdate) {
                                     picture: rs.rows.item(i).picture
                                 }
                             });
-                            console.log(rs.rows.item(i).id, this._uid);
-                            console.log('rs.rows.item(i).id == this._uid');
-                            
-                        } else {
-                            console.log('rs.rows.item(i).id == _uid');
                         }
                         _myFriendsJson[rs.rows.item(i).id] = {
                             id: rs.rows.item(i).id,
@@ -146,7 +141,10 @@ export function GetAllMyFriends(callback, isUpdate) {
                         callback(finalResult);
                         if (_isFirstTime_Friends == true) {
                             _isFirstTime_Friends = false;
-                            GetAllMyFriends_Server(callback);
+                            setTimeout(() => {
+                                GetAllMyFriends_Server(callback);
+                            }, 100);
+                            
                         }
                     }
                 } catch (error) {
@@ -240,7 +238,6 @@ export function getAllPhoneNumbers(callback) {
     }
 }
 
-//-not in use?
 export function GetAllMyFriends_Server(callback) {
     try {
         var friends = [];
@@ -256,15 +253,22 @@ export function GetAllMyFriends_Server(callback) {
             phonesArray: phonesArray,
             friendUidArray: friendUidArray
         };
+        console.log('GetMyFriendsChanges');
+        console.log('GetMyFriendsChanges');
         socket.emit('GetMyFriendsChanges', usersToServer, ((data) => {
             db.transaction((tx) => {
                 try {
+        console.log('GetMyFriendsChanges');
+                    
+                            console.log('GetAllMyFriends_Server(callback);');
+                            console.log(data);
+                            console.log('GetAllMyFriends_Server(callback);');
                     for (var i = 0; i < data.length; i++) {
                         if (data[i].deletedUser == true && data[i].id) {
                             //tx.executeSql('DELETE FROM Friends WHERE id=?', [data[i].id]);
                         } else {
                             tx.executeSql('DELETE FROM Friends WHERE id = ?', [data[i].phoneNumber]);
-                            tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                            tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?)',
                                 [data[i].id,
                                 data[i].phoneNumber,
                                 data[i].ModifyDate,
@@ -415,7 +419,6 @@ export function GetConv(callback, convId, isUpdate) {
                             user: _myFriendsJson[rs.rows.item(i).msgFrom] ? _myFriendsJson[rs.rows.item(i).msgFrom] : { name: 'ERROR' } //myUser
                         };
                         if (chat.user.name == "ERROR") {
-                            console.log('_myFriendsJson[k].id');
                             console.log(rs.rows.item(i).msgFrom);
                             console.log('_myFriendsJson[k].id');
                         } else {
@@ -536,7 +539,10 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
                         socket.on('returnConv', (result) => {
                             try {
                                 if (result.newUsr && uid == phoneNumber) {
-                                    UpdatePhoneNumberToId(result.newUsr[0].phoneNumber, result.newUsr[0].id);
+                                    if(result.newUsr[0]){
+                                        result.newUsr = result.newUsr[0];
+                                    }
+                                    UpdatePhoneNumberToId(result.newUsr.phoneNumber, result.newUsr.id);
                                 } 
                                 _ActiveConvId = result.id;                                
                                 var Fid = result.participates.filter((usr) => {

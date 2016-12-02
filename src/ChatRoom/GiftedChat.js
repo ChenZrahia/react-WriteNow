@@ -50,10 +50,10 @@ const MIN_INPUT_TOOLBAR_HEIGHT = 44;
 export default class GiftedChat extends React.Component {
   constructor(props) {
     super(props);
-
-
-
-
+    Event.on('LoadNewChat', () => {
+      console.log('LoadNewChat - clear input chat!');
+      this.setState({ text: '' });
+    });
 
     // default values
     this._isMounted = false;

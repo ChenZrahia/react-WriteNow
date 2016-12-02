@@ -74,8 +74,15 @@ export default class ChatRoom extends Component {
     LoadNewChat(convId, isContact, uid, phoneNumber, fullName){
             console.log(convId, isContact, uid, phoneNumber, fullName);
             console.log(convId, isContact, uid, phoneNumber, fullName);
-
         try {
+            this.messages = [];
+            this.indexOnlineMessages = [];
+            this.onlineMessages = [];
+            this.convId = null;
+            this._messageId = this.guid();
+            this.setState({ messages: [],
+                imageVisible: false,
+                text: '' });
             setTimeout(() => {
                  if (this.props.publicInfo) {
                     this.setState({groupName: this.props.publicInfo.fullName});
@@ -98,6 +105,8 @@ export default class ChatRoom extends Component {
                     data = [];
                 }
                 this.messages = data;
+                console.log(convId);
+                console.log('---convId---');
                 this.convId = convId;
                 this.setState({
                     messages: GiftedChat.append(this.messages, this.onlineMessages),
