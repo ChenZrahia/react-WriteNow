@@ -101,7 +101,10 @@ export default class WriteNow extends Component {
     }
 
     componentWillMount() {
-        serverSrv.login();
+        FCM.getFCMToken().then(token => {
+            serverSrv.login(token);
+            console.log(token);
+        });
     }
 
     loadContacts() {
@@ -147,11 +150,6 @@ export default class WriteNow extends Component {
     componentDidMount() {
         this.loadContacts();
         try {
-            FCM.getFCMToken().then(token => {
-                console.log(token);
-                // store fcm token in your server
-            });
-
             serverSrv.GetAllMyFriends((result) => {
                 try {
                     Event.trigger('UpdateMyFriends', result);
@@ -166,7 +164,9 @@ export default class WriteNow extends Component {
 
     render() {
         return (
-            <View style={styles.container}>
+
+
+   <View style={styles.container}>
                 <StatusBar
                     backgroundColor="#820cf7"
                     animated={true}
@@ -174,9 +174,12 @@ export default class WriteNow extends Component {
                 <InitRout />
             </View>
 
+
         );
     }
 }
+
+         
 
 
 // <StatusBar barStyle="light-content" />

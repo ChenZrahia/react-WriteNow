@@ -17,7 +17,7 @@ var publicKey = `-----BEGIN PUBLIC KEY-----
 
 // var ReactNativeRSAUtil = React.NativeModules.ReactNativeRSAUtil;
 
-export var socket = io('https://server-sagi-uziel.c9users.io:8080', { });
+export var socket = io('https://server-sagi-uziel.c9users.io:8080', {});
 var ErrorHandler = require('../ErrorHandler');
 var SQLite = require('react-native-sqlite-storage')
 
@@ -31,6 +31,7 @@ var _isFirstTime_Chats = true;
 var _isFirstTime_Conv = true;
 var myChatsJson = {};
 var userIsConnected = false;
+var _ActiveConvId = '';
 export var _myFriends = null;
 export var _myFriendsJson = {};
 export var _myChats = null;
@@ -40,13 +41,21 @@ export var _myConvs = {};
 
 function printTable(tblName) {
     db.transaction((tx) => {
-        tx.executeSql('SELECT id FROM Friends WHERE id = ? or 1=1', ['ea68f053-3c9e-4e14-9784-d88dc562274c'], (tx, rs) => {
+        tx.executeSql('SELECT * FROM UserInfo', [], (tx, rs) => {
             console.log('---------------------------------------');
             for (var i = 0; i < rs.rows.length; i++) {
                 console.log(rs.rows.item(i));
             }
             console.log('---------------------------------------');
         }, errorDB);
+        tx.executeSql('SELECT * FROM Friends', [], (tx, rs) => {
+            console.log('---------------------------------------');
+            for (var i = 0; i < rs.rows.length; i++) {
+                console.log(rs.rows.item(i).id);
+            }
+            console.log('---------------------------------------');
+        }, errorDB);
+
     });
 }
 
@@ -55,16 +64,21 @@ setTimeout(function () {
 }, 500);
 
 export function DeleteDb() {
+    console.log('delete 1');
     db.transaction((tx) => {
-        // tx.executeSql('DELETE FROM UserInfo', [], null, errorDB); //------------------
-        // tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
-        // tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM UserInfo', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Participates', [], null, errorDB); //------------------
 
-        // tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
-        // tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
-        // tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
-        // tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
-        // tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
+        console.log('delete 2');
+
+        tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
 
         tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid)', [], null, errorDB);
         tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime)', [], null, errorDB); //להוציא לפונקציה נפרדת
@@ -96,16 +110,18 @@ export function GetAllMyFriends(callback, isUpdate) {
                 try {
                     var finalResult = [];
                     for (var i = 0; i < rs.rows.length; i++) {
-                        finalResult.push({
-                            id: rs.rows.item(i).id,
-                            phoneNumber: rs.rows.item(i).phoneNumber,
-                            ModifyDate: rs.rows.item(i).ModifyDate,
-                            ModifyPicDate: rs.rows.item(i).ModifyPicDate,
-                            publicInfo: {
-                                fullName: rs.rows.item(i).fullName,
-                                picture: rs.rows.item(i).picture
-                            }
-                        });
+                        if (rs.rows.item(i).id != this._uid) {
+                            finalResult.push({
+                                id: rs.rows.item(i).id,
+                                phoneNumber: rs.rows.item(i).phoneNumber,
+                                ModifyDate: rs.rows.item(i).ModifyDate,
+                                ModifyPicDate: rs.rows.item(i).ModifyPicDate,
+                                publicInfo: {
+                                    fullName: rs.rows.item(i).fullName,
+                                    picture: rs.rows.item(i).picture
+                                }
+                            });
+                        }
                         _myFriendsJson[rs.rows.item(i).id] = {
                             id: rs.rows.item(i).id,
                             _id: rs.rows.item(i).id,
@@ -125,7 +141,10 @@ export function GetAllMyFriends(callback, isUpdate) {
                         callback(finalResult);
                         if (_isFirstTime_Friends == true) {
                             _isFirstTime_Friends = false;
-                            GetAllMyFriends_Server(callback);
+                            setTimeout(() => {
+                                GetAllMyFriends_Server(callback);
+                            }, 100);
+                            
                         }
                     }
                 } catch (error) {
@@ -219,7 +238,6 @@ export function getAllPhoneNumbers(callback) {
     }
 }
 
-//-not in use?
 export function GetAllMyFriends_Server(callback) {
     try {
         var friends = [];
@@ -235,15 +253,22 @@ export function GetAllMyFriends_Server(callback) {
             phonesArray: phonesArray,
             friendUidArray: friendUidArray
         };
+        console.log('GetMyFriendsChanges');
+        console.log('GetMyFriendsChanges');
         socket.emit('GetMyFriendsChanges', usersToServer, ((data) => {
             db.transaction((tx) => {
                 try {
+        console.log('GetMyFriendsChanges');
+                    
+                            console.log('GetAllMyFriends_Server(callback);');
+                            console.log(data);
+                            console.log('GetAllMyFriends_Server(callback);');
                     for (var i = 0; i < data.length; i++) {
                         if (data[i].deletedUser == true && data[i].id) {
                             //tx.executeSql('DELETE FROM Friends WHERE id=?', [data[i].id]);
                         } else {
                             tx.executeSql('DELETE FROM Friends WHERE id = ?', [data[i].phoneNumber]);
-                            tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                            tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?)',
                                 [data[i].id,
                                 data[i].phoneNumber,
                                 data[i].ModifyDate,
@@ -394,7 +419,6 @@ export function GetConv(callback, convId, isUpdate) {
                             user: _myFriendsJson[rs.rows.item(i).msgFrom] ? _myFriendsJson[rs.rows.item(i).msgFrom] : { name: 'ERROR' } //myUser
                         };
                         if (chat.user.name == "ERROR") {
-                            console.log('_myFriendsJson[k].id');
                             console.log(rs.rows.item(i).msgFrom);
                             console.log('_myFriendsJson[k].id');
                         } else {
@@ -486,10 +510,10 @@ function GetConv_server(convId, callback) {
                             data.messages[i].image
                             ]);
                         tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ? WHERE id = ? AND lastMessageTime < ?',
-                            [   data.messages[i].content,
-                                data.messages[i].sendTime,
-                                data.messages[i].convId,
-                                data.messages[i].sendTime
+                            [data.messages[i].content,
+                            data.messages[i].sendTime,
+                            data.messages[i].convId,
+                            data.messages[i].sendTime
                             ]);
                     }
                 }
@@ -514,7 +538,19 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
                         socket.removeAllListeners("returnConv");
                         socket.on('returnConv', (result) => {
                             try {
+                                if (result.newUsr && uid == phoneNumber) {
+                                    if(result.newUsr[0]){
+                                        result.newUsr = result.newUsr[0];
+                                    }
+                                    UpdatePhoneNumberToId(result.newUsr.phoneNumber, result.newUsr.id);
+                                } 
+                                _ActiveConvId = result.id;       
+                                console.log(result);                         
+                                console.log('result');                         
+                                console.log(result.participates);                         
                                 var Fid = result.participates.filter((usr) => {
+                                    console.log('++++++++++');
+                                    console.log(usr , result.manager);
                                     return usr.id != result.manager;
                                 })[0].id;
                                 if (!_myFriendsJson[Fid] && _myFriendsJson[phoneNumber]) {
@@ -522,11 +558,26 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
                                 }
                                 _myFriendsJson[Fid].id = Fid;
                                 _myFriendsJson[Fid]._id = Fid;
+                                        console.log('----1----');
+                                        console.log(Fid);
                                 if (_myChats.filter((chat) => { return chat.id == result.id; }).length == 0) { //if the chat not axist
+                                        console.log('----2----');
                                     db.transaction((tx2) => {
+                                        console.log('----3----');
+                                        console.log(result.id.toString(), false, result.manager, _myFriendsJson[Fid].publicInfo.fullName, _myFriendsJson[Fid].publicInfo.picture);
+                                        console.log(result.id.toString(), Fid);
                                         tx2.executeSql('INSERT OR REPLACE into Conversation values(?,?,?,?,?,?,?,?)', [result.id.toString(), false, result.manager, _myFriendsJson[Fid].publicInfo.fullName, _myFriendsJson[Fid].publicInfo.picture, false]);
                                         tx2.executeSql('INSERT OR REPLACE into Participates values(?,?,?)', [result.id.toString(), Fid.toString(), false]);
                                         tx2.executeSql('UPDATE Friends set id = ? WHERE phoneNumber = ?', [Fid.toString(), phoneNumber.toString()]);
+                                        console.log('----NewChat----');
+                                        Event.trigger('NewChat', {
+                                            convId: result.id,
+                                            isEncrypted: false,
+                                            manager: result.manager,
+                                            groupName: _myFriendsJson[Fid].publicInfo.fullName,
+                                            groupPicture: _myFriendsJson[Fid].publicInfo.picture,
+                                            isGroup: false
+                                        });
                                     });
                                     _myChats.push({
                                         id: result.id,
@@ -538,7 +589,6 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
                                     });
                                     Event.trigger('UpdateChatsList');
                                 }
-
                                 GetConv(callback, result.id, true);
                             } catch (error) {
                                 ErrorHandler.WriteError('serverSrv.js => GetConvByContact => returnConv', error);
@@ -558,8 +608,27 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
     }
 }
 
+function UpdatePhoneNumberToId(phoneNumber, id){
+    try {
+        console.log(phoneNumber, id);
+        console.log(phoneNumber, id);
+        console.log(phoneNumber, id);
+        console.log('phoneNumber, id');
+        _myFriendsJson[id] = _myFriendsJson[phoneNumber];
+         db.transaction((tx) => {
+            tx.executeSql('UPDATE Friends SET id = ? WHERE phoneNumber = ?', [id, phoneNumber], (tx, rs) => {});
+            tx.executeSql('UPDATE Participates SET uid = ? WHERE uid = ?', [id, phoneNumber], (tx, rs) => {});
+        });
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => UpdatePhoneNumberToId', error);
+    }
+}
+
 export function Typing(msg) {
     try {
+        if (_ActiveConvId) {
+            msg.convId = _ActiveConvId;
+        }
         msg.from = _uid;
         socket.emit('typing', msg);
     } catch (error) {
@@ -596,15 +665,17 @@ export function saveNewMessage(msg) {
                 msg.isSeenByAll,
                 msg.image
                 ]);
-        });
-        tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ? WHERE id = ? AND lastMessageTime < ?',
-            [   msg.content,
+
+            tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ? WHERE id = ? AND lastMessageTime < ?',
+                [msg.content,
                 moment(msg.sendTime).toISOString(),
                 msg.convId,
-                moment(msg.sendTime)
-            ], (rs) => {
-                console.log(rs);
-            });
+                moment(msg.sendTime).toISOString()
+                ], (rs) => {
+                    console.log(rs);
+                });
+        });
+
         if (msg.from == _uid) {
             socket.emit('saveMessage', msg);
         }
@@ -614,15 +685,17 @@ export function saveNewMessage(msg) {
 }
 
 //connect  login
-export function login() {
-    console.log('rs.rows.length <> 0');
+export function login(_token) {
+    if (_token && _token.length > 50) {
+        this._token = _token;
+    } 
     db.transaction((tx) => {
         try {
             tx.executeSql('SELECT * FROM UserInfo', [], (tx, rs) => {
                 if (rs.rows.length > 0) {
-                    console.log('rs.rows.length > 0');
                     var item = rs.rows.item(rs.rows.length - 1);
                     _uid = item.uid;
+                    this._uid = item.uid;
                     //_uid = 'e2317111-a84a-4c70-b0e9-b54b910833fa';  //-------------------For Test Only
                     //Actions.Tabs();
 
@@ -637,12 +710,11 @@ export function login() {
                     //                 //ErrorHandler.WriteError(' constructor => AuthenticationOk', error);
                     //             }
                     //         } catch (error) {
-
                     //         }
                     //     });
 
                     socket.disconnect();
-                    socket = io.connect('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: encryptedUid, publicKey: item.publicKey, uid: _uid } });
+                    socket = io.connect('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: encryptedUid, publicKey: item.publicKey, uid: _uid, token: this._token } });
 
                     socket.removeAllListeners("AuthenticationOk");
 
@@ -659,12 +731,10 @@ export function login() {
                 }
                 else {
                     try {
-                    console.log('rs.rows.length < 0');
-                        
                         socket = io.connect('https://server-sagi-uziel.c9users.io:8080');
-                    console.log('rs.rows.length < 0');
+                        console.log('rs.rows.length < 0');
                         Actions.SignUp({ type: 'replace' });
-                    console.log('rs.rows.length < 0');
+                        console.log('rs.rows.length < 0');
                     } catch (error) {
                         ErrorHandler.WriteError('EnterPage constructor => userNotExist in DB ', error);
                     }
@@ -693,6 +763,7 @@ export function signUpFunc(newUser, callback) {
         // rsa.generate(bits, exponent);
         // var publicKey = rsa.getPublicString(); // return json encoded string
         // var privateKey = rsa.getPrivateString(); // return json encoded string
+        console.log(newUser);
         socket.emit('addNewUser', newUser, (user) => {
             // var rsa2 = new RSAKey();
             // rsa2.setPrivateString(privateKey);
@@ -700,6 +771,7 @@ export function signUpFunc(newUser, callback) {
             if (user.id) {
                 db.transaction(function (tx) {
                     this._uid = user.id;
+                    login();
                     tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?)', [user.id, '', '', '']);
                     tx.executeSql('INSERT INTO Friends VALUES (?,?,?,?,?,?,?)', [user.id, newUser.phoneNumber, newUser.ModifyDate, newUser.ModifyPicDate, newUser.publicInfo.fullName, newUser.publicInfo.picture]);
                 }, (error) => {

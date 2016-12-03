@@ -25,10 +25,11 @@ project(':react-native-vector-icons').projectDir = new File(rootProject.projectD
 include ':react-native-contacts'
 project(':react-native-contacts').projectDir = new File(settingsDir, '../node_modules/react-native-contacts/android')
 
-include ':react-native-openpgp'
-project(':react-native-openpgp').projectDir = new File(settingsDir, '../node_modules/react-native-openpgp/android/app')
+// include ':react-native-openpgp'
+// project(':react-native-openpgp').projectDir = new File(settingsDir, '../node_modules/react-native-openpgp/android/app')
 
 include ':react-native-fcm'
 project(':react-native-fcm').projectDir = new File(settingsDir, '../node_modules/react-native-fcm/android')
 
-
+// include ':react-native-blur'
+// project(':react-native-blur').projectDir = new File(settingsDir, '../node_modules/react-native-blur/android')
