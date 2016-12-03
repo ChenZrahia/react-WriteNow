@@ -205,9 +205,9 @@ export default class ChatRoom extends Component {
                     } }>
                         <View style={{ backgroundColor: 'rgba(0,0,0,0.7)', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                             <Image style={{ width: 300, height: 300, borderRadius: 0, borderWidth: 1 }} source={{ uri: image }} />
-                            <View style={{ flexDirection: 'row' }}>
+                            <View style={{ width: 300, flexDirection: 'row', backgroundColor: 'white', borderColor: 'gray', borderWidth: 1 }}>
                                 <TextInput
-                                    style={{ height: 40, borderColor: 'gray', backgroundColor: 'white', borderWidth: 1 }}
+                                    style={{ flex: 1, height: 40, backgroundColor: 'white' }}
                                     placeholder="Type a message..."
                                     onChangeText={(text) => this.setState({ text })}
                                     value={this.state.text}
@@ -216,7 +216,7 @@ export default class ChatRoom extends Component {
                                     this.sendImageMessage(image, this.state.text);
                                     this.setImageVisible(!this.state.imageVisible);
                                 } }>
-                                    <Icon name="ion-android-send" size={30} color="#4F8EF7" style={{ alignItems: 'flex-end'}}/>
+                                    <Icon name="md-send" size={30} style={{ height: 40, padding: 5 }}/>
                                 </TouchableOpacity>
                             </View>
                         </View>
