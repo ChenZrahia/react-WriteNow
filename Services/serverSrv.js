@@ -544,8 +544,13 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
                                     }
                                     UpdatePhoneNumberToId(result.newUsr.phoneNumber, result.newUsr.id);
                                 } 
-                                _ActiveConvId = result.id;                                
+                                _ActiveConvId = result.id;       
+                                console.log(result);                         
+                                console.log('result');                         
+                                console.log(result.participates);                         
                                 var Fid = result.participates.filter((usr) => {
+                                    console.log('++++++++++');
+                                    console.log(usr , result.manager);
                                     return usr.id != result.manager;
                                 })[0].id;
                                 if (!_myFriendsJson[Fid] && _myFriendsJson[phoneNumber]) {
@@ -553,11 +558,26 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
                                 }
                                 _myFriendsJson[Fid].id = Fid;
                                 _myFriendsJson[Fid]._id = Fid;
+                                        console.log('----1----');
+                                        console.log(Fid);
                                 if (_myChats.filter((chat) => { return chat.id == result.id; }).length == 0) { //if the chat not axist
+                                        console.log('----2----');
                                     db.transaction((tx2) => {
+                                        console.log('----3----');
+                                        console.log(result.id.toString(), false, result.manager, _myFriendsJson[Fid].publicInfo.fullName, _myFriendsJson[Fid].publicInfo.picture);
+                                        console.log(result.id.toString(), Fid);
                                         tx2.executeSql('INSERT OR REPLACE into Conversation values(?,?,?,?,?,?,?,?)', [result.id.toString(), false, result.manager, _myFriendsJson[Fid].publicInfo.fullName, _myFriendsJson[Fid].publicInfo.picture, false]);
                                         tx2.executeSql('INSERT OR REPLACE into Participates values(?,?,?)', [result.id.toString(), Fid.toString(), false]);
                                         tx2.executeSql('UPDATE Friends set id = ? WHERE phoneNumber = ?', [Fid.toString(), phoneNumber.toString()]);
+                                        console.log('----NewChat----');
+                                        Event.trigger('NewChat', {
+                                            convId: result.id,
+                                            isEncrypted: false,
+                                            manager: result.manager,
+                                            groupName: _myFriendsJson[Fid].publicInfo.fullName,
+                                            groupPicture: _myFriendsJson[Fid].publicInfo.picture,
+                                            isGroup: false
+                                        });
                                     });
                                     _myChats.push({
                                         id: result.id,
