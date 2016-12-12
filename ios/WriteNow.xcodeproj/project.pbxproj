@@ -46,6 +46,7 @@
 		C4C57AD64C1B44C4BD546D0E /* libRNBlur.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EC95F84251948C686B5650B /* libRNBlur.a */; };
 		12E3550E790646B58CC9E5CB /* libRNOpenPGP.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D5AE35BAB245BF906F77D2 /* libRNOpenPGP.a */; };
 		4588E303178B414B80016343 /* libRNFIRMessaging.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C3B3B1E1427B4C5D8336562F /* libRNFIRMessaging.a */; };
+		08B143B3171341F5AF2FC624 /* libRNOverlay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32ED840EBEA147FFAC1B5DF4 /* libRNOverlay.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -190,6 +191,8 @@
 		84D5AE35BAB245BF906F77D2 /* libRNOpenPGP.a */ = {isa = PBXFileReference; name = "libRNOpenPGP.a"; path = "libRNOpenPGP.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		8D415DE4F8B44D9EB356481C /* RNFIRMessaging.xcodeproj */ = {isa = PBXFileReference; name = "RNFIRMessaging.xcodeproj"; path = "../node_modules/react-native-fcm/ios/RNFIRMessaging.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		C3B3B1E1427B4C5D8336562F /* libRNFIRMessaging.a */ = {isa = PBXFileReference; name = "libRNFIRMessaging.a"; path = "libRNFIRMessaging.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		6990EE885D374CBAA3CAACE4 /* RNOverlay.xcodeproj */ = {isa = PBXFileReference; name = "RNOverlay.xcodeproj"; path = "../node_modules/react-native-overlay/RNOverlay.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		32ED840EBEA147FFAC1B5DF4 /* libRNOverlay.a */ = {isa = PBXFileReference; name = "libRNOverlay.a"; path = "libRNOverlay.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -231,6 +234,7 @@
 				C4C57AD64C1B44C4BD546D0E /* libRNBlur.a in Frameworks */,
 				12E3550E790646B58CC9E5CB /* libRNOpenPGP.a in Frameworks */,
 				4588E303178B414B80016343 /* libRNFIRMessaging.a in Frameworks */,
+				08B143B3171341F5AF2FC624 /* libRNOverlay.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -369,6 +373,7 @@
 				70DC44A190074D29A75E2978 /* RNBlur.xcodeproj */,
 				703A63ED0C464B8397092A57 /* RNOpenPGP.xcodeproj */,
 				8D415DE4F8B44D9EB356481C /* RNFIRMessaging.xcodeproj */,
+				6990EE885D374CBAA3CAACE4 /* RNOverlay.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -722,6 +727,7 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
 			name = Debug;
@@ -738,6 +744,7 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WriteNow.app/WriteNow";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -781,6 +788,7 @@
 					"$(SRCROOT)\..\node_modules\react-native-blur\ios",
 					"$(SRCROOT)\..\node_modules\react-native-openpgp\iOS",
 					"$(SRCROOT)\..\node_modules\react-native-fcm\ios",
+					"$(SRCROOT)\..\node_modules\react-native-overlay",
 				);
 				INFOPLIST_FILE = "WriteNow/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -818,6 +826,7 @@
 					"$(SRCROOT)\..\node_modules\react-native-blur\ios",
 					"$(SRCROOT)\..\node_modules\react-native-openpgp\iOS",
 					"$(SRCROOT)\..\node_modules\react-native-fcm\ios",
+					"$(SRCROOT)\..\node_modules\react-native-overlay",
 				);
 				INFOPLIST_FILE = "WriteNow/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -884,6 +893,7 @@
 					"$(SRCROOT)\..\node_modules\react-native-blur\ios",
 					"$(SRCROOT)\..\node_modules\react-native-openpgp\iOS",
 					"$(SRCROOT)\..\node_modules\react-native-fcm\ios",
+					"$(SRCROOT)\..\node_modules\react-native-overlay",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -940,6 +950,7 @@
 					"$(SRCROOT)\..\node_modules\react-native-blur\ios",
 					"$(SRCROOT)\..\node_modules\react-native-openpgp\iOS",
 					"$(SRCROOT)\..\node_modules\react-native-fcm\ios",
+					"$(SRCROOT)\..\node_modules\react-native-overlay",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
