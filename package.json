@@ -42,4 +42,5 @@
     "react-native-vector-icons": "^2.1.0",
     "react-native-webrtc": "^0.54.3",
     "react-native-workers": "^0.3.1"
+  }
 }
