@@ -12,6 +12,7 @@ import {
 import { Actions } from 'react-native-router-flux';
 import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
 import Kohana from '../../styles/Kohana';
+import renderIf from '../../plugins/renderIf'
 
 var dismissKeyboard = require('dismissKeyboard');
 var Event = require('../../Services/Events');
@@ -35,12 +36,16 @@ export default class Chats extends Component {
                 imageVisible: false,
                 filter: ''
             };
+            
             this.UpdateChatsList = this.UpdateChatsList.bind(this);
             this.newMessage = this.newMessage.bind(this);
             this.NewChat = this.NewChat.bind(this);
+             this.UpdatelastMessage = this.UpdatelastMessage.bind(this);
             Event.on('UpdateChatsList', this.UpdateChatsList);
             Event.on('newMessage', this.newMessage);
             Event.on('NewChat', this.NewChat);
+            Event.removeAllListeners('lastMessage');
+            Event.on('lastMessage', this.UpdatelastMessage);
         } catch (e) {
             ErrorHandler.WriteError("Chats.js -> constructor", e);
         }
@@ -269,6 +274,19 @@ export default class Chats extends Component {
             ErrorHandler.WriteError('Chats.js => _renderCancel', e);
         }
     }
+UpdatelastMessage(lastMessage , convId)
+{
+    this.myChats = this.myChats.map((chat) => {
+        console.log(chat);
+        if (chat.id == convId) {
+            chat.lastMessage = lastMessage;
+         }
+        return chat;
+    });
+    this.setState({dataSource: this.ds.cloneWithRows(this.myChats)});
+    
+}
+
 
     render() {
         try {
@@ -287,14 +305,14 @@ export default class Chats extends Component {
                         />
                     <ListView style={{ paddingTop: 5, flex: 1 }}
                         enableEmptySections={true}
-                        dataSource={this.getDataSource()}
+                        dataSource={this.state.dataSource}
                         renderRow={(rowData) =>
                             <TouchableOpacity onPress={() => {
+                                console.log(rowData);
                                 this.openChat(rowData);
                             } }>
                                 <View style={generalStyle.styles.row}>
                                     <TouchableOpacity onPress={() => {
-                                        console.log(rowData);
                                         console.log('rowData.groupPicture');
                                         this.imgSelected = rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ?  rowData.isGroup : require('../../img/user.jpg'))
                                         this.setImageVisible(true);
@@ -311,9 +329,9 @@ export default class Chats extends Component {
                                             <Text style={generalStyle.styles.textDate}>
                                                 {this.getDateFormated(rowData.lastMessageTime)}
                                             </Text>
-                                        </View>
+                                        </View> 
                                         <Text style={generalStyle.styles.textStatus}>
-                                            {rowData.lastMessage}
+                                               {rowData.lastMessage}
                                         </Text>
                                     </View>
                                     {this._renderCancel(rowData.notifications)}

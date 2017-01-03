@@ -17,7 +17,8 @@ import dismissKeyboard from 'react-native-dismiss-keyboard';
 import moment from 'moment/min/moment-with-locales.min';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {Actions} from 'react-native-router-flux';
-import renderIf from '../../plugins/renderIf'
+
+
 
 //import Actions from './Actions';
 import Avatar from './Avatar';
@@ -33,6 +34,7 @@ import MessageContainer from './MessageContainer';
 import Send from './Send';
 import Time from './Time';
 import IconMat from 'react-native-vector-icons/MaterialIcons';
+import renderIf from '../../plugins/renderIf'
 
 var Event = require('../../Services/Events');
 var generalStyles = require('../../styles/generalStyle');
@@ -53,8 +55,13 @@ export default class GiftedChat extends React.Component {
     Event.on('LoadNewChat', () => {
       console.log('LoadNewChat - clear input chat!');
       this.setState({ text: '' });
+
     });
 
+
+
+
+           
     // default values
     this._isMounted = false;
     this._keyboardHeight = 0;
@@ -85,6 +92,7 @@ export default class GiftedChat extends React.Component {
     this.onType = this.onType.bind(this);
     this.onSend = this.onSend.bind(this);
     this.getLocale = this.getLocale.bind(this);
+    this.cancel_chatRoom = this.cancel_chatRoom.bind(this);
 
     this.invertibleScrollViewProps = {
       inverted: true,
@@ -488,6 +496,10 @@ openImageModal(image) {
    this.setState({ showMenu: !this.state.showMenu});
  }
 
+cancel_chatRoom(lastMessage)
+{
+   Event.trigger('lastMessage', lastMessage ,this.props.convId);
+}
 
 render() {
   if (this.state.isInitialized === true) {
@@ -495,7 +507,10 @@ render() {
       <View style={styles.chatRoomMain}>
         <View style={generalStyles.styles.appbar}>
           <TouchableOpacity onPress={() => {
-            Actions.pop()
+            if (this.props.messages && this.props.messages.length > 0) {
+              this.cancel_chatRoom(this.props.messages[0].text);
+            }
+            Actions.pop();
           } }>
             <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
           </TouchableOpacity>
@@ -539,7 +554,7 @@ render() {
          <TouchableOpacity style={{ flex: 1 }} onPress={() => {
                     this.setState({ showMenu: !this.state.showMenu})
                 } }>
-                                <View style={{
+          <View style={{
             width: 160,
             height: 150,
             backgroundColor: 'white',

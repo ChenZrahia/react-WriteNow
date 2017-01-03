@@ -417,6 +417,7 @@ export default class ChatRoom extends Component {
             <View style={{ flex: 1, alignSelf: 'stretch' }} >
                 <GiftedChat
                     userName={this.state.groupName}
+                    convId={this.convId}
                     userPicture={this.state.groupPicture}
                     messages={this.state.messages}
                     onSend={this.onSend}
