@@ -161,7 +161,7 @@ export default class WriteNow extends Component {
             PhoneContacts.getAll((err, contacts) => {
                 if (err && err.type === 'permissionDenied') {
                     console.log('permissionDenied');
-                    // x.x
+                    // x.x 
                 } else {
                     contacts = contacts.filter((user) => {
                         if (user.phoneNumbers && user.phoneNumbers[0]) {
