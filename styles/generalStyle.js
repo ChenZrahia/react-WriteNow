@@ -2,8 +2,10 @@ import { StyleSheet } from 'react-native';
 
 var mainColor = '#9933FF';
 var secondColor = '#f50057';
+var darkColor = '#6f00de';
 
 export var _mainColor = mainColor;
+export var _darkColor = darkColor;
 export var _secondColor = secondColor;
 
 export const styles = StyleSheet.create({
@@ -32,7 +34,7 @@ export const styles = StyleSheet.create({
         backgroundColor: mainColor,
         elevation: 4,
         paddingLeft: 7,
-        justifyContent: 'space-between',
+        justifyContent: 'space-between'
     },
     row: {
         flex: 1,
@@ -86,4 +88,10 @@ export const styles = StyleSheet.create({
         borderRadius: 10,
         borderWidth: 1
     },
+    iconContainer:{
+        width: 30,
+        alignItems:'flex-end',
+        justifyContent:'center',
+        paddingRight: 5
+    }
 });

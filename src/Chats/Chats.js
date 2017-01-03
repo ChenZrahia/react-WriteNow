@@ -274,15 +274,13 @@ export default class Chats extends Component {
                         />
                     <ListView style={{ paddingTop: 5, flex: 1 }}
                         enableEmptySections={true}
-                        dataSource={this.getDataSource()}
+                        dataSource={this.state.dataSource}
                         renderRow={(rowData) =>
                             <TouchableOpacity onPress={() => {
                                 this.openChat(rowData);
                             } }>
                                 <View style={generalStyle.styles.row}>
                                     <TouchableOpacity onPress={() => {
-                                        console.log(rowData);
-                                        console.log('rowData.groupPicture');
                                         this.imgSelected = rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ?  rowData.isGroup : require('../../img/user.jpg'))
                                         this.setImageVisible(true);
                                     } }>

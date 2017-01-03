@@ -17,8 +17,7 @@ import dismissKeyboard from 'react-native-dismiss-keyboard';
 import moment from 'moment/min/moment-with-locales.min';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {Actions} from 'react-native-router-flux';
-import renderIf from '../../plugins/renderIf'
-
+import renderIf from '../../plugins/renderIf';
 //import Actions from './Actions';
 import Avatar from './Avatar';
 import Bubble from './Bubble';
@@ -36,6 +35,7 @@ import IconMat from 'react-native-vector-icons/MaterialIcons';
 
 var Event = require('../../Services/Events');
 var generalStyles = require('../../styles/generalStyle');
+var liveSrv = require('../../Services/liveSrv');
 
 // Min and max heights of ToolbarInput and Composer
 // Needed for Composer auto grow and ScrollView animation
@@ -85,7 +85,7 @@ export default class GiftedChat extends React.Component {
     this.onType = this.onType.bind(this);
     this.onSend = this.onSend.bind(this);
     this.getLocale = this.getLocale.bind(this);
-
+    this.viewProfile = this.viewProfile.bind(this);
     this.invertibleScrollViewProps = {
       inverted: true,
       keyboardShouldPersistTaps: true,
@@ -476,7 +476,13 @@ openImageModal(image) {
    this.setState({ showMenu: !this.state.showMenu});
  }
  viewProfile(){
-   console.log('view Profile is working well');
+   console.log('Voice Call is working well');
+   //this.props.userPicture = '';
+   liveSrv.Connect(this.props.convId);
+   Actions.Call({userName: this.props.userName, userPicture: this.props.userPicture});
+   setTimeout(() => {
+                        Event.trigger('getCall');
+                    }, 100);
    this.setState({ showMenu: !this.state.showMenu});
  }
  settings(){
@@ -500,7 +506,6 @@ render() {
             <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => {
-            //this.imgSelected = { uri: this.props.userPicture }
             this.imgSelected =  this.props.userPicture ? { uri: this.props.userPicture} : null
             if(this.imgSelected){
               this.setImageVisible(true);
@@ -550,31 +555,31 @@ render() {
           >
           <TouchableOpacity onPress={() => {
             this.viewProfile();}}>
-          <Text style={{margin: 5,marginTop: 7, left: 6}}>
-          View Profile
+          <Text style={{margin: 7,marginTop: 7, left: 6}}>
+          Voice Call
          </Text>
          </TouchableOpacity> 
           <TouchableOpacity onPress={() => {
             this.encryptMessage();}}>
-          <Text style={{margin: 5, left: 6}}>
+          <Text style={{margin: 7, left: 6}}>
            Encrypt Message
          </Text>
          </TouchableOpacity> 
            <TouchableOpacity onPress={() => {
             this.newList();}}>
-          <Text style={{margin: 5, left: 6}}>
+          <Text style={{margin: 7, left: 6}}>
             New List
          </Text>
          </TouchableOpacity> 
             <TouchableOpacity onPress={() => {
             this.walkieTalkie();}}>
-          <Text style={{margin: 5, left: 6}}>
+          <Text style={{margin: 7, left: 6}}>
            Walkie-Talkie
          </Text>
          </TouchableOpacity> 
            <TouchableOpacity onPress={() => {
             this.settings();}}>
-          <Text style={{margin: 5, left: 6}}>
+          <Text style={{margin: 7, left: 6}}>
            Settings
          </Text>
          </TouchableOpacity> 

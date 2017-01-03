@@ -5,6 +5,7 @@ import SignUp from './SignUp/SignUp'
 import Chats from './Chats/Chats'
 import Tabs from './Tabs'
 import ChatRoom from './ChatRoom/ChatRoom'
+import Call from './LiveChat/Call/Call'
 import Signature from './ChatRoom/Signature/Signature'
 import { Actions, Scene, Router } from 'react-native-router-flux';
 
@@ -15,8 +16,9 @@ var ErrorHandler = require('../ErrorHandler');
 const scenes = Actions.create(
     <Scene key="root" hideNavBar={true}>
         <Scene key="SignUp" component={SignUp} title="SignUp" duration="0" />
-        <Scene key="Tabs" component={Tabs} title="Tabs" initial={true} duration="0" />
+        <Scene key="Tabs" component={Tabs} title="Tabs" initial={true}   duration="0" />
         <Scene key="ChatRoom" component={ChatRoom} title="ChatRoom" />
+        <Scene key="Call" component={Call} title="Call" />
         <Scene key="Signature" component={Signature} title="Signature" />
     </Scene>
 );

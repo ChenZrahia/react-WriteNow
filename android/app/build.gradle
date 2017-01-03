@@ -151,8 +151,10 @@ dependencies {
     compile project(':reactnativesignaturecapture')
     compile project(':react-native-image-resizer')
     compile project(':react-native-image-to-base64')
-    //compile project(':react-native-openpgp')
     compile project(':react-native-fcm')
+    compile project(':react-native-webrtc')
+    compile project(':react-native-sound')
+    compile project(':react-native-incall-manager')
 }
 
 // Run this once to be able to run the application with BUCK

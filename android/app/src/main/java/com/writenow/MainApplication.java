@@ -2,6 +2,9 @@ package com.writenow;
 import android.app.Application;
 import android.util.Log;
 import com.facebook.react.ReactApplication;
+import com.zxcpoiu.incallmanager.InCallManagerPackage;
+import com.zmxv.RNSound.RNSoundPackage;
+import com.oney.WebRTCModule.WebRTCModulePackage;
 // import com.cmcewen.blurview.BlurViewPackage;
 import com.evollu.react.fcm.FIRMessagingPackage;
 // import com.github.orhan.openpgp.RNOpenPGPPackage;
@@ -38,6 +41,9 @@ public class MainApplication extends Application implements ReactApplication {
       return Arrays.<ReactPackage>asList(
         new SQLitePluginPackage(),
           new MainReactPackage(),
+            new InCallManagerPackage(),
+            new RNSoundPackage(),
+            new WebRTCModulePackage(),
             new FIRMessagingPackage(),
             new ImageToBase64Package(),
             new ImageResizerPackage(),

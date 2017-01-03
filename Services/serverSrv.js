@@ -3,6 +3,7 @@ import { Actions } from 'react-native-router-flux';
 //import React from 'react-native';
 import './UserAgent';
 import io from 'socket.io-client/socket.io';
+import ImageResizer from 'react-native-image-resizer';
 var Event = require('./Events');
 var SignUp = require('../src/SignUp/SignUp');
 var moment = require('moment');
@@ -60,13 +61,13 @@ function printTable(tblName) {
 }
 
 setTimeout(function () {
-    printTable('Messages');
+    //printTable('Messages');
 }, 500);
 
 export function DeleteDb() {
     console.log('delete 1');
     db.transaction((tx) => {
-        tx.executeSql('DELETE FROM UserInfo', [], null, errorDB); //------------------
+        //tx.executeSql('DELETE FROM UserInfo', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
@@ -74,7 +75,7 @@ export function DeleteDb() {
 
         console.log('delete 2');
 
-        tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
+        //tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
@@ -144,7 +145,7 @@ export function GetAllMyFriends(callback, isUpdate) {
                             setTimeout(() => {
                                 GetAllMyFriends_Server(callback);
                             }, 100);
-                            
+
                         }
                     }
                 } catch (error) {
@@ -258,11 +259,11 @@ export function GetAllMyFriends_Server(callback) {
         socket.emit('GetMyFriendsChanges', usersToServer, ((data) => {
             db.transaction((tx) => {
                 try {
-        console.log('GetMyFriendsChanges');
-                    
-                            console.log('GetAllMyFriends_Server(callback);');
-                            console.log(data);
-                            console.log('GetAllMyFriends_Server(callback);');
+                    console.log('GetMyFriendsChanges');
+
+                    console.log('GetAllMyFriends_Server(callback);');
+                    console.log(data);
+                    console.log('GetAllMyFriends_Server(callback);');
                     for (var i = 0; i < data.length; i++) {
                         if (data[i].deletedUser == true && data[i].id) {
                             //tx.executeSql('DELETE FROM Friends WHERE id=?', [data[i].id]);
@@ -457,6 +458,34 @@ export function GetConv(callback, convId, isUpdate) {
     }
 }
 
+function InsertNewContact(tx, user) {
+    try {
+        var imgOrPath = user.image;
+        if (user.imgPath) {
+            imgOrPath = user.imgPath;
+        }
+        tx.executeSql('INSERT INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [user.id,
+            user.convId,
+            user.isEncrypted,
+            user.from,
+            user.content,
+            user.sendTime,
+            user.lastTypingTime,
+            user.isSeenByAll,
+            imgOrPath
+            ]);
+        tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ? WHERE id = ? AND lastMessageTime < ?',
+            [user.content,
+            user.sendTime,
+            user.convId,
+            user.sendTime
+            ]);
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => InsertNewContact', error);
+    }
+}
+
 function GetConv_server(convId, callback) {
     try {
         var lastMessageTime = null;
@@ -498,23 +527,16 @@ function GetConv_server(convId, callback) {
                     if (data.messages[i].deletedConv == true && data.messages[i].id) {
                         tx.executeSql('DELETE FROM Messages WHERE id=?', [data.messages[i].id]);
                     } else {
-                        tx.executeSql('INSERT INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                            [data.messages[i].id,
-                            data.messages[i].convId,
-                            data.messages[i].isEncrypted,
-                            data.messages[i].from,
-                            data.messages[i].content,
-                            data.messages[i].sendTime,
-                            data.messages[i].lastTypingTime,
-                            data.messages[i].isSeenByAll,
-                            data.messages[i].image
-                            ]);
-                        tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ? WHERE id = ? AND lastMessageTime < ?',
-                            [data.messages[i].content,
-                            data.messages[i].sendTime,
-                            data.messages[i].convId,
-                            data.messages[i].sendTime
-                            ]);
+                        if (data.messages[i].image) {
+                            ImageResizer.createResizedImage(data.messages[i].image, 400, 400, 'JPEG', 100, 0, null).then((function(obj) {return  (resizedImageUri) => {
+                                obj.imgPath = resizedImageUri;
+                                InsertNewContact(tx, obj);
+                            }})(data.messages[i])).catch((err) => {
+                                ErrorHandler.WriteError('serverSrv.js => onServerTyping => ImageResizer', err);
+                            });
+                        } else {
+                            InsertNewContact(tx, data.messages[i]);
+                        }
                     }
                 }
                 GetConv(callback, convId, true);
@@ -539,12 +561,12 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
                         socket.on('returnConv', (result) => {
                             try {
                                 if (result.newUsr && uid == phoneNumber) {
-                                    if(result.newUsr[0]){
+                                    if (result.newUsr[0]) {
                                         result.newUsr = result.newUsr[0];
                                     }
                                     UpdatePhoneNumberToId(result.newUsr.phoneNumber, result.newUsr.id);
-                                } 
-                                _ActiveConvId = result.id;                                
+                                }
+                                _ActiveConvId = result.id;
                                 var Fid = result.participates.filter((usr) => {
                                     return usr.id != result.manager;
                                 })[0].id;
@@ -588,16 +610,16 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
     }
 }
 
-function UpdatePhoneNumberToId(phoneNumber, id){
+function UpdatePhoneNumberToId(phoneNumber, id) {
     try {
         console.log(phoneNumber, id);
         console.log(phoneNumber, id);
         console.log(phoneNumber, id);
         console.log('phoneNumber, id');
         _myFriendsJson[id] = _myFriendsJson[phoneNumber];
-         db.transaction((tx) => {
-            tx.executeSql('UPDATE Friends SET id = ? WHERE phoneNumber = ?', [id, phoneNumber], (tx, rs) => {});
-            tx.executeSql('UPDATE Participates SET uid = ? WHERE uid = ?', [id, phoneNumber], (tx, rs) => {});
+        db.transaction((tx) => {
+            tx.executeSql('UPDATE Friends SET id = ? WHERE phoneNumber = ?', [id, phoneNumber], (tx, rs) => { });
+            tx.executeSql('UPDATE Participates SET uid = ? WHERE uid = ?', [id, phoneNumber], (tx, rs) => { });
         });
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => UpdatePhoneNumberToId', error);
@@ -623,7 +645,12 @@ export function onServerTyping(callback) {
         socket.on('typing', (msg) => {
             callback(msg);
             if (msg.sendTime && msg.from != _uid) {
-                this.saveNewMessage(msg);
+                ImageResizer.createResizedImage(msg.image, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
+                    msg.imgPath = resizedImageUri;
+                    this.saveNewMessage(msg);
+                }).catch((err) => {
+                    ErrorHandler.WriteError('serverSrv.js => onServerTyping => ImageResizer', err);
+                });
             }
         });
     } catch (error) {
@@ -633,6 +660,10 @@ export function onServerTyping(callback) {
 
 export function saveNewMessage(msg) {
     try {
+        var pathOrImage = msg.image;
+        if (msg.imgPath) {
+            pathOrImage = msg.imgPath;
+        }
         db.transaction((tx) => {
             tx.executeSql('INSERT INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 [msg.id,
@@ -643,7 +674,7 @@ export function saveNewMessage(msg) {
                 moment(msg.sendTime).toISOString(),
                 msg.lastTypingTime,
                 msg.isSeenByAll,
-                msg.image
+                    pathOrImage
                 ]);
 
             tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ? WHERE id = ? AND lastMessageTime < ?',
@@ -664,11 +695,43 @@ export function saveNewMessage(msg) {
     }
 }
 
+//calls
+export function GetConvData_ByConvId(convId, callback) {
+    try {
+        console.log('1111');
+        db.transaction((tx) => {
+            tx.executeSql('SELECT * FROM Conversation WHERE id = ?', [convId], (tx, rs) => {
+                try {
+        console.log('22222');
+                    var result = [];
+                    if (rs.rows.length == 1 && callback) {
+                        var chat = {
+                            id: rs.rows.item(0).id,
+                            manager: rs.rows.item(0).manager,
+                            groupName: rs.rows.item(0).groupName,
+                            groupPicture: rs.rows.item(0).groupPicture,
+                            isGroup: rs.rows.item(0).isGroup
+                        };
+        console.log(chat);
+                        callback(chat);
+                    }
+                } catch (error) {
+                    ErrorHandler.WriteError('serverSrv.js => GetConvData_ByConvId => SELECT * FROM Conversation => catch', error);
+                }
+            }, errorDB);
+        }, (error) => {
+            ErrorHandler.WriteError('serverSrv.js => GetConvData_ByConvId => transaction', error);
+        });
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => GetConvData_ByConvId', error);
+    }
+}
+
 //connect  login
 export function login(_token) {
     if (_token && _token.length > 50) {
         this._token = _token;
-    } 
+    }
     db.transaction((tx) => {
         try {
             tx.executeSql('SELECT * FROM UserInfo', [], (tx, rs) => {
@@ -704,7 +767,7 @@ export function login(_token) {
                             console.log('connected');
                             this.userIsConnected = true;
                         } catch (e) {
-                            //Actions.SignUp({ type: 'replace' });
+                            Actions.SignUp({ type: 'replace' });
                             ErrorHandler.WriteError('EnterPage constructor => AuthenticationOk', error);
                         }
                     });

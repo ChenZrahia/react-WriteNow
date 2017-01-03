@@ -14,7 +14,7 @@ import {
     TextInput
 } from 'react-native';
 
-
+import { Actions } from 'react-native-router-flux'
 
 import InitRout from './src/InitRout';
 import ChatRoom from './src/ChatRoom/ChatRoom';
@@ -96,14 +96,59 @@ import FCM from 'react-native-fcm';
 
 
 export default class WriteNow extends Component {
-    constructor() {
+    constructor(a,b,c,d,e,f) {
         super();
+        console.log(a);
+        console.log(b);
+        console.log(c);
+        console.log(d);
+        console.log(e);
+        console.log(f);
+        console.log('-----------------------------------------++++-------');
     }
 
     componentWillMount() {
+        FCM.getInitialNotification().then(notif=>{
+            console.log(notif);
+            if (notif && notif.data) {
+                var notifData = JSON.parse(notif.data);
+                if (notif.isPhoneCall == true) {
+                    console.log(notifData);
+                    console.log('------------++++++++++++4444444');
+                    Actions.Call(notifData);
+                    setTimeout(() => {
+                        console.log('1111');
+                        Event.trigger('getCall');
+                    }, 100);
+                }
+            }
+        });
         FCM.getFCMToken().then(token => {
             serverSrv.login(token);
             console.log(token);
+        });
+        this.notificationUnsubscribe = FCM.on('notification', (notif) => {
+            console.log(notif);
+            if (notif && notif.data) {
+                var notifData = JSON.parse(notif.data);
+                if (notif.isPhoneCall == true) {
+                    console.log(notifData);
+                    console.log('------------++++++++++++33333333');
+                    Actions.Call(notifData);
+                    setTimeout(() => {
+                        Event.trigger('getCall');
+                    }, 100);
+                }
+            }
+            // there are two parts of notif. notif.notification contains the notification payload, notif.data contains data payload
+            if(notif.local_notification){
+              //this is a local notification
+              console.log('notif.local_notification');
+            }
+            if(notif.opened_from_tray){
+              //app is open/resumed because user clicked banner
+              console.log('notif.opened_from_tray');
+            }
         });
     }
 
@@ -213,5 +258,6 @@ const styles = StyleSheet.create({
         color: '#fff',
     }
 });
+
 
 AppRegistry.registerComponent('WriteNow', () => WriteNow);

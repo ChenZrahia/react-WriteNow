@@ -72,8 +72,6 @@ export default class ChatRoom extends Component {
     }
 
     LoadNewChat(convId, isContact, uid, phoneNumber, fullName){
-            console.log(convId, isContact, uid, phoneNumber, fullName);
-            console.log(convId, isContact, uid, phoneNumber, fullName);
         try {
             this.messages = [];
             this.indexOnlineMessages = [];
@@ -105,8 +103,6 @@ export default class ChatRoom extends Component {
                     data = [];
                 }
                 this.messages = data;
-                console.log(convId);
-                console.log('---convId---');
                 this.convId = convId;
                 this.setState({
                     messages: GiftedChat.append(this.messages, this.onlineMessages),
@@ -120,11 +116,9 @@ export default class ChatRoom extends Component {
             }
             if (isContact == true) {
                 setTimeout(() => {
-                    console.log('isContact == true');
                     serverSrv.GetConvByContact(callback, uid, phoneNumber, this.props.publicInfo.fullName);
                 }, 100);
             } else {
-                    console.log('isContact == false');
                 serverSrv.GetConv(callback, this.convId);
             }
         } catch (error) {
@@ -168,8 +162,6 @@ export default class ChatRoom extends Component {
                 }
             };
             ImagePicker.showImagePicker(options, (response) => {
-                console.log('Response = ', response);
-
                 if (response.didCancel) {
                     console.log('User cancelled image picker');
                 }
@@ -194,7 +186,7 @@ export default class ChatRoom extends Component {
                     ImageResizer.createResizedImage(response.uri, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
                         NativeModules.RNImageToBase64.getBase64String(resizedImageUri, (err, base64) => {
                             //this.sendImageMessage('data:image/jpeg;base64,' + base64);
-                            this.setState({ imgToMsg: ('data:image/jpeg;base64,' + base64) });
+                            this.setState({ imgToMsg: ('data:image/jpeg;base64,' + base64), pathOfImage: resizedImageUri });
                             this.setImageVisible(true);
                             //error check
                         })
@@ -217,7 +209,7 @@ export default class ChatRoom extends Component {
         }
     }
 
-    openImageModal(image) {
+    openImageModal(image, pathOfImage) {
         try {
             return (
                 <Modal
@@ -230,7 +222,7 @@ export default class ChatRoom extends Component {
                     } }>
                         <View style={{ backgroundColor: 'rgba(0,0,0,0.7)', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                             <TouchableOpacity onPress={() => {
-                                this.sendImageMessage(image, this.state.text);
+                                this.sendImageMessage(image, this.state.text, pathOfImage);
                                 this.setImageVisible(!this.state.imageVisible)
                             } }>
                                 <Image style={{ width: 300, height: 300, borderRadius: 0, borderWidth: 1 }} source={{ uri: image }} />
@@ -250,7 +242,7 @@ export default class ChatRoom extends Component {
         }
     }
 
-    sendImageMessage(img, _text) {
+    sendImageMessage(img, _text, _imgPath) {
         try {
             this._messageId = this.guid();
             var msg = {
@@ -265,7 +257,8 @@ export default class ChatRoom extends Component {
                 user: serverSrv._myFriendsJson[serverSrv._uid],
                 createdAt: Date.now(),
                 text: _text,
-                image: img
+                image: img,
+                imgPath: _imgPath
             };
             this.onFriendType(msg, true);
         } catch (e) {
@@ -369,8 +362,6 @@ export default class ChatRoom extends Component {
             if (this._messageId == null) {
                 this._messageId = this.guid();
             }
-            console.log(this.convId);
-            console.log('this.convId');
             var msg = {
                 mid: this._messageId,
                 id: this._messageId,
@@ -406,6 +397,9 @@ export default class ChatRoom extends Component {
     }
 
     render() {
+        console.log('this.props: ');
+        console.log(this.state.friend);
+
         return (
             <View style={{ flex: 1, alignSelf: 'stretch' }} >
                 <GiftedChat
@@ -414,11 +408,12 @@ export default class ChatRoom extends Component {
                     messages={this.state.messages}
                     onSend={this.onSend}
                     onType={this.onType}
+                    convId={this.convId}
                     user={{
                         _id: serverSrv._uid,
                     }}
                     />
-                {this.openImageModal(this.state.imgToMsg)}
+                {this.openImageModal(this.state.imgToMsg, this.state.pathOfImage)}
             </View>
         );
     }

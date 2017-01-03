@@ -86,7 +86,7 @@ export default class Signature extends Component {
             //result.pathName - for the file path name
             ImageResizer.createResizedImage('data:image/jpeg;base64,' + result.encoded, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
                 NativeModules.RNImageToBase64.getBase64String(resizedImageUri, (err, base64) => {
-                    Event.trigger('sendSegnature', 'data:image/jpeg;base64,' + base64);
+                    Event.trigger('sendSegnature', 'data:image/jpeg;base64,' + base64, '', resizedImageUri);
                     //error check
                 })
             }).catch((err) => {
