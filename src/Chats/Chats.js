@@ -37,8 +37,10 @@ export default class Chats extends Component {
             };
             this.UpdateChatsList = this.UpdateChatsList.bind(this);
             this.newMessage = this.newMessage.bind(this);
+            this.NewChat = this.NewChat.bind(this);
             Event.on('UpdateChatsList', this.UpdateChatsList);
             Event.on('newMessage', this.newMessage);
+            Event.on('NewChat', this.NewChat);
         } catch (e) {
             ErrorHandler.WriteError("Chats.js -> constructor", e);
         }
@@ -71,12 +73,23 @@ export default class Chats extends Component {
         }
     }
 
-    newMessage (msg){
+    NewChat(chat) {
         try {
-            var sorted = this.sortDates(this.state.dataSource._dataBlob.s1);
+            this.myChats.push(chat);
             this.setState({
-                dataSource: this.ds.cloneWithRows(sorted)
+                dataSource:  this.ds.cloneWithRows(this.myChats)
             });
+        } catch (e) {
+            ErrorHandler.WriteError("Chats.js -> NewChat", e);
+        }
+    }
+
+    newMessage(msg) {
+        try {
+            // var sorted = this.sortDates(this.state.dataSource._dataBlob.s1);
+            // this.setState({
+            //     dataSource: this.ds.cloneWithRows(sorted)
+            // });
         } catch (error) {
             ErrorHandler.WriteError("Chats.js -> newMessage", error);
         }

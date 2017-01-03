@@ -1,5 +1,5 @@
 {
-  "name": "WriteNow",
+  "name": "writenow",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -8,16 +8,16 @@
   "dependencies": {
     "moment": "^2.16.0",
     "native-base": "^0.5.9",
-    "react": "^15.3.2",
+    "react": "^15.4.1",
     "react-addons-shallow-compare": "^15.3.2",
-    "react-native": "^0.35.0",
+    "react-native": "^0.39.0",
     "react-native-alphabetlistview": "^0.2.0",
     "react-native-contacts": "^0.5.1",
     "react-native-emoji-picker": "^0.2.2",
     "react-native-fcm": "^2.3.2",
     "react-native-gcm-android": "^0.2.0",
     "react-native-gifted-chat": "0.0.10",
-    "react-native-image-picker": "^0.22.9",
+    "react-native-image-picker": "^0.24.1",
     "react-native-image-resizer": "0.0.12",
     "react-native-image-to-base64": "^0.1.0",
     "react-native-incall-manager": "^1.5.4",
@@ -27,7 +27,7 @@
     "react-native-overlay": "^0.5.0",
     "react-native-popup-menu": "^0.5.7",
     "react-native-root-toast": "^1.0.3",
-    "react-native-router-flux": "^3.35.0",
+    "react-native-router-flux": "^3.37.0",
     "react-native-rsa-util": "0.0.2",
     "react-native-scrollable-tab-view": "^0.6.0",
     "react-native-sglistview": "^0.3.2",
@@ -42,5 +42,4 @@
     "react-native-vector-icons": "^2.1.0",
     "react-native-webrtc": "^0.54.3",
     "react-native-workers": "^0.3.1"
-  }
 }

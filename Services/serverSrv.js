@@ -4,6 +4,13 @@ import { Actions } from 'react-native-router-flux';
 import './UserAgent';
 import io from 'socket.io-client/socket.io';
 import ImageResizer from 'react-native-image-resizer';
+import {
+  Image,
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Modal,
+} from 'react-native';
 var Event = require('./Events');
 var SignUp = require('../src/SignUp/SignUp');
 var moment = require('moment');
@@ -39,6 +46,11 @@ export var _myChats = null;
 export var _data = [];
 export var _uid = null;
 export var _myConvs = {};
+ 
+
+     
+         
+     
 
 function printTable(tblName) {
     db.transaction((tx) => {
@@ -100,6 +112,41 @@ setTimeout(() => {
 }, 100);
 
 //Users
+//   function setImageVisible(visible) {
+//         try {
+//             this.setState({ imageVisible: visible });
+//         } catch (e) {
+//             ErrorHandler.WriteError('MessageImage.js => setImageVisible', e);
+//         }
+//     }
+// export function openImageModal(image) {
+//         try {
+//             return (
+//                 <Modal
+//                     transparent={true}
+//                     visible={this.state.imageVisible == true}
+//                     onRequestClose={() => { console.log('image closed') } }
+//                     >
+//                     <TouchableOpacity style={{ flex: 1 }} onPress={() => {
+//                         this.setImageVisible(!this.state.imageVisible)
+//                     } }>
+//                         <View style={generalStyles.styles.imageModal}>
+//                             <Image style={generalStyles.styles.imageInsideModal} source={{uri: image}} />
+//                         </View>
+//                     </TouchableOpacity>
+//                 </Modal>
+//             );
+//         } catch (e) {
+//             ErrorHandler.WriteError('serverSrv.js => openImageModal', e);
+//         }
+
+        
+//     }
+
+
+
+
+
 export function GetAllMyFriends(callback, isUpdate) {
     try {
         if (_myFriends && _myFriends.length > 0 && callback && !isUpdate) {
@@ -565,8 +612,8 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
                                         result.newUsr = result.newUsr[0];
                                     }
                                     UpdatePhoneNumberToId(result.newUsr.phoneNumber, result.newUsr.id);
-                                }
-                                _ActiveConvId = result.id;
+                                } 
+                                _ActiveConvId = result.id;       
                                 var Fid = result.participates.filter((usr) => {
                                     return usr.id != result.manager;
                                 })[0].id;
@@ -575,11 +622,26 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
                                 }
                                 _myFriendsJson[Fid].id = Fid;
                                 _myFriendsJson[Fid]._id = Fid;
+                                        console.log('----1----');
+                                        console.log(Fid);
                                 if (_myChats.filter((chat) => { return chat.id == result.id; }).length == 0) { //if the chat not axist
+                                        console.log('----2----');
                                     db.transaction((tx2) => {
+                                        console.log('----3----');
+                                        console.log(result.id.toString(), false, result.manager, _myFriendsJson[Fid].publicInfo.fullName, _myFriendsJson[Fid].publicInfo.picture);
+                                        console.log(result.id.toString(), Fid);
                                         tx2.executeSql('INSERT OR REPLACE into Conversation values(?,?,?,?,?,?,?,?)', [result.id.toString(), false, result.manager, _myFriendsJson[Fid].publicInfo.fullName, _myFriendsJson[Fid].publicInfo.picture, false]);
                                         tx2.executeSql('INSERT OR REPLACE into Participates values(?,?,?)', [result.id.toString(), Fid.toString(), false]);
                                         tx2.executeSql('UPDATE Friends set id = ? WHERE phoneNumber = ?', [Fid.toString(), phoneNumber.toString()]);
+                                        console.log('----NewChat----');
+                                        Event.trigger('NewChat', {
+                                            convId: result.id,
+                                            isEncrypted: false,
+                                            manager: result.manager,
+                                            groupName: _myFriendsJson[Fid].publicInfo.fullName,
+                                            groupPicture: _myFriendsJson[Fid].publicInfo.picture,
+                                            isGroup: false
+                                        });
                                     });
                                     _myChats.push({
                                         id: result.id,

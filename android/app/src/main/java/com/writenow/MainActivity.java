@@ -1,6 +1,12 @@
 package com.writenow;
 
 import com.facebook.react.ReactActivity;
+import com.rssignaturecapture.RSSignatureCapturePackage;
+import com.github.xfumihiro.react_native_image_to_base64.ImageToBase64Package;
+import fr.bamlab.rnimageresizer.ImageResizerPackage;
+import com.imagepicker.ImagePickerPackage;
+import com.evollu.react.fcm.FIRMessagingPackage;
+import com.rt2zz.reactnativecontacts.ReactNativeContacts;
 import com.imagepicker.ImagePickerPackage;
 import com.rt2zz.reactnativecontacts.ReactNativeContacts;
 

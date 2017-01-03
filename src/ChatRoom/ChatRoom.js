@@ -19,6 +19,7 @@ import {
 import { Actions } from 'react-native-router-flux';
 import ImageResizer from 'react-native-image-resizer';
 import InputToolbar from './InputToolbar';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 var ImagePicker = require('react-native-image-picker');
 var serverSrv = require('../../Services/serverSrv');
@@ -31,13 +32,15 @@ var Platform = require('react-native').Platform;
 
 export default class ChatRoom extends Component {
     constructor(props) {
-        super(props);        
+        super(props);
         dismissKeyboard();
         try {
             this._messageId = null;
-            this.state = { messages: [],
+            this.state = {
+                messages: [],
                 imageVisible: false,
-                text: '' };
+                text: ''
+            };
             this.onSend = this.onSend.bind(this);
             this.onType = this.onType.bind(this);
             this.guid = this.guid.bind(this);
@@ -211,6 +214,7 @@ export default class ChatRoom extends Component {
 
     openImageModal(image, pathOfImage) {
         try {
+        console.log("****************123********************************");
             return (
                 <Modal
                     transparent={false}
@@ -218,7 +222,7 @@ export default class ChatRoom extends Component {
                     onRequestClose={() => { console.log('image closed') } }
                     >
                     <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
-                        
+                        this.setImageVisible(!this.state.imageVisible);
                     } }>
                         <View style={{ backgroundColor: 'rgba(0,0,0,0.7)', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                             <TouchableOpacity onPress={() => {
@@ -227,12 +231,18 @@ export default class ChatRoom extends Component {
                             } }>
                                 <Image style={{ width: 300, height: 300, borderRadius: 0, borderWidth: 1 }} source={{ uri: image }} />
                                 <TextInput
-                                    style={{height: 40, borderColor: 'gray', backgroundColor: 'white', borderWidth: 1}}
+                                    style={{ flex: 1, height: 40, backgroundColor: 'white' }}
                                     placeholder="Type a message..."
-                                    onChangeText={(text) => this.setState({text})}
+                                    onChangeText={(text) => this.setState({ text })}
                                     value={this.state.text}
-                                />
-                            </TouchableOpacity>
+                                    />
+                                <TouchableOpacity onPress={() => {
+                                    this.sendImageMessage(image, this.state.text);
+                                    this.setImageVisible(!this.state.imageVisible);
+                                } }>
+                                    <Icon name="md-send" size={30} style={{ height: 40, padding: 5 }}/>
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </TouchableOpacity>
                 </Modal>
@@ -289,7 +299,7 @@ export default class ChatRoom extends Component {
                 msg.user = serverSrv._myFriendsJson[msg.from];
             }
 
-            if(!isImage){
+            if (!isImage) {
                 msg.text = msg.content;
             }
 
