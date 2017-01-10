@@ -214,7 +214,6 @@ export default class ChatRoom extends Component {
 
     openImageModal(image, pathOfImage) {
         try {
-        console.log("****************123********************************");
             return (
                 <Modal
                     transparent={false}
@@ -229,23 +228,21 @@ export default class ChatRoom extends Component {
                                 this.sendImageMessage(image, this.state.text, pathOfImage);
                                 this.setImageVisible(!this.state.imageVisible)
                             } }>
-                            <Image style={{ width: 300, height: 300, borderRadius: 0, borderWidth: 1 }} source={{ uri: image }} />
-                            <View style={{ width: 300, flexDirection: 'row', backgroundColor: 'white', borderColor: 'gray', borderWidth: 1 }}>
+                                <Image style={{ width: 300, height: 300, borderRadius: 0, borderWidth: 1 }} source={{ uri: image }} />
                                 <TextInput
                                     style={{ flex: 1, height: 40, backgroundColor: 'white' }}
                                     placeholder="Type a message..."
                                     onChangeText={(text) => this.setState({ text })}
                                     value={this.state.text}
                                     />
+                                 </TouchableOpacity>   
                                 <TouchableOpacity onPress={() => {
                                     this.sendImageMessage(image, this.state.text);
                                     this.setImageVisible(!this.state.imageVisible);
                                 } }>
                                     <Icon name="md-send" size={30} style={{ height: 40, padding: 5 }}/>
                                 </TouchableOpacity>
-                            </View>
-                         </TouchableOpacity>
-                        </View>
+                            </View>   
                     </TouchableOpacity>
                 </Modal>
             );
@@ -297,9 +294,17 @@ export default class ChatRoom extends Component {
                 msg._id = msg.id;
             }
 
+
             if (!msg.user) {
-                msg.user = serverSrv._myFriendsJson[msg.from];
+                msg.user = {
+                    _id: serverSrv._myFriendsJson[msg.from].id,
+                    name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName
+                }
+               // msg.user = serverSrv._myFriendsJson[msg.from];
             }
+
+console.log(msg.user);
+
 
             if (!isImage) {
                 msg.text = msg.content;
@@ -320,6 +325,7 @@ export default class ChatRoom extends Component {
             if (msg.sendTime) {
                 this.onSend(msg);
             } else {
+                
                 this.setState((previousState) => {
                     return {
                         messages: GiftedChat.append(this.messages, this.onlineMessages),
@@ -351,7 +357,12 @@ export default class ChatRoom extends Component {
                     msg.convId = this.convId;
                     serverSrv.saveNewMessage(msg);
                 }
-                msg.user = serverSrv._myFriendsJson[msg.user._id];
+
+                //serverSrv._myFriendsJson[msg.user._id];
+                 msg.user = {
+                    name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName,
+                    _id: serverSrv._myFriendsJson[msg.from].id
+                }
                 this.messages.splice(0, 0, msg); //push
                 this.onlineMessages = this.onlineMessages.filter((o_msg) => {
                     return o_msg.id != msg.id;
@@ -385,7 +396,10 @@ export default class ChatRoom extends Component {
                 content: text
             };
             serverSrv.Typing(msg);
-            msg.user = serverSrv._myFriendsJson[msg.from];
+              msg.user = {
+                    name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName,
+                    _id: serverSrv._myFriendsJson[msg.from].id
+                }
             if (!this.indexOnlineMessages[msg._id]) { //new message
                 this.indexOnlineMessages[msg._id] = msg;
                 this.onlineMessages.push(this.indexOnlineMessages[msg.id]);
@@ -398,20 +412,13 @@ export default class ChatRoom extends Component {
                     delete this.indexOnlineMessages[msg._id];
                 }
             }
-            this.setState((previousState) => {
-                return {
-                    messages: GiftedChat.append(this.messages, this.onlineMessages),
-                };
-            });
+            this.setState({ messages: GiftedChat.append(this.messages, this.onlineMessages) });
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => onType', e);
         }
     }
 
     render() {
-        console.log('this.props: ');
-        console.log(this.state.friend);
-
         return (
             <View style={{ flex: 1, alignSelf: 'stretch' }} >
                 <GiftedChat

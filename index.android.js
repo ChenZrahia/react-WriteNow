@@ -98,13 +98,6 @@ import FCM from 'react-native-fcm';
 export default class WriteNow extends Component {
     constructor(a,b,c,d,e,f) {
         super();
-        console.log(a);
-        console.log(b);
-        console.log(c);
-        console.log(d);
-        console.log(e);
-        console.log(f);
-        console.log('-----------------------------------------++++-------');
     }
 
     componentWillMount() {
@@ -113,11 +106,8 @@ export default class WriteNow extends Component {
             if (notif && notif.data) {
                 var notifData = JSON.parse(notif.data);
                 if (notif.isPhoneCall == true) {
-                    console.log(notifData);
-                    console.log('------------++++++++++++4444444');
                     Actions.Call(notifData);
                     setTimeout(() => {
-                        console.log('1111');
                         Event.trigger('getCall');
                     }, 100);
                 }
@@ -132,8 +122,6 @@ export default class WriteNow extends Component {
             if (notif && notif.data) {
                 var notifData = JSON.parse(notif.data);
                 if (notif.isPhoneCall == true) {
-                    console.log(notifData);
-                    console.log('------------++++++++++++33333333');
                     Actions.Call(notifData);
                     setTimeout(() => {
                         Event.trigger('getCall');
