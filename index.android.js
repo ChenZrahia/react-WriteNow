@@ -119,6 +119,7 @@ export default class WriteNow extends Component {
         });
         this.notificationUnsubscribe = FCM.on('notification', (notif) => {
             console.log(notif);
+            
             if (notif && notif.data) {
                 var notifData = JSON.parse(notif.data);
                 if (notif.isPhoneCall == true) {
@@ -126,15 +127,17 @@ export default class WriteNow extends Component {
                     setTimeout(() => {
                         Event.trigger('getCall');
                     }, 100);
+                } else {
+                    Event.trigger('lastMessage', notifData.message, notifData.convId, true);
                 }
+            } else {
+              Event.trigger('lastMessage', notif.message, notif.convId, true);
             }
             // there are two parts of notif. notif.notification contains the notification payload, notif.data contains data payload
             if(notif.local_notification){
-              //this is a local notification
               console.log('notif.local_notification');
             }
             if(notif.opened_from_tray){
-              //app is open/resumed because user clicked banner
               console.log('notif.opened_from_tray');
             }
         });
@@ -180,7 +183,7 @@ export default class WriteNow extends Component {
         });
     }
 
-    componentDidMount() {
+    componentDidMount() {        
         this.loadContacts();
         try {
             serverSrv.GetAllMyFriends((result) => {

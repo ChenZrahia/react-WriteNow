@@ -40,7 +40,7 @@ export default class Chats extends Component {
             this.UpdateChatsList = this.UpdateChatsList.bind(this);
             this.newMessage = this.newMessage.bind(this);
             this.NewChat = this.NewChat.bind(this);
-             this.UpdatelastMessage = this.UpdatelastMessage.bind(this);
+            this.UpdatelastMessage = this.UpdatelastMessage.bind(this);
             Event.on('UpdateChatsList', this.UpdateChatsList);
             Event.on('newMessage', this.newMessage);
             Event.on('NewChat', this.NewChat);
@@ -258,7 +258,7 @@ export default class Chats extends Component {
 
     _renderCancel(notifications) {
         try {
-            if (notifications) {
+            if (notifications && notifications > 0) {
                 return (
                     <View style={styles.notification}>
                         <Text style={styles.notificationText}>
@@ -274,12 +274,20 @@ export default class Chats extends Component {
             ErrorHandler.WriteError('Chats.js => _renderCancel', e);
         }
     }
-UpdatelastMessage(lastMessage , convId)
+UpdatelastMessage(lastMessage , convId, isNewMessage)
 {
     this.myChats = this.myChats.map((chat) => {
         console.log(chat);
         if (chat.id == convId) {
             chat.lastMessage = lastMessage;
+            if (isNewMessage) {
+                if (!chat.notifications) {
+                    chat.notifications = 0;
+                }
+                chat.notifications = chat.notifications + 1;
+            } else {
+                chat.notifications = null;
+            }
          }
         return chat;
     });
@@ -309,12 +317,10 @@ UpdatelastMessage(lastMessage , convId)
                         dataSource={this.state.dataSource}
                         renderRow={(rowData) =>
                             <TouchableOpacity onPress={() => {
-                                console.log(rowData);
                                 this.openChat(rowData);
                             } }>
                                 <View style={generalStyle.styles.row}>
                                     <TouchableOpacity onPress={() => {
-                                        console.log('rowData.groupPicture');
                                         this.imgSelected = rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ?  rowData.isGroup : require('../../img/user.jpg'))
                                         this.setImageVisible(true);
                                     } }>

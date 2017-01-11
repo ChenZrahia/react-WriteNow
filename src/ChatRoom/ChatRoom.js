@@ -14,7 +14,8 @@ import {
     ScrollView,
     View,
     NativeModules,
-    Modal
+    Modal,
+    BackAndroid
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import ImageResizer from 'react-native-image-resizer';
@@ -69,8 +70,14 @@ export default class ChatRoom extends Component {
 
     componentDidMount() {
         try {
+            BackAndroid.addEventListener('hardwareBackPress', () => {
+                if (this.convId) {
+                    Event.trigger('lastMessage', this.messages[0].text, this.convId, false);
+                } 
+            });
             this.LoadNewChat(this.props.id, this.props.isContact, this.props.id, this.props.phoneNumber, this.props.fullName);
             Event.on('LoadNewChat', this.LoadNewChat);
+            
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => componentDidMount', e);
         }
@@ -381,12 +388,9 @@ export default class ChatRoom extends Component {
 
     onType(text, _isEncrypted) {
         try {
-            console.log('111')
-            console.log(text)
             if (this._messageId == null) {
                 this._messageId = this.guid();
             }
-            
             var msg = {
                 mid: this._messageId,
                 id: this._messageId,
@@ -397,8 +401,6 @@ export default class ChatRoom extends Component {
                 from: serverSrv._uid,
                 content: text
             };
-            console.log('222');
-            console.log(msg);
             serverSrv.Typing(msg);
               msg.user = {
                     name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName,
@@ -407,9 +409,7 @@ export default class ChatRoom extends Component {
             if (!this.indexOnlineMessages[msg._id]) { //new message
                 this.indexOnlineMessages[msg._id] = msg;
                 this.onlineMessages.push(this.indexOnlineMessages[msg.id]);
-                 console.log('333');
             } else {
-                 console.log('444');
                 this.indexOnlineMessages[msg._id].text = msg.content;
                 this.indexOnlineMessages[msg._id].content = msg.content;
                 if (!msg.content || msg.content.length == 0) {

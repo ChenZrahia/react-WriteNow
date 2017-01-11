@@ -2,9 +2,9 @@ var React = require('react-native');
 import { Actions } from 'react-native-router-flux';
 //import React from 'react-native';
 import './UserAgent';
-import io from 'socket.io-client/socket.io';
+//import io from 'socket.io-client/socket.io';
 
-//import io from 'socket.io-client/dist/socket.io';
+import io from 'socket.io-client/dist/socket.io';
 import ImageResizer from 'react-native-image-resizer';
 import {
     Image,
@@ -16,7 +16,7 @@ import {
 var Event = require('./Events');
 var SignUp = require('../src/SignUp/SignUp');
 var moment = require('moment');
-import CryptLib from 'react-native-aes-encryption';
+// import CryptLib from 'react-native-aes-encryption';
 
 //--------for dev mode only-----------//
 var encryptedUid = 'UIP5n4v1jj24a+dHq6L/QqLwDFtPnSoebPzUe5+DWKOQ+rj5boKTAI6goMgySXHDj4BRMOa16wNV743D3/5WfRlXPrizY6nvi3XEmg/oPQvmNLlchDDjqZpQW8nfAS3IH9jZwDqFjxMKVkMau1SOLJxMroz7hTKVH7gOCGLHzik=';
@@ -33,9 +33,9 @@ var ErrorHandler = require('../ErrorHandler');
 var SQLite = require('react-native-sqlite-storage')
 
 
-var CryptoJS = require("crypto-js");
-var SHA256 = require("crypto-js/sha256");
- var rug = require('jsrsasign');
+// var CryptoJS = require("crypto-js");
+// var SHA256 = require("crypto-js/sha256");
+//  var rug = require('jsrsasign');
  //var rugbin = require('jsrsasign-util');
 
 
@@ -875,28 +875,28 @@ export function login(_token) {
                     //  socket.emit('encryptedMessage', ciphertext.toString())
 
                     // }, 300);
-                    setTimeout(() => {
-                        try {
+                    // setTimeout(() => {
+                    //     try {
 
-                             var encrypted = 'check 1 2 3';
-                             var hash = CryptoJS.SHA256(encrypted);
-                             console.log("this is the hash: " + hash);
-                             // RSA signature generation
-                            var sig = new rug.Signature({"alg": "SHA1withRSA"});
-                            sig.init(prvKeyPEM);
-                            sig.updateString('aaa');
-                            var hSigVal = sig.sign();
-                             console.log("this is a digital sig: " + hSigVal);
+                    //          var encrypted = 'check 1 2 3';
+                    //          var hash = CryptoJS.SHA256(encrypted);
+                    //          console.log("this is the hash: " + hash);
+                    //          // RSA signature generation
+                    //         var sig = new rug.Signature({"alg": "SHA1withRSA"});
+                    //         sig.init(prvKeyPEM);
+                    //         sig.updateString('aaa');
+                    //         var hSigVal = sig.sign();
+                    //          console.log("this is a digital sig: " + hSigVal);
                            
 
-                        }
-                        catch (e) {
-                            console.log(e);
-                        }
-                        console.log("emitting");
-                        socket.emit('encryptedMessage', hash)
+                    //     }
+                    //     catch (e) {
+                    //         console.log(e);
+                    //     }
+                    //     console.log("emitting");
+                    //     socket.emit('encryptedMessage', hash)
 
-                    }, 300);
+                    // }, 300);
                     socket.removeAllListeners("AuthenticationOk");
 
                     socket.on('AuthenticationOk', (ok) => {

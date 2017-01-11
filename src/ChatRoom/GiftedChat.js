@@ -628,7 +628,7 @@ walkieTalkie(){
 
 cancel_chatRoom(lastMessage)
 {
-  Event.trigger('lastMessage', lastMessage, this.props.convId);
+  Event.trigger('lastMessage', lastMessage, this.props.convId, false);
 }
 
 
