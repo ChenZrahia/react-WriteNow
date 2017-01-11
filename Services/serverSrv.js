@@ -89,7 +89,6 @@ setTimeout(function () {
 export function DeleteDb() {
     console.log('delete 1');
     db.transaction((tx) => {
-        tx.executeSql('DELETE FROM UserInfo', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
@@ -151,10 +150,6 @@ setTimeout(() => {
 
 
 //     }
-
-
-
-
 
 export function GetAllMyFriends(callback, isUpdate) {
     try {

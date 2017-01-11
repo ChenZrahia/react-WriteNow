@@ -355,6 +355,7 @@ export default class ChatRoom extends Component {
                     msg.content = msg.text;
                     msg.convId = this.convId;
                     serverSrv.saveNewMessage(msg);
+                    this._messageId = null;
                 }
 
                 //serverSrv._myFriendsJson[msg.user._id];
@@ -375,8 +376,7 @@ export default class ChatRoom extends Component {
             });
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => onSend', e);
-        }
-        this._messageId = null;
+        }      
     }
 
     onType(text, _isEncrypted) {
