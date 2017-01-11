@@ -303,9 +303,6 @@ export default class ChatRoom extends Component {
                // msg.user = serverSrv._myFriendsJson[msg.from];
             }
 
-console.log(msg.user);
-
-
             if (!isImage) {
                 msg.text = msg.content;
             }

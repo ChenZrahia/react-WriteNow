@@ -79,15 +79,13 @@ setTimeout(function () {
 export function DeleteDb() {
     console.log('delete 1');
     db.transaction((tx) => {
-        //tx.executeSql('DELETE FROM UserInfo', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM UserInfo', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Participates', [], null, errorDB); //------------------
 
-        console.log('delete 2');
-
-        //tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
