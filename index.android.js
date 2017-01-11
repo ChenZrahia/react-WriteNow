@@ -128,10 +128,10 @@ export default class WriteNow extends Component {
                         Event.trigger('getCall');
                     }, 100);
                 } else {
-                    Event.trigger('lastMessage', notifData.message, notifData.convId, true);
+                    Event.trigger('lastMessage', notifData.message, notifData.message_time, notifData.convId, true);
                 }
             } else {
-              Event.trigger('lastMessage', notif.message, notif.convId, true);
+              Event.trigger('lastMessage', notif.message, notif.message_time, notif.convId, true);
             }
             // there are two parts of notif. notif.notification contains the notification payload, notif.data contains data payload
             if(notif.local_notification){

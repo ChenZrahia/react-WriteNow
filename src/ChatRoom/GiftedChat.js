@@ -626,9 +626,9 @@ walkieTalkie(){
   this.setState({ showMenu: !this.state.showMenu });
 }
 
-cancel_chatRoom(lastMessage)
+cancel_chatRoom(lastMessage, lastMessageTime)
 {
-  Event.trigger('lastMessage', lastMessage, this.props.convId, false);
+  Event.trigger('lastMessage', lastMessage, lastMessageTime, this.props.convId, false);
 }
 
 
@@ -654,7 +654,7 @@ render() {
         <View style={generalStyles.styles.appbar}>
           <TouchableOpacity onPress={() => {
             if (this.props.messages && this.props.messages.length > 0) {
-              this.cancel_chatRoom(this.props.messages[0].text);
+              this.cancel_chatRoom(this.props.messages[0].text, this.props.messages[0].sendTime);
             }
             Actions.pop();
           } }>

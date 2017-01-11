@@ -72,7 +72,7 @@ export default class ChatRoom extends Component {
         try {
             BackAndroid.addEventListener('hardwareBackPress', () => {
                 if (this.convId) {
-                    Event.trigger('lastMessage', this.messages[0].text, this.convId, false);
+                    Event.trigger('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false);
                 } 
             });
             this.LoadNewChat(this.props.id, this.props.isContact, this.props.id, this.props.phoneNumber, this.props.fullName);

@@ -274,12 +274,13 @@ export default class Chats extends Component {
             ErrorHandler.WriteError('Chats.js => _renderCancel', e);
         }
     }
-UpdatelastMessage(lastMessage , convId, isNewMessage)
+UpdatelastMessage(lastMessage, lastMessageTime , convId, isNewMessage)
 {
     this.myChats = this.myChats.map((chat) => {
         console.log(chat);
         if (chat.id == convId) {
             chat.lastMessage = lastMessage;
+            chat.lastMessageTime = lastMessageTime;
             if (isNewMessage) {
                 if (!chat.notifications) {
                     chat.notifications = 0;
@@ -292,10 +293,7 @@ UpdatelastMessage(lastMessage , convId, isNewMessage)
         return chat;
     });
     this.setState({dataSource: this.ds.cloneWithRows(this.myChats)});
-    
 }
-
-
 
     render() {
         try {
