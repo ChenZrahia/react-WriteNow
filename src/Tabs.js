@@ -10,6 +10,7 @@ import Contacts from './Contacts/Contacts';
 import ChatRoom from './ChatRoom/ChatRoom';
 import SignUp from './SignUp/SignUp'
 import Chats from './Chats/Chats'
+import LiveChat from './LiveChat/LiveChat'
 import { Actions, Scene, Router } from 'react-native-router-flux';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Menu, {
@@ -23,8 +24,6 @@ var serverSrv = require('../Services/serverSrv');
 var generalStyle = require('../styles/generalStyle');
 var ScrollableTabView = require('react-native-scrollable-tab-view');
 var ErrorHandler = require('../ErrorHandler');
-
-
 
 // var SinchVerification = require('react-native-sinch-verification');
 // var custom = "A custom string to be sent to your server backend, through Sinch's callback URL";
@@ -53,10 +52,6 @@ var ErrorHandler = require('../ErrorHandler');
 //       // done! 
 //   }
 // });
- 
-
-
-
 
 const styles = StyleSheet.create({
     tabbar: {
@@ -99,7 +94,7 @@ export default class Tabs extends Component {
                     <View style={generalStyle.styles.appbar}>
                         <Text style={generalStyle.styles.titleHeader}>
                             WriteNow
-        </Text>
+                        </Text>
                         <TouchableHighlight style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
                             serverSrv.DeleteDb();
                         } }>
@@ -111,6 +106,7 @@ export default class Tabs extends Component {
                     <ScrollableTabView tabBarBackgroundColor={generalStyle._mainColor} tabBarTextStyle={{ color: 'white' }} tabBarUnderlineStyle={{ backgroundColor: generalStyle._secondColor, height: 2 }}>
                         <Chats tabLabel="CHATS" />
                         <Contacts tabLabel="CONTACTS" />
+                        <LiveChat tabLabel="LIVE CHAT" />
                     </ScrollableTabView>
                 </View>
             );

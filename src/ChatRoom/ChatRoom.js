@@ -56,10 +56,12 @@ export default class ChatRoom extends Component {
             Event.removeAllListeners('showSignature');
             Event.removeAllListeners('sendSegnature');
             Event.removeAllListeners('imojiType');
+            Event.removeAllListeners('encryptedMessage');
             Event.on('showImagePicker', this.showImagePicker);
             Event.on('showSignature', this.showSignature);
             Event.on('sendSegnature', this.sendImageMessage);
             Event.on('imojiType', this.onType);
+            Event.on('encryptedMessage', this.onType);
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => constructor', e);
         }
@@ -75,8 +77,6 @@ export default class ChatRoom extends Component {
     }
 
     LoadNewChat(convId, isContact, uid, phoneNumber, fullName){
-            console.log(convId, isContact, uid, phoneNumber, fullName);
-            console.log(convId, isContact, uid, phoneNumber, fullName);
         try {
             this.messages = [];
             this.indexOnlineMessages = [];
@@ -108,8 +108,6 @@ export default class ChatRoom extends Component {
                     data = [];
                 }
                 this.messages = data;
-                console.log(convId);
-                console.log('---convId---');
                 this.convId = convId;
                 this.setState({
                     messages: GiftedChat.append(this.messages, this.onlineMessages),
@@ -123,11 +121,9 @@ export default class ChatRoom extends Component {
             }
             if (isContact == true) {
                 setTimeout(() => {
-                    console.log('isContact == true');
                     serverSrv.GetConvByContact(callback, uid, phoneNumber, this.props.publicInfo.fullName);
                 }, 100);
             } else {
-                    console.log('isContact == false');
                 serverSrv.GetConv(callback, this.convId);
             }
         } catch (error) {
@@ -171,8 +167,6 @@ export default class ChatRoom extends Component {
                 }
             };
             ImagePicker.showImagePicker(options, (response) => {
-                console.log('Response = ', response);
-
                 if (response.didCancel) {
                     console.log('User cancelled image picker');
                 }
@@ -197,7 +191,7 @@ export default class ChatRoom extends Component {
                     ImageResizer.createResizedImage(response.uri, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
                         NativeModules.RNImageToBase64.getBase64String(resizedImageUri, (err, base64) => {
                             //this.sendImageMessage('data:image/jpeg;base64,' + base64);
-                            this.setState({ imgToMsg: ('data:image/jpeg;base64,' + base64) });
+                            this.setState({ imgToMsg: ('data:image/jpeg;base64,' + base64), pathOfImage: resizedImageUri });
                             this.setImageVisible(true);
                             //error check
                         })
@@ -220,9 +214,8 @@ export default class ChatRoom extends Component {
         }
     }
 
-    openImageModal(image) {
+    openImageModal(image, pathOfImage) {
         try {
-        console.log("****************123********************************");
             return (
                 <Modal
                     transparent={false}
@@ -233,22 +226,25 @@ export default class ChatRoom extends Component {
                         this.setImageVisible(!this.state.imageVisible);
                     } }>
                         <View style={{ backgroundColor: 'rgba(0,0,0,0.7)', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                            <Image style={{ width: 300, height: 300, borderRadius: 0, borderWidth: 1 }} source={{ uri: image }} />
-                            <View style={{ width: 300, flexDirection: 'row', backgroundColor: 'white', borderColor: 'gray', borderWidth: 1 }}>
+                            <TouchableOpacity onPress={() => {
+                                this.sendImageMessage(image, this.state.text, pathOfImage);
+                                this.setImageVisible(!this.state.imageVisible)
+                            } }>
+                                <Image style={{ width: 300, height: 300, borderRadius: 0, borderWidth: 1 }} source={{ uri: image }} />
                                 <TextInput
                                     style={{ flex: 1, height: 40, backgroundColor: 'white' }}
                                     placeholder="Type a message..."
                                     onChangeText={(text) => this.setState({ text })}
                                     value={this.state.text}
                                     />
+                                 </TouchableOpacity>   
                                 <TouchableOpacity onPress={() => {
                                     this.sendImageMessage(image, this.state.text);
                                     this.setImageVisible(!this.state.imageVisible);
                                 } }>
                                     <Icon name="md-send" size={30} style={{ height: 40, padding: 5 }}/>
                                 </TouchableOpacity>
-                            </View>
-                        </View>
+                            </View>   
                     </TouchableOpacity>
                 </Modal>
             );
@@ -257,7 +253,7 @@ export default class ChatRoom extends Component {
         }
     }
 
-    sendImageMessage(img, _text) {
+    sendImageMessage(img, _text, _imgPath) {
         try {
             this._messageId = this.guid();
             var msg = {
@@ -272,7 +268,8 @@ export default class ChatRoom extends Component {
                 user: serverSrv._myFriendsJson[serverSrv._uid],
                 createdAt: Date.now(),
                 text: _text,
-                image: img
+                image: img,
+                imgPath: _imgPath
             };
             this.onFriendType(msg, true);
         } catch (e) {
@@ -371,29 +368,34 @@ export default class ChatRoom extends Component {
         this._messageId = null;
     }
 
-    onType(text) {
+    onType(text, _isEncrypted) {
         try {
+            console.log('111')
+            console.log(text)
             if (this._messageId == null) {
                 this._messageId = this.guid();
             }
-            console.log(this.convId);
-            console.log('this.convId');
+            
             var msg = {
                 mid: this._messageId,
                 id: this._messageId,
                 _id: this._messageId,
                 convId: this.convId,
-                isEncrypted: false,
+                isEncrypted: _isEncrypted,
                 lastTypingTime: Date.now(),
                 from: serverSrv._uid,
                 content: text
             };
+            console.log('222');
+            console.log(msg);
             serverSrv.Typing(msg);
             msg.user = serverSrv._myFriendsJson[msg.from];
             if (!this.indexOnlineMessages[msg._id]) { //new message
                 this.indexOnlineMessages[msg._id] = msg;
                 this.onlineMessages.push(this.indexOnlineMessages[msg.id]);
+                 console.log('333');
             } else {
+                 console.log('444');
                 this.indexOnlineMessages[msg._id].text = msg.content;
                 this.indexOnlineMessages[msg._id].content = msg.content;
                 if (!msg.content || msg.content.length == 0) {
@@ -413,6 +415,8 @@ export default class ChatRoom extends Component {
     }
 
     render() {
+    
+
         return (
             <View style={{ flex: 1, alignSelf: 'stretch' }} >
                 <GiftedChat
@@ -422,11 +426,12 @@ export default class ChatRoom extends Component {
                     messages={this.state.messages}
                     onSend={this.onSend}
                     onType={this.onType}
+                    convId={this.convId}
                     user={{
                         _id: serverSrv._uid,
                     }}
                     />
-                {this.openImageModal(this.state.imgToMsg)}
+                {this.openImageModal(this.state.imgToMsg, this.state.pathOfImage)}
             </View>
         );
     }

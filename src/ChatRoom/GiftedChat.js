@@ -8,6 +8,7 @@ import {
   Image,
   TouchableOpacity,
   Text,
+  TextInput,
   Modal,
 } from 'react-native';
 import Menu, { MenuContext, MenuOptions, MenuOption, MenuTrigger } from 'react-native-menu';
@@ -16,10 +17,9 @@ import ActionSheet from '@exponent/react-native-action-sheet';
 import dismissKeyboard from 'react-native-dismiss-keyboard';
 import moment from 'moment/min/moment-with-locales.min';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {Actions} from 'react-native-router-flux';
+import { Actions } from 'react-native-router-flux';
 
-
-
+import renderIf from '../../plugins/renderIf';
 //import Actions from './Actions';
 import Avatar from './Avatar';
 import Bubble from './Bubble';
@@ -34,10 +34,10 @@ import MessageContainer from './MessageContainer';
 import Send from './Send';
 import Time from './Time';
 import IconMat from 'react-native-vector-icons/MaterialIcons';
-import renderIf from '../../plugins/renderIf'
 
 var Event = require('../../Services/Events');
 var generalStyles = require('../../styles/generalStyle');
+var liveSrv = require('../../Services/liveSrv');
 
 // Min and max heights of ToolbarInput and Composer
 // Needed for Composer auto grow and ScrollView animation
@@ -61,7 +61,7 @@ export default class GiftedChat extends React.Component {
 
 
 
-           
+
     // default values
     this._isMounted = false;
     this._keyboardHeight = 0;
@@ -77,10 +77,13 @@ export default class GiftedChat extends React.Component {
       isInitialized: false, // initialization will calculate maxHeight before rendering the chat
       imageVisible: false,
       showMenu: false,
-
+      encryptedVisible: false,
+      multiline: true,
+      encryptedMessageText: '',
+      height: 0,
     };
 
- 
+
 
     this.onTouchStart = this.onTouchStart.bind(this);
     this.onTouchMove = this.onTouchMove.bind(this);
@@ -94,6 +97,7 @@ export default class GiftedChat extends React.Component {
     this.getLocale = this.getLocale.bind(this);
     this.cancel_chatRoom = this.cancel_chatRoom.bind(this);
 
+    this.viewProfile = this.viewProfile.bind(this);
     this.invertibleScrollViewProps = {
       inverted: true,
       keyboardShouldPersistTaps: true,
@@ -399,13 +403,18 @@ onType(e) {
       messagesContainerHeight: this.prepareMessagesContainerHeight(newMessagesContainerHeight),
     };
   });
-  this.props.onType(newText);
+  this.props.onType(newText,false);
 }
 
 changeText = (data) => {
-  Event.trigger('imojiType', this.state.text + data);
+  Event.trigger('imojiType', this.state.text + data,false);
   this.setState({ text: this.state.text + data });
 }
+
+
+
+
+
 
 
 renderInputToolbar() {
@@ -449,10 +458,12 @@ renderLoading() {
 setImageVisible(visible) {
   this.setState({ imageVisible: visible });
 }
-
+setEncryptedVisible(visible){
+  this.setState({ encryptedVisible: visible });
+}
 menuOption()
 {
-  this.setState({ showMenu: !this.state.showMenu});
+  this.setState({ showMenu: !this.state.showMenu });
 }
 
 openImageModal(image) {
@@ -473,32 +484,119 @@ openImageModal(image) {
   );
 }
 
-    // visible={this.state.isMenuOpen}
+// visible={this.state.isMenuOpen}
 //
- newList(){
-   console.log('new list is working well');
-   this.setState({ showMenu: !this.state.showMenu});
- }
- encryptMessage(){
-   console.log('encrypt Message is working well');
-   this.setState({ showMenu: !this.state.showMenu});
- }
- viewProfile(){
-   console.log('view Profile is working well');
-   this.setState({ showMenu: !this.state.showMenu});
- }
- settings(){
-    console.log('settings is working well');
-   this.setState({ showMenu: !this.state.showMenu});
- }
- walkieTalkie(){
-   console.log('walkieTalkie is working well');
-   this.setState({ showMenu: !this.state.showMenu});
- }
+newList(){
+  console.log('new list is working well');
+  this.setState({ showMenu: !this.state.showMenu });
+}
+encryptedMessage(){
+  //this.setState({ encryptedMessageText: this.state.encryptedMessageText + message });
+  //console.log(this.state.encryptedMessageText);
+  //this.props.changeEncryptedMessageText(this.state.encryptedMessageText);
+  //Event.trigger('encryptedMessage', this.state.encryptedMessageText);
+
+  Event.trigger('encryptedMessage', this.state.encryptedMessageText,true);
+  this.setState({ encryptedMessageText: '' });
+  this.setEncryptedVisible(!this.state.encryptedVisible);
+}
+ // <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
+              //   this.setEncryptedVisible(!this.state.encryptedVisible)
+              // } }>
+              // </TouchableOpacity>
+
+encrypteModal(){
+  return (
+    <Modal
+      transparent={true}
+      visible={this.state.encryptedVisible}
+      onRequestClose={() => { console.log('encrypted message modal closed') } }
+      >
+    
+        <View style={generalStyles.styles.imageModal}>
+          
+            <View style={{ flex: 1 }}>
+             
+            </View>
+            <View style={generalStyles.styles.encryptedMessageModal}>
+              <View style={generalStyles.styles.encryptedMessageHeader}>
+                <Text style={{ color: 'white', textAlign: 'left' }}>Encrypt Your Message</Text>
+              </View>
+              <View style={{ flexDirection: "row", flex: 1, backgroundColor: 'white' }}>
+                <TextInput
+                  autoCorrect={true}
+                  placeholder='Type a message...'
+                  placeholderTextColor='#b2b2b2'
+                  multiline={this.state.multiline}
+                  onChangeText={(encryptedMessageText) => {
+                    this.setState({ encryptedMessageText });
+                  }
+                  }
+                  style={[styles.textInput, { textAlign: 'left', textAlignVertical: 'top' }, { height: Math.max(35, this.state.height) }]}
+                  value={this.state.encryptedMessageText}
+                  enablesReturnKeyAutomatically={true}
+                  underlineColorAndroid="transparent"
+                  />
+              </View>
+
+              <View style={{ flexDirection: "row", flex: 0.5 }}>
+                <TouchableOpacity style={styles.buttonStyle}
+                  onPress={() => { this.encryptedMessage() } } >
+                  <Text style={{ color: 'white' }}>Send</Text>
+                </TouchableOpacity>
+                <View style={{ flex: 0.6, justifyContent: "center", alignItems: "center" }}>
+                  <Image
+                    style={{ width: 40, height: 40, padding: 2 }}
+                    source={{ uri: 'https://cdn4.iconfinder.com/data/icons/social-productivity-line-art-4/128/security-shield-lock-512.png' }}
+                    />
+                </View>
+
+                <TouchableOpacity style={styles.buttonStyle}
+                  onPress={() => { this.setEncryptedVisible(!this.state.encryptedVisible) } } >
+                  <Text style={{ color: 'white' }}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={{ flex: 1 }}>
+              
+            </View>
+
+
+
+          
+        </View>
+      
+    </Modal>
+  );
+
+}
+encryptMessage(){
+  console.log('encrypt Message is working well');
+  this.setState({ showMenu: !this.state.showMenu });
+  this.setState({ encryptedVisible: !this.state.encryptedVisible });
+}
+viewProfile(){
+  console.log('Voice Call is working well');
+  //this.props.userPicture = '';
+  liveSrv.Connect(this.props.convId);
+  Actions.Call({ userName: this.props.userName, userPicture: this.props.userPicture });
+  setTimeout(() => {
+    Event.trigger('getCall');
+  }, 100);
+  this.setState({ showMenu: !this.state.showMenu });
+}
+settings(){
+  console.log('settings is working well');
+  this.setState({ showMenu: !this.state.showMenu });
+}
+walkieTalkie(){
+  console.log('walkieTalkie is working well');
+  this.setState({ showMenu: !this.state.showMenu });
+}
 
 cancel_chatRoom(lastMessage)
 {
-   Event.trigger('lastMessage', lastMessage ,this.props.convId);
+  Event.trigger('lastMessage', lastMessage, this.props.convId);
 }
 
 render() {
@@ -515,9 +613,8 @@ render() {
             <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => {
-            //this.imgSelected = { uri: this.props.userPicture }
-            this.imgSelected =  this.props.userPicture ? { uri: this.props.userPicture} : null
-            if(this.imgSelected){
+            this.imgSelected = this.props.userPicture ? { uri: this.props.userPicture } : null
+            if (this.imgSelected) {
               this.setImageVisible(true);
             }
           } }>
@@ -528,75 +625,81 @@ render() {
           <Text style={generalStyles.styles.titleHeader}>
             {this.props.userName}
           </Text>
-          <TouchableOpacity style={{margin:7}} onPress={() => {
+          <TouchableOpacity style={{ margin: 7 }} onPress={() => {
             Event.trigger('showImagePicker');
           } }>
             <IconMat name="photo-camera" size={25} color="rgb(177,100,255)" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={{margin:7}} onPress={() => {
+          <TouchableOpacity style={{ margin: 7 }} onPress={() => {
             Event.trigger('showSignature');
           } }>
             <IconMat name="brush" size={25} color="rgb(177,100,255)" />
           </TouchableOpacity>
-          <TouchableOpacity style={{margin:7}} onPress={() => {
-            this.menuOption();}}>
+          <TouchableOpacity style={{ margin: 7 }} onPress={() => {
+            this.menuOption();
+          } }>
             <IconMat name="more-vert" size={25} color="rgb(177,100,255)" />
-          </TouchableOpacity>  
+          </TouchableOpacity>
 
           {renderIf(this.state.showMenu)(
             <Modal
-              onRequestClose={() => {}}
-              style={{flex:1}}
+              onRequestClose={() => { } }
+              style={{ flex: 1 }}
               transparent={true}
-             >
-              
-         <TouchableOpacity style={{ flex: 1 }} onPress={() => {
-                    this.setState({ showMenu: !this.state.showMenu})
-                } }>
-          <View style={{
-            width: 160,
-            height: 150,
-            backgroundColor: 'white',
-            position: 'absolute',
-            top: 35,
-            right: 25,
-          }}
-          >
-          <TouchableOpacity onPress={() => {
-            this.viewProfile();}}>
-          <Text style={{margin: 5,marginTop: 7, left: 6}}>
-          View Profile
+              >
+
+              <TouchableOpacity style={{ flex: 1 }} onPress={() => {
+                this.setState({ showMenu: !this.state.showMenu })
+              } }>
+                <View style={{
+                  width: 160,
+                  height: 170,
+                  backgroundColor: 'white',
+                  position: 'absolute',
+                  top: 35,
+                  right: 25,
+                }}
+                  >
+                  <TouchableOpacity onPress={() => {
+                    this.viewProfile();
+                  } }>
+                    <Text style={{ margin: 7, marginTop: 7, left: 6 }}>
+                      Voice Call
          </Text>
-         </TouchableOpacity> 
-          <TouchableOpacity onPress={() => {
-            this.encryptMessage();}}>
-          <Text style={{margin: 5, left: 6}}>
-           Encrypt Message
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => {
+                    this.encryptMessage();
+                  } }>
+                    <Text style={{ margin: 7, left: 6 }}>
+                      Encrypt Message
          </Text>
-         </TouchableOpacity> 
-           <TouchableOpacity onPress={() => {
-            this.newList();}}>
-          <Text style={{margin: 5, left: 6}}>
-            New List
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => {
+                    this.newList();
+                  } }>
+                    <Text style={{ margin: 7, left: 6 }}>
+                      New List
          </Text>
-         </TouchableOpacity> 
-            <TouchableOpacity onPress={() => {
-            this.walkieTalkie();}}>
-          <Text style={{margin: 5, left: 6}}>
-           Walkie-Talkie
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => {
+                    this.walkieTalkie();
+                  } }>
+                    <Text style={{ margin: 7, left: 6 }}>
+                      Walkie-Talkie
          </Text>
-         </TouchableOpacity> 
-           <TouchableOpacity onPress={() => {
-            this.settings();}}>
-          <Text style={{margin: 5, left: 6}}>
-           Settings
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => {
+                    this.settings();
+                  } }>
+                    <Text style={{ margin: 7, left: 6 }}>
+                      Settings
          </Text>
-         </TouchableOpacity> 
-        </View>
-                </TouchableOpacity>
-        </Modal>
-       )}
+                  </TouchableOpacity>
+                </View>
+              </TouchableOpacity>
+            </Modal>
+          )}
           <View style={styles.button} />
         </View>
         <ActionSheet ref={component => this._actionSheetRef = component}>
@@ -624,6 +727,7 @@ render() {
           </View>
         </ActionSheet>
         {this.openImageModal(this.imgSelected)}
+        {this.encrypteModal()}
       </View>
     );
   }
@@ -655,6 +759,31 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column'
 
+  },
+  buttonStyle: {
+    flex: 0.6, justifyContent: "center", alignItems: "center", height: 35,
+    alignSelf: 'flex-end',
+    backgroundColor: "#9933FF",
+    borderColor: "#9933FF",
+    width: 50,
+    borderRadius: 6,
+    borderWidth: 0.5,
+    marginBottom: 5,
+    marginLeft: 12,
+    marginRight: 12,
+    marginTop: 0,
+  },
+  textInput: {
+    flex: 1,
+    marginTop: 5,
+    padding: 4,
+    // marginLeft: 10,
+    fontSize: 16,
+    lineHeight: 16,
+    marginBottom: Platform.select({
+      ios: 5,
+      android: 3,
+    }),
   },
   container: {
     flex: 1,
@@ -700,9 +829,9 @@ GiftedChat.defaultProps = {
   isLoadingEarlier: false,
 };
 //  Modal.propTypes = {
-    
+
 //     onPressBackdrop:this.walkieTalkie() ,
-  
+
 //   },
 
 GiftedChat.propTypes = {
