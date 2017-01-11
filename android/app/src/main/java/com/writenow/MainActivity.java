@@ -9,6 +9,7 @@ import com.evollu.react.fcm.FIRMessagingPackage;
 import com.rt2zz.reactnativecontacts.ReactNativeContacts;
 import com.imagepicker.ImagePickerPackage;
 import com.rt2zz.reactnativecontacts.ReactNativeContacts;
+import android.content.Context;
 
 public class MainActivity extends ReactActivity {
 
@@ -22,7 +23,7 @@ public class MainActivity extends ReactActivity {
 
     @Override
     protected String getMainComponentName() {
-        
+        //Context.getApplicationContext();
         return "WriteNow";        
     }
 }

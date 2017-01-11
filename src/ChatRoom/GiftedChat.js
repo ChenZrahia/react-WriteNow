@@ -434,7 +434,6 @@ calculateInputToolbarHeight(newComposerHeight) {
     if (this.getIsTypingDisabled() === true) {
       return;
     }
-
     let newComposerHeight = null;
     if (e.nativeEvent && e.nativeEvent.contentSize) {
       newComposerHeight = Math.max(MIN_COMPOSER_HEIGHT, Math.min(MAX_COMPOSER_HEIGHT, e.nativeEvent.contentSize.height));
@@ -633,20 +632,20 @@ cancel_chatRoom(lastMessage)
 }
 
 
-  renderRowOnlineMsg(){
-    try {
-      return ((msg) => <View>
-        <Text style={{color: 'white'}}>{msg.content}</Text>
-     </View>);
-    } catch (error) {
+  // renderRowOnlineMsg(){
+  //   try {
+  //     return ((msg) => <View>
+  //       <Text style={{color: 'white'}}>{msg.content}</Text>
+  //    </View>);
+  //   } catch (error) {
 
-    }
-  }
+  //   }
+  // }
 
-    getDataSourceOnlineMsg() {
-        const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1.id !== r2.id });
-        return ds.cloneWithRows(this.state.onlineMessages);
-    }
+  //   getDataSourceOnlineMsg() {
+  //       const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1.id !== r2.id });
+  //       return ds.cloneWithRows(this.state.onlineMessages);
+  //   }
 
 render() {
   if (this.state.isInitialized === true) {

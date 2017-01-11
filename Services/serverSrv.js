@@ -31,7 +31,12 @@ var publicKey = `-----BEGIN PUBLIC KEY-----
 export var socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {});
 var ErrorHandler = require('../ErrorHandler');
 var SQLite = require('react-native-sqlite-storage')
+
+
 var CryptoJS = require("crypto-js");
+var SHA256 = require("crypto-js/sha256");
+ var rug = require('jsrsasign');
+ //var rugbin = require('jsrsasign-util');
 
 
 function errorDB(error) {
@@ -90,7 +95,6 @@ export function DeleteDb() {
         tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Participates', [], null, errorDB); //------------------
 
-        console.log('delete 2');
 
         tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
@@ -456,7 +460,7 @@ export function GetConv(callback, convId, isUpdate) {
         db.transaction((tx) => {
             tx.executeSql('SELECT * FROM Messages WHERE convId = ? AND (content IS NOT NULL OR image IS NOT NULL) ORDER BY sendTime DESC', [convId], (tx, rs) => {
                 try {
-                    var result = [];                    
+                    var result = [];
                     for (var i = 0; i < rs.rows.length; i++) {
                         var _user = {};
                         if (_myFriendsJson[rs.rows.item(i).msgFrom]) {
@@ -706,7 +710,7 @@ export function Typing(msg) {
         msg.from = _uid;
         // if(msg.isEncrypted == true){
         //     msg.content = 'הודעה מוצפנת';
-            
+
         // }
         socket.emit('typing', msg);
         // console.log('1 - typing');
@@ -736,14 +740,14 @@ export function onServerTyping(callback) {
             if (msg.sendTime && msg.from != _uid) {
                 if (msg.image) {
                     ImageResizer.createResizedImage(msg.image, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
-                    msg.imgPath = resizedImageUri;
-                    this.saveNewMessage(msg);
-                }).catch((err) => {
-                    ErrorHandler.WriteError('serverSrv.js => onServerTyping => ImageResizer', err);
-                });
-                    
+                        msg.imgPath = resizedImageUri;
+                        this.saveNewMessage(msg);
+                    }).catch((err) => {
+                        ErrorHandler.WriteError('serverSrv.js => onServerTyping => ImageResizer', err);
+                    });
+
                 } else {
-                     this.saveNewMessage(msg);  
+                    this.saveNewMessage(msg);
                 }
             }
             // else if(msg.isEncrypted == true){
@@ -855,55 +859,76 @@ export function login(_token) {
                     socket = io.connect('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: encryptedUid, publicKey: item.publicKey, uid: _uid, token: this._token } });
                     //setTimeout(() => {
 
-                        //try{       
-                        // var encrypted = 'check 1 2 3';
-                        // // Encrypt 
-                        // var ciphertext = CryptoJS.AES.encrypt(encrypted, 'secret key 123');
-                        
-                        // // Decrypt 
-                        // var bytes  = CryptoJS.AES.decrypt(ciphertext.toString(), 'secret key 123');
-                        // var plaintext = bytes.toString(CryptoJS.enc.Utf8);
-                        
-                         //console.log("11111111:"+ciphertext);
-                        // console.log("22222222:"+plaintext);
-                        
-                   // } catch (e) {
-                        // TODO Auto-generated catch block
-                      // console.log("error aes function");
-                      //  console.log(e);
-                   // }
-                             //console.log("emitting");
-                              //  socket.emit('encryptedMessage', ciphertext.toString())
+                    //try{       
+                    // var encrypted = 'check 1 2 3';
+                    // // Encrypt 
+                    // var ciphertext = CryptoJS.AES.encrypt(encrypted, 'secret key 123');
+
+                    // // Decrypt 
+                    // var bytes  = CryptoJS.AES.decrypt(ciphertext.toString(), 'secret key 123');
+                    // var plaintext = bytes.toString(CryptoJS.enc.Utf8);
+
+                    //console.log("11111111:"+ciphertext);
+                    // console.log("22222222:"+plaintext);
+
+                    // } catch (e) {
+                    // TODO Auto-generated catch block
+                    // console.log("error aes function");
+                    //  console.log(e);
+                    // }
+                    //console.log("emitting");
+                    //  socket.emit('encryptedMessage', ciphertext.toString())
+
+                    // }, 300);
+                    setTimeout(() => {
+                        try {
+
+                             var encrypted = 'check 1 2 3';
+                             var hash = CryptoJS.SHA256(encrypted);
+                             console.log("this is the hash: " + hash);
+                             // RSA signature generation
+                            var sig = new rug.Signature({"alg": "SHA1withRSA"});
+                            sig.init(prvKeyPEM);
+                            sig.updateString('aaa');
+                            var hSigVal = sig.sign();
+                             console.log("this is a digital sig: " + hSigVal);
                            
-                           // }, 300);
 
-                        socket.removeAllListeners("AuthenticationOk");
-
-                        socket.on('AuthenticationOk', (ok) => {
-                            try {
-                                //Actions.Tabs();
-                                console.log('connected');
-                                this.userIsConnected = true;
-                            } catch (e) {
-                                Actions.SignUp({ type: 'replace' });
-                                ErrorHandler.WriteError('EnterPage constructor => AuthenticationOk', error);
-                            }
-                        });
-                    }
-                else {
-                            try {
-                                socket = io.connect('https://server-sagi-uziel.c9users.io:8080');
-                                console.log('rs.rows.length < 0');
-                                Actions.SignUp({ type: 'replace' });
-                                console.log('rs.rows.length < 0');
-                            } catch (error) {
-                                ErrorHandler.WriteError('EnterPage constructor => userNotExist in DB ', error);
-                            }
                         }
+                        catch (e) {
+                            console.log(e);
+                        }
+                        console.log("emitting");
+                        socket.emit('encryptedMessage', hash)
+
+                    }, 300);
+                    socket.removeAllListeners("AuthenticationOk");
+
+                    socket.on('AuthenticationOk', (ok) => {
+                        try {
+                            //Actions.Tabs();
+                            console.log('connected');
+                            this.userIsConnected = true;
+                        } catch (e) {
+                            Actions.SignUp({ type: 'replace' });
+                            ErrorHandler.WriteError('EnterPage constructor => AuthenticationOk', error);
+                        }
+                    });
+                }
+                else {
+                    try {
+                        socket = io.connect('https://server-sagi-uziel.c9users.io:8080');
+                        console.log('rs.rows.length < 0');
+                        Actions.SignUp({ type: 'replace' });
+                        console.log('rs.rows.length < 0');
+                    } catch (error) {
+                        ErrorHandler.WriteError('EnterPage constructor => userNotExist in DB ', error);
+                    }
+                }
             }, (error) => {
-                    Actions.SignUp({ type: 'replace' });
-                    ErrorHandler.WriteError('SELECT SQL statement Error' + error.message, error);
-                });
+                Actions.SignUp({ type: 'replace' });
+                ErrorHandler.WriteError('SELECT SQL statement Error' + error.message, error);
+            });
             //655aef47-21ee-4d69-8311-6cc09460da13
 
         } catch (error) {
@@ -933,7 +958,7 @@ export function signUpFunc(newUser, callback) {
                 db.transaction(function (tx) {
                     this._uid = user.id;
                     login();
-                    tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?,?)', [user.id, '', '', '',user.privateInfo.password]);
+                    tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?,?)', [user.id, '', '', '', user.privateInfo.password]);
                     tx.executeSql('INSERT INTO Friends VALUES (?,?,?,?,?,?,?)', [user.id, newUser.phoneNumber, newUser.ModifyDate, newUser.ModifyPicDate, newUser.publicInfo.fullName, newUser.publicInfo.picture]);
                 }, (error) => {
                     ErrorHandler.WriteError('signUp => addNewUser => transaction', error);
