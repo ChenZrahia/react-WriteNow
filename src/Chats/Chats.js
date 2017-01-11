@@ -301,7 +301,7 @@ export default class Chats extends Component {
                                             <Image style={generalStyle.styles.thumb} source={rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? rowData.isGroup : require('../../img/user.jpg'))} />
                                         </View>
                                     </TouchableOpacity>
-                                    <View style={{ flexDirection: 'column', flex: 1, marginRight: 7 }}>
+                                    <View style={{ flexDirection: 'column', flex: 1, marginRight: 7, marginBottom: 3 }}>
                                         <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
                                             <Text style={generalStyle.styles.textName}>
                                                 {rowData.groupName}
