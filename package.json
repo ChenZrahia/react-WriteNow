@@ -12,6 +12,7 @@
     "react": "^15.4.1",
     "react-addons-shallow-compare": "^15.3.2",
     "react-native": "^0.39.0",
+    "react-native-aes": "^1.0.0",
     "react-native-alphabetlistview": "^0.2.0",
     "react-native-contacts": "^0.5.1",
     "react-native-emoji-picker": "^0.2.2",

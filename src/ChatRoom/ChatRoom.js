@@ -56,10 +56,12 @@ export default class ChatRoom extends Component {
             Event.removeAllListeners('showSignature');
             Event.removeAllListeners('sendSegnature');
             Event.removeAllListeners('imojiType');
+            Event.removeAllListeners('encryptedMessage');
             Event.on('showImagePicker', this.showImagePicker);
             Event.on('showSignature', this.showSignature);
             Event.on('sendSegnature', this.sendImageMessage);
             Event.on('imojiType', this.onType);
+            Event.on('encryptedMessage', this.onType);
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => constructor', e);
         }
@@ -377,21 +379,26 @@ export default class ChatRoom extends Component {
         }      
     }
 
-    onType(text) {
+    onType(text, _isEncrypted) {
         try {
+            console.log('111')
+            console.log(text)
             if (this._messageId == null) {
                 this._messageId = this.guid();
             }
+            
             var msg = {
                 mid: this._messageId,
                 id: this._messageId,
                 _id: this._messageId,
                 convId: this.convId,
-                isEncrypted: false,
+                isEncrypted: _isEncrypted,
                 lastTypingTime: Date.now(),
                 from: serverSrv._uid,
                 content: text
             };
+            console.log('222');
+            console.log(msg);
             serverSrv.Typing(msg);
               msg.user = {
                     name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName,
@@ -400,7 +407,9 @@ export default class ChatRoom extends Component {
             if (!this.indexOnlineMessages[msg._id]) { //new message
                 this.indexOnlineMessages[msg._id] = msg;
                 this.onlineMessages.push(this.indexOnlineMessages[msg.id]);
+                 console.log('333');
             } else {
+                 console.log('444');
                 this.indexOnlineMessages[msg._id].text = msg.content;
                 this.indexOnlineMessages[msg._id].content = msg.content;
                 if (!msg.content || msg.content.length == 0) {
@@ -420,6 +429,7 @@ export default class ChatRoom extends Component {
             <View style={{ flex: 1, alignSelf: 'stretch' }} >
                 <GiftedChat
                     userName={this.state.groupName}
+                    convId={this.convId}
                     userPicture={this.state.groupPicture}
                     messages={this.state.messages}
                     onSend={this.onSend}

@@ -90,6 +90,25 @@ export const styles = StyleSheet.create({
         borderRadius: 10,
         borderWidth: 1
     },
+      encryptedMessageModal: {
+        flex: 1,
+        height: 200,
+        borderRadius: 10,
+        backgroundColor: 'white'
+    },
+        encryptedMessageHeader: {
+        flexDirection: 'row',
+        flex: 0.5,
+        alignItems: 'center',
+        height: 40,
+        width:350,
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
+        backgroundColor: mainColor,
+        elevation: 4,
+        paddingLeft: 7,
+        justifyContent: 'center'
+    },
     iconContainer:{
         width: 30,
         alignItems:'flex-end',

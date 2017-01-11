@@ -3,7 +3,9 @@ import {
   Clipboard,
   StyleSheet,
   TouchableWithoutFeedback,
+  Image,
   View,
+  Text
 } from 'react-native';
 
 import MessageText from './MessageText';
@@ -20,6 +22,7 @@ export default class Bubble extends React.Component {
     } catch (e) {
       ErrorHandler.WriteError('Bubble.js => constructor', e);
     }
+    this.renderMessageText = this.renderMessageText.bind(this);
   }
 
   handleBubbleToNext() {
@@ -43,16 +46,38 @@ export default class Bubble extends React.Component {
       ErrorHandler.WriteError('Bubble.js => handleBubbleToPrevious', e);
     }
   }
-
+greenLock(){
+  return(
+     <Image
+                    style={{ width: 40, height: 40, padding: 5 }}
+                    source={{ uri: 'https://thebuntlist.files.wordpress.com/2016/05/ratelockgraphic.png' }}
+                    />
+  );
+}
+//  if (this.props.currentMessage.text == "הודעה מוצפנת") {
+         
+//         return (
+//           <View style={{ flexDirection: 'row'}}>
+//            <Image
+//                     style={{ width: 30, height: 30, padding: 5 }}
+//                     source={{ uri: 'https://openclipart.org/image/2400px/svg_to_png/188461/gesloten-slot.png' }}
+//           />
+//           <MessageText {...messageTextProps} />
+//           </View>
+//         );
+//        }
+//        else{
   renderMessageText() {
-    try {
+    try {  
       if (this.props.currentMessage.text) {
         const {containerStyle, wrapperStyle, ...messageTextProps} = this.props;
         if (this.props.renderMessageText) {
           return this.props.renderMessageText(messageTextProps);
         }
+        
         return <MessageText {...messageTextProps} />;
-      }
+       }
+      
       return null;
     } catch (e) {
       ErrorHandler.WriteError('Bubble.js => renderMessageText', e);

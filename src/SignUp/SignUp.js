@@ -39,6 +39,7 @@ export default class SignUp extends Component {
         this.state = {
             DisplayName: "",
             PhoneNumber: "",
+            Password: "",
             avatarSource: require('../../img/user.jpg'),
             SpinnerVisible: false
         }
@@ -58,6 +59,12 @@ export default class SignUp extends Component {
             msg = 'Invalid Phone Number';
         } else if (!this.state.DisplayName || this.state.DisplayName < 2) {
             msg = 'Enter Your Name';
+        }
+         else if (!this.state.Password ) {
+            msg = 'Enter A Password';
+        }
+         else if (this.state.Password.length < 5) {
+            msg = 'Password Need To Contain At Least 5 Characters';
         }
         if (msg.length > 0) {
             var toast = Toast.show(msg, {
@@ -89,7 +96,8 @@ export default class SignUp extends Component {
                 gender: ''
             },
             privateInfo: {
-                tokenNotification: ''
+                tokenNotification: '',
+                password: this.state.Password,
             }
         };
 
@@ -221,6 +229,15 @@ export default class SignUp extends Component {
                             style={styles.input}
                             keyboardType="phone-pad"
                             onChangeText={(val) => this.setState({ PhoneNumber: val })}
+                            />
+                             <Fumi
+                            label={'Password'}
+                            iconClass={FontAwesomeIcon}
+                            iconName={'key'}
+                            iconColor={'#f50057'}
+                            style={styles.input}
+                            secureTextEntry = {true}
+                            onChangeText={(val) => this.setState({ Password: val })}
                             />
                         <TouchableOpacity disabled={disabled} style={styles.button} underlayColor='#ededed' onPress={this.SignUpSubmit}>
                             <View>

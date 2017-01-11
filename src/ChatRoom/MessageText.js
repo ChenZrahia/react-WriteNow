@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 
 import ParsedText from 'react-native-parsed-text';
+import renderIf from '../../plugins/renderIf';
 import Communications from 'react-native-communications';
 
 var ErrorHandler = require('../../ErrorHandler');
@@ -79,6 +80,8 @@ export default class MessageText extends React.Component {
             ]}
             >
             {this.props.currentMessage.text}
+
+          
           </ParsedText>
         </View>
       );

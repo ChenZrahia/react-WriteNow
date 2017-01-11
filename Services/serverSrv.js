@@ -2,18 +2,21 @@ var React = require('react-native');
 import { Actions } from 'react-native-router-flux';
 //import React from 'react-native';
 import './UserAgent';
-import io from 'socket.io-client/dist/socket.io';
+import io from 'socket.io-client/socket.io';
+
+//import io from 'socket.io-client/dist/socket.io';
 import ImageResizer from 'react-native-image-resizer';
 import {
-  Image,
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  Modal,
+    Image,
+    StyleSheet,
+    View,
+    TouchableOpacity,
+    Modal,
 } from 'react-native';
 var Event = require('./Events');
 var SignUp = require('../src/SignUp/SignUp');
 var moment = require('moment');
+import CryptLib from 'react-native-aes-encryption';
 
 //--------for dev mode only-----------//
 var encryptedUid = 'UIP5n4v1jj24a+dHq6L/QqLwDFtPnSoebPzUe5+DWKOQ+rj5boKTAI6goMgySXHDj4BRMOa16wNV743D3/5WfRlXPrizY6nvi3XEmg/oPQvmNLlchDDjqZpQW8nfAS3IH9jZwDqFjxMKVkMau1SOLJxMroz7hTKVH7gOCGLHzik=';
@@ -28,6 +31,13 @@ var publicKey = `-----BEGIN PUBLIC KEY-----
 export var socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {});
 var ErrorHandler = require('../ErrorHandler');
 var SQLite = require('react-native-sqlite-storage')
+
+
+var CryptoJS = require("crypto-js");
+var SHA256 = require("crypto-js/sha256");
+ var rug = require('jsrsasign');
+ //var rugbin = require('jsrsasign-util');
+
 
 function errorDB(error) {
     ErrorHandler.WriteError('SQL Error: ', error);
@@ -46,11 +56,11 @@ export var _myChats = null;
 export var _data = [];
 export var _uid = null;
 export var _myConvs = {};
- 
 
-     
-         
-     
+
+
+
+
 
 function printTable(tblName) {
     db.transaction((tx) => {
@@ -73,25 +83,25 @@ function printTable(tblName) {
 }
 
 setTimeout(function () {
-    //printTable('Messages');
+    printTable('Messages');
 }, 500);
 
 export function DeleteDb() {
     console.log('delete 1');
     db.transaction((tx) => {
-        //tx.executeSql('DELETE FROM UserInfo', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Participates', [], null, errorDB); //------------------
 
-        //tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
+
+        tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
 
-        tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid)', [], null, errorDB);
+        tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid,password)', [], null, errorDB);
         tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, picture, isMyContact)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll, image)', [], null, errorDB); //להוציא לפונקציה נפרדת
@@ -101,7 +111,7 @@ export function DeleteDb() {
 
 setTimeout(() => {
     db.transaction((tx) => {
-        tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid)', [], null, errorDB);
+        tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid,password)', [], null, errorDB);
         tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, picture, isMyContact)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll, image)', [], null, errorDB); //להוציא לפונקציה נפרדת
@@ -138,7 +148,7 @@ setTimeout(() => {
 //             ErrorHandler.WriteError('serverSrv.js => openImageModal', e);
 //         }
 
-        
+
 //     }
 
 export function GetAllMyFriends(callback, isUpdate) {
@@ -445,7 +455,7 @@ export function GetConv(callback, convId, isUpdate) {
         db.transaction((tx) => {
             tx.executeSql('SELECT * FROM Messages WHERE convId = ? AND (content IS NOT NULL OR image IS NOT NULL) ORDER BY sendTime DESC', [convId], (tx, rs) => {
                 try {
-                    var result = [];                    
+                    var result = [];
                     for (var i = 0; i < rs.rows.length; i++) {
                         var _user = {};
                         if (_myFriendsJson[rs.rows.item(i).msgFrom]) {
@@ -525,7 +535,7 @@ function InsertNewContact(tx, user) {
             user.sendTime,
             user.lastTypingTime,
             user.isSeenByAll,
-            imgOrPath
+                imgOrPath
             ]);
         tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ? WHERE id = ? AND lastMessageTime < ?',
             [user.content,
@@ -580,10 +590,12 @@ function GetConv_server(convId, callback) {
                         tx.executeSql('DELETE FROM Messages WHERE id=?', [data.messages[i].id]);
                     } else {
                         if (data.messages[i].image) {
-                            ImageResizer.createResizedImage(data.messages[i].image, 400, 400, 'JPEG', 100, 0, null).then((function(obj) {return  (resizedImageUri) => {
-                                obj.imgPath = resizedImageUri;
-                                InsertNewContact(tx, obj);
-                            }})(data.messages[i])).catch((err) => {
+                            ImageResizer.createResizedImage(data.messages[i].image, 400, 400, 'JPEG', 100, 0, null).then((function (obj) {
+                                return (resizedImageUri) => {
+                                    obj.imgPath = resizedImageUri;
+                                    InsertNewContact(tx, obj);
+                                }
+                            })(data.messages[i])).catch((err) => {
                                 ErrorHandler.WriteError('serverSrv.js => onServerTyping => ImageResizer', err);
                             });
                         } else {
@@ -617,8 +629,8 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
                                         result.newUsr = result.newUsr[0];
                                     }
                                     UpdatePhoneNumberToId(result.newUsr.phoneNumber, result.newUsr.id);
-                                } 
-                                _ActiveConvId = result.id;       
+                                }
+                                _ActiveConvId = result.id;
                                 var Fid = result.participates.filter((usr) => {
                                     return usr.id != result.manager;
                                 })[0].id;
@@ -627,7 +639,10 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
                                 }
                                 _myFriendsJson[Fid].id = Fid;
                                 _myFriendsJson[Fid]._id = Fid;
-                                if (_myChats.filter((chat) => { return chat.id == result.id; }).length == 0) { //if the chat not exist
+                                console.log('----1----');
+                                console.log(Fid);
+                                if (_myChats.filter((chat) => { return chat.id == result.id; }).length == 0) { //if the chat not axist
+                                    console.log('----2----');
                                     db.transaction((tx2) => {
                                         tx2.executeSql('INSERT OR REPLACE into Conversation values(?,?,?,?,?,?,?,?)', [result.id.toString(), false, result.manager, _myFriendsJson[Fid].publicInfo.fullName, _myFriendsJson[Fid].publicInfo.picture, false]);
                                         tx2.executeSql('INSERT OR REPLACE into Participates values(?,?,?)', [result.id.toString(), Fid.toString(), false]);
@@ -688,17 +703,22 @@ export function Typing(msg) {
             msg.convId = _ActiveConvId;
         }
         msg.from = _uid;
-        console.log('1 - typing');
-        socket.emit('typing', {
-                mid: msg.mid,
-                id: msg.id,
-                _id: msg._id,
-                convId: msg.convId,
-                isEncrypted: false,
-                lastTypingTime: msg.lastTypingTime,
-                from: msg.from,
-                content: msg.content
-            });
+        // if(msg.isEncrypted == true){
+        //     msg.content = 'הודעה מוצפנת';
+
+        // }
+        socket.emit('typing', msg);
+        // console.log('1 - typing');
+        // socket.emit('typing', {
+        //         mid: msg.mid,
+        //         id: msg.id,
+        //         _id: msg._id,
+        //         convId: msg.convId,
+        //         isEncrypted: false,
+        //         lastTypingTime: msg.lastTypingTime,
+        //         from: msg.from,
+        //         content: msg.content
+        //     });
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => Typing' + error.message, error);
     }
@@ -720,11 +740,14 @@ export function onServerTyping(callback) {
                     }).catch((err) => {
                         ErrorHandler.WriteError('serverSrv.js => onServerTyping => ImageResizer', err);
                     });
+
                 } else {
-                        this.saveNewMessage(msg);
+                    this.saveNewMessage(msg);
                 }
-                
             }
+            // else if(msg.isEncrypted == true){
+            //     this.saveNewMessage(msg);  
+            // }
         });
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => onServerTyping' + error.message, error);
@@ -771,11 +794,9 @@ export function saveNewMessage(msg) {
 //calls
 export function GetConvData_ByConvId(convId, callback) {
     try {
-        console.log('1111');
         db.transaction((tx) => {
             tx.executeSql('SELECT * FROM Conversation WHERE id = ?', [convId], (tx, rs) => {
                 try {
-        console.log('22222');
                     var result = [];
                     if (rs.rows.length == 1 && callback) {
                         var chat = {
@@ -785,7 +806,7 @@ export function GetConvData_ByConvId(convId, callback) {
                             groupPicture: rs.rows.item(0).groupPicture,
                             isGroup: rs.rows.item(0).isGroup
                         };
-        console.log(chat);
+                        console.log(chat);
                         callback(chat);
                     }
                 } catch (error) {
@@ -831,7 +852,51 @@ export function login(_token) {
 
                     socket.disconnect();
                     socket = io.connect('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: encryptedUid, publicKey: item.publicKey, uid: _uid, token: this._token } });
+                    //setTimeout(() => {
 
+                    //try{       
+                    // var encrypted = 'check 1 2 3';
+                    // // Encrypt 
+                    // var ciphertext = CryptoJS.AES.encrypt(encrypted, 'secret key 123');
+
+                    // // Decrypt 
+                    // var bytes  = CryptoJS.AES.decrypt(ciphertext.toString(), 'secret key 123');
+                    // var plaintext = bytes.toString(CryptoJS.enc.Utf8);
+
+                    //console.log("11111111:"+ciphertext);
+                    // console.log("22222222:"+plaintext);
+
+                    // } catch (e) {
+                    // TODO Auto-generated catch block
+                    // console.log("error aes function");
+                    //  console.log(e);
+                    // }
+                    //console.log("emitting");
+                    //  socket.emit('encryptedMessage', ciphertext.toString())
+
+                    // }, 300);
+                    setTimeout(() => {
+                        try {
+
+                             var encrypted = 'check 1 2 3';
+                             var hash = CryptoJS.SHA256(encrypted);
+                             console.log("this is the hash: " + hash);
+                             // RSA signature generation
+                            var sig = new rug.Signature({"alg": "SHA1withRSA"});
+                            sig.init(prvKeyPEM);
+                            sig.updateString('aaa');
+                            var hSigVal = sig.sign();
+                             console.log("this is a digital sig: " + hSigVal);
+                           
+
+                        }
+                        catch (e) {
+                            console.log(e);
+                        }
+                        console.log("emitting");
+                        socket.emit('encryptedMessage', hash)
+
+                    }, 300);
                     socket.removeAllListeners("AuthenticationOk");
 
                     socket.on('AuthenticationOk', (ok) => {
@@ -888,7 +953,7 @@ export function signUpFunc(newUser, callback) {
                 db.transaction(function (tx) {
                     this._uid = user.id;
                     login();
-                    tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?)', [user.id, '', '', '']);
+                    tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?,?)', [user.id, '', '', '', user.privateInfo.password]);
                     tx.executeSql('INSERT INTO Friends VALUES (?,?,?,?,?,?,?)', [user.id, newUser.phoneNumber, newUser.ModifyDate, newUser.ModifyPicDate, newUser.publicInfo.fullName, newUser.publicInfo.picture]);
                 }, (error) => {
                     ErrorHandler.WriteError('signUp => addNewUser => transaction', error);
