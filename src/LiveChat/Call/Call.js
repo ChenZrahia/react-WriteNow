@@ -46,6 +46,15 @@ var mirs2 = new Sound('mirs2.mp3', Sound.MAIN_BUNDLE, (error) => {
     }
 });
 
+var callRingtone = new Sound('voicecall.mp3', Sound.MAIN_BUNDLE, (error) => {
+    if (error) {
+        console.log('failed to load the sound', error);
+    } else { // loaded successfully 
+        console.log('duration in seconds: ' + mirs2.getDuration() +
+            'number of channels: ' + mirs2.getNumberOfChannels());
+    }
+});
+
 let container = null;
 
 export default class Call extends Component {
@@ -89,8 +98,14 @@ export default class Call extends Component {
     }
     getCall() {
         try {
-            console.log('12121212---');           
-            console.log(this.props);           
+            callRingtone.play((success) => {
+                if (success) {
+                    console.log('successfully finished playing');
+                } else {
+                    console.log('playback failed due to audio decoding errors');
+                }
+            });
+            callRingtone.setNumberOfLoops(-1);
 
             if (this.props.convId) {
                 serverSrv.GetConvData_ByConvId(this.props.convId, (convData) => {
@@ -99,15 +114,15 @@ export default class Call extends Component {
                     }).catch((err) => {
                         console.log(err);
                         ErrorHandler.WriteError('Call.js => render => ImageResizer', err);
-                    }); 
+                    });
                 });
-            } else if(this.props.userPicture){
-                    ImageResizer.createResizedImage(this.props.userPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {
-                        this.setState({ userPicture: resizedImageUri });
-                    }).catch((err) => {
-                        console.log(err);
-                        ErrorHandler.WriteError('Call.js => render => ImageResizer', err);
-                    }); 
+            } else if (this.props.userPicture) {
+                ImageResizer.createResizedImage(this.props.userPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {
+                    this.setState({ userPicture: resizedImageUri });
+                }).catch((err) => {
+                    console.log(err);
+                    ErrorHandler.WriteError('Call.js => render => ImageResizer', err);
+                });
             }
         } catch (error) {
             ErrorHandler.WriteError("Call.js -> getCall", e);
@@ -204,6 +219,7 @@ export default class Call extends Component {
 
     startCall() {
         try {
+            callRingtone.stop();
             liveSrv.Connect();
             if (this.callInterval) {
                 clearInterval(this.callInterval);
@@ -227,6 +243,7 @@ export default class Call extends Component {
 
     hungUp() {
         try {
+            callRingtone.stop();
             liveSrv.hungUp();
             InCallManager.stopRingback();
             InCallManager.stop();
@@ -250,10 +267,10 @@ export default class Call extends Component {
             });
             if (this.state.leftBtn == require('../../../img/speaker_on1.png')) {
                 this.setState({ leftBtn: require('../../../img/speaker_off.png') });
-                InCallManager.setSpeakerphoneOn({ enable: true });
+                InCallManager.setSpeakerphoneOn(true);
             } else {
                 this.setState({ leftBtn: require('../../../img/speaker_on1.png') });
-                InCallManager.setSpeakerphoneOn({ enable: false });
+                InCallManager.setSpeakerphoneOn(false);
             }
 
         } catch (e) {
@@ -263,7 +280,7 @@ export default class Call extends Component {
     // <Image style={{ resizeMode: 'cover', width: null }} source={this.state.userPicture ? {uri: this.state.userPicture}: require('../../../img/user.jpg')} />
 
     render() {
-        try {            
+        try {
             return (
                 <View style={[generalStyle.styles.container, { backgroundColor: generalStyle._darkColor }]}>
                     <View style={generalStyle.styles.appbar}>

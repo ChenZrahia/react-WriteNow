@@ -10,9 +10,10 @@ import {
   Text,
   TextInput,
   Modal,
+  ListView
 } from 'react-native';
 import Menu, { MenuContext, MenuOptions, MenuOption, MenuTrigger } from 'react-native-menu';
-
+import SGListView from 'react-native-sglistview';
 import ActionSheet from '@exponent/react-native-action-sheet';
 import dismissKeyboard from 'react-native-dismiss-keyboard';
 import moment from 'moment/min/moment-with-locales.min';
@@ -72,7 +73,8 @@ export default class GiftedChat extends React.Component {
     this._isTypingDisabled = false;
     this._locale = 'en';
     this._messages = [];
-
+    this._onlineMessages = [];
+    this._onlineMessagesIds = {};
     this.state = {
       isInitialized: false, // initialization will calculate maxHeight before rendering the chat
       imageVisible: false,
@@ -81,9 +83,14 @@ export default class GiftedChat extends React.Component {
       multiline: true,
       encryptedMessageText: '',
       height: 0,
+      onlineMessages: this._onlineMessages,
+      onlineMessagesIds: this._onlineMessagesIds
     };
 
 
+
+    this.serverTyping = this.serverTyping.bind(this);
+    Event.on('serverTyping', this.serverTyping);
 
     this.onTouchStart = this.onTouchStart.bind(this);
     this.onTouchMove = this.onTouchMove.bind(this);
@@ -317,6 +324,46 @@ export default class GiftedChat extends React.Component {
     this._touchStarted = false;
   }
 
+  serverTyping(msg) {
+    if (!this._onlineMessagesIds[msg.id] && msg.content.length > 0) {
+      this._onlineMessages.push(msg);
+      this._onlineMessagesIds[msg.id] = msg.id;
+      this.setState({
+        onlineMessages: this._onlineMessages
+      });
+    } else if (msg.content.length == 0) {
+      delete this._onlineMessagesIds[msg.id];
+      this._onlineMessages = this._onlineMessages.filter((_msg) => {
+        return _msg.id != msg.id;
+      });
+      this.setState({
+        onlineMessages: this._onlineMessages
+      });
+    } else {
+      this._onlineMessages = this._onlineMessages.filter((_msg) => {
+        if (_msg.id == msg.id) {
+          _msg.content = msg.content;
+          _msg.text = msg.text;
+        }
+        return true;
+      });
+      this.setState({
+        onlineMessages: this._onlineMessages
+      });
+    }
+  }
+
+  renderTypingWindow() {
+    // if (this.state.onlineMessages.length > 0) {
+    //   var msg = this.state.onlineMessages[0];
+    //     return (
+    //         <View style={{backgroundColor:'rgba(0,0,0,0.5)', minHeight: 10, position: 'absolute', top: 0, right: 0, left: 0, zIndex: 9}}>
+    //             <Text style={{color: 'white'}}>{msg.content}</Text>
+    //         </View>
+    //     );
+    // }
+  }
+
   renderMessages() {
     const AnimatedView = this.props.isAnimated === true ? Animated.View : View;
     return (
@@ -382,43 +429,40 @@ calculateInputToolbarHeight(newComposerHeight) {
   return newComposerHeight + (this.getMinInputToolbarHeight() - MIN_COMPOSER_HEIGHT);
 }
 
-onType(e) {
-  if (this.getIsTypingDisabled() === true) {
-    return;
-  }
 
-  let newComposerHeight = null;
-  if (e.nativeEvent && e.nativeEvent.contentSize) {
-    newComposerHeight = Math.max(MIN_COMPOSER_HEIGHT, Math.min(MAX_COMPOSER_HEIGHT, e.nativeEvent.contentSize.height));
-  } else {
-    newComposerHeight = MIN_COMPOSER_HEIGHT;
-  }
+  onType(e) {
+    if (this.getIsTypingDisabled() === true) {
+      return;
+    }
 
-  const newMessagesContainerHeight = this.getMaxHeight() - this.calculateInputToolbarHeight(newComposerHeight) - this.getKeyboardHeight() + this.getBottomOffset();
-  const newText = e.nativeEvent.text;
-  this.setState((previousState) => {
-    return {
-      text: newText,
-      composerHeight: newComposerHeight,
-      messagesContainerHeight: this.prepareMessagesContainerHeight(newMessagesContainerHeight),
-    };
-  });
-  this.props.onType(newText,false);
-}
+    let newComposerHeight = null;
+    if (e.nativeEvent && e.nativeEvent.contentSize) {
+      newComposerHeight = Math.max(MIN_COMPOSER_HEIGHT, Math.min(MAX_COMPOSER_HEIGHT, e.nativeEvent.contentSize.height));
+    } else {
+      newComposerHeight = MIN_COMPOSER_HEIGHT;
+    }
+
+const newMessagesContainerHeight = this.getMaxHeight() - this.calculateInputToolbarHeight(newComposerHeight) - this.getKeyboardHeight() + this.getBottomOffset();
+const newText = e.nativeEvent.text;
+this.setState((previousState) => {
+  return {
+    text: newText,
+    composerHeight: newComposerHeight,
+    messagesContainerHeight: this.prepareMessagesContainerHeight(newMessagesContainerHeight),
+  };
+});
+this.props.onType(newText, false);
+  }
 
 changeText = (data) => {
-  Event.trigger('imojiType', this.state.text + data,false);
+  Event.trigger('imojiType', this.state.text + data, false);
   this.setState({ text: this.state.text + data });
 }
 
 
 
-
-
-
-
-renderInputToolbar() {
-  const inputToolbarProps = {
+  renderInputToolbar() {
+    const inputToolbarProps = {
       ...this.props,
     text: this.state.text,
       composerHeight: Math.max(MIN_COMPOSER_HEIGHT, this.state.composerHeight),
@@ -466,6 +510,7 @@ menuOption()
   this.setState({ showMenu: !this.state.showMenu });
 }
 
+
 openImageModal(image) {
   return (
     <Modal
@@ -484,8 +529,7 @@ openImageModal(image) {
   );
 }
 
-// visible={this.state.isMenuOpen}
-//
+
 newList(){
   console.log('new list is working well');
   this.setState({ showMenu: !this.state.showMenu });
@@ -496,14 +540,14 @@ encryptedMessage(){
   //this.props.changeEncryptedMessageText(this.state.encryptedMessageText);
   //Event.trigger('encryptedMessage', this.state.encryptedMessageText);
 
-  Event.trigger('encryptedMessage', this.state.encryptedMessageText,true);
+  Event.trigger('encryptedMessage', this.state.encryptedMessageText, true);
   this.setState({ encryptedMessageText: '' });
   this.setEncryptedVisible(!this.state.encryptedVisible);
 }
- // <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
-              //   this.setEncryptedVisible(!this.state.encryptedVisible)
-              // } }>
-              // </TouchableOpacity>
+// <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
+//   this.setEncryptedVisible(!this.state.encryptedVisible)
+// } }>
+// </TouchableOpacity>
 
 encrypteModal(){
   return (
@@ -512,60 +556,49 @@ encrypteModal(){
       visible={this.state.encryptedVisible}
       onRequestClose={() => { console.log('encrypted message modal closed') } }
       >
-    
-        <View style={generalStyles.styles.imageModal}>
-          
-            <View style={{ flex: 1 }}>
-             
-            </View>
-            <View style={generalStyles.styles.encryptedMessageModal}>
-              <View style={generalStyles.styles.encryptedMessageHeader}>
-                <Text style={{ color: 'white', textAlign: 'left' }}>Encrypt Your Message</Text>
-              </View>
-              <View style={{ flexDirection: "row", flex: 1, backgroundColor: 'white' }}>
-                <TextInput
-                  autoCorrect={true}
-                  placeholder='Type a message...'
-                  placeholderTextColor='#b2b2b2'
-                  multiline={this.state.multiline}
-                  onChangeText={(encryptedMessageText) => {
-                    this.setState({ encryptedMessageText });
-                  }
-                  }
-                  style={[styles.textInput, { textAlign: 'left', textAlignVertical: 'top' }, { height: Math.max(35, this.state.height) }]}
-                  value={this.state.encryptedMessageText}
-                  enablesReturnKeyAutomatically={true}
-                  underlineColorAndroid="transparent"
-                  />
-              </View>
-
-              <View style={{ flexDirection: "row", flex: 0.5 }}>
-                <TouchableOpacity style={styles.buttonStyle}
-                  onPress={() => { this.encryptedMessage() } } >
-                  <Text style={{ color: 'white' }}>Send</Text>
-                </TouchableOpacity>
-                <View style={{ flex: 0.6, justifyContent: "center", alignItems: "center" }}>
-                  <Image
-                    style={{ width: 40, height: 40, padding: 2 }}
-                    source={{ uri: 'https://cdn4.iconfinder.com/data/icons/social-productivity-line-art-4/128/security-shield-lock-512.png' }}
-                    />
-                </View>
-
-                <TouchableOpacity style={styles.buttonStyle}
-                  onPress={() => { this.setEncryptedVisible(!this.state.encryptedVisible) } } >
-                  <Text style={{ color: 'white' }}>Cancel</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-            <View style={{ flex: 1 }}>
-              
-            </View>
-
-
-
-          
+      <View style={generalStyles.styles.imageModal}>
+        <View style={{ flex: 1 }}>
         </View>
-      
+        <View style={generalStyles.styles.encryptedMessageModal}>
+          <View style={generalStyles.styles.encryptedMessageHeader}>
+            <Text style={{ color: 'white', textAlign: 'left' }}>Encrypt Your Message</Text>
+          </View>
+          <View style={{ flexDirection: "row", flex: 1, backgroundColor: 'white' }}>
+            <TextInput
+              autoCorrect={true}
+              placeholder='Type a message...'
+              placeholderTextColor='#b2b2b2'
+              multiline={this.state.multiline}
+              onChangeText={(encryptedMessageText) => {
+                this.setState({ encryptedMessageText });
+              }
+              }
+              style={[styles.textInput, { textAlign: 'left', textAlignVertical: 'top' }, { height: Math.max(35, this.state.height) }]}
+              value={this.state.encryptedMessageText}
+              enablesReturnKeyAutomatically={true}
+              underlineColorAndroid="transparent"
+              />
+          </View>
+          <View style={{ flexDirection: "row", flex: 0.5 }}>
+            <TouchableOpacity style={styles.buttonStyle}
+              onPress={() => { this.encryptedMessage() } } >
+              <Text style={{ color: 'white' }}>Send</Text>
+            </TouchableOpacity>
+            <View style={{ flex: 0.6, justifyContent: "center", alignItems: "center" }}>
+              <Image
+                style={{ width: 40, height: 40, padding: 2 }}
+                source={{ uri: 'https://cdn4.iconfinder.com/data/icons/social-productivity-line-art-4/128/security-shield-lock-512.png' }}
+                />
+            </View>
+            <TouchableOpacity style={styles.buttonStyle}
+              onPress={() => { this.setEncryptedVisible(!this.state.encryptedVisible) } } >
+              <Text style={{ color: 'white' }}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View style={{ flex: 1 }}>
+        </View>
+      </View>
     </Modal>
   );
 
@@ -598,6 +631,22 @@ cancel_chatRoom(lastMessage)
 {
   Event.trigger('lastMessage', lastMessage, this.props.convId);
 }
+
+
+  renderRowOnlineMsg(){
+    try {
+      return ((msg) => <View>
+        <Text style={{color: 'white'}}>{msg.content}</Text>
+     </View>);
+    } catch (error) {
+
+    }
+  }
+
+    getDataSourceOnlineMsg() {
+        const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1.id !== r2.id });
+        return ds.cloneWithRows(this.state.onlineMessages);
+    }
 
 render() {
   if (this.state.isInitialized === true) {
@@ -714,45 +763,58 @@ render() {
                   this.setState({
                     messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight()),
                   });
+                  }
                 }
-              }
-              if (this.getIsFirstLayout() === true) {
-                this.setIsFirstLayout(false);
-              }
-            } }
-            >
-            {this.renderMessages()}
-            {this.renderInputToolbar()}
+                if (this.getIsFirstLayout() === true) {
+                  this.setIsFirstLayout(false);
+                }
+              } }
+              >
+              {this.renderMessages()}
+              {this.renderInputToolbar()}
 
-          </View>
-        </ActionSheet>
-        {this.openImageModal(this.imgSelected)}
-        {this.encrypteModal()}
+            </View>
+          </ActionSheet>
+          {this.openImageModal(this.imgSelected)}
+           {this.encrypteModal()}
+        </View>
+      );
+    }
+    return (
+      <View
+        style={styles.container}
+        onLayout={(e) => {
+          const layout = e.nativeEvent.layout;
+          this.setMaxHeight(layout.height);
+          InteractionManager.runAfterInteractions(() => {
+            this.setState({
+              isInitialized: true,
+              text: '',
+              composerHeight: MIN_COMPOSER_HEIGHT,
+              messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight()),
+            });
+          });
+        } }
+        >
+        {this.renderLoading()}
       </View>
     );
   }
-  return (
-    <View
-      style={styles.container}
-      onLayout={(e) => {
-        const layout = e.nativeEvent.layout;
-        this.setMaxHeight(layout.height);
-        InteractionManager.runAfterInteractions(() => {
-          this.setState({
-            isInitialized: true,
-            text: '',
-            composerHeight: MIN_COMPOSER_HEIGHT,
-            messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight()),
-          });
-        });
-      } }
-      >
-      {this.renderLoading()}
-    </View>
-  );
-}
 }
 
+
+                // <View style={{backgroundColor:'rgba(0,0,0,0.5)', minHeight: 0, maxHeight: 200, position: 'absolute', top: 0, right: 0, left: 0, zIndex: 9}}>
+                //     <SGListView style={{ paddingTop: 5, flex: 1 }}
+                //             enableEmptySections={true}
+                //             dataSource={this.getDataSourceOnlineMsg()}
+                //             initialListSize={1}
+                //             stickyHeaderIndices={[]}
+                //             onEndReachedThreshold={1}
+                //             scrollRenderAheadDistance={20}
+                //             pageSize={20}
+                //             renderRow={this.renderRowOnlineMsg()}
+                //             />
+                // </View>
 
 const styles = StyleSheet.create({
   chatRoomMain: {

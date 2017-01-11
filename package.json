@@ -6,6 +6,7 @@
     "start": "node node_modules/react-native/local-cli/cli.js start"
   },
   "dependencies": {
+    "emoji-datasource": "^2.4.4",
     "moment": "^2.16.0",
     "native-base": "^0.5.9",
     "react": "^15.4.1",
@@ -35,6 +36,7 @@
     "react-native-signature-capture": "^0.4.3",
     "react-native-simple-emoji-picker": "^0.1.0",
     "react-native-simple-modal": "^4.0.1",
+    "react-native-socketio": "^0.3.0",
     "react-native-sound": "^0.8.3",
     "react-native-sqlite-storage": "^3.1.2",
     "react-native-tab-view": "0.0.29",
@@ -42,6 +44,7 @@
     "react-native-toggle": "^1.0.3",
     "react-native-vector-icons": "^2.1.0",
     "react-native-webrtc": "^0.54.3",
-    "react-native-workers": "^0.3.1"
+    "react-native-workers": "^0.3.1",
+    "socket.io-client": "^1.7.2"
   }
 }

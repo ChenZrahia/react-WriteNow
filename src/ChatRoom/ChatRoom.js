@@ -296,9 +296,17 @@ export default class ChatRoom extends Component {
                 msg._id = msg.id;
             }
 
+
             if (!msg.user) {
-                msg.user = serverSrv._myFriendsJson[msg.from];
+                msg.user = {
+                    _id: serverSrv._myFriendsJson[msg.from].id,
+                    name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName
+                }
+               // msg.user = serverSrv._myFriendsJson[msg.from];
             }
+
+console.log(msg.user);
+
 
             if (!isImage) {
                 msg.text = msg.content;
@@ -319,6 +327,7 @@ export default class ChatRoom extends Component {
             if (msg.sendTime) {
                 this.onSend(msg);
             } else {
+                
                 this.setState((previousState) => {
                     return {
                         messages: GiftedChat.append(this.messages, this.onlineMessages),
@@ -350,7 +359,12 @@ export default class ChatRoom extends Component {
                     msg.convId = this.convId;
                     serverSrv.saveNewMessage(msg);
                 }
-                msg.user = serverSrv._myFriendsJson[msg.user._id];
+
+                //serverSrv._myFriendsJson[msg.user._id];
+                 msg.user = {
+                    name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName,
+                    _id: serverSrv._myFriendsJson[msg.from].id
+                }
                 this.messages.splice(0, 0, msg); //push
                 this.onlineMessages = this.onlineMessages.filter((o_msg) => {
                     return o_msg.id != msg.id;
@@ -389,7 +403,10 @@ export default class ChatRoom extends Component {
             console.log('222');
             console.log(msg);
             serverSrv.Typing(msg);
-            msg.user = serverSrv._myFriendsJson[msg.from];
+              msg.user = {
+                    name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName,
+                    _id: serverSrv._myFriendsJson[msg.from].id
+                }
             if (!this.indexOnlineMessages[msg._id]) { //new message
                 this.indexOnlineMessages[msg._id] = msg;
                 this.onlineMessages.push(this.indexOnlineMessages[msg.id]);
@@ -404,19 +421,13 @@ export default class ChatRoom extends Component {
                     delete this.indexOnlineMessages[msg._id];
                 }
             }
-            this.setState((previousState) => {
-                return {
-                    messages: GiftedChat.append(this.messages, this.onlineMessages),
-                };
-            });
+            this.setState({ messages: GiftedChat.append(this.messages, this.onlineMessages) });
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => onType', e);
         }
     }
 
     render() {
-    
-
         return (
             <View style={{ flex: 1, alignSelf: 'stretch' }} >
                 <GiftedChat

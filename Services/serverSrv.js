@@ -4,6 +4,7 @@ import { Actions } from 'react-native-router-flux';
 import './UserAgent';
 import io from 'socket.io-client/socket.io';
 
+//import io from 'socket.io-client/dist/socket.io';
 import ImageResizer from 'react-native-image-resizer';
 import {
     Image,
@@ -27,7 +28,7 @@ var publicKey = `-----BEGIN PUBLIC KEY-----
 
 // var ReactNativeRSAUtil = React.NativeModules.ReactNativeRSAUtil;
 
-export var socket = io('https://server-sagi-uziel.c9users.io:8080', {});
+export var socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {});
 var ErrorHandler = require('../ErrorHandler');
 var SQLite = require('react-native-sqlite-storage')
 var CryptoJS = require("crypto-js");
@@ -455,8 +456,17 @@ export function GetConv(callback, convId, isUpdate) {
         db.transaction((tx) => {
             tx.executeSql('SELECT * FROM Messages WHERE convId = ? AND (content IS NOT NULL OR image IS NOT NULL) ORDER BY sendTime DESC', [convId], (tx, rs) => {
                 try {
-                    var result = [];
+                    var result = [];                    
                     for (var i = 0; i < rs.rows.length; i++) {
+                        var _user = {};
+                        if (_myFriendsJson[rs.rows.item(i).msgFrom]) {
+                            _user = {
+                                _id: _myFriendsJson[rs.rows.item(i).msgFrom].id,
+                                name: _myFriendsJson[rs.rows.item(i).msgFrom].publicInfo.fullName
+                            };
+                        } else {
+                            _user = { name: 'ERROR' };
+                        }
                         var chat = {
                             id: rs.rows.item(i).id,
                             _id: rs.rows.item(i).id,
@@ -468,7 +478,9 @@ export function GetConv(callback, convId, isUpdate) {
                             createdAt: rs.rows.item(i).sendTime,
                             lastTypingTime: rs.rows.item(i).lastTypingTime,
                             isSeenByAll: rs.rows.item(i).isSeenByAll,
-                            user: _myFriendsJson[rs.rows.item(i).msgFrom] ? _myFriendsJson[rs.rows.item(i).msgFrom] : { name: 'ERROR' } //myUser
+                            user: _user
+                            //_myFriendsJson[rs.rows.item(i).msgFrom] ? { _id: _myFriendsJson[rs.rows.item(i).id], name: _myFriendsJson[rs.rows.item(i).publicInfo.fullName } , { name: 'ERROR' }
+                            //user: _myFriendsJson[rs.rows.item(i).msgFrom] ? _myFriendsJson[rs.rows.item(i).msgFrom] : { name: 'ERROR' } //myUser
                         };
                         if (chat.user.name == "ERROR") {
                             console.log(rs.rows.item(i).msgFrom);
@@ -556,7 +568,7 @@ function GetConv_server(convId, callback) {
                             newParticipates.push(data.participates[i].id);
                         } else {
                             data.participates[i].name = _myFriendsJson[data.participates[i].id].publicInfo.fullName;
-                            data.participates[i].avatar = _myFriendsJson[data.participates[i].id].publicInfo.picture;
+                            //data.participates[i].avatar = _myFriendsJson[data.participates[i].id].publicInfo.picture;
                             data.participates[i]._id = data.participates[i].id;
                             _myConvs[convId].participates[data.participates[i].id] = data.participates[i];
                             tx.executeSql('INSERT OR REPLACE INTO Participates VALUES (?, ?, ?)',
@@ -633,13 +645,9 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
                                 if (_myChats.filter((chat) => { return chat.id == result.id; }).length == 0) { //if the chat not axist
                                     console.log('----2----');
                                     db.transaction((tx2) => {
-                                        console.log('----3----');
-                                        console.log(result.id.toString(), false, result.manager, _myFriendsJson[Fid].publicInfo.fullName, _myFriendsJson[Fid].publicInfo.picture);
-                                        console.log(result.id.toString(), Fid);
                                         tx2.executeSql('INSERT OR REPLACE into Conversation values(?,?,?,?,?,?,?,?)', [result.id.toString(), false, result.manager, _myFriendsJson[Fid].publicInfo.fullName, _myFriendsJson[Fid].publicInfo.picture, false]);
                                         tx2.executeSql('INSERT OR REPLACE into Participates values(?,?,?)', [result.id.toString(), Fid.toString(), false]);
                                         tx2.executeSql('UPDATE Friends set id = ? WHERE phoneNumber = ?', [Fid.toString(), phoneNumber.toString()]);
-                                        console.log('----NewChat----');
                                         Event.trigger('NewChat', {
                                             convId: result.id,
                                             isEncrypted: false,
@@ -680,10 +688,6 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
 
 function UpdatePhoneNumberToId(phoneNumber, id) {
     try {
-        console.log(phoneNumber, id);
-        console.log(phoneNumber, id);
-        console.log(phoneNumber, id);
-        console.log('phoneNumber, id');
         _myFriendsJson[id] = _myFriendsJson[phoneNumber];
         db.transaction((tx) => {
             tx.executeSql('UPDATE Friends SET id = ? WHERE phoneNumber = ?', [id, phoneNumber], (tx, rs) => { });
@@ -705,6 +709,17 @@ export function Typing(msg) {
             
         // }
         socket.emit('typing', msg);
+        // console.log('1 - typing');
+        // socket.emit('typing', {
+        //         mid: msg.mid,
+        //         id: msg.id,
+        //         _id: msg._id,
+        //         convId: msg.convId,
+        //         isEncrypted: false,
+        //         lastTypingTime: msg.lastTypingTime,
+        //         from: msg.from,
+        //         content: msg.content
+        //     });
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => Typing' + error.message, error);
     }
@@ -715,6 +730,8 @@ export function onServerTyping(callback) {
         _isFirstTime_Conv = true;
         socket.removeAllListeners("typing");
         socket.on('typing', (msg) => {
+            console.log('2 - typing');
+            Event.trigger('serverTyping', msg);
             callback(msg);
             if (msg.sendTime && msg.from != _uid) {
                 if (msg.image) {
@@ -728,7 +745,6 @@ export function onServerTyping(callback) {
                 } else {
                      this.saveNewMessage(msg);  
                 }
-            
             }
             // else if(msg.isEncrypted == true){
             //     this.saveNewMessage(msg);  
