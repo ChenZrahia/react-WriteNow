@@ -157,21 +157,23 @@ export default class Chats extends Component {
         try {
             return dataSource.sort((a, b) => {
                 try {
-                    if (a.sendTime && b.sendTime) {
-                        if (a.sendTime > b.sendTime) {
+                    console.log('a.lastMessageTime: ' , a.lastMessageTime);
+                    console.log('b.lastMessageTime: ' , b.lastMessageTime);
+                    if (a.lastMessageTime && b.lastMessageTime) {
+                        if (a.lastMessageTime > b.lastMessageTime) {
                             return -1;
                         }
-                        else if (a.sendTime < b.sendTime) {
+                        else if (a.lastMessageTime < b.lastMessageTime) {
                             return 1;
                         }
                         else {
                             return 0;
                         }
                     }
-                    else if (a.sendTime && !b.sendTime) {
+                    else if (a.lastMessageTime && !b.lastMessageTime) {
                         return -1;
                     }
-                    else if (!a.sendTime && b.sendTime) {
+                    else if (!a.lastMessageTime && b.lastMessageTime) {
                         return 1;
                     }
                     else {
@@ -292,6 +294,8 @@ UpdatelastMessage(lastMessage, lastMessageTime , convId, isNewMessage)
          }
         return chat;
     });
+    this.myChats = this.sortDates(this.myChats);
+    console.log(this.myChats);
     this.setState({dataSource: this.ds.cloneWithRows(this.myChats)});
 }
 
