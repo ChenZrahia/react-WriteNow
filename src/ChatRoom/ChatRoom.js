@@ -53,6 +53,13 @@ export default class ChatRoom extends Component {
             this.indexOnlineMessages = [];
             this.onlineMessages = [];
             this.convId = null;
+        } catch (e) {
+            ErrorHandler.WriteError('ChatRoom.js => constructor', e);
+        }
+    }
+
+    componentDidMount() {
+        try {
             Event.removeAllListeners('showImagePicker');
             Event.removeAllListeners('showSignature');
             Event.removeAllListeners('sendSegnature');
@@ -63,13 +70,6 @@ export default class ChatRoom extends Component {
             Event.on('sendSegnature', this.sendImageMessage);
             Event.on('imojiType', this.onType);
             Event.on('encryptedMessage', this.onType);
-        } catch (e) {
-            ErrorHandler.WriteError('ChatRoom.js => constructor', e);
-        }
-    }
-
-    componentDidMount() {
-        try {
             BackAndroid.addEventListener('hardwareBackPress', () => {
                 if (this.convId) {
                     Event.trigger('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false);
