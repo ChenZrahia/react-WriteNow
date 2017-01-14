@@ -2,9 +2,15 @@ var React = require('react-native');
 import { Actions } from 'react-native-router-flux';
 //import React from 'react-native';
 import './UserAgent';
-import io from 'socket.io-client/socket.io';
+//import io from 'socket.io-client/socket.io';
+import ReactNativeRSAUtil from 'react-native-rsa-util';
+//import rncrypto from 'react-native-rncrypto';
 
-//import io from 'socket.io-client/dist/socket.io';
+// ...the rest of your code
+//
+// use crypto
+
+import io from 'socket.io-client/dist/socket.io';
 import ImageResizer from 'react-native-image-resizer';
 import {
     Image,
@@ -17,6 +23,7 @@ var Event = require('./Events');
 var SignUp = require('../src/SignUp/SignUp');
 var moment = require('moment');
 import CryptLib from 'react-native-aes-encryption';
+var RSAKey = require('react-native-rsa');
 
 //--------for dev mode only-----------//
 var encryptedUid = 'UIP5n4v1jj24a+dHq6L/QqLwDFtPnSoebPzUe5+DWKOQ+rj5boKTAI6goMgySXHDj4BRMOa16wNV743D3/5WfRlXPrizY6nvi3XEmg/oPQvmNLlchDDjqZpQW8nfAS3IH9jZwDqFjxMKVkMau1SOLJxMroz7hTKVH7gOCGLHzik=';
@@ -34,6 +41,8 @@ var SQLite = require('react-native-sqlite-storage')
 
 
 var CryptoJS = require("crypto-js");
+//var cryptico = require("../plugins/cryptico/lib/cryptico");
+
 var SHA256 = require("crypto-js/sha256");
  var rug = require('jsrsasign');
  //var rugbin = require('jsrsasign-util');
@@ -833,70 +842,30 @@ export function login(_token) {
                     var item = rs.rows.item(rs.rows.length - 1);
                     _uid = item.uid;
                     this._uid = item.uid;
-                    //_uid = 'e2317111-a84a-4c70-b0e9-b54b910833fa';  //-------------------For Test Only
+                    var _encryptedUid = item.encryptedUid;
                     //Actions.Tabs();
 
-                    // ReactNativeRSAUtil.encryptStringWithPrivateKey(item.uid, item.privateKey)
-                    //     .then((error, data) => {
-                    //         try {
-                    //              if ( !error ) {
-                    //                 console.log(data);
-                    //                 socket.disconnect();
-                    //                 socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {query: {encryptedUid: data, publicKey: item.publicKey}});
-                    //             } else {
-                    //                 //ErrorHandler.WriteError(' constructor => AuthenticationOk', error);
-                    //             }
-                    //         } catch (error) {
-                    //         }
-                    //     });
 
                     socket.disconnect();
-                    socket = io.connect('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: encryptedUid, publicKey: item.publicKey, uid: _uid, token: this._token } });
-                    //setTimeout(() => {
+                    socket = io.connect('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: _encryptedUid, publicKey: item.publicKey, uid: _uid, token: this._token } });
+                    
+                    // setTimeout(() => {
+                    //     try {
 
-                    //try{       
-                    // var encrypted = 'check 1 2 3';
-                    // // Encrypt 
-                    // var ciphertext = CryptoJS.AES.encrypt(encrypted, 'secret key 123');
+                    //           var encrypted = 'check 1 2 3';
+                    //           var hash = CryptoJS.SHA256(encrypted);
+                    //           console.log("this is the hash: " + hash);
 
-                    // // Decrypt 
-                    // var bytes  = CryptoJS.AES.decrypt(ciphertext.toString(), 'secret key 123');
-                    // var plaintext = bytes.toString(CryptoJS.enc.Utf8);
 
-                    //console.log("11111111:"+ciphertext);
-                    // console.log("22222222:"+plaintext);
 
-                    // } catch (e) {
-                    // TODO Auto-generated catch block
-                    // console.log("error aes function");
-                    //  console.log(e);
-                    // }
-                    //console.log("emitting");
-                    //  socket.emit('encryptedMessage', ciphertext.toString())
+                    //     }
+                    //     catch (e) {
+                    //         console.log(e);
+                    //     }
+                    //     console.log("emitting");
+                    //     socket.emit('encryptedMessage', hash,privateKey,encrypted2)
 
                     // }, 300);
-                    setTimeout(() => {
-                        try {
-
-                             var encrypted = 'check 1 2 3';
-                             var hash = CryptoJS.SHA256(encrypted);
-                             console.log("this is the hash: " + hash);
-                             // RSA signature generation
-                            var sig = new rug.Signature({"alg": "SHA1withRSA"});
-                            sig.init(prvKeyPEM);
-                            sig.updateString('aaa');
-                            var hSigVal = sig.sign();
-                             console.log("this is a digital sig: " + hSigVal);
-                           
-
-                        }
-                        catch (e) {
-                            console.log(e);
-                        }
-                        console.log("emitting");
-                        socket.emit('encryptedMessage', hash)
-
-                    }, 300);
                     socket.removeAllListeners("AuthenticationOk");
 
                     socket.on('AuthenticationOk', (ok) => {
@@ -938,22 +907,24 @@ export function login(_token) {
 
 export function signUpFunc(newUser, callback) {
     try {
-        // const bits = 256; //לשקול להגדיל בפרודקשן!
-        // const exponent = '10001';
-        // var rsa = new RSAKey();
-        // rsa.generate(bits, exponent);
-        // var publicKey = rsa.getPublicString(); // return json encoded string
-        // var privateKey = rsa.getPrivateString(); // return json encoded string
+        const bits = 512;
+        const exponent = '10001'; // must be a string. This is hex string. decimal = 65537
+        var rsa = new RSAKey();
+        rsa.generate(bits, exponent);
+        var publicKey = rsa.getPublicString(); // return json encoded string
+        var privateKey = rsa.getPrivateString(); // return json encoded string
+        rsa.setPrivateString(privateKey);
+        
         console.log(newUser);
+        newUser.pkey = publicKey;
         socket.emit('addNewUser', newUser, (user) => {
-            // var rsa2 = new RSAKey();
-            // rsa2.setPrivateString(privateKey);
-            // var encryptedUid = rsa2.encrypt(user.id);
+        var encryptedUid = rsa.encryptWithPrivate(user.id);
+        console.log("this is encrypted message:" +encryptedUid);
             if (user.id) {
                 db.transaction(function (tx) {
                     this._uid = user.id;
                     login();
-                    tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?,?)', [user.id, '', '', '', user.privateInfo.password]);
+                    tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?,?)', [user.id, publicKey, privateKey, encryptedUid, user.privateInfo.password]);
                     tx.executeSql('INSERT INTO Friends VALUES (?,?,?,?,?,?,?)', [user.id, newUser.phoneNumber, newUser.ModifyDate, newUser.ModifyPicDate, newUser.publicInfo.fullName, newUser.publicInfo.picture]);
                 }, (error) => {
                     ErrorHandler.WriteError('signUp => addNewUser => transaction', error);

@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+// import './shim.js'
+// import crypto from 'crypto'
 import {
     AppRegistry,
     AsyncStorage,

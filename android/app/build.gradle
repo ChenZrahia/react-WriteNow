@@ -153,6 +153,7 @@ dependencies {
     compile project(':react-native-image-to-base64')
     compile project(':react-native-fcm')
     compile project(':react-native-webrtc')
+    compile project(':react-native-randombytes')
     compile project(':react-native-sound')
     compile project(':react-native-incall-manager')
     compile project(':react-native-aes-encryption')

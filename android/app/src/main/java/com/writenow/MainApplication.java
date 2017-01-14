@@ -2,6 +2,7 @@ package com.writenow;
 import android.app.Application;
 import android.util.Log;
 import com.facebook.react.ReactApplication;
+import com.bitgo.randombytes.RandomBytesPackage;
 import fnd.reactaes.reactaes.ReactAESPackage;
 import com.zxcpoiu.incallmanager.InCallManagerPackage;
 import com.zmxv.RNSound.RNSoundPackage;
@@ -20,7 +21,6 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 //import com.encryptionutil.EncryptionUtilPackage;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,6 +42,7 @@ public class MainApplication extends Application implements ReactApplication {
       return Arrays.<ReactPackage>asList(
         new SQLitePluginPackage(),
           new MainReactPackage(),
+            new RandomBytesPackage(),
             new ReactAESPackage(),
             new InCallManagerPackage(),
             new RNSoundPackage(),
