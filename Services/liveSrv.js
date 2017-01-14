@@ -37,12 +37,14 @@ export function makeCall(callback) {
     }
 }
 
-export function Connect(convId) {
+export function Connect(convId, hungUpCallback) {
     try {
         //socket.disconnect();
         console.log(serverSrv._uid + " Try To Connect To The Server...");
         socket = io.connect('https://server-sagi-uziel.c9users.io:8081', { transports: ['websocket'], query: { uid: serverSrv._uid } });
-
+        if (hungUpCallback) {
+            socket.on('hungUp', hungUpCallback);
+        }
         socket.on('exchange', (data) => {
             exchange(data);
         });
@@ -70,6 +72,7 @@ export function Connect(convId) {
 
 export function hungUp() {
     try {
+        socket.emit('hungUp');
         socket.disconnect();
     } catch (error) {
         ErrorHandler.WriteError('liveSrv.js => hungUp', error);

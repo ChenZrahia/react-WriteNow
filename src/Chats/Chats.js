@@ -13,6 +13,7 @@ import { Actions } from 'react-native-router-flux';
 import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
 import Kohana from '../../styles/Kohana';
 import renderIf from '../../plugins/renderIf'
+import SGListView from 'react-native-sglistview';
 
 var dismissKeyboard = require('dismissKeyboard');
 var Event = require('../../Services/Events');
@@ -40,7 +41,7 @@ export default class Chats extends Component {
             this.UpdateChatsList = this.UpdateChatsList.bind(this);
             this.newMessage = this.newMessage.bind(this);
             this.NewChat = this.NewChat.bind(this);
-             this.UpdatelastMessage = this.UpdatelastMessage.bind(this);
+            this.UpdatelastMessage = this.UpdatelastMessage.bind(this);
             Event.on('UpdateChatsList', this.UpdateChatsList);
             Event.on('newMessage', this.newMessage);
             Event.on('NewChat', this.NewChat);
@@ -157,21 +158,23 @@ export default class Chats extends Component {
         try {
             return dataSource.sort((a, b) => {
                 try {
-                    if (a.sendTime && b.sendTime) {
-                        if (a.sendTime > b.sendTime) {
+                    console.log('a.lastMessageTime: ' , a.lastMessageTime);
+                    console.log('b.lastMessageTime: ' , b.lastMessageTime);
+                    if (a.lastMessageTime && b.lastMessageTime) {
+                        if (a.lastMessageTime > b.lastMessageTime) {
                             return -1;
                         }
-                        else if (a.sendTime < b.sendTime) {
+                        else if (a.lastMessageTime < b.lastMessageTime) {
                             return 1;
                         }
                         else {
                             return 0;
                         }
                     }
-                    else if (a.sendTime && !b.sendTime) {
+                    else if (a.lastMessageTime && !b.lastMessageTime) {
                         return -1;
                     }
-                    else if (!a.sendTime && b.sendTime) {
+                    else if (!a.lastMessageTime && b.lastMessageTime) {
                         return 1;
                     }
                     else {
@@ -258,7 +261,7 @@ export default class Chats extends Component {
 
     _renderCancel(notifications) {
         try {
-            if (notifications) {
+            if (notifications && notifications > 0) {
                 return (
                     <View style={styles.notification}>
                         <Text style={styles.notificationText}>
@@ -274,20 +277,28 @@ export default class Chats extends Component {
             ErrorHandler.WriteError('Chats.js => _renderCancel', e);
         }
     }
-UpdatelastMessage(lastMessage , convId)
+UpdatelastMessage(lastMessage, lastMessageTime , convId, isNewMessage)
 {
     this.myChats = this.myChats.map((chat) => {
         console.log(chat);
         if (chat.id == convId) {
             chat.lastMessage = lastMessage;
+            chat.lastMessageTime = lastMessageTime;
+            if (isNewMessage) {
+                if (!chat.notifications) {
+                    chat.notifications = 0;
+                }
+                chat.notifications = chat.notifications + 1;
+            } else {
+                chat.notifications = null;
+            }
          }
         return chat;
     });
+    this.myChats = this.sortDates(this.myChats);
+    console.log(this.myChats);
     this.setState({dataSource: this.ds.cloneWithRows(this.myChats)});
-    
 }
-
-
 
     render() {
         try {
@@ -304,17 +315,20 @@ UpdatelastMessage(lastMessage , convId)
                         value={this.state.filter}
                         onChange={this.onFilterChange.bind(this)}
                         />
-                    <ListView style={{ paddingTop: 5, flex: 1 }}
+                    <SGListView style={{ paddingTop: 5, flex: 1 }}
                         enableEmptySections={true}
-                        dataSource={this.state.dataSource}
+                        dataSource={this.getDataSource()}
+                        initialListSize={1}
+                        stickyHeaderIndices={[]}
+                        onEndReachedThreshold={1}
+                        scrollRenderAheadDistance={20}
+                        pageSize={20}
                         renderRow={(rowData) =>
                             <TouchableOpacity onPress={() => {
-                                console.log(rowData);
                                 this.openChat(rowData);
                             } }>
                                 <View style={generalStyle.styles.row}>
                                     <TouchableOpacity onPress={() => {
-                                        console.log('rowData.groupPicture');
                                         this.imgSelected = rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ?  rowData.isGroup : require('../../img/user.jpg'))
                                         this.setImageVisible(true);
                                     } }>
@@ -322,7 +336,7 @@ UpdatelastMessage(lastMessage , convId)
                                             <Image style={generalStyle.styles.thumb} source={rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? rowData.isGroup : require('../../img/user.jpg'))} />
                                         </View>
                                     </TouchableOpacity>
-                                    <View style={{ flexDirection: 'column', flex: 1, marginRight: 7 }}>
+                                    <View style={{ flexDirection: 'column', flex: 1, marginRight: 7, marginBottom: 3 }}>
                                         <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
                                             <Text style={generalStyle.styles.textName}>
                                                 {rowData.groupName}

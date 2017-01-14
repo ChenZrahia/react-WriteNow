@@ -14,9 +14,9 @@ import {
 import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
 import SGListView from 'react-native-sglistview';
 import Kohana from '../../styles/Kohana';
+import { Actions } from 'react-native-router-flux';
 
 var dismissKeyboard = require('dismissKeyboard');
-import { Actions } from 'react-native-router-flux';
 var serverSrv = require('../../Services/serverSrv');
 var PhoneContacts = require('react-native-contacts');
 var generalStyle = require('../../styles/generalStyle');
@@ -139,11 +139,11 @@ export default class Contacts extends Component {
                     <SGListView style={{ paddingTop: 5, flex: 1 }}
                         enableEmptySections={true}
                         dataSource={this.getDataSource()}
-                        initialListSize={1}
+                        initialListSize={30}
                         stickyHeaderIndices={[]}
                         onEndReachedThreshold={1}
-                        scrollRenderAheadDistance={20}
-                        pageSize={20}
+                        scrollRenderAheadDistance={50}
+                        pageSize={30}
                         renderRow={this.renderRow()}
                         />
                     {this.openImageModal(this.imgSelected)}
@@ -153,6 +153,8 @@ export default class Contacts extends Component {
             ErrorHandler.WriteError("Contacts.js => render", e);
         }
     }
+
+
 
     renderRow() {
         try {
@@ -167,7 +169,7 @@ export default class Contacts extends Component {
                             Event.trigger('LoadNewChat', null, true, rowData.id, rowData.phoneNumber, rowData.publicInfo.fullName);
                         } }>
                             <View style={generalStyle.styles.row}>
-                                <TouchableOpacity onPress={() => {
+                              <TouchableOpacity onPress={() => {
                                     this.imgSelected = rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')
                                     this.setImageVisible(true);
                                 } }>

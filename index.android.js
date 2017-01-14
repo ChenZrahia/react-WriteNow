@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 
 import { Actions } from 'react-native-router-flux'
+var Sound = require('react-native-sound');
 
 import InitRout from './src/InitRout';
 import ChatRoom from './src/ChatRoom/ChatRoom';
@@ -29,6 +30,10 @@ var ErrorHandler = require('./ErrorHandler');
 
 import FCM from 'react-native-fcm';
 
+var newMsg_ring = null;
+setTimeout(() => {
+    newMsg_ring = new Sound('new_msg.mp3', Sound.MAIN_BUNDLE, (error) => {});
+}, 500);
 
 //import ReactNativeRSAUtil from 'react-native-rsa-util';
 
@@ -110,7 +115,7 @@ export default class WriteNow extends Component {
                 if (notif.isPhoneCall == true) {
                     Actions.Call(notifData);
                     setTimeout(() => {
-                        Event.trigger('getCall');
+                        Event.trigger('getCall', true);
                     }, 100);
                 }
             }
@@ -119,24 +124,37 @@ export default class WriteNow extends Component {
             serverSrv.login(token);
             console.log(token);
         });
-        this.notificationUnsubscribe = FCM.on('notification', (notif) => {
+        this.notificationUnsubscribe = FCM.on('notification', (notif) => {  
             console.log(notif);
+            
             if (notif && notif.data) {
                 var notifData = JSON.parse(notif.data);
-                if (notif.isPhoneCall == true) {
+                console.log(notif);
+                console.log(notifData);
+                console.log('notifData+++');
+                
+                if (notifData.isPhoneCall == true) {
                     Actions.Call(notifData);
                     setTimeout(() => {
-                        Event.trigger('getCall');
+                        Event.trigger('getCall', true);
                     }, 100);
+                } else {
+                    if (newMsg_ring) {
+                        newMsg_ring.play((success) => {});
+                    } 
+                    Event.trigger('lastMessage', notifData.message, notifData.message_time, notifData.convId, true);
                 }
+            } else {
+                if (newMsg_ring) {
+                    newMsg_ring.play((success) => {});
+                } 
+              Event.trigger('lastMessage', notif.message, notif.message_time, notif.convId, true);
             }
             // there are two parts of notif. notif.notification contains the notification payload, notif.data contains data payload
             if(notif.local_notification){
-              //this is a local notification
               console.log('notif.local_notification');
             }
             if(notif.opened_from_tray){
-              //app is open/resumed because user clicked banner
               console.log('notif.opened_from_tray');
             }
         });
@@ -182,7 +200,7 @@ export default class WriteNow extends Component {
         });
     }
 
-    componentDidMount() {
+    componentDidMount() {        
         this.loadContacts();
         try {
             serverSrv.GetAllMyFriends((result) => {

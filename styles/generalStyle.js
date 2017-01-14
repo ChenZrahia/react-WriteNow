@@ -37,13 +37,14 @@ export const styles = StyleSheet.create({
         justifyContent: 'space-between'
     },
     row: {
-        flex: 1,
         flexDirection: 'row',
         paddingRight: 5,
         paddingLeft: 5,
         borderBottomWidth: 0.5,
         borderColor: '#e7e7e7',
-        backgroundColor: 'white'
+        backgroundColor: 'white',
+        maxHeight: 50,
+        height: 50
     },
     viewImg: {
         borderColor: 'black',
@@ -69,7 +70,8 @@ export const styles = StyleSheet.create({
         paddingRight: 10,
         paddingBottom: 5,
         color: 'gray',
-        alignSelf: 'flex-start'
+        alignSelf: 'flex-start',
+        maxHeight: 25
     },
     textDate: {
         color: 'gray',

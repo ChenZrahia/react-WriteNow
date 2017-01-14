@@ -1,6 +1,6 @@
 rootProject.name = 'WriteNow'
-include ':react-native-randombytes'
-project(':react-native-randombytes').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-randombytes/android')
+//include ':react-native-randombytes'
+//project(':react-native-randombytes').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-randombytes/android')
 include ':react-native-aes-encryption'
 project(':react-native-aes-encryption').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-aes-encryption/android')
 
@@ -37,6 +37,5 @@ project(':react-native-webrtc').projectDir = new File(settingsDir, '../node_modu
 
 include ':react-native-incall-manager'
 project(':react-native-incall-manager').projectDir = new File(settingsDir, '../node_modules/react-native-incall-manager/android')
-
 
 

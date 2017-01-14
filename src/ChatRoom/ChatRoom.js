@@ -14,7 +14,8 @@ import {
     ScrollView,
     View,
     NativeModules,
-    Modal
+    Modal,
+    BackAndroid
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import ImageResizer from 'react-native-image-resizer';
@@ -52,6 +53,13 @@ export default class ChatRoom extends Component {
             this.indexOnlineMessages = [];
             this.onlineMessages = [];
             this.convId = null;
+        } catch (e) {
+            ErrorHandler.WriteError('ChatRoom.js => constructor', e);
+        }
+    }
+
+    componentDidMount() {
+        try {
             Event.removeAllListeners('showImagePicker');
             Event.removeAllListeners('showSignature');
             Event.removeAllListeners('sendSegnature');
@@ -62,15 +70,14 @@ export default class ChatRoom extends Component {
             Event.on('sendSegnature', this.sendImageMessage);
             Event.on('imojiType', this.onType);
             Event.on('encryptedMessage', this.onType);
-        } catch (e) {
-            ErrorHandler.WriteError('ChatRoom.js => constructor', e);
-        }
-    }
-
-    componentDidMount() {
-        try {
+            BackAndroid.addEventListener('hardwareBackPress', () => {
+                if (this.convId) {
+                    Event.trigger('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false);
+                } 
+            });
             this.LoadNewChat(this.props.id, this.props.isContact, this.props.id, this.props.phoneNumber, this.props.fullName);
             Event.on('LoadNewChat', this.LoadNewChat);
+            
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => componentDidMount', e);
         }
@@ -226,25 +233,22 @@ export default class ChatRoom extends Component {
                         this.setImageVisible(!this.state.imageVisible);
                     } }>
                         <View style={{ backgroundColor: 'rgba(0,0,0,0.7)', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                            <TouchableOpacity onPress={() => {
-                                this.sendImageMessage(image, this.state.text, pathOfImage);
-                                this.setImageVisible(!this.state.imageVisible)
-                            } }>
-                                <Image style={{ width: 300, height: 300, borderRadius: 0, borderWidth: 1 }} source={{ uri: image }} />
-                                <TextInput
-                                    style={{ flex: 1, height: 40, backgroundColor: 'white' }}
-                                    placeholder="Type a message..."
-                                    onChangeText={(text) => this.setState({ text })}
-                                    value={this.state.text}
-                                    />
-                                 </TouchableOpacity>   
-                                <TouchableOpacity onPress={() => {
-                                    this.sendImageMessage(image, this.state.text);
-                                    this.setImageVisible(!this.state.imageVisible);
-                                } }>
-                                    <Icon name="md-send" size={30} style={{ height: 40, padding: 5 }}/>
-                                </TouchableOpacity>
-                            </View>   
+                             <Image style={{ width: 300, height: 300, borderRadius: 0, borderWidth: 1 }} source={{ uri: image }} />
+                             <View style={{ width: 300, flexDirection: 'row', backgroundColor: 'white', borderColor: 'gray', borderWidth: 1 }}>
+                                 <TextInput
+                                     style={{ flex: 1, height: 40, backgroundColor: 'white' }}
+                                     placeholder="Type a message..."
+                                     onChangeText={(text) => this.setState({ text })}
+                                     value={this.state.text}
+                                     />
+                                 <TouchableOpacity onPress={() => {
+                                     this.sendImageMessage(image, this.state.text);
+                                     this.setImageVisible(!this.state.imageVisible);
+                                 } }>
+                                     <Icon name="md-send" size={30} style={{ height: 40, padding: 5 }}/>
+                                 </TouchableOpacity>
+                             </View>
+                         </View>
                     </TouchableOpacity>
                 </Modal>
             );
@@ -381,12 +385,9 @@ export default class ChatRoom extends Component {
 
     onType(text, _isEncrypted) {
         try {
-            console.log('111')
-            console.log(text)
             if (this._messageId == null) {
                 this._messageId = this.guid();
             }
-            
             var msg = {
                 mid: this._messageId,
                 id: this._messageId,
@@ -397,8 +398,6 @@ export default class ChatRoom extends Component {
                 from: serverSrv._uid,
                 content: text
             };
-            console.log('222');
-            console.log(msg);
             serverSrv.Typing(msg);
               msg.user = {
                     name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName,
@@ -407,9 +406,7 @@ export default class ChatRoom extends Component {
             if (!this.indexOnlineMessages[msg._id]) { //new message
                 this.indexOnlineMessages[msg._id] = msg;
                 this.onlineMessages.push(this.indexOnlineMessages[msg.id]);
-                 console.log('333');
             } else {
-                 console.log('444');
                 this.indexOnlineMessages[msg._id].text = msg.content;
                 this.indexOnlineMessages[msg._id].content = msg.content;
                 if (!msg.content || msg.content.length == 0) {

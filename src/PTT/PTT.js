@@ -10,7 +10,7 @@ import {
   ListView,
 } from 'react-native';
 
-import io from 'socket.io-client/socket.io';
+import io from 'socket.io-client/dist/socket.io';
 var generalStyle = require('../../styles/generalStyle');
 
 const socket = io.connect('https://server-sagi-uziel.c9users.io:8081', {transports: ['websocket']});

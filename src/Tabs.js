@@ -3,22 +3,19 @@ import {
     View,
     StyleSheet,
     Text,
-    TouchableHighlight
+    TouchableHighlight,
+    TouchableOpacity,
+    Modal
 } from 'react-native';
 import { TabViewAnimated, TabViewPage, TabBarTop } from 'react-native-tab-view';
 import Contacts from './Contacts/Contacts';
 import ChatRoom from './ChatRoom/ChatRoom';
-import SignUp from './SignUp/SignUp'
-import Chats from './Chats/Chats'
-import LiveChat from './LiveChat/LiveChat'
+import SignUp from './SignUp/SignUp';
+import Chats from './Chats/Chats';
+import LiveChat from './LiveChat/LiveChat';
 import { Actions, Scene, Router } from 'react-native-router-flux';
-import Icon from 'react-native-vector-icons/Ionicons';
-import Menu, {
-    MenuContext,
-    MenuOptions,
-    MenuOption,
-    MenuTrigger,
-} from 'react-native-popup-menu';
+import renderIf from '../plugins/renderIf';
+import IconMat from 'react-native-vector-icons/MaterialIcons';
 
 var serverSrv = require('../Services/serverSrv');
 var generalStyle = require('../styles/generalStyle');
@@ -27,10 +24,10 @@ var ErrorHandler = require('../ErrorHandler');
 
 // var SinchVerification = require('react-native-sinch-verification');
 // var custom = "A custom string to be sent to your server backend, through Sinch's callback URL";
- 
+
 // // init with app key 
 // SinchVerification.init('your-app-key');
- 
+
 // // sms verification 
 // SinchVerification.sms('0546902592', custom, (err, res) => {
 //   if (!err) {
@@ -38,14 +35,14 @@ var ErrorHandler = require('../ErrorHandler');
 //       // for ios, this means the sms has been sent out, you need to call verify with the received code 
 //   }
 // });
- 
+
 // // verify the received code (not needed on android) 
 // SinchVerification.verify('the-received-code', (err, res) => {
 //   if (!err) {
 //       // done! 
 //   }
 // });
- 
+
 // // flash call verification (android only) 
 // SinchVerification.flashCall('0546902592', custom, (err, res) => {
 //   if (!err) {
@@ -81,11 +78,27 @@ const styles = StyleSheet.create({
 export default class Tabs extends Component {
     constructor() {
         super();
+        this.state = {
+            showMenu: false
+        }
     }
 
     static propTypes = {
         style: View.propTypes.style,
     };
+
+    menuOption() {
+        this.setState({ showMenu: !this.state.showMenu });
+    }
+
+    showNewGroup() {
+        try {
+            Actions.NewGroup();
+            this.setState({ showMenu: !this.state.showMenu });
+        } catch (e) {
+            ErrorHandler.WriteError('Tabs.js => showNewGroup', e);
+        }
+    }
 
     render() {
         try {
@@ -100,11 +113,53 @@ export default class Tabs extends Component {
                         } }>
                             <Text style={generalStyle.styles.titleHeader}>Delete Db</Text>
                         </TouchableHighlight>
-                        <View style={styles.button}>
-                        </View>
+                        <TouchableOpacity style={{ margin: 7 }} onPress={() => {
+                            this.menuOption();
+                        } }>
+                            <IconMat name="more-vert" size={25} color="rgb(177,100,255)" />
+                        </TouchableOpacity>
+
+                        {renderIf(this.state.showMenu)(
+                            <Modal
+                                onRequestClose={() => { } }
+                                style={{ flex: 1 }}
+                                transparent={true}
+                                >
+
+                                <TouchableOpacity style={{ flex: 1 }} onPress={() => {
+                                    this.setState({ showMenu: !this.state.showMenu })
+                                } }>
+                                    <View style={{
+                                        width: 160,
+                                        height: 100,
+                                        backgroundColor: 'white',
+                                        position: 'absolute',
+                                        top: 35,
+                                        right: 25,
+                                    }}>
+                                        <TouchableOpacity onPress={() => {
+                                            this.showNewGroup();
+                                        } }>
+                                            <Text style={{ margin: 7, left: 6 }}>New Group</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => {
+                                        } }>
+                                            <Text style={{ margin: 7, left: 6 }}>New List</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => {
+                                        } }>
+                                            <Text style={{ margin: 7, left: 6 }}>Settings</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </TouchableOpacity>
+                            </Modal>
+                        )}
+                        <View style={styles.button} />
                     </View>
+
                     <ScrollableTabView tabBarBackgroundColor={generalStyle._mainColor} tabBarTextStyle={{ color: 'white' }} tabBarUnderlineStyle={{ backgroundColor: generalStyle._secondColor, height: 2 }}>
                         <Chats tabLabel="CHATS" />
+
                         <Contacts tabLabel="CONTACTS" />
                         <LiveChat tabLabel="LIVE CHAT" />
                     </ScrollableTabView>
@@ -112,45 +167,6 @@ export default class Tabs extends Component {
             );
         } catch (e) {
             ErrorHandler.WriteError('Tabs.js => render', e);
-        }
-    }
-    // <Icon name="md-more" onPress={} />
-
-    onOptionSelect(value) {
-        try {
-            alert(`Selected number: ${value}`);
-            this.setState({ opened: false });
-        } catch (e) {
-            ErrorHandler.WriteError('Tabs.js => onOptionSelect', e);
-        }
-    }
-
-    Menu() {
-        try {
-            return (
-                <MenuContext
-                    style={{ flexDirection: 'row', padding: 30 }}>
-                    <Text style={generalStyle.styles.titleHeader}>
-                        WriteNow
-        </Text>
-                    <Menu
-                        opened={this.state.opened}
-                        onBackdropPress={() => this.setState({ opened: false })}
-                        onSelect={value => this.onOptionSelect(value)}>
-                        <MenuTrigger
-                            onPress={() => this.setState({ opened: true })}
-                            text='Select option' />
-                        <MenuOptions>
-                            <MenuOption value={1} text='New Group' />
-                            <MenuOption value={2} text='New List' />
-                            <MenuOption value={3} text='WriteNow Web' />
-                            <MenuOption value={4} text='Settings' />
-                        </MenuOptions>
-                    </Menu>
-                </MenuContext >
-            );
-        } catch (e) {
-            ErrorHandler.WriteError('Tabs.js => Menu', e);
         }
     }
 }

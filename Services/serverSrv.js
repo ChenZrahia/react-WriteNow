@@ -3,12 +3,7 @@ import { Actions } from 'react-native-router-flux';
 //import React from 'react-native';
 import './UserAgent';
 //import io from 'socket.io-client/socket.io';
-import ReactNativeRSAUtil from 'react-native-rsa-util';
-//import rncrypto from 'react-native-rncrypto';
 
-// ...the rest of your code
-//
-// use crypto
 
 import io from 'socket.io-client/dist/socket.io';
 import ImageResizer from 'react-native-image-resizer';
@@ -41,11 +36,7 @@ var SQLite = require('react-native-sqlite-storage')
 
 
 var CryptoJS = require("crypto-js");
-//var cryptico = require("../plugins/cryptico/lib/cryptico");
-
 var SHA256 = require("crypto-js/sha256");
- var rug = require('jsrsasign');
- //var rugbin = require('jsrsasign-util');
 
 
 function errorDB(error) {
@@ -733,6 +724,14 @@ export function Typing(msg) {
     }
 }
 
+/*export function createNewGroup({groupName: '', groupPicture: ''}, participates) {
+    try {
+        socket.emit('openNewGroup', {groupName: '', groupPicture: ''}, participates, () => {});
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => createNewGroup' + error.message, error);
+    }
+}*/
+
 export function onServerTyping(callback) {
     try {
         _isFirstTime_Conv = true;
@@ -866,6 +865,7 @@ export function login(_token) {
                     //     socket.emit('encryptedMessage', hash,privateKey,encrypted2)
 
                     // }, 300);
+     
                     socket.removeAllListeners("AuthenticationOk");
 
                     socket.on('AuthenticationOk', (ok) => {
