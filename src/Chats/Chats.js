@@ -13,6 +13,7 @@ import { Actions } from 'react-native-router-flux';
 import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
 import Kohana from '../../styles/Kohana';
 import renderIf from '../../plugins/renderIf'
+import SGListView from 'react-native-sglistview';
 
 var dismissKeyboard = require('dismissKeyboard');
 var Event = require('../../Services/Events');
@@ -314,9 +315,14 @@ UpdatelastMessage(lastMessage, lastMessageTime , convId, isNewMessage)
                         value={this.state.filter}
                         onChange={this.onFilterChange.bind(this)}
                         />
-                    <ListView style={{ paddingTop: 5, flex: 1 }}
+                    <SGListView style={{ paddingTop: 5, flex: 1 }}
                         enableEmptySections={true}
-                        dataSource={this.state.dataSource}
+                        dataSource={this.getDataSource()}
+                        initialListSize={1}
+                        stickyHeaderIndices={[]}
+                        onEndReachedThreshold={1}
+                        scrollRenderAheadDistance={20}
+                        pageSize={20}
                         renderRow={(rowData) =>
                             <TouchableOpacity onPress={() => {
                                 this.openChat(rowData);
