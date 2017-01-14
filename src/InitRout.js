@@ -7,6 +7,8 @@ import Tabs from './Tabs'
 import ChatRoom from './ChatRoom/ChatRoom'
 import Call from './LiveChat/Call/Call'
 import Signature from './ChatRoom/Signature/Signature'
+import NewGroup from './NewGroup/NewGroup'
+import NewGroupInfo from './NewGroup/NewGroupInfo'
 import { Actions, Scene, Router } from 'react-native-router-flux';
 
 var serverSrv = require('../Services/serverSrv');
@@ -20,6 +22,8 @@ const scenes = Actions.create(
         <Scene key="ChatRoom" component={ChatRoom} title="ChatRoom" />
         <Scene key="Call" component={Call} title="Call" />
         <Scene key="Signature" component={Signature} title="Signature" />
+        <Scene key="NewGroup" component={NewGroup} title="NewGroup" />
+        <Scene key="NewGroupInfo" component={NewGroupInfo} title="NewGroupInfo" />
     </Scene>
 );
 

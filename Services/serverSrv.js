@@ -724,6 +724,14 @@ export function Typing(msg) {
     }
 }
 
+/*export function createNewGroup({groupName: '', groupPicture: ''}, participates) {
+    try {
+        socket.emit('openNewGroup', {groupName: '', groupPicture: ''}, participates, () => {});
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => createNewGroup' + error.message, error);
+    }
+}*/
+
 export function onServerTyping(callback) {
     try {
         _isFirstTime_Conv = true;
