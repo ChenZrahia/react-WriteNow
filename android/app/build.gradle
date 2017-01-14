@@ -154,7 +154,7 @@ dependencies {
     compile project(':react-native-webrtc')
     compile project(':react-native-sound')
     compile project(':react-native-incall-manager')
-    // compile project(':react-native-aes-encryption')
+    //compile project(':react-native-simple-emoji-picker')
 }
 
 // Run this once to be able to run the application with BUCK

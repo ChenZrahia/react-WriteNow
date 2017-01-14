@@ -113,7 +113,7 @@ export default class WriteNow extends Component {
                 if (notif.isPhoneCall == true) {
                     Actions.Call(notifData);
                     setTimeout(() => {
-                        Event.trigger('getCall');
+                        Event.trigger('getCall', true);
                     }, 100);
                 }
             }
@@ -127,10 +127,14 @@ export default class WriteNow extends Component {
             
             if (notif && notif.data) {
                 var notifData = JSON.parse(notif.data);
-                if (notif.isPhoneCall == true) {
+                console.log(notif);
+                console.log(notifData);
+                console.log('notifData+++');
+                
+                if (notifData.isPhoneCall == true) {
                     Actions.Call(notifData);
                     setTimeout(() => {
-                        Event.trigger('getCall');
+                        Event.trigger('getCall', true);
                     }, 100);
                 } else {
                     if (newMsg_ring) {
