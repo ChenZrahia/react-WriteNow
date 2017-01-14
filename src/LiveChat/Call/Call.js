@@ -96,16 +96,12 @@ export default class Call extends Component {
             ErrorHandler.WriteError("Call.js -> constructor", e);
         }
     }
-    getCall() {
+    getCall(IsIncomingCall) {
         try {
-            callRingtone.play((success) => {
-                if (success) {
-                    console.log('successfully finished playing');
-                } else {
-                    console.log('playback failed due to audio decoding errors');
-                }
-            });
-            callRingtone.setNumberOfLoops(-1);
+            if (IsIncomingCall == true) {
+                callRingtone.play((success) => { });
+                callRingtone.setNumberOfLoops(-1);
+            }
 
             if (this.props.convId) {
                 serverSrv.GetConvData_ByConvId(this.props.convId, (convData) => {
@@ -220,7 +216,7 @@ export default class Call extends Component {
     startCall() {
         try {
             callRingtone.stop();
-            liveSrv.Connect();
+            liveSrv.Connect(this.hungUp);
             if (this.callInterval) {
                 clearInterval(this.callInterval);
             }

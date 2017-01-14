@@ -613,7 +613,7 @@ viewProfile(){
   liveSrv.Connect(this.props.convId);
   Actions.Call({ userName: this.props.userName, userPicture: this.props.userPicture });
   setTimeout(() => {
-    Event.trigger('getCall');
+    Event.trigger('getCall', false);
   }, 100);
   this.setState({ showMenu: !this.state.showMenu });
 }
