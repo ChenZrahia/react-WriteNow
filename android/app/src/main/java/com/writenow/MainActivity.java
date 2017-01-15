@@ -1,6 +1,7 @@
 package com.writenow;
 
 import com.facebook.react.ReactActivity;
+
 import com.rssignaturecapture.RSSignatureCapturePackage;
 import com.github.xfumihiro.react_native_image_to_base64.ImageToBase64Package;
 import fr.bamlab.rnimageresizer.ImageResizerPackage;
