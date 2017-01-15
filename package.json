@@ -30,6 +30,7 @@
     "react-native-popup-menu": "^0.5.7",
     "react-native-root-toast": "^1.0.3",
     "react-native-router-flux": "^3.37.0",
+    "react-native-rsa": "0.0.3",
     "react-native-rsa-util": "0.0.2",
     "react-native-scrollable-tab-view": "^0.6.0",
     "react-native-sglistview": "^0.3.2",
