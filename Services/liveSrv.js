@@ -1,5 +1,6 @@
 import { Actions } from 'react-native-router-flux';
 import './UserAgent';
+//import io from 'socket.io-client/socket.io';
 import io from 'socket.io-client/dist/socket.io';
 var Event = require('./Events');
 var moment = require('moment');
