@@ -37,16 +37,13 @@ export default class Chats extends Component {
                 imageVisible: false,
                 filter: ''
             };
-            
             this.UpdateChatsList = this.UpdateChatsList.bind(this);
             this.newMessage = this.newMessage.bind(this);
             this.NewChat = this.NewChat.bind(this);
             this.UpdatelastMessage = this.UpdatelastMessage.bind(this);
-            Event.on('UpdateChatsList', this.UpdateChatsList);
-            Event.on('newMessage', this.newMessage);
-            Event.on('NewChat', this.NewChat);
-            Event.removeAllListeners('lastMessage');
-            Event.on('lastMessage', this.UpdatelastMessage);
+            
+         
+           
         } catch (e) {
             ErrorHandler.WriteError("Chats.js -> constructor", e);
         }
@@ -103,7 +100,16 @@ export default class Chats extends Component {
 
     componentDidMount() {
         try {
-            setTimeout(this.UpdateChatsList, 0);
+            
+            Event.on('UpdateChatsList', this.UpdateChatsList);
+            Event.on('newMessage', this.newMessage);
+            Event.on('NewChat', this.NewChat);
+            Event.removeAllListeners('lastMessage');
+            Event.on('lastMessage', this.UpdatelastMessage);
+           
+            setTimeout(this.UpdateChatsList, 100);
+              
+            
         } catch (e) {
             ErrorHandler.WriteError("Chats.js -> componentDidMount", e);
         }
