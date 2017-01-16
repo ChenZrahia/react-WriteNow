@@ -49,7 +49,7 @@ export default class Chats extends Component {
         }
     }
 
-    UpdateChatsList() {
+    UpdateChatsList(isUpdate) {
         try {
             var ds = this.ds;
             serverSrv.GetAllUserConv((result) => {
@@ -70,7 +70,7 @@ export default class Chats extends Component {
                 } catch (e) {
                     ErrorHandler.WriteError("Chats.js -> UpdateChatsList -> GetAllUserConv", e);
                 }
-            });
+            }, isUpdate);
         } catch (e) {
             ErrorHandler.WriteError("Chats.js -> UpdateChatsList", e);
         }
@@ -285,9 +285,11 @@ export default class Chats extends Component {
     }
 UpdatelastMessage(lastMessage, lastMessageTime , convId, isNewMessage)
 {
+    var isFound = false;
     this.myChats = this.myChats.map((chat) => {
         console.log(chat);
         if (chat.id == convId) {
+            isFound = true;
             chat.lastMessage = lastMessage;
             chat.lastMessageTime = lastMessageTime;
             if (isNewMessage) {
@@ -301,7 +303,14 @@ UpdatelastMessage(lastMessage, lastMessageTime , convId, isNewMessage)
          }
         return chat;
     });
-    this.myChats = this.sortDates(this.myChats);
+    console.log(isFound);
+    console.log('isFound');
+    if ((isFound == false || true) && isNewMessage == true) {
+        this.UpdateChatsList(true);
+        console.log('isFound');
+    } else {
+        this.myChats = this.sortDates(this.myChats);
+    }
     console.log(this.myChats);
     this.setState({dataSource: this.ds.cloneWithRows(this.myChats)});
 }

@@ -350,6 +350,9 @@ export function GetAllUserConv(callback, isUpdate) {
         //     callback(_myChats);
         //     return;
         // }
+        if (isUpdate == true) {
+            _isFirstTime_Chats = true;
+        } 
         db.transaction((tx) => {
             tx.executeSql('SELECT * FROM Conversation ORDER BY lastMessageTime DESC', [], (tx, rs) => {
                 try {
