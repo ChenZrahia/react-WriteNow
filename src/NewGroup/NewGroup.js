@@ -16,6 +16,7 @@ import SGListView from 'react-native-sglistview';
 import Kohana from '../../styles/Kohana';
 import { Actions } from 'react-native-router-flux';
 import Icon from 'react-native-vector-icons/Ionicons';
+import renderIf from '../../plugins/renderIf';
 
 var dismissKeyboard = require('dismissKeyboard');
 var serverSrv = require('../../Services/serverSrv');
@@ -192,12 +193,12 @@ export default class NewGroup extends Component {
                             if (this.GroupContacts.indexOf(rowData) === -1) {
                                 this.GroupContacts.push(rowData);
                                 this.groupMembersCounter++;
-                                this.myFriends.splice(this.myFriends.indexOf(rowData), 1);
+                                rowData.isHidden = true;
                             }
-                            else {
+                            /*else {
                                 this.GroupContacts.splice(this.GroupContacts.indexOf(rowData), 1);
                                 this.groupMembersCounter--;
-                            }
+                            }*/
                             this.setState({
                                 groupSource: this.ds2.cloneWithRows(this.GroupContacts)
                             });
@@ -230,7 +231,7 @@ export default class NewGroup extends Component {
                     <TouchableOpacity onPress={() => {
                         this.GroupContacts.splice(this.GroupContacts.indexOf(rowData), 1);
                         this.groupMembersCounter--;
-                        this.myFriends.append(rowData);
+                        rowData.isHidden = false;
                         this.setState({
                             groupSource: this.ds2.cloneWithRows(this.GroupContacts)
                         });

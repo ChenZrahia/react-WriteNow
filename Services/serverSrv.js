@@ -35,8 +35,8 @@ var ErrorHandler = require('../ErrorHandler');
 var SQLite = require('react-native-sqlite-storage')
 
 
-var CryptoJS = require("crypto-js");
-var SHA256 = require("crypto-js/sha256");
+/*var CryptoJS = require("crypto-js");
+var SHA256 = require("crypto-js/sha256");*/
 
 
 function errorDB(error) {
@@ -727,13 +727,13 @@ export function Typing(msg) {
     }
 }
 
-export function createNewGroup({groupName: '', groupPicture: ''}, participates) {
+/*export function createNewGroup({groupName: '', groupPicture: ''}, participates) {
     try {
         socket.emit('openNewGroup', {groupName: '', groupPicture: ''}, participates, () => {});
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => createNewGroup' + error.message, error);
     }
-}
+}*/
 
 export function onServerTyping(callback) {
     try {
