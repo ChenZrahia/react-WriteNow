@@ -886,7 +886,9 @@ export function login(_token) {
                     try {
                         socket = io.connect('https://server-sagi-uziel.c9users.io:8080');
                         console.log('rs.rows.length < 0');
-                        Actions.SignUp({ type: 'replace' });
+                        setTimeout(function() {
+                            Actions.SignUp({ type: 'replace' });
+                        }, 100);
                         console.log('rs.rows.length < 0');
                     } catch (error) {
                         ErrorHandler.WriteError('EnterPage constructor => userNotExist in DB ', error);
