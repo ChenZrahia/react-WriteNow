@@ -41,8 +41,8 @@ export default class NewGroupInfo extends Component {
         super(props);
         this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         this.state = {
-            GroupName: "",
-            avatarSource: require('../../img/group-img.jpg'),
+            groupName: "",
+            groupAvatar: require('../../img/group-img.jpg'),
             groupSource: this.ds.cloneWithRows(this.props.data)
         }
     }
@@ -80,7 +80,7 @@ export default class NewGroupInfo extends Component {
                 });
 
                 this.setState({
-                    avatarSource: source
+                    groupAvatar: source
                 });
             }
         });
@@ -108,7 +108,7 @@ export default class NewGroupInfo extends Component {
                                 </Text>
                                 <TouchableOpacity onPress={this.showImagePicker} >
                                     <View style={styles.viewImg}>
-                                        <Image style={styles.UserImage} source={this.state.avatarSource} />
+                                        <Image style={styles.UserImage} source={this.state.groupAvatar} />
                                     </View>
                                 </TouchableOpacity>
                             </View>
@@ -122,7 +122,7 @@ export default class NewGroupInfo extends Component {
                             iconColor={'#f50057'}
                             style={styles.input}
                             autoCapitalize="words"
-                            onChangeText={(val) => this.setState({ GroupName: val })}
+                            onChangeText={(val) => this.setState({ groupName: val })}
                             />
                         <View style={styles.groupBar}>
                             <SGListView style={{ padding: 5, flex: 1, flexDirection: 'row' }}
@@ -138,7 +138,13 @@ export default class NewGroupInfo extends Component {
                                 />
                         </View>
 
-                        <TouchableOpacity disabled={disabled} style={styles.button} underlayColor='#ededed' onPress={this.SignUpSubmit}>
+                        <TouchableOpacity disabled={disabled} style={styles.button} underlayColor='#ededed' onPress={() => {
+                            var participateArray = this.props.data.map((user) => {
+                                return user.id;
+                            });
+                            serverSrv.createNewGroup(this.state.groupName, this.state.groupAvatar.uri, participateArray);
+                            //Actions.ChatRoom(rowData); //??????????
+                        } }>
                             <View>
                                 <Text style={styles.buttonText}>Create Group</Text>
                             </View>

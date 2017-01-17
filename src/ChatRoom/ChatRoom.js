@@ -231,28 +231,30 @@ export default class ChatRoom extends Component {
                     visible={this.state.imageVisible}
                     onRequestClose={() => { console.log('image closed') } }
                     >
-                    <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
-                        this.setImageVisible(!this.state.imageVisible);
-                    } }>
-                        <View style={{ backgroundColor: 'rgba(0,0,0,0.7)', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                            <Image style={{ width: 300, height: 300, borderRadius: 0, borderWidth: 1 }} source={{ uri: image }} />
-                            <Icon name="md-close" size={30} color="gray" style={{ position: 'absolute', paddingTop: 3, justifyContent: 'flex-start', alignSelf: 'flex-end' }} />
-                            <View style={{ width: 300, flexDirection: 'row', backgroundColor: 'white', borderColor: 'gray', borderWidth: 1 }}>
-                                <TextInput
-                                    style={{ flex: 1, height: 40, backgroundColor: 'white' }}
-                                    placeholder="Type a message..."
-                                    onChangeText={(text) => this.setState({ text })}
-                                    value={this.state.text}
-                                    />
-                                <TouchableOpacity onPress={() => {
-                                    this.sendImageMessage(image, this.state.text);
-                                    this.setImageVisible(!this.state.imageVisible);
-                                } }>
-                                    <Icon name="md-send" size={30} style={{ height: 40, padding: 5 }} />
-                                </TouchableOpacity>
+                    <View style={{ backgroundColor: 'rgba(0,0,0,0.7)', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                        <TouchableOpacity onPress={() => {
+                            this.setImageVisible(!this.state.imageVisible);
+                        } }>
+                            <View style={{ width: 30, height: 30, backgroundColor: 'gray', borderRadius: 15 }}>
+                                <Icon name="md-close" size={15} color="black" style={{ alignSelf: 'center', paddingTop: 7 }} />
                             </View>
+                        </TouchableOpacity>
+                        <Image style={{ width: 300, height: 300, borderRadius: 0, borderWidth: 1, borderColor: 'gray' }} source={{ uri: image }} />
+                        <View style={{ width: 300, flexDirection: 'row', backgroundColor: 'white', borderColor: 'gray', borderWidth: 1 }}>
+                            <TextInput
+                                style={{ flex: 1, height: 40, backgroundColor: 'white' }}
+                                placeholder="Type a message..."
+                                onChangeText={(text) => this.setState({ text })}
+                                value={this.state.text}
+                                />
+                            <TouchableOpacity onPress={() => {
+                                this.sendImageMessage(image, this.state.text);
+                                this.setImageVisible(!this.state.imageVisible);
+                            } }>
+                                <Icon name="md-send" size={30} style={{ height: 40, padding: 5 }} />
+                            </TouchableOpacity>
                         </View>
-                    </TouchableOpacity>
+                    </View>
                 </Modal>
             );
         } catch (e) {

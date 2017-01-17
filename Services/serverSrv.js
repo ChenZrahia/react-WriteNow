@@ -352,7 +352,7 @@ export function GetAllUserConv(callback, isUpdate) {
         // }
         if (isUpdate == true) {
             _isFirstTime_Chats = true;
-        } 
+        }
         db.transaction((tx) => {
             tx.executeSql('SELECT * FROM Conversation ORDER BY lastMessageTime DESC', [], (tx, rs) => {
                 try {
@@ -727,13 +727,33 @@ export function Typing(msg) {
     }
 }
 
-/*export function createNewGroup({groupName: '', groupPicture: ''}, participates) {
+export function createNewGroup(_groupName, _groupPicture, _participates) {
     try {
-        socket.emit('openNewGroup', {groupName: '', groupPicture: ''}, participates, () => {});
+        socket.emit('openNewGroup', { groupName: _groupName, groupPicture: _groupPicture }, _participates, (result) => {
+            db.transaction((tx) => {
+                tx.executeSql('INSERT INTO Conversation VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                    [result.id,
+                    result.isEncrypted,
+                    result.manager,
+                    result.groupName,
+                    result.groupPicture,
+                    result.isGroup,
+                    result.lastMessage,
+                    result.lastMessageTime
+                    ]);
+                for (var i = 0; i < result.participates.length; i++) {
+                    tx.executeSql('INSERT INTO Participates VALUES (?, ?, ?)',
+                        [result.id,
+                        result.participates[i],
+                        result.isGroup
+                        ]);
+                }
+            });
+        });
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => createNewGroup' + error.message, error);
     }
-}*/
+}
 
 export function onServerTyping(callback) {
     try {
@@ -850,7 +870,7 @@ export function login(_token) {
 
                     socket.disconnect();
                     socket = io.connect('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: _encryptedUid, publicKey: item.publicKey, uid: _uid, token: this._token } });
-                    
+
                     // setTimeout(() => {
                     //     try {
 
@@ -868,7 +888,7 @@ export function login(_token) {
                     //     socket.emit('encryptedMessage', hash,privateKey,encrypted2)
 
                     // }, 300);
-     
+
                     socket.removeAllListeners("AuthenticationOk");
 
                     socket.on('AuthenticationOk', (ok) => {
@@ -886,7 +906,7 @@ export function login(_token) {
                     try {
                         socket = io.connect('https://server-sagi-uziel.c9users.io:8080');
                         console.log('rs.rows.length < 0');
-                        setTimeout(function() {
+                        setTimeout(function () {
                             Actions.SignUp({ type: 'replace' });
                         }, 100);
                         console.log('rs.rows.length < 0');
@@ -919,12 +939,12 @@ export function signUpFunc(newUser, callback) {
         var publicKey = rsa.getPublicString(); // return json encoded string
         var privateKey = rsa.getPrivateString(); // return json encoded string
         rsa.setPrivateString(privateKey);
-        
+
         console.log(newUser);
         newUser.pkey = publicKey;
         socket.emit('addNewUser', newUser, (user) => {
-        var encryptedUid = rsa.encryptWithPrivate(user.id);
-        console.log("this is encrypted message:" +encryptedUid);
+            var encryptedUid = rsa.encryptWithPrivate(user.id);
+            console.log("this is encrypted message:" + encryptedUid);
             if (user.id) {
                 db.transaction(function (tx) {
                     this._uid = user.id;

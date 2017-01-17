@@ -161,15 +161,15 @@ export default class SignUp extends Component {
     }
 
     logInSpinner() {
-        return( <Modal
-                    transparent={false}
-                    visible={this.state.SpinnerVisible}
-                    onRequestClose={() => { console.log('image closed') } }
-                    >
-                    <View  style={{ flex:1, alignSelf: 'stretch', backgroundColor: 'blue', position: 'absolute' }}>
-                    <Spinner  visible={true} />
-                    </View>
-            </Modal>)
+        // return( <Modal
+        //             transparent={false}
+        //             visible={this.state.SpinnerVisible}
+        //             onRequestClose={() => { console.log('image closed') } }
+        //             >
+        //             <View  style={{ flex:1, alignSelf: 'stretch', backgroundColor: 'blue', position: 'absolute' }}>
+        //             <Spinner  visible={true} />
+        //             </View>
+        //     </Modal>)
     }//this.state.SpinnerVisible
     //style={{ flex:1, backgroundColor: 'rgba(0,0,0,1)', position: 'absolute' }}
     // <View style={{ flex:1, backgroundColor: 'green', position: 'absolute' }}  visible={true}>
