@@ -102,7 +102,7 @@ export default class Chats extends Component {
             Event.on('NewChat', this.NewChat);
             Event.removeAllListeners('lastMessage');
             Event.on('lastMessage', this.UpdatelastMessage);
-            setTimeout(this.UpdateChatsList, 0);
+            setTimeout(this.UpdateChatsList, 100);
         } catch (e) {
             ErrorHandler.WriteError("Chats.js -> componentDidMount", e);
         }

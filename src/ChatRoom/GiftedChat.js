@@ -392,42 +392,42 @@ export default class GiftedChat extends React.Component {
     messages = messages.map((message) => {
       return {
         ...message,
-      user: this.props.user,
-      createdAt: new Date(),
-      _id: 'temp-id-' + Math.round(Math.random() * 1000000),
+        user: this.props.user,
+        createdAt: new Date(),
+        _id: 'temp-id-' + Math.round(Math.random() * 1000000),
       };
-});
+    });
 
-if (shouldResetInputToolbar === true) {
-  this.setIsTypingDisabled(true);
-  this.resetInputToolbar();
-}
-
-this.props.onSend(messages);
-this.scrollToBottom();
-
-if (shouldResetInputToolbar === true) {
-  setTimeout(() => {
-    if (this.getIsMounted() === true) {
-      this.setIsTypingDisabled(false);
+    if (shouldResetInputToolbar === true) {
+      this.setIsTypingDisabled(true);
+      this.resetInputToolbar();
     }
-  }, 200);
-}
+
+    this.props.onSend(messages);
+    this.scrollToBottom();
+
+    if (shouldResetInputToolbar === true) {
+      setTimeout(() => {
+        if (this.getIsMounted() === true) {
+          this.setIsTypingDisabled(false);
+        }
+      }, 200);
+    }
   }
 
-resetInputToolbar() {
-  this.setState((previousState) => {
-    return {
-      text: '',
-      composerHeight: MIN_COMPOSER_HEIGHT,
-      messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight() - this.getKeyboardHeight() + this.getBottomOffset()),
-    };
-  });
-}
+  resetInputToolbar() {
+    this.setState((previousState) => {
+      return {
+        text: '',
+        composerHeight: MIN_COMPOSER_HEIGHT,
+        messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight() - this.getKeyboardHeight() + this.getBottomOffset()),
+      };
+    });
+  }
 
-calculateInputToolbarHeight(newComposerHeight) {
-  return newComposerHeight + (this.getMinInputToolbarHeight() - MIN_COMPOSER_HEIGHT);
-}
+  calculateInputToolbarHeight(newComposerHeight) {
+    return newComposerHeight + (this.getMinInputToolbarHeight() - MIN_COMPOSER_HEIGHT);
+  }
 
 
   onType(e) {
@@ -441,195 +441,196 @@ calculateInputToolbarHeight(newComposerHeight) {
       newComposerHeight = MIN_COMPOSER_HEIGHT;
     }
 
-const newMessagesContainerHeight = this.getMaxHeight() - this.calculateInputToolbarHeight(newComposerHeight) - this.getKeyboardHeight() + this.getBottomOffset();
-const newText = e.nativeEvent.text;
-this.setState((previousState) => {
-  return {
-    text: newText,
-    composerHeight: newComposerHeight,
-    messagesContainerHeight: this.prepareMessagesContainerHeight(newMessagesContainerHeight),
-  };
-});
-this.props.onType(newText, false);
+    const newMessagesContainerHeight = this.getMaxHeight() - this.calculateInputToolbarHeight(newComposerHeight) - this.getKeyboardHeight() + this.getBottomOffset();
+    const newText = e.nativeEvent.text;
+    this.setState((previousState) => {
+      return {
+        text: newText,
+        composerHeight: newComposerHeight,
+        messagesContainerHeight: this.prepareMessagesContainerHeight(newMessagesContainerHeight),
+      };
+    });
+    this.props.onType(newText, false);
   }
 
-changeText = (data) => {
-  Event.trigger('imojiType', this.state.text + data, false);
-  this.setState({ text: this.state.text + data });
-}
-
-
+  changeText = (data) => {
+    Event.trigger('imojiType', this.state.text + data, false);
+    this.setState({ text: this.state.text + data });
+  }
 
   renderInputToolbar() {
     const inputToolbarProps = {
       ...this.props,
-    text: this.state.text,
+      text: this.state.text,
       composerHeight: Math.max(MIN_COMPOSER_HEIGHT, this.state.composerHeight),
-        onChange: this.onType,
-          onSend: this.onSend,
+      onChange: this.onType,
+      onSend: this.onSend,
     };
 
-if (this.props.renderInputToolbar) {
-  return this.props.renderInputToolbar(inputToolbarProps);
-}
-return (
-  <InputToolbar
-    changeText={this.changeText}
-    textInput={this.state.text}
-    {...inputToolbarProps}
-    />
-);
+    if (this.props.renderInputToolbar) {
+      return this.props.renderInputToolbar(inputToolbarProps);
+    }
+    return (
+      <InputToolbar
+        changeText={this.changeText}
+        textInput={this.state.text}
+        {...inputToolbarProps}
+        />
+    );
   }
 
-renderChatFooter() {
-  if (this.props.renderChatFooter) {
-    const footerProps = {
+  renderChatFooter() {
+    if (this.props.renderChatFooter) {
+      const footerProps = {
         ...this.props,
       };
-  return this.props.renderChatFooter(footerProps);
-}
-return null;
+      return this.props.renderChatFooter(footerProps);
+    }
+    return null;
   }
 
-renderLoading() {
-  if (this.props.renderLoading) {
-    return this.props.renderLoading();
+  renderLoading() {
+    if (this.props.renderLoading) {
+      return this.props.renderLoading();
+    }
+    return null;
   }
-  return null;
-}
 
-setImageVisible(visible) {
-  this.setState({ imageVisible: visible });
-}
-setEncryptedVisible(visible){
-  this.setState({ encryptedVisible: visible });
-}
-menuOption()
-{
-  this.setState({ showMenu: !this.state.showMenu });
-}
+  setImageVisible(visible) {
+    this.setState({ imageVisible: visible });
+  }
+
+  setEncryptedVisible(visible) {
+    this.setState({ encryptedVisible: visible });
+  }
+
+  menuOption() {
+    this.setState({ showMenu: !this.state.showMenu });
+  }
+
+  openImageModal(image) {
+    return (
+      <Modal
+        transparent={true}
+        visible={this.state.imageVisible}
+        onRequestClose={() => { console.log('image closed') } }
+        >
+        <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
+          this.setImageVisible(!this.state.imageVisible)
+        } }>
+          <View style={generalStyles.styles.imageModal}>
+            <Image style={generalStyles.styles.imageInsideModal} source={image} />
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    );
+  }
 
 
-openImageModal(image) {
-  return (
-    <Modal
-      transparent={true}
-      visible={this.state.imageVisible}
-      onRequestClose={() => { console.log('image closed') } }
-      >
-      <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
-        this.setImageVisible(!this.state.imageVisible)
-      } }>
+  newList() {
+    console.log('new list is working well');
+    this.setState({ showMenu: !this.state.showMenu });
+  }
+
+  encryptedMessage() {
+    //this.setState({ encryptedMessageText: this.state.encryptedMessageText + message });
+    //console.log(this.state.encryptedMessageText);
+    //this.props.changeEncryptedMessageText(this.state.encryptedMessageText);
+    //Event.trigger('encryptedMessage', this.state.encryptedMessageText);
+
+    Event.trigger('encryptedMessage', this.state.encryptedMessageText, true);
+    this.setState({ encryptedMessageText: '' });
+    this.setEncryptedVisible(!this.state.encryptedVisible);
+  }
+  // <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
+  //   this.setEncryptedVisible(!this.state.encryptedVisible)
+  // } }>
+  // </TouchableOpacity>
+
+  encrypteModal() {
+    return (
+      <Modal
+        transparent={true}
+        visible={this.state.encryptedVisible}
+        onRequestClose={() => { console.log('encrypted message modal closed') } }
+        >
         <View style={generalStyles.styles.imageModal}>
-          <Image style={generalStyles.styles.imageInsideModal} source={image} />
-        </View>
-      </TouchableOpacity>
-    </Modal>
-  );
-}
-
-
-newList(){
-  console.log('new list is working well');
-  this.setState({ showMenu: !this.state.showMenu });
-}
-encryptedMessage(){
-  //this.setState({ encryptedMessageText: this.state.encryptedMessageText + message });
-  //console.log(this.state.encryptedMessageText);
-  //this.props.changeEncryptedMessageText(this.state.encryptedMessageText);
-  //Event.trigger('encryptedMessage', this.state.encryptedMessageText);
-
-  Event.trigger('encryptedMessage', this.state.encryptedMessageText, true);
-  this.setState({ encryptedMessageText: '' });
-  this.setEncryptedVisible(!this.state.encryptedVisible);
-}
-// <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
-//   this.setEncryptedVisible(!this.state.encryptedVisible)
-// } }>
-// </TouchableOpacity>
-
-encrypteModal(){
-  return (
-    <Modal
-      transparent={true}
-      visible={this.state.encryptedVisible}
-      onRequestClose={() => { console.log('encrypted message modal closed') } }
-      >
-      <View style={generalStyles.styles.imageModal}>
-        <View style={{ flex: 1 }}>
-        </View>
-        <View style={generalStyles.styles.encryptedMessageModal}>
-          <View style={generalStyles.styles.encryptedMessageHeader}>
-            <Text style={{ color: 'white', textAlign: 'left' }}>Encrypt Your Message</Text>
+          <View style={{ flex: 1 }}>
           </View>
-          <View style={{ flexDirection: "row", flex: 1, backgroundColor: 'white' }}>
-            <TextInput
-              autoCorrect={true}
-              placeholder='Type a message...'
-              placeholderTextColor='#b2b2b2'
-              multiline={this.state.multiline}
-              onChangeText={(encryptedMessageText) => {
-                this.setState({ encryptedMessageText });
-              }
-              }
-              style={[styles.textInput, { textAlign: 'left', textAlignVertical: 'top' }, { height: Math.max(35, this.state.height) }]}
-              value={this.state.encryptedMessageText}
-              enablesReturnKeyAutomatically={true}
-              underlineColorAndroid="transparent"
-              />
-          </View>
-          <View style={{ flexDirection: "row", flex: 0.5 }}>
-            <TouchableOpacity style={styles.buttonStyle}
-              onPress={() => { this.encryptedMessage() } } >
-              <Text style={{ color: 'white' }}>Send</Text>
-            </TouchableOpacity>
-            <View style={{ flex: 0.6, justifyContent: "center", alignItems: "center" }}>
-              <Image
-                style={{ width: 40, height: 40, padding: 2 }}
-                source={{ uri: 'https://cdn4.iconfinder.com/data/icons/social-productivity-line-art-4/128/security-shield-lock-512.png' }}
+          <View style={generalStyles.styles.encryptedMessageModal}>
+            <View style={generalStyles.styles.encryptedMessageHeader}>
+              <Text style={{ color: 'white', textAlign: 'left' }}>Encrypt Your Message</Text>
+            </View>
+            <View style={{ flexDirection: "row", flex: 1, backgroundColor: 'white' }}>
+              <TextInput
+                autoCorrect={true}
+                placeholder='Type a message...'
+                placeholderTextColor='#b2b2b2'
+                multiline={this.state.multiline}
+                onChangeText={(encryptedMessageText) => {
+                  this.setState({ encryptedMessageText });
+                }
+                }
+                style={[styles.textInput, { textAlign: 'left', textAlignVertical: 'top' }, { height: Math.max(35, this.state.height) }]}
+                value={this.state.encryptedMessageText}
+                enablesReturnKeyAutomatically={true}
+                underlineColorAndroid="transparent"
                 />
             </View>
-            <TouchableOpacity style={styles.buttonStyle}
-              onPress={() => { this.setEncryptedVisible(!this.state.encryptedVisible) } } >
-              <Text style={{ color: 'white' }}>Cancel</Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: "row", flex: 0.5 }}>
+              <TouchableOpacity style={styles.buttonStyle}
+                onPress={() => { this.encryptedMessage() } } >
+                <Text style={{ color: 'white' }}>Send</Text>
+              </TouchableOpacity>
+              <View style={{ flex: 0.6, justifyContent: "center", alignItems: "center" }}>
+                <Image
+                  style={{ width: 40, height: 40, padding: 2 }}
+                  source={{ uri: 'https://cdn4.iconfinder.com/data/icons/social-productivity-line-art-4/128/security-shield-lock-512.png' }}
+                  />
+              </View>
+              <TouchableOpacity style={styles.buttonStyle}
+                onPress={() => { this.setEncryptedVisible(!this.state.encryptedVisible) } } >
+                <Text style={{ color: 'white' }}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={{ flex: 1 }}>
           </View>
         </View>
-        <View style={{ flex: 1 }}>
-        </View>
-      </View>
-    </Modal>
-  );
+      </Modal>
+    );
+  }
 
-}
-encryptMessage(){
-  console.log('encrypt Message is working well');
-  this.setState({ showMenu: !this.state.showMenu });
-  this.setState({ encryptedVisible: !this.state.encryptedVisible });
-}
-viewProfile(){
-  console.log('Voice Call is working well');
-  //this.props.userPicture = '';
-  liveSrv.Connect(this.props.convId);
-  Actions.Call({ userName: this.props.userName, userPicture: this.props.userPicture });
-  setTimeout(() => {
-    Event.trigger('getCall', false);
-  }, 100);
-  this.setState({ showMenu: !this.state.showMenu });
-}
-settings(){
-  console.log('settings is working well');
-  this.setState({ showMenu: !this.state.showMenu });
-}
-walkieTalkie(){
-  console.log('walkieTalkie is working well');
-  this.setState({ showMenu: !this.state.showMenu });
-}
+  encryptMessage() {
+    console.log('encrypt Message is working well');
+    this.setState({ showMenu: !this.state.showMenu });
+    this.setState({ encryptedVisible: !this.state.encryptedVisible });
+  }
 
-cancel_chatRoom(lastMessage, lastMessageTime)
-{
-  Event.trigger('lastMessage', lastMessage, lastMessageTime, this.props.convId, false);
-}
+  viewProfile() {
+    console.log('Voice Call is working well');
+    //this.props.userPicture = '';
+    liveSrv.Connect(this.props.convId);
+    Actions.Call({ userName: this.props.userName, userPicture: this.props.userPicture });
+    setTimeout(() => {
+      Event.trigger('getCall', false);
+    }, 100);
+    this.setState({ showMenu: !this.state.showMenu });
+  }
+
+  settings() {
+    console.log('settings is working well');
+    this.setState({ showMenu: !this.state.showMenu });
+  }
+
+  walkieTalkie() {
+    console.log('walkieTalkie is working well');
+    this.setState({ showMenu: !this.state.showMenu });
+  }
+
+  cancel_chatRoom(lastMessage, lastMessageTime) {
+    Event.trigger('lastMessage', lastMessage, lastMessageTime, this.props.convId, false);
+  }
 
 
   // renderRowOnlineMsg(){
@@ -647,121 +648,121 @@ cancel_chatRoom(lastMessage, lastMessageTime)
   //       return ds.cloneWithRows(this.state.onlineMessages);
   //   }
 
-render() {
-  if (this.state.isInitialized === true) {
-    return (
-      <View style={styles.chatRoomMain}>
-        <View style={generalStyles.styles.appbar}>
-          <TouchableOpacity onPress={() => {
-            if (this.props.messages && this.props.messages.length > 0) {
-              this.cancel_chatRoom(this.props.messages[0].text, this.props.messages[0].sendTime);
-            }
-            Actions.pop();
-          } }>
-            <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => {
-            this.imgSelected = this.props.userPicture ? { uri: this.props.userPicture } : null
-            if (this.imgSelected) {
-              this.setImageVisible(true);
-            }
-          } }>
-            <View style={generalStyles.styles.viewImg}>
-              <Image style={generalStyles.styles.thumb} source={this.props.userPicture ? { uri: this.props.userPicture } : require('../../img/user.jpg')} />
-            </View>
-          </TouchableOpacity>
-          <Text style={generalStyles.styles.titleHeader}>
-            {this.props.userName}
-          </Text>
-          <TouchableOpacity style={{ margin: 7 }} onPress={() => {
-            Event.trigger('showImagePicker');
-          } }>
-            <IconMat name="photo-camera" size={25} color="rgb(177,100,255)" />
-          </TouchableOpacity>
+  render() {
+    if (this.state.isInitialized === true) {
+      return (
+        <View style={styles.chatRoomMain}>
+          <View style={generalStyles.styles.appbar}>
+            <TouchableOpacity onPress={() => {
+              if (this.props.messages && this.props.messages.length > 0) {
+                this.cancel_chatRoom(this.props.messages[0].text, this.props.messages[0].sendTime);
+              }
+              Actions.pop();
+            } }>
+              <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => {
+              this.imgSelected = this.props.userPicture ? { uri: this.props.userPicture } : null
+              if (this.imgSelected) {
+                this.setImageVisible(true);
+              }
+            } }>
+              <View style={generalStyles.styles.viewImg}>
+                <Image style={generalStyles.styles.thumb} source={this.props.userPicture ? { uri: this.props.userPicture } : require('../../img/user.jpg')} />
+              </View>
+            </TouchableOpacity>
+            <Text style={generalStyles.styles.titleHeader}>
+              {this.props.userName}
+            </Text>
+            <TouchableOpacity style={{ margin: 7 }} onPress={() => {
+              Event.trigger('showImagePicker');
+            } }>
+              <IconMat name="photo-camera" size={25} color="rgb(177,100,255)" />
+            </TouchableOpacity>
 
-          <TouchableOpacity style={{ margin: 7 }} onPress={() => {
-            Event.trigger('showSignature');
-          } }>
-            <IconMat name="brush" size={25} color="rgb(177,100,255)" />
-          </TouchableOpacity>
-          <TouchableOpacity style={{ margin: 7 }} onPress={() => {
-            this.menuOption();
-          } }>
-            <IconMat name="more-vert" size={25} color="rgb(177,100,255)" />
-          </TouchableOpacity>
+            <TouchableOpacity style={{ margin: 7 }} onPress={() => {
+              Event.trigger('showSignature');
+            } }>
+              <IconMat name="brush" size={25} color="rgb(177,100,255)" />
+            </TouchableOpacity>
+            <TouchableOpacity style={{ margin: 7 }} onPress={() => {
+              this.menuOption();
+            } }>
+              <IconMat name="more-vert" size={25} color="rgb(177,100,255)" />
+            </TouchableOpacity>
 
-          {renderIf(this.state.showMenu)(
-            <Modal
-              onRequestClose={() => { } }
-              style={{ flex: 1 }}
-              transparent={true}
-              >
+            {renderIf(this.state.showMenu)(
+              <Modal
+                onRequestClose={() => { } }
+                style={{ flex: 1 }}
+                transparent={true}
+                >
 
-              <TouchableOpacity style={{ flex: 1 }} onPress={() => {
-                this.setState({ showMenu: !this.state.showMenu })
-              } }>
-                <View style={{
-                  width: 160,
-                  height: 170,
-                  backgroundColor: 'white',
-                  position: 'absolute',
-                  top: 35,
-                  right: 25,
-                }}
-                  >
-                  <TouchableOpacity onPress={() => {
-                    this.viewProfile();
-                  } }>
-                    <Text style={{ margin: 7, marginTop: 7, left: 6 }}>
-                      Voice Call
+                <TouchableOpacity style={{ flex: 1 }} onPress={() => {
+                  this.setState({ showMenu: !this.state.showMenu })
+                } }>
+                  <View style={{
+                    width: 160,
+                    height: 170,
+                    backgroundColor: 'white',
+                    position: 'absolute',
+                    top: 35,
+                    right: 25,
+                  }}
+                    >
+                    <TouchableOpacity onPress={() => {
+                      this.viewProfile();
+                    } }>
+                      <Text style={{ margin: 7, marginTop: 7, left: 6 }}>
+                        Voice Call
          </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => {
-                    this.encryptMessage();
-                  } }>
-                    <Text style={{ margin: 7, left: 6 }}>
-                      Encrypt Message
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => {
+                      this.encryptMessage();
+                    } }>
+                      <Text style={{ margin: 7, left: 6 }}>
+                        Encrypt Message
          </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => {
-                    this.newList();
-                  } }>
-                    <Text style={{ margin: 7, left: 6 }}>
-                      New List
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => {
+                      this.newList();
+                    } }>
+                      <Text style={{ margin: 7, left: 6 }}>
+                        New List
          </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => {
-                    this.walkieTalkie();
-                  } }>
-                    <Text style={{ margin: 7, left: 6 }}>
-                      Walkie-Talkie
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => {
+                      this.walkieTalkie();
+                    } }>
+                      <Text style={{ margin: 7, left: 6 }}>
+                        Walkie-Talkie
          </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => {
-                    this.settings();
-                  } }>
-                    <Text style={{ margin: 7, left: 6 }}>
-                      Settings
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => {
+                      this.settings();
+                    } }>
+                      <Text style={{ margin: 7, left: 6 }}>
+                        Settings
          </Text>
-                  </TouchableOpacity>
-                </View>
-              </TouchableOpacity>
-            </Modal>
-          )}
-          <View style={styles.button} />
-        </View>
-        <ActionSheet ref={component => this._actionSheetRef = component}>
-          <View
-            style={styles.container}
-            onLayout={(e) => {
-              if (Platform.OS === 'android') {
-                // fix an issue when keyboard is dismissing during the initialization
-                const layout = e.nativeEvent.layout;
-                if (this.getMaxHeight() !== layout.height && this.getIsFirstLayout() === true) {
-                  this.setMaxHeight(layout.height);
-                  this.setState({
-                    messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight()),
-                  });
+                    </TouchableOpacity>
+                  </View>
+                </TouchableOpacity>
+              </Modal>
+            )}
+            <View style={styles.button} />
+          </View>
+          <ActionSheet ref={component => this._actionSheetRef = component}>
+            <View
+              style={styles.container}
+              onLayout={(e) => {
+                if (Platform.OS === 'android') {
+                  // fix an issue when keyboard is dismissing during the initialization
+                  const layout = e.nativeEvent.layout;
+                  if (this.getMaxHeight() !== layout.height && this.getIsFirstLayout() === true) {
+                    this.setMaxHeight(layout.height);
+                    this.setState({
+                      messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight()),
+                    });
                   }
                 }
                 if (this.getIsFirstLayout() === true) {
@@ -775,7 +776,7 @@ render() {
             </View>
           </ActionSheet>
           {this.openImageModal(this.imgSelected)}
-           {this.encrypteModal()}
+          {this.encrypteModal()}
         </View>
       );
     }
@@ -802,18 +803,18 @@ render() {
 }
 
 
-                // <View style={{backgroundColor:'rgba(0,0,0,0.5)', minHeight: 0, maxHeight: 200, position: 'absolute', top: 0, right: 0, left: 0, zIndex: 9}}>
-                //     <SGListView style={{ paddingTop: 5, flex: 1 }}
-                //             enableEmptySections={true}
-                //             dataSource={this.getDataSourceOnlineMsg()}
-                //             initialListSize={1}
-                //             stickyHeaderIndices={[]}
-                //             onEndReachedThreshold={1}
-                //             scrollRenderAheadDistance={20}
-                //             pageSize={20}
-                //             renderRow={this.renderRowOnlineMsg()}
-                //             />
-                // </View>
+// <View style={{backgroundColor:'rgba(0,0,0,0.5)', minHeight: 0, maxHeight: 200, position: 'absolute', top: 0, right: 0, left: 0, zIndex: 9}}>
+//     <SGListView style={{ paddingTop: 5, flex: 1 }}
+//             enableEmptySections={true}
+//             dataSource={this.getDataSourceOnlineMsg()}
+//             initialListSize={1}
+//             stickyHeaderIndices={[]}
+//             onEndReachedThreshold={1}
+//             scrollRenderAheadDistance={20}
+//             pageSize={20}
+//             renderRow={this.renderRowOnlineMsg()}
+//             />
+// </View>
 
 const styles = StyleSheet.create({
   chatRoomMain: {

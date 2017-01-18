@@ -16,6 +16,7 @@ import SGListView from 'react-native-sglistview';
 import Kohana from '../../styles/Kohana';
 import { Actions } from 'react-native-router-flux';
 import Icon from 'react-native-vector-icons/Ionicons';
+import renderIf from '../../plugins/renderIf';
 
 var dismissKeyboard = require('dismissKeyboard');
 var serverSrv = require('../../Services/serverSrv');
@@ -183,30 +184,6 @@ export default class NewGroup extends Component {
         }
     }
 
-    renderGroup() {
-        try {
-            return (
-                (rowData) =>
-                    <TouchableOpacity onPress={() => {
-                        this.GroupContacts.splice(this.GroupContacts.indexOf(rowData), 1);
-                        this.groupMembersCounter--;
-                        this.setState({
-                            groupSource: this.ds2.cloneWithRows(this.GroupContacts)
-                        });
-                    } }>
-                        <View style={{ paddingBottom: 5, paddingLeft: 5, paddingRight: 5, alignItems: 'center' }}>
-                            <Image style={styles.groupMemberPic} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
-                            <Text style={styles.groupMemberName}>
-                                {rowData.publicInfo.fullName}
-                            </Text>
-                        </View>
-                    </TouchableOpacity >
-            );
-        } catch (e) {
-            ErrorHandler.WriteError("NewGroup.js => renderGroup", e);
-        }
-    }
-
     renderRow() {
         try {
             return (
@@ -216,11 +193,12 @@ export default class NewGroup extends Component {
                             if (this.GroupContacts.indexOf(rowData) === -1) {
                                 this.GroupContacts.push(rowData);
                                 this.groupMembersCounter++;
+                                rowData.isHidden = true;
                             }
-                            else {
+                            /*else {
                                 this.GroupContacts.splice(this.GroupContacts.indexOf(rowData), 1);
                                 this.groupMembersCounter--;
-                            }
+                            }*/
                             this.setState({
                                 groupSource: this.ds2.cloneWithRows(this.GroupContacts)
                             });
@@ -243,6 +221,31 @@ export default class NewGroup extends Component {
             );
         } catch (e) {
             ErrorHandler.WriteError("NewGroup.js => renderRow", e);
+        }
+    }
+
+    renderGroup() {
+        try {
+            return (
+                (rowData) =>
+                    <TouchableOpacity onPress={() => {
+                        this.GroupContacts.splice(this.GroupContacts.indexOf(rowData), 1);
+                        this.groupMembersCounter--;
+                        rowData.isHidden = false;
+                        this.setState({
+                            groupSource: this.ds2.cloneWithRows(this.GroupContacts)
+                        });
+                    } }>
+                        <View style={{ paddingBottom: 5, paddingLeft: 5, paddingRight: 5, alignItems: 'center' }}>
+                            <Image style={styles.groupMemberPic} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
+                            <Text style={styles.groupMemberName}>
+                                {rowData.publicInfo.fullName}
+                            </Text>
+                        </View>
+                    </TouchableOpacity >
+            );
+        } catch (e) {
+            ErrorHandler.WriteError("NewGroup.js => renderGroup", e);
         }
     }
 }

@@ -73,43 +73,45 @@ export default class ChatRoom extends Component {
             BackAndroid.addEventListener('hardwareBackPress', () => {
                 if (this.convId) {
                     Event.trigger('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false);
-                } 
+                }
             });
             this.LoadNewChat(this.props.id, this.props.isContact, this.props.id, this.props.phoneNumber, this.props.fullName);
             Event.on('LoadNewChat', this.LoadNewChat);
-            
+
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => componentDidMount', e);
         }
     }
 
-    LoadNewChat(convId, isContact, uid, phoneNumber, fullName){
+    LoadNewChat(convId, isContact, uid, phoneNumber, fullName) {
         try {
             this.messages = [];
             this.indexOnlineMessages = [];
             this.onlineMessages = [];
             this.convId = null;
             this._messageId = this.guid();
-            this.setState({ messages: [],
+            this.setState({
+                messages: [],
                 imageVisible: false,
-                text: '' });
+                text: ''
+            });
             setTimeout(() => {
-                 if (this.props.publicInfo) {
-                    this.setState({groupName: this.props.publicInfo.fullName});
+                if (this.props.publicInfo) {
+                    this.setState({ groupName: this.props.publicInfo.fullName });
                 } else {
-                    this.setState({groupName: this.props.groupName});
+                    this.setState({ groupName: this.props.groupName });
                 }
                 if (this.props.publicInfo) {
-                    this.setState({groupPicture: this.props.publicInfo.picture});
+                    this.setState({ groupPicture: this.props.publicInfo.picture });
                 } else {
-                    this.setState({groupPicture: this.props.groupPicture});
+                    this.setState({ groupPicture: this.props.groupPicture });
                 }
             }, 100);
-           
+
             if (convId && !isContact) {
                 this.convId = convId;
-            } 
-            
+            }
+
             var callback = (data, convId) => {
                 console.log(data);
                 if (!data) {
@@ -230,27 +232,30 @@ export default class ChatRoom extends Component {
                     visible={this.state.imageVisible}
                     onRequestClose={() => { console.log('image closed') } }
                     >
-                    <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
-                        this.setImageVisible(!this.state.imageVisible);
-                    } }>
-                        <View style={{ backgroundColor: 'rgba(0,0,0,0.7)', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                             <Image style={{ width: 300, height: 300, borderRadius: 0, borderWidth: 1 }} source={{ uri: image }} />
-                             <View style={{ width: 300, flexDirection: 'row', backgroundColor: 'white', borderColor: 'gray', borderWidth: 1 }}>
-                                 <TextInput
-                                     style={{ flex: 1, height: 40, backgroundColor: 'white' }}
-                                     placeholder="Type a message..."
-                                     onChangeText={(text) => this.setState({ text })}
-                                     value={this.state.text}
-                                     />
-                                 <TouchableOpacity onPress={() => {
-                                     this.sendImageMessage(image, this.state.text);
-                                     this.setImageVisible(!this.state.imageVisible);
-                                 } }>
-                                     <Icon name="md-send" size={30} style={{ height: 40, padding: 5 }}/>
-                                 </TouchableOpacity>
-                             </View>
-                         </View>
-                    </TouchableOpacity>
+                    <View style={{ backgroundColor: 'rgba(0,0,0,0.7)', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                        <TouchableOpacity onPress={() => {
+                            this.setImageVisible(!this.state.imageVisible);
+                        } }>
+                            <View style={{ width: 30, height: 30, backgroundColor: 'gray', borderRadius: 15 }}>
+                                <Icon name="md-close" size={15} color="black" style={{ alignSelf: 'center', paddingTop: 7 }} />
+                            </View>
+                        </TouchableOpacity>
+                        <Image style={{ width: 300, height: 300, borderRadius: 0, borderWidth: 1, borderColor: 'gray' }} source={{ uri: image }} />
+                        <View style={{ width: 300, flexDirection: 'row', backgroundColor: 'white', borderColor: 'gray', borderWidth: 1 }}>
+                            <TextInput
+                                style={{ flex: 1, height: 40, backgroundColor: 'white' }}
+                                placeholder="Type a message..."
+                                onChangeText={(text) => this.setState({ text })}
+                                value={this.state.text}
+                                />
+                            <TouchableOpacity onPress={() => {
+                                this.sendImageMessage(image, this.state.text);
+                                this.setImageVisible(!this.state.imageVisible);
+                            } }>
+                                <Icon name="md-send" size={30} style={{ height: 40, padding: 5 }} />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
                 </Modal>
             );
         } catch (e) {
@@ -307,7 +312,7 @@ export default class ChatRoom extends Component {
                     _id: serverSrv._myFriendsJson[msg.from].id,
                     name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName
                 }
-               // msg.user = serverSrv._myFriendsJson[msg.from];
+                // msg.user = serverSrv._myFriendsJson[msg.from];
             }
 
             if (!isImage) {
@@ -329,7 +334,7 @@ export default class ChatRoom extends Component {
             if (msg.sendTime) {
                 this.onSend(msg);
             } else {
-                
+
                 this.setState((previousState) => {
                     return {
                         messages: GiftedChat.append(this.messages, this.onlineMessages),
@@ -367,7 +372,7 @@ export default class ChatRoom extends Component {
                 }
 
                 //serverSrv._myFriendsJson[msg.user._id];
-                 msg.user = {
+                msg.user = {
                     name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName,
                     _id: serverSrv._myFriendsJson[msg.from].id
                 }
@@ -384,7 +389,7 @@ export default class ChatRoom extends Component {
             });
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => onSend', e);
-        }      
+        }
     }
 
     onType(text, _isEncrypted) {
@@ -403,10 +408,10 @@ export default class ChatRoom extends Component {
                 content: text
             };
             serverSrv.Typing(msg);
-              msg.user = {
-                    name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName,
-                    _id: serverSrv._myFriendsJson[msg.from].id
-                }
+            msg.user = {
+                name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName,
+                _id: serverSrv._myFriendsJson[msg.from].id
+            }
             if (!this.indexOnlineMessages[msg._id]) { //new message
                 this.indexOnlineMessages[msg._id] = msg;
                 this.onlineMessages.push(this.indexOnlineMessages[msg.id]);
