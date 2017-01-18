@@ -2,6 +2,7 @@ import React from 'react';
 import {
   ListView,
   View,
+  TouchableOpacity,
 } from 'react-native';
 import shallowequal from 'shallowequal';
 import InvertibleScrollView from 'react-native-invertible-scroll-view';
@@ -19,7 +20,6 @@ export default class MessageContainer extends React.Component {
       this.renderFooter = this.renderFooter.bind(this);
       this.renderLoadEarlier = this.renderLoadEarlier.bind(this);
       this.renderScrollComponent = this.renderScrollComponent.bind(this);
-
       const dataSource = new ListView.DataSource({
         rowHasChanged: (r1, r2) => {
           return r1.hash !== r2.hash;
@@ -127,6 +127,9 @@ scrollTo(options) {
   }
 }
 
+
+
+
 renderRow(message, sectionId, rowId) {
   try {
     if (!message._id && message._id !== 0) {
@@ -149,7 +152,10 @@ renderRow(message, sectionId, rowId) {
   if (this.props.renderMessage) {
     return this.props.renderMessage(messageProps);
   }
-  return <Message {...messageProps} />;
+
+   return  <Message {...messageProps} />
+    
+ 
 } catch (e) {
   ErrorHandler.WriteError('MessageContainer.js => renderRow', e);
 }

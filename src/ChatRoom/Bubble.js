@@ -5,11 +5,18 @@ import {
   TouchableWithoutFeedback,
   Image,
   View,
+  Modal,
+  TouchableOpacity,
+  TextInput,
   Text
 } from 'react-native';
+var generalStyles = require('../../styles/generalStyle');
+
+var Event = require('../../Services/Events');
 
 import MessageText from './MessageText';
 import MessageImage from './MessageImage';
+//import MessageEncrypted from './MessageEncrypted';
 import Time from './Time';
 
 var ErrorHandler = require('../../ErrorHandler');
@@ -22,8 +29,13 @@ export default class Bubble extends React.Component {
     } catch (e) {
       ErrorHandler.WriteError('Bubble.js => constructor', e);
     }
+  
     this.renderMessageText = this.renderMessageText.bind(this);
+    this.renderMessageEncrypted = this.renderMessageEncrypted.bind(this);
+    
+   ;
   }
+  
 
   handleBubbleToNext() {
     try {
@@ -67,14 +79,54 @@ greenLock(){
 //         );
 //        }
 //        else{
+
+
+
+
+  renderMessageEncrypted() {
+    try {
+      //this.props.messages[0].text = "Encrypted Message";
+      if (this.props.currentMessage.isEncrypted == 1) {
+        const {containerStyle, wrapperStyle, ...messageEncrypedProps} = this.props;
+       return (
+         
+          <View >
+           <TouchableOpacity onPress={() => {
+             console.log(this.props.currentMessage.text + this.props.currentMessage._id);
+             Event.trigger('decryptedMessage',this.props.currentMessage.text,this.props.currentMessage._id);
+            } }>
+         
+            <View style={{ flexDirection: 'row'}}>
+           <Image
+                    style={{ width: 35, height: 35, padding: 5 ,marginTop: 8,marginLeft: 8}}
+                    source={require('../../img/lock.png')}
+          />
+          <Text style={{fontSize: 16,lineHeight: 20,marginTop: 16, marginBottom: 5,marginLeft: 5,marginRight: 5,color: 'black',fontWeight: 'bold'}}>
+              Encrypted Message
+              </Text>
+          </View>
+          </TouchableOpacity>
+       </View>
+           
+        );
+      }
+      return null;
+    } catch (e) {
+      ErrorHandler.WriteError('Bubble.js => renderMessageEncrypted', e);
+    }
+  }
   renderMessageText() {
     try {  
+      if(this.props.currentMessage.isEncrypted == 1){
+         
+           this.renderMessageEncrypted();
+            return;
+      }
       if (this.props.currentMessage.text) {
         const {containerStyle, wrapperStyle, ...messageTextProps} = this.props;
         if (this.props.renderMessageText) {
           return this.props.renderMessageText(messageTextProps);
         }
-        
         return <MessageText {...messageTextProps} />;
        }
       
@@ -83,6 +135,8 @@ greenLock(){
       ErrorHandler.WriteError('Bubble.js => renderMessageText', e);
     }
   }
+
+
 
   renderMessageImage() {
     try {
@@ -166,6 +220,7 @@ greenLock(){
               <View>
                 {this.renderCustomView()}
                 {this.renderMessageImage()}
+                {this.renderMessageEncrypted()}
                 {this.renderMessageText()}
                 {this.renderTime()}
               </View>
@@ -230,6 +285,7 @@ Bubble.defaultProps = {
   touchableProps: {},
   onLongPress: null,
   renderMessageImage: null,
+  renderMessageEncrypted: null,
   renderMessageText: null,
   renderCustomView: null,
   renderTime: null,
@@ -253,6 +309,7 @@ Bubble.propTypes = {
   touchableProps: React.PropTypes.object,
   onLongPress: React.PropTypes.func,
   renderMessageImage: React.PropTypes.func,
+  renderMessageEncrypted: React.PropTypes.func,
   renderMessageText: React.PropTypes.func,
   renderCustomView: React.PropTypes.func,
   renderTime: React.PropTypes.func,

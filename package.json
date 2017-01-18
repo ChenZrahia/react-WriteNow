@@ -3,8 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node node_modules/react-native/local-cli/cli.js start",
-    "postinstall": "rn-nodeify --install fs,dgram,process,path,console --hack"
+    "start": "node node_modules/react-native/local-cli/cli.js start"
   },
   "dependencies": {
     "console-browserify": "^1.1.0",
@@ -54,9 +53,7 @@
     "react-native-workers": "^0.3.1",
     "socket.io-client": "^1.7.2"
   },
-  "devDependencies": {
-    "rn-nodeify": "github:mvayngrib/rn-nodeify"
-  },
+  "devDependencies": {},
   "react-native": {
     "console": "console-browserify",
     "path": "path-browserify",
