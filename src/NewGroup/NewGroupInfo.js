@@ -143,7 +143,7 @@ export default class NewGroupInfo extends Component {
                                 return user.id;
                             });
                             serverSrv.createNewGroup(this.state.groupName, this.state.groupAvatar.uri, participateArray);
-                            //Actions.ChatRoom(rowData); //??????????
+                            Actions.Tabs({ type: 'reset' });
                         } }>
                             <View>
                                 <Text style={styles.buttonText}>Create Group</Text>

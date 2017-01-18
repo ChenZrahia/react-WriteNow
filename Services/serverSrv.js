@@ -748,6 +748,9 @@ export function createNewGroup(_groupName, _groupPicture, _participates) {
                         ]);
                 }
             });
+            Actions.ChatRoom(result);
+            //this.UpdatelastMessage(null, null , result.id, false)
+            Event.trigger('LoadNewChat', result.id, false);
         });
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => createNewGroup' + error.message, error);
