@@ -1,8 +1,6 @@
 rootProject.name = 'WriteNow'
 //include ':react-native-randombytes'
 //project(':react-native-randombytes').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-randombytes/android')
-include ':react-native-aes-encryption'
-project(':react-native-aes-encryption').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-aes-encryption/android')
 
 include ':react-native-image-resizer',':app'
 project(':react-native-image-resizer').projectDir = new File(settingsDir, '../node_modules/react-native-image-resizer/android')

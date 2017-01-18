@@ -117,10 +117,13 @@ export default class WriteNow extends Component {
                     setTimeout(() => {
                         Event.trigger('getCall', true);
                     }, 100);
+                } else {
+                    Event.trigger('lastMessage', notifData.message, notifData.message_time, notifData.convId, true);
                 }
             }
         });
         FCM.getFCMToken().then(token => {
+            serverSrv._token = token;
             serverSrv.login(token);
             console.log(token);
         });
@@ -132,23 +135,38 @@ export default class WriteNow extends Component {
                 console.log(notif);
                 console.log(notifData);
                 console.log('notifData+++');
-                
+                console.log(1);
                 if (notifData.isPhoneCall == true) {
+                    console.log(11);
                     Actions.Call(notifData);
                     setTimeout(() => {
                         Event.trigger('getCall', true);
                     }, 100);
                 } else {
+                    console.log(2);
                     if (newMsg_ring) {
+                        console.log(22);
                         newMsg_ring.play((success) => {});
                     } 
-                    Event.trigger('lastMessage', notifData.message, notifData.message_time, notifData.convId, true);
+                    if (notifData && notifData.message) {
+                        console.log(222);
+                        Event.trigger('lastMessage', notifData.message, notifData.message_time, notifData.convId, true);
+                    } else if(notifData && notifData.lastMessage){
+                        console.log(3);
+                        Event.trigger('lastMessage', notifData.lastMessage, notifData.lastMessageTime, notifData.id, true);
+                    }
                 }
             } else {
+                console.log(4);
+                console.log(4);
+                console.log(4);
+                console.log(4);
+                console.log(4);
+                console.log(notif);
                 if (newMsg_ring) {
                     newMsg_ring.play((success) => {});
                 } 
-              Event.trigger('lastMessage', notif.message, notif.message_time, notif.convId, true);
+                Event.trigger('lastMessage', notif.message, notif.message_time, notif.convId, true);
             }
             // there are two parts of notif. notif.notification contains the notification payload, notif.data contains data payload
             if(notif.local_notification){
