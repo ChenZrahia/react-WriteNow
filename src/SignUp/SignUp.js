@@ -101,10 +101,10 @@ export default class SignUp extends Component {
             }
         };
 
-        serverSrv.signUpFunc(newUser, (userId) => {
+        serverSrv.signUpFunc(newUser, (userId) => {  
             this.setState({
                 SpinnerVisible: false
-            });
+            }); 
             if (userId) {
                 Actions.Tabs({ type: 'reset' });
             } else {
@@ -161,31 +161,22 @@ export default class SignUp extends Component {
     }
 
     logInSpinner() {
-        // return( <Modal
-        //             transparent={false}
-        //             visible={this.state.SpinnerVisible}
-        //             onRequestClose={() => { console.log('image closed') } }
-        //             >
-        //             <View  style={{ flex:1, alignSelf: 'stretch', backgroundColor: 'blue', position: 'absolute' }}>
-        //             <Spinner  visible={true} />
-        //             </View>
-        //     </Modal>)
-    }//this.state.SpinnerVisible
-    //style={{ flex:1, backgroundColor: 'rgba(0,0,0,1)', position: 'absolute' }}
-    // <View style={{ flex:1, backgroundColor: 'green', position: 'absolute' }}  visible={true}>
-     //                   <Spinner  visible={true} />
-     // <Spinner  visible={true} />
-      //              </View>
-        // <Modal
-        //             transparent={false}
-        //             visible={this.state.imageVisible}
-        //             onRequestClose={() => { console.log('image closed') } }
-        //             >
-        //             <View  style={{ flex:1, alignSelf: 'stretch', backgroundColor: 'blue', position: 'absolute' }}>
-        //             <Spinner  visible={true} />
-        //             </View>
-                      
-        //         </Modal>
+        if (this.state.SpinnerVisible == true) {
+             return( 
+            <View style={{ flex:1, backgroundColor: 'rgba(0,0,0,0)', position: 'absolute', top: 0, bottom:0, left: 0, right: 0 }}>
+            <Modal
+                    transparent={true}
+                    style={{backgroundColor: 'rgba(0,0,0,0)'}}
+                    visible={this.state.SpinnerVisible}
+                    onRequestClose={() => { console.log('closed') } }
+                    >
+                    <View  style={{ flex:1, alignSelf: 'stretch', backgroundColor: 'rgba(0,0,0,0)', position: 'absolute' }}>
+                        <Spinner  visible={true} />
+                    </View>
+            </Modal>
+            </View>)
+        } 
+    }
 
     render() {
         try {
