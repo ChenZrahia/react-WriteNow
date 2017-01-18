@@ -182,12 +182,7 @@ export default class SignUp extends Component {
     render() {
         try {
             return (
-              
-               
-              
                 <View style={styles.container}>
-                
-                 
                     <View style={{
                         flex: 1,
                         alignSelf: 'stretch',
@@ -202,7 +197,7 @@ export default class SignUp extends Component {
                             }}>
                                 <Text style={styles.Welcome}>
                                     Welcome to WriteNow!
-          </Text>
+                                </Text>
                                 <TouchableOpacity onPress={this.showImagePicker} >
                                     <View style={styles.viewImg}>
                                         <Image style={styles.UserImage} source={this.state.avatarSource} />
@@ -263,7 +258,6 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        
     },
     Welcome: {
         fontSize: 24,

@@ -111,6 +111,7 @@ export default class ChatRoom extends Component {
             } 
             
             var callback = (data, convId) => {
+                console.log(data);
                 if (!data) {
                     data = [];
                 }
@@ -344,6 +345,9 @@ export default class ChatRoom extends Component {
         try {
             if (!messages.forEach) {
                 messages = [messages];
+            }
+            if (this._messageId == null) {
+                this._messageId = this.guid();
             }
             for (let msg of messages) {
                 if (msg.createdAt) {

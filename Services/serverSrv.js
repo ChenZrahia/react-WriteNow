@@ -17,7 +17,6 @@ import {
 var Event = require('./Events');
 var SignUp = require('../src/SignUp/SignUp');
 var moment = require('moment');
-import CryptLib from 'react-native-aes-encryption';
 var RSAKey = require('react-native-rsa');
 
 //--------for dev mode only-----------//
@@ -56,7 +55,7 @@ export var _myChats = null;
 export var _data = [];
 export var _uid = null;
 export var _myConvs = {};
-
+export var _token = '';
 
 
 
@@ -352,7 +351,7 @@ export function GetAllUserConv(callback, isUpdate) {
         // }
         if (isUpdate == true) {
             _isFirstTime_Chats = true;
-        } 
+        }
         db.transaction((tx) => {
             tx.executeSql('SELECT * FROM Conversation ORDER BY lastMessageTime DESC', [], (tx, rs) => {
                 try {
@@ -850,25 +849,6 @@ export function login(_token) {
 
                     socket.disconnect();
                     socket = io.connect('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: _encryptedUid, publicKey: item.publicKey, uid: _uid, token: this._token } });
-                    
-                    // setTimeout(() => {
-                    //     try {
-
-                    //           var encrypted = 'check 1 2 3';
-                    //           var hash = CryptoJS.SHA256(encrypted);
-                    //           console.log("this is the hash: " + hash);
-
-
-
-                    //     }
-                    //     catch (e) {
-                    //         console.log(e);
-                    //     }
-                    //     console.log("emitting");
-                    //     socket.emit('encryptedMessage', hash,privateKey,encrypted2)
-
-                    // }, 300);
-     
                     socket.removeAllListeners("AuthenticationOk");
 
                     socket.on('AuthenticationOk', (ok) => {
@@ -896,8 +876,6 @@ export function login(_token) {
                 Actions.SignUp({ type: 'replace' });
                 ErrorHandler.WriteError('SELECT SQL statement Error' + error.message, error);
             });
-            //655aef47-21ee-4d69-8311-6cc09460da13
-
         } catch (error) {
             Actions.SignUp({ type: 'replace' });
             ErrorHandler.WriteError('serverSrv.js => login => transaction inner', error);
@@ -917,13 +895,16 @@ export function signUpFunc(newUser, callback) {
         var publicKey = rsa.getPublicString(); // return json encoded string
         var privateKey = rsa.getPrivateString(); // return json encoded string
         rsa.setPrivateString(privateKey);
-        
+
         console.log(newUser);
         newUser.pkey = publicKey;
+        if (!newUser.privateInfo) {
+            newUser.privateInfo = {};
+        }
+        newUser.privateInfo.tokenNotification = this._token;
         socket.emit('addNewUser', newUser, (user) => {
-        var encryptedUid = rsa.encryptWithPrivate(user.id);
-        console.log("this is encrypted message:" +encryptedUid);
-            if (user.id) {
+            if (user && user.id) {
+                var encryptedUid = rsa.encryptWithPrivate(user.id);
                 db.transaction(function (tx) {
                     this._uid = user.id;
                     login();
@@ -937,8 +918,6 @@ export function signUpFunc(newUser, callback) {
             if (callback) {
                 callback(user.id);
             }
-            // clsObj._loggingService.reConnectWithUid(encryptedUid, user.pkey);
-            //clsObj.nav.push(TabsPage); //navigation
         });
     } catch (e) {
         ErrorHandler.WriteError('signUp', e);

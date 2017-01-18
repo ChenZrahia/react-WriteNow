@@ -37,16 +37,10 @@ export default class Chats extends Component {
                 imageVisible: false,
                 filter: ''
             };
-            
             this.UpdateChatsList = this.UpdateChatsList.bind(this);
             this.newMessage = this.newMessage.bind(this);
             this.NewChat = this.NewChat.bind(this);
             this.UpdatelastMessage = this.UpdatelastMessage.bind(this);
-            Event.on('UpdateChatsList', this.UpdateChatsList);
-            Event.on('newMessage', this.newMessage);
-            Event.on('NewChat', this.NewChat);
-            Event.removeAllListeners('lastMessage');
-            Event.on('lastMessage', this.UpdatelastMessage);
         } catch (e) {
             ErrorHandler.WriteError("Chats.js -> constructor", e);
         }
@@ -67,9 +61,9 @@ export default class Chats extends Component {
                     } catch (e) {
                         ErrorHandler.WriteError("Chats.js -> UpdateChatsList -> setState", e);
                     }
-                    this.state = {
-                        dataSource: ds.cloneWithRows(this.myChats)
-                    };
+                    this.setState({
+                            dataSource: ds.cloneWithRows(this.myChats)
+                        });
                 } catch (e) {
                     ErrorHandler.WriteError("Chats.js -> UpdateChatsList -> GetAllUserConv", e);
                 }
@@ -103,6 +97,11 @@ export default class Chats extends Component {
 
     componentDidMount() {
         try {
+            Event.on('UpdateChatsList', this.UpdateChatsList);
+            Event.on('newMessage', this.newMessage);
+            Event.on('NewChat', this.NewChat);
+            Event.removeAllListeners('lastMessage');
+            Event.on('lastMessage', this.UpdatelastMessage);
             setTimeout(this.UpdateChatsList, 0);
         } catch (e) {
             ErrorHandler.WriteError("Chats.js -> componentDidMount", e);
@@ -271,6 +270,8 @@ export default class Chats extends Component {
                 );
             }
             else {
+            console.log('_renderCancel null');
+                
                 return null;
             }
         } catch (e) {
@@ -279,6 +280,8 @@ export default class Chats extends Component {
     }
 UpdatelastMessage(lastMessage, lastMessageTime , convId, isNewMessage)
 {
+    console.log(lastMessage, lastMessageTime , convId, isNewMessage);
+    console.log('UpdatelastMessage');
     var isFound = false;
     this.myChats = this.myChats.map((chat) => {
         console.log(chat);
@@ -286,20 +289,24 @@ UpdatelastMessage(lastMessage, lastMessageTime , convId, isNewMessage)
             isFound = true;
             chat.lastMessage = lastMessage;
             chat.lastMessageTime = lastMessageTime;
-            if (isNewMessage) {
+            console.log('isNewMessage: ' , isNewMessage);
+            if (isNewMessage == false) {
+                console.log('isNewMessage: 11' , isNewMessage);
+                chat.notifications = null;
+            } else {
+                console.log('isNewMessage: 22' , chat.notifications);
+                console.log('isNewMessage: 22' , chat);
                 if (!chat.notifications) {
                     chat.notifications = 0;
                 }
                 chat.notifications = chat.notifications + 1;
-            } else {
-                chat.notifications = null;
             }
          }
         return chat;
     });
     console.log(isFound);
     console.log('isFound');
-    if ((isFound == false || true) && isNewMessage == true) {
+    if ((isFound == false) && isNewMessage == true) {
         this.UpdateChatsList(true);
         console.log('isFound');
     } else {
@@ -326,7 +333,7 @@ UpdatelastMessage(lastMessage, lastMessageTime , convId, isNewMessage)
                         />
                     <SGListView style={{ paddingTop: 5, flex: 1 }}
                         enableEmptySections={true}
-                        dataSource={this.getDataSource()}
+                        dataSource={this.state.dataSource}
                         initialListSize={1}
                         stickyHeaderIndices={[]}
                         onEndReachedThreshold={1}
