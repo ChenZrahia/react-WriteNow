@@ -189,6 +189,7 @@ export default class Chats extends Component {
     openChat(rowData) {
         try {
             Actions.ChatRoom(rowData);
+            this.UpdatelastMessage(null, null , rowData.id, false)
             Event.trigger('LoadNewChat', rowData.id, false);
         } catch (e) {
             ErrorHandler.WriteError('Chats.js => openChat', e);
@@ -279,22 +280,17 @@ export default class Chats extends Component {
     }
 UpdatelastMessage(lastMessage, lastMessageTime , convId, isNewMessage)
 {
-    console.log(lastMessage, lastMessageTime , convId, isNewMessage);
-    console.log('UpdatelastMessage');
     var isFound = false;
     this.myChats = this.myChats.map((chat) => {
-        console.log(chat);
         if (chat.id == convId) {
             isFound = true;
-            chat.lastMessage = lastMessage;
-            chat.lastMessageTime = lastMessageTime;
-            console.log('isNewMessage: ' , isNewMessage);
+            if (chat.lastMessage || chat.lastMessageTime) {
+                chat.lastMessage = lastMessage;
+                chat.lastMessageTime = lastMessageTime;
+            }
             if (isNewMessage == false) {
-                console.log('isNewMessage: 11' , isNewMessage);
                 chat.notifications = null;
             } else {
-                console.log('isNewMessage: 22' , chat.notifications);
-                console.log('isNewMessage: 22' , chat);
                 if (!chat.notifications) {
                     chat.notifications = 0;
                 }

@@ -228,19 +228,21 @@ export default class ChatRoom extends Component {
         try {
             return (
                 <Modal
-                    transparent={false}
+                    transparent={true}
                     visible={this.state.imageVisible}
                     onRequestClose={() => { console.log('image closed') } }
                     >
                     <View style={{ backgroundColor: 'rgba(0,0,0,0.7)', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                        <TouchableOpacity onPress={() => {
+                        <TouchableOpacity 
+                        style={{top: 15, marginLeft: 295, zIndex:5}}
+                        onPress={() => {
                             this.setImageVisible(!this.state.imageVisible);
                         } }>
                             <View style={{ width: 30, height: 30, backgroundColor: 'gray', borderRadius: 15 }}>
-                                <Icon name="md-close" size={15} color="black" style={{ alignSelf: 'center', paddingTop: 7 }} />
+                                <Icon name="md-close" size={15} color="white" style={{ alignSelf: 'center', paddingTop: 7 }} />
                             </View>
                         </TouchableOpacity>
-                        <Image style={{ width: 300, height: 300, borderRadius: 0, borderWidth: 1, borderColor: 'gray' }} source={{ uri: image }} />
+                        <Image style={{ width: 300, height: 300, borderRadius: 0, borderWidth: 1, borderColor: 'gray' , zIndex:0}} source={{ uri: image }} />
                         <View style={{ width: 300, flexDirection: 'row', backgroundColor: 'white', borderColor: 'gray', borderWidth: 1 }}>
                             <TextInput
                                 style={{ flex: 1, height: 40, backgroundColor: 'white' }}
