@@ -157,8 +157,6 @@ export default class Chats extends Component {
         try {
             return dataSource.sort((a, b) => {
                 try {
-                    console.log('a.lastMessageTime: ' , a.lastMessageTime);
-                    console.log('b.lastMessageTime: ' , b.lastMessageTime);
                     if (a.lastMessageTime && b.lastMessageTime) {
                         if (a.lastMessageTime > b.lastMessageTime) {
                             return -1;
@@ -230,24 +228,25 @@ export default class Chats extends Component {
     onFilterChange(event) {
         try {
             this.setState({
-                filter: event.nativeEvent.text
+               filter: event.nativeEvent.text,
+               dataSource: this.getDataSource(event.nativeEvent.text)
             });
         } catch (e) {
             ErrorHandler.WriteError('Chats.js => onFilterChange', e);
         }
     }
 
-    getDataSource() {
+    getDataSource(filterText) {
         //if filter is empty - return original data source
         try {
-            if (!this.state.filter) {
+            if (!filterText) {
                 return this.state.dataSource.cloneWithRows(this.myChats);
             }
             //create filtered datasource
             let filteredContacts = this.myChats;
             try {
                 filteredContacts = this.myChats.filter((chat) => {
-                    return ((chat.groupName.toLowerCase().includes(this.state.filter.toLowerCase())));
+                    return ((chat.groupName.toLowerCase().includes(filterText.toLowerCase())));
                 });
             } catch (e) {
                 ErrorHandler.WriteError('Chats.js => getDataSource => filter', e);
