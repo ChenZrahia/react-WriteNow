@@ -161,6 +161,7 @@ export function GetAllMyFriends(callback, isUpdate) {
                 try {
                     var finalResult = [];
                     for (var i = 0; i < rs.rows.length; i++) {
+                        console.log(this._uid);
                         if (rs.rows.item(i).id != this._uid) {
                             finalResult.push({
                                 id: rs.rows.item(i).id,
