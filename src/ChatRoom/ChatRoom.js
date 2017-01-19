@@ -69,7 +69,7 @@ export default class ChatRoom extends Component {
             Event.on('showSignature', this.showSignature);
             Event.on('sendSegnature', this.sendImageMessage);
             Event.on('imojiType', this.onType);
-            Event.on('encryptedMessage', this.onType);
+            Event.on('encryptedMessage', this.onSend);
             BackAndroid.addEventListener('hardwareBackPress', () => {
                 if (this.convId) {
                     Event.trigger('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false);
@@ -348,8 +348,24 @@ export default class ChatRoom extends Component {
         }
     }
 
-    onSend(messages = []) {
+    onSend(messages = [],saveLocal) {
         try {
+            if (this._messageId == null && !messages.mid) { //for encrypted message
+                this._messageId = this.guid();
+            }
+            if(messages.isEncrypted ==true){
+                this._messageId= messages.mid;
+                messages._id = this._messageId;
+                messages.id = this._messageId;
+                messages.convId = this.convId;
+                messages.text = messages.content;
+                if(messages.from == serverSrv._uid){
+                    messages.createdAt = Date.now();
+                }
+                else{
+                    messages.createdAt = messages.sendTime;
+                }
+            }
             if (!messages.forEach) {
                 messages = [messages];
             }
@@ -362,14 +378,14 @@ export default class ChatRoom extends Component {
                 } else {
                     msg.createdAt = moment(msg.sendTime).format();
                 }
-                if (msg._id.indexOf('temp-id') >= 0 || (msg.image && msg.from == serverSrv._uid)) {
+                if (msg._id.indexOf('temp-id') >= 0 || (msg.image && msg.from == serverSrv._uid) || msg.isEncrypted == true) {
                     msg._id = this._messageId;
                     msg.id = this._messageId;
                     msg.from = serverSrv._uid;
                     msg.createdAt = msg.sendTime;
                     msg.content = msg.text;
                     msg.convId = this.convId;
-                    serverSrv.saveNewMessage(msg);
+                    serverSrv.saveNewMessage(msg,saveLocal);
                     this._messageId = null;
                 }
 
@@ -378,7 +394,9 @@ export default class ChatRoom extends Component {
                     name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName,
                     _id: serverSrv._myFriendsJson[msg.from].id
                 }
-                this.messages.splice(0, 0, msg); //push
+                if (saveLocal != false) {
+                    this.messages.splice(0, 0, msg); //push
+                } 
                 this.onlineMessages = this.onlineMessages.filter((o_msg) => {
                     return o_msg.id != msg.id;
                 });
