@@ -41,9 +41,6 @@ export default class Chats extends Component {
             this.newMessage = this.newMessage.bind(this);
             this.NewChat = this.NewChat.bind(this);
             this.UpdatelastMessage = this.UpdatelastMessage.bind(this);
-            
-         
-           
         } catch (e) {
             ErrorHandler.WriteError("Chats.js -> constructor", e);
         }
@@ -64,9 +61,9 @@ export default class Chats extends Component {
                     } catch (e) {
                         ErrorHandler.WriteError("Chats.js -> UpdateChatsList -> setState", e);
                     }
-                    this.state = {
-                        dataSource: ds.cloneWithRows(this.myChats)
-                    };
+                    this.setState({
+                            dataSource: ds.cloneWithRows(this.myChats)
+                        });
                 } catch (e) {
                     ErrorHandler.WriteError("Chats.js -> UpdateChatsList -> GetAllUserConv", e);
                 }
@@ -100,16 +97,12 @@ export default class Chats extends Component {
 
     componentDidMount() {
         try {
-            
             Event.on('UpdateChatsList', this.UpdateChatsList);
             Event.on('newMessage', this.newMessage);
             Event.on('NewChat', this.NewChat);
             Event.removeAllListeners('lastMessage');
             Event.on('lastMessage', this.UpdatelastMessage);
-           
             setTimeout(this.UpdateChatsList, 100);
-              
-            
         } catch (e) {
             ErrorHandler.WriteError("Chats.js -> componentDidMount", e);
         }
@@ -164,8 +157,6 @@ export default class Chats extends Component {
         try {
             return dataSource.sort((a, b) => {
                 try {
-                    console.log('a.lastMessageTime: ' , a.lastMessageTime);
-                    console.log('b.lastMessageTime: ' , b.lastMessageTime);
                     if (a.lastMessageTime && b.lastMessageTime) {
                         if (a.lastMessageTime > b.lastMessageTime) {
                             return -1;
@@ -198,6 +189,7 @@ export default class Chats extends Component {
     openChat(rowData) {
         try {
             Actions.ChatRoom(rowData);
+            this.UpdatelastMessage(null, null , rowData.id, false)
             Event.trigger('LoadNewChat', rowData.id, false);
         } catch (e) {
             ErrorHandler.WriteError('Chats.js => openChat', e);
@@ -237,24 +229,25 @@ export default class Chats extends Component {
     onFilterChange(event) {
         try {
             this.setState({
-                filter: event.nativeEvent.text
+               filter: event.nativeEvent.text,
+               dataSource: this.getDataSource(event.nativeEvent.text)
             });
         } catch (e) {
             ErrorHandler.WriteError('Chats.js => onFilterChange', e);
         }
     }
 
-    getDataSource() {
+    getDataSource(filterText) {
         //if filter is empty - return original data source
         try {
-            if (!this.state.filter) {
+            if (!filterText) {
                 return this.state.dataSource.cloneWithRows(this.myChats);
             }
             //create filtered datasource
             let filteredContacts = this.myChats;
             try {
                 filteredContacts = this.myChats.filter((chat) => {
-                    return ((chat.groupName.toLowerCase().includes(this.state.filter.toLowerCase())));
+                    return ((chat.groupName.toLowerCase().includes(filterText.toLowerCase())));
                 });
             } catch (e) {
                 ErrorHandler.WriteError('Chats.js => getDataSource => filter', e);
@@ -277,6 +270,8 @@ export default class Chats extends Component {
                 );
             }
             else {
+            console.log('_renderCancel null');
+                
                 return null;
             }
         } catch (e) {
@@ -287,25 +282,26 @@ UpdatelastMessage(lastMessage, lastMessageTime , convId, isNewMessage)
 {
     var isFound = false;
     this.myChats = this.myChats.map((chat) => {
-        console.log(chat);
         if (chat.id == convId) {
             isFound = true;
-            chat.lastMessage = lastMessage;
-            chat.lastMessageTime = lastMessageTime;
-            if (isNewMessage) {
+            if (chat.lastMessage || chat.lastMessageTime) {
+                chat.lastMessage = lastMessage;
+                chat.lastMessageTime = lastMessageTime;
+            }
+            if (isNewMessage == false) {
+                chat.notifications = null;
+            } else {
                 if (!chat.notifications) {
                     chat.notifications = 0;
                 }
                 chat.notifications = chat.notifications + 1;
-            } else {
-                chat.notifications = null;
             }
          }
         return chat;
     });
     console.log(isFound);
     console.log('isFound');
-    if ((isFound == false || true) && isNewMessage == true) {
+    if ((isFound == false) && isNewMessage == true) {
         this.UpdateChatsList(true);
         console.log('isFound');
     } else {
@@ -332,7 +328,7 @@ UpdatelastMessage(lastMessage, lastMessageTime , convId, isNewMessage)
                         />
                     <SGListView style={{ paddingTop: 5, flex: 1 }}
                         enableEmptySections={true}
-                        dataSource={this.getDataSource()}
+                        dataSource={this.state.dataSource}
                         initialListSize={1}
                         stickyHeaderIndices={[]}
                         onEndReachedThreshold={1}

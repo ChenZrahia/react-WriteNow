@@ -3,7 +3,6 @@ import android.app.Application;
 import android.util.Log;
 import com.facebook.react.ReactApplication;
 //import com.bitgo.randombytes.RandomBytesPackage;
-import fnd.reactaes.reactaes.ReactAESPackage;
 // import fnd.reactaes.reactaes.ReactAESPackage;
 import com.zxcpoiu.incallmanager.InCallManagerPackage;
 import com.zmxv.RNSound.RNSoundPackage;
@@ -43,7 +42,6 @@ public class MainApplication extends Application implements ReactApplication {
       return Arrays.<ReactPackage>asList(
         new SQLitePluginPackage(),
           new MainReactPackage(),
-            new ReactAESPackage(),
             new InCallManagerPackage(),
             new RNSoundPackage(),
             new WebRTCModulePackage(),
