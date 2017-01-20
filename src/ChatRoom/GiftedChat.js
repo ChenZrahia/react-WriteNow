@@ -613,19 +613,35 @@ encryptedMessage(message){
 }
 
 tryToDecrypt(password){
+
   var hash = CryptoJS.SHA256(password);
   var hashFromServer = serverSrv._hashPassword;
   if (hash.toString() == hashFromServer.toString()) {
     serverSrv.GetEncryptedMessage_ById(this.state.mid, (result) => {
       // var localMessage = result;
       // Decrypt 
-      var ciphertext = result.content;
+       var ciphertext = result.content;
+      if(result.from == serverSrv._uid){
       // Decrypt 
       var bytes = CryptoJS.AES.decrypt(ciphertext.toString(), password);
       var plaintext = bytes.toString(CryptoJS.enc.Utf8);
+        this.setState({
+           DecryptedMessageText: plaintext,
+        })
+      }
+      else if(result.from != serverSrv._uid){
+         var rsa = new RSAKey();
+         var pKey = serverSrv._privateKey;
+         console.log("private key :" +pKey);
+          rsa.setPrivateString(pKey);
+        var encrypedMessage = rsa.decryptWithPrivate(ciphertext);
+        this.setState({
+           DecryptedMessageText: encrypedMessage,
+        })
+
+      }
       this.setState({
         decryptedsecureTextEntry: false,
-        DecryptedMessageText: plaintext,
         placeHolderDecrypted: '',
         headerTextDecrypted: "Message Decrypted Successfully",
         encryptedPassword: '',

@@ -58,6 +58,8 @@ export var _myConvs = {};
 export var _myFriendPublicKey = null;
 export var _hashPassword = null;
 export var _token = '';
+export var _privateKey = '';
+
 
 
 
@@ -843,7 +845,9 @@ export function GetEncryptedMessage_ById(mid, callback){
                     if (rs.rows.length == 1 && callback) {
                         var msg = {
                             content: rs.rows.item(0).content,
+                            from: rs.rows.item(0).msgFrom,
                         };
+                        console.log(msg);
                         callback(msg);
                     }
                 } catch (error) {
@@ -903,6 +907,7 @@ export function login(_token) {
                     this._hashPassword = item.password;
                     this._uid = item.uid;
                     var _encryptedUid = item.encryptedUid;
+                    this._privateKey = item.privateKey;
                     //Actions.Tabs();
 
 
