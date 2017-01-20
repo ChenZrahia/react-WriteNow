@@ -48,6 +48,7 @@ export default class SignUp extends Component {
 
     checkStringPassword_pam(password){
         var msg = '';
+        return msg; //for test only -----
         if (!password) {
             msg = 'Enter A Password';
         } else if (password.length < 6) {
