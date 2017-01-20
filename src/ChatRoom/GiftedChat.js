@@ -483,28 +483,7 @@ changeText = (data) => {
   this.setState({ text: this.state.text + data });
 }
 
-    openImageModal(image) {
-        try {
-            return (
-                <Modal
-                    transparent={true}
-                    visible={this.state.imageVisible == true}
-                    onRequestClose={() => { console.log('image closed') } }
-                    >
-                    <TouchableOpacity style={{ flex: 1 }} onPress={() => {
-                        this.setImageVisible(!this.state.imageVisible)
-                    } }>
-                        <View style={generalStyle.styles.imageModal}>
-                            <Image style={generalStyle.styles.imageInsideModal} source={image} />
-                        </View>
-                    </TouchableOpacity>
-                </Modal>
-            );
-        } catch (e) {
-            ErrorHandler.WriteError('GiftedChat.js => openImageModal', e);
-        }
-    }
-
+ 
 renderInputToolbar() {
   const inputToolbarProps = {
       ...this.props,
@@ -547,6 +526,8 @@ renderLoading() {
 setImageVisible(visible) {
   this.setState({ imageVisible: visible });
 }
+
+
 setEncryptedVisible(visible){
   this.setState({
     encryptedMessageText: '',
@@ -565,14 +546,6 @@ menuOption()
 
 setImageVisible(visible) {
   this.setState({ imageVisible: visible });
-}
-
-setEncryptedVisible(visible) {
-  this.setState({ encryptedVisible: visible });
-}
-
-menuOption() {
-  this.setState({ showMenu: !this.state.showMenu });
 }
 
 newList(){
@@ -787,7 +760,23 @@ checkEncryptedPassword(password){
 
   }
 }
-
+openImageModal(image) {
+  return (
+    <Modal
+      transparent={true}
+      visible={this.state.imageVisible}
+      onRequestClose={() => { console.log('image closed') } }
+      >
+      <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
+        this.setImageVisible(!this.state.imageVisible)
+      } }>
+        <View style={generalStyles.styles.imageModal}>
+          <Image style={generalStyles.styles.imageInsideModal} source={image} />
+        </View>
+      </TouchableOpacity>
+    </Modal>
+  );
+}
 encrypteModal(){
   return (
     <Modal
@@ -1019,8 +1008,11 @@ encryptMessage(){
                   });
                 }
               }
-            }
-            }>
+               if (this.getIsFirstLayout() === true) {
+                  this.setIsFirstLayout(false);
+                }
+            }}
+            >
             {this.renderMessages()}
           {this.renderInputToolbar()}
 
@@ -1052,26 +1044,9 @@ return (
     {this.renderLoading()}
   </View>
 );
-  
-return (
-  <View
-    style={styles.container}
-    onLayout={(e) => {
-      const layout = e.nativeEvent.layout;
-      this.setMaxHeight(layout.height);
-      InteractionManager.runAfterInteractions(() => {
-        this.setState({
-          isInitialized: true,
-          text: '',
-          composerHeight: MIN_COMPOSER_HEIGHT,
-          messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight()),
-        });
-      });
-    } }
-    >
-    {this.renderLoading()}
-  </View>
-);}}
+    }
+}
+
 
 const styles = StyleSheet.create({
   chatRoomMain: {
