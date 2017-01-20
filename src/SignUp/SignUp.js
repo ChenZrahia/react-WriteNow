@@ -46,6 +46,22 @@ export default class SignUp extends Component {
         }
     }
 
+    checkStringPassword_pam(password){
+        var msg = '';
+        if (!password) {
+            msg = 'Enter A Password';
+        } else if (password.length < 6) {
+            msg = 'Password Need To Contain At Least 6 Characters';
+        } else if (password.search(/\d/) == -1) {
+            msg = 'Password Need To Contain Numbers';
+        } else if (password.search(/[a-zA-Z]/) == -1) {
+            msg = 'Password Need To Contain Letters';
+        } else if (password.search(/[\!\@\#\$\%\^\&\*\(\)\_\+\.\,\;\:]/) == -1) {
+            msg = 'Password Need To Contain Signs';
+        }
+        return msg;
+    }
+
     componentDidMount() {
     }
 
@@ -61,12 +77,9 @@ export default class SignUp extends Component {
         } else if (!this.state.DisplayName || this.state.DisplayName < 2) {
             msg = 'Enter Your Name';
         }
-         else if (!this.state.Password ) {
-            msg = 'Enter A Password';
-        }
-         else if (this.state.Password.length < 5) {
-            msg = 'Password Need To Contain At Least 5 Characters';
-        }
+         else {
+            msg = this.checkStringPassword_pam(this.state.Password);
+        } 
         if (msg.length > 0) {
             var toast = Toast.show(msg, {
                 duration: Toast.durations.LONG,
@@ -81,10 +94,10 @@ export default class SignUp extends Component {
         disabled = true;
         console.log(this.state.SpinnerVisible);
         setTimeout(()=> {
-        this.setState({
-            SpinnerVisible: true
-        });
-        }, 1000);
+            this.setState({
+                SpinnerVisible: true
+            });
+        }, 0);
        
         console.log(this.state.SpinnerVisible);
 
@@ -108,14 +121,13 @@ export default class SignUp extends Component {
                 password: hashPassword.toString(),
             }
         };
-        
-
-  
            
         serverSrv.signUpFunc(newUser, (userId) => {  
-            this.setState({
-                SpinnerVisible: false
-            }); 
+            setTimeout(() => {
+                this.setState({
+                    SpinnerVisible: false
+                }); 
+            }, 100);
             if (userId) {
                 Actions.Tabs({ type: 'reset' });
             } else {

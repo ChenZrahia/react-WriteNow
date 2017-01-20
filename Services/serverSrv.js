@@ -904,16 +904,13 @@ export function login(_token) {
                     this._hashPassword = item.password;
                     this._uid = item.uid;
                     var _encryptedUid = item.encryptedUid;
-                    //Actions.Tabs();
-
-
                     socket.disconnect();
-                    socket = io.connect('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: _encryptedUid, publicKey: item.publicKey, uid: _uid, token: this._token } });
-                    socket.removeAllListeners("AuthenticationOk");
 
+                    socket = io.connect('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: _encryptedUid,
+                         publicKey: item.publicKey, uid: _uid, token: this._token } });
+                    socket.removeAllListeners("AuthenticationOk");
                     socket.on('AuthenticationOk', (ok) => {
                         try {
-                            //Actions.Tabs();
                             console.log('connected');
                             this.userIsConnected = true;
                         } catch (e) {
@@ -951,14 +948,12 @@ export function login(_token) {
 export function signUpFunc(newUser, callback) {
     try {
         const bits = 512;
-        const exponent = '10001'; // must be a string. This is hex string. decimal = 65537
+        const exponent = '10001';
         var rsa = new RSAKey();
         rsa.generate(bits, exponent);
-        var publicKey = rsa.getPublicString(); // return json encoded string
-        var privateKey = rsa.getPrivateString(); // return json encoded string
+        var publicKey = rsa.getPublicString();
+        var privateKey = rsa.getPrivateString(); 
         rsa.setPrivateString(privateKey);
-
-
         console.log(newUser);
         newUser.pkey = publicKey;
         if (!newUser.privateInfo) {

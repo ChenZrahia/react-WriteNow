@@ -67,10 +67,6 @@ export default class GiftedChat extends React.Component {
 
     });
 
-
-
-
-
     // default values
     this._isMounted = false;
     this._keyboardHeight = 0;
@@ -83,6 +79,8 @@ export default class GiftedChat extends React.Component {
     this._messages = [];
     this._onlineMessages = [];
     this._onlineMessagesIds = {};
+    this._numOfInvalidPassword = 0;
+    this._blockStartTime = null;
     this.state = {
       isInitialized: false, // initialization will calculate maxHeight before rendering the chat
       imageVisible: false,
@@ -640,14 +638,28 @@ encryptedMessage(message){
 }
 
 tryToDecrypt(password){
+  var min = 0;
+  if (this._blockStartTime != null) {
+    min = (Date.now() - this._blockStartTime);
+  }
+  if (min > 0 && min < 5) {
+    var toast = Toast.show("You blocked for " + min + " minute", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.BOTTOM,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0
+      });
+    return;
+  } else {
+    this._blockStartTime = null;
+  }
   var hash = CryptoJS.SHA256(password);
   var hashFromServer = serverSrv._hashPassword;
   if (hash.toString() == hashFromServer.toString()) {
     serverSrv.GetEncryptedMessage_ById(this.state.mid, (result) => {
-      // var localMessage = result;
-      // Decrypt 
       var ciphertext = result.content;
-      // Decrypt 
       var bytes = CryptoJS.AES.decrypt(ciphertext.toString(), password);
       var plaintext = bytes.toString(CryptoJS.enc.Utf8);
       this.setState({
@@ -660,14 +672,28 @@ tryToDecrypt(password){
     });
   }
   else {
-    var toast = Toast.show("Invalid Password!", {
-      duration: Toast.durations.LONG,
-      position: Toast.positions.BOTTOM,
-      shadow: true,
-      animation: true,
-      hideOnPress: true,
-      delay: 0
-    });
+    if (this._numOfInvalidPassword < 4) {
+      this._numOfInvalidPassword ++;
+      var toast = Toast.show("Invalid Password! (" + this._numOfInvalidPassword +")", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.BOTTOM,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0
+      });
+    } else {
+      this._numOfInvalidPassword = 0;
+      this._blockStartTime = Date.now();
+      var toast = Toast.show("Invalid Password! You blocked for 5 minute  ", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.BOTTOM,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0
+      });
+    }
     this.setState({
       decryptedsecureTextEntry: true,
       DecryptedMessageText: '',
@@ -756,7 +782,7 @@ checkEncryptedPassword(password){
 
   var hash = CryptoJS.SHA256(password);
   var hashFromServer = serverSrv._hashPassword;
-  if (hash.toString() == hashFromServer.toString()) {
+  if (hash && hashFromServer && hash.toString() == hashFromServer.toString()) {
     this.setState({
       encryptedMessageText: '',
       placeHolderEncrypted: 'Type a message...',
