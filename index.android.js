@@ -113,12 +113,8 @@ export default class WriteNow extends Component {
             if (notif && notif.data) {
                 var notifData = JSON.parse(notif.data);
                 if (notifData.isVoiceCall == 'true') {
-                    console.log('11111111111');
-                    console.log('11111111111');
-                    console.log('11111111111');
-                    console.log('11111111111');
-                    console.log('11111111111');
-                    //serverSrv._isCallMode = true;
+                    console.log('111111111111');
+                    serverSrv._isCallMode = true;
                     Actions.Call(notifData);
                     setTimeout(() => {
                         Event.trigger('getCall', true);
@@ -135,7 +131,7 @@ export default class WriteNow extends Component {
             serverSrv.login(token);
             console.log(token);
         });
-        this.notificationUnsubscribe = FCM.on('notification', (notif) => {  
+        this.notificationUnsubscribe = FCM.on('notification', (notif) => {   //application alrady open
             console.log(notif);
             
             if (notif && notif.data) {
@@ -145,12 +141,8 @@ export default class WriteNow extends Component {
                 console.log('notifData+++');
                 console.log(1);
                 if (notifData.isVoiceCall == 'true') {
-                    console.log(11);
                     console.log('22222222222');
-                    console.log('22222222222');
-                    console.log('22222222222');
-                    console.log('22222222222');
-                    console.log('22222222222');
+                    serverSrv._isCallMode = false;
                     Actions.Call(notifData);
                     setTimeout(() => {
                         Event.trigger('getCall', true);

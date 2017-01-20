@@ -61,9 +61,6 @@ export var _token = '';
 export var _privateKey = '';
 export var _isCallMode = false;
 
-
-
-
 function printTable(tblName) {
     db.transaction((tx) => {
         tx.executeSql('SELECT * FROM UserInfo', [], (tx, rs) => {
@@ -84,12 +81,11 @@ function printTable(tblName) {
     });
 }
 
-setTimeout(function () {
-    printTable('Messages');
-}, 500);
+// setTimeout(function () {
+//     printTable('Messages');
+// }, 500);
 
 export function DeleteDb() {
-    console.log('delete 1');
     db.transaction((tx) => {
         tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
@@ -446,6 +442,32 @@ function GetAllUserConv_Server(callback) {
         ErrorHandler.WriteError('serverSrv.js => GetAllUserConv_Server', error);
     }
 }
+
+//liveCall
+export function enterChatCall(convId) {
+    try {
+        socket.emit('enterChatCall', convId);
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => enterChatCall', error);
+    }
+}
+
+export function exitChatCall(convId) {
+    try {
+        socket.emit('exitChatCall', convId);
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => exitChatCall', error);
+    }
+}
+
+export function exitChatCall_server(callback){
+    try {
+        socket.removeAllListeners("enterChatCall");
+        socket.on('exitChatCall_server', callback);
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => exitChatCall_server', error);
+    }
+} 
 
 //ChatRoom
 export function GetConv(callback, convId, isUpdate) {
