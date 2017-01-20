@@ -112,12 +112,14 @@ export default class WriteNow extends Component {
             console.log(notif);
             if (notif && notif.data) {
                 var notifData = JSON.parse(notif.data);
-                if (notif.isPhoneCall == true) {
+                if (notifData.isVoiceCall == 'true') {
                     Actions.Call(notifData);
                     setTimeout(() => {
                         Event.trigger('getCall', true);
                     }, 100);
                 } else {
+                    console.log(notifData);
+                    console.log('notifData 111');
                     Event.trigger('lastMessage', notifData.message, notifData.message_time, notifData.convId, true);
                 }
             }
@@ -136,7 +138,7 @@ export default class WriteNow extends Component {
                 console.log(notifData);
                 console.log('notifData+++');
                 console.log(1);
-                if (notifData.isPhoneCall == true) {
+                if (notifData.isVoiceCall == 'true') {
                     console.log(11);
                     Actions.Call(notifData);
                     setTimeout(() => {
@@ -159,14 +161,13 @@ export default class WriteNow extends Component {
             } else {
                 console.log(4);
                 console.log(4);
-                console.log(4);
-                console.log(4);
-                console.log(4);
                 console.log(notif);
-                if (newMsg_ring) {
-                    newMsg_ring.play((success) => {});
-                } 
-                Event.trigger('lastMessage', notif.message, notif.message_time, notif.convId, true);
+                if (notif.isVoiceCall != 'true') {
+                    if (newMsg_ring) {
+                        newMsg_ring.play((success) => {});
+                    } 
+                    Event.trigger('lastMessage', notif.message, notif.message_time, notif.convId, true);
+                }
             }
             // there are two parts of notif. notif.notification contains the notification payload, notif.data contains data payload
             if(notif.local_notification){

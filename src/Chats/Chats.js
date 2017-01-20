@@ -270,8 +270,6 @@ export default class Chats extends Component {
                 );
             }
             else {
-            console.log('_renderCancel null');
-                
                 return null;
             }
         } catch (e) {
@@ -284,7 +282,7 @@ UpdatelastMessage(lastMessage, lastMessageTime , convId, isNewMessage)
     this.myChats = this.myChats.map((chat) => {
         if (chat.id == convId) {
             isFound = true;
-            if (chat.lastMessage || chat.lastMessageTime) {
+            if (lastMessage != null && (chat.lastMessage || chat.lastMessageTime)) {
                 chat.lastMessage = lastMessage;
                 chat.lastMessageTime = lastMessageTime;
             }

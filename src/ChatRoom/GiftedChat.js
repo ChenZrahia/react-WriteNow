@@ -914,8 +914,8 @@ encryptMessage(){
   }
 
   cancel_chatRoom(lastMessage, lastMessageTime) {
-        Event.trigger('lastMessage', lastMessage, lastMessageTime, this.props.convId, false);
-      }
+      Event.trigger('lastMessage', lastMessage, lastMessageTime, this.props.convId, false);
+  }
 
 
 // renderRowOnlineMsg(){
