@@ -77,6 +77,9 @@ export default class Contacts extends Component {
                 })
             }, 20);
             this.myFriends = result;
+            if (this.myFriends.indexOf(serverSrv._uid) !== -1) {
+                this.myFriends.splice(this.myFriends.indexOf(serverSrv._uid), 1);
+            }
         } catch (e) {
             ErrorHandler.WriteError("Contacts.js => UpdateMyFriends", e);
         }
@@ -93,24 +96,25 @@ export default class Contacts extends Component {
     onFilterChange(event) {
         try {
             this.setState({
-                filter: event.nativeEvent.text
+                filter: event.nativeEvent.text,
+                dataSource: this.getDataSource(event.nativeEvent.text)
             });
         } catch (e) {
             ErrorHandler.WriteError("Contacts.js => onFilterChange", e);
         }
     }
 
-    getDataSource() {
+    getDataSource(filterText) {
         try {
             //if filter is empty - return original data source
-            if (!this.state.filter && this.state.dataSource.cloneWithRows) {
+            if (!filterText && this.state.dataSource.cloneWithRows) {
                 return this.state.dataSource.cloneWithRows(this.myFriends);
             }
             //create filtered datasource
             let filteredContacts = this.myFriends;
             filteredContacts = this.myFriends.filter((user) => {
                 // return user.publicInfo.fullName.toLowerCase().includes(this.state.filter.toLowerCase());
-                return ((user.publicInfo.fullName.toLowerCase().includes(this.state.filter.toLowerCase())) || (user.phoneNumber ? user.phoneNumber.includes(this.state.filter) : false));
+                return ((user.publicInfo.fullName.toLowerCase().includes(filterText.toLowerCase())) || (user.phoneNumber ? user.phoneNumber.includes(filterText) : false));
             });
             if (this.state.dataSource.cloneWithRows) {
                 return this.state.dataSource.cloneWithRows(filteredContacts);
@@ -138,7 +142,7 @@ export default class Contacts extends Component {
                         />
                     <SGListView style={{ paddingTop: 5, flex: 1 }}
                         enableEmptySections={true}
-                        dataSource={this.getDataSource()}
+                        dataSource={this.state.dataSource}
                         initialListSize={30}
                         stickyHeaderIndices={[]}
                         onEndReachedThreshold={1}
@@ -154,8 +158,6 @@ export default class Contacts extends Component {
         }
     }
 
-
-
     renderRow() {
         try {
             return (
@@ -169,7 +171,7 @@ export default class Contacts extends Component {
                             Event.trigger('LoadNewChat', null, true, rowData.id, rowData.phoneNumber, rowData.publicInfo.fullName);
                         } }>
                             <View style={generalStyle.styles.row}>
-                              <TouchableOpacity onPress={() => {
+                                <TouchableOpacity onPress={() => {
                                     this.imgSelected = rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')
                                     this.setImageVisible(true);
                                 } }>

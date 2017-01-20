@@ -102,16 +102,16 @@ export default class NewGroup extends Component {
         }
     }
 
-    getDataSource() {
+    getDataSource(fiterText) {
         try {
             //if filter is empty - return original data source
-            if (!this.state.filter && this.state.dataSource.cloneWithRows) {
+            if (!fiterText && this.state.dataSource.cloneWithRows) {
                 return this.state.dataSource.cloneWithRows(this.myFriends);
             }
             //create filtered datasource
             let filteredContacts = this.myFriends;
             filteredContacts = this.myFriends.filter((user) => {
-                return ((user.publicInfo.fullName.toLowerCase().includes(this.state.filter.toLowerCase())) || (user.phoneNumber ? user.phoneNumber.includes(this.state.filter) : false));
+                return ((user.publicInfo.fullName.toLowerCase().includes(fiterText.toLowerCase())) || (user.phoneNumber ? user.phoneNumber.includes(fiterText) : false));
             });
             if (this.state.dataSource.cloneWithRows) {
                 return this.state.dataSource.cloneWithRows(filteredContacts);

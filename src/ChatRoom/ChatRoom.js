@@ -97,14 +97,15 @@ export default class ChatRoom extends Component {
             });
             setTimeout(() => {
                 if (this.props.publicInfo) {
-                    this.setState({ groupName: this.props.publicInfo.fullName });
+                    this.setState({
+                        groupName: this.props.publicInfo.fullName,
+                        groupPicture: this.props.publicInfo.picture
+                    });
                 } else {
-                    this.setState({ groupName: this.props.groupName });
-                }
-                if (this.props.publicInfo) {
-                    this.setState({ groupPicture: this.props.publicInfo.picture });
-                } else {
-                    this.setState({ groupPicture: this.props.groupPicture });
+                    this.setState({
+                        groupName: this.props.groupName,
+                        groupPicture: this.props.groupPicture
+                    });
                 }
             }, 100);
 
@@ -201,7 +202,10 @@ export default class ChatRoom extends Component {
                     ImageResizer.createResizedImage(response.uri, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
                         NativeModules.RNImageToBase64.getBase64String(resizedImageUri, (err, base64) => {
                             //this.sendImageMessage('data:image/jpeg;base64,' + base64);
-                            this.setState({ imgToMsg: ('data:image/jpeg;base64,' + base64), pathOfImage: resizedImageUri });
+                            this.setState({
+                                imgToMsg: ('data:image/jpeg;base64,' + base64),
+                                pathOfImage: resizedImageUri
+                            });
                             this.setImageVisible(true);
                             //error check
                         })

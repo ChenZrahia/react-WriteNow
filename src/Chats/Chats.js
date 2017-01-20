@@ -279,22 +279,15 @@ export default class Chats extends Component {
     }
 UpdatelastMessage(lastMessage, lastMessageTime , convId, isNewMessage)
 {
-    console.log(lastMessage, lastMessageTime , convId, isNewMessage);
-    console.log('UpdatelastMessage');
     var isFound = false;
     this.myChats = this.myChats.map((chat) => {
-        console.log(chat);
         if (chat.id == convId) {
             isFound = true;
             chat.lastMessage = lastMessage;
             chat.lastMessageTime = lastMessageTime;
-            console.log('isNewMessage: ' , isNewMessage);
             if (isNewMessage == false) {
-                console.log('isNewMessage: 11' , isNewMessage);
                 chat.notifications = null;
             } else {
-                console.log('isNewMessage: 22' , chat.notifications);
-                console.log('isNewMessage: 22' , chat);
                 if (!chat.notifications) {
                     chat.notifications = 0;
                 }
@@ -303,15 +296,11 @@ UpdatelastMessage(lastMessage, lastMessageTime , convId, isNewMessage)
          }
         return chat;
     });
-    console.log(isFound);
-    console.log('isFound');
     if ((isFound == false) && isNewMessage == true) {
         this.UpdateChatsList(true);
-        console.log('isFound');
     } else {
         this.myChats = this.sortDates(this.myChats);
     }
-    console.log(this.myChats);
     this.setState({dataSource: this.ds.cloneWithRows(this.myChats)});
 }
 

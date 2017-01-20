@@ -56,13 +56,7 @@ export default class GiftedChat extends React.Component {
     Event.on('LoadNewChat', () => {
       console.log('LoadNewChat - clear input chat!');
       this.setState({ text: '' });
-
     });
-
-
-
-
-
     // default values
     this._isMounted = false;
     this._keyboardHeight = 0;
@@ -86,12 +80,8 @@ export default class GiftedChat extends React.Component {
       onlineMessages: this._onlineMessages,
       onlineMessagesIds: this._onlineMessagesIds
     };
-
-
-
     this.serverTyping = this.serverTyping.bind(this);
     Event.on('serverTyping', this.serverTyping);
-
     this.onTouchStart = this.onTouchStart.bind(this);
     this.onTouchMove = this.onTouchMove.bind(this);
     this.onTouchEnd = this.onTouchEnd.bind(this);
@@ -117,9 +107,6 @@ export default class GiftedChat extends React.Component {
       onKeyboardDidHide: this.onKeyboardDidHide,
     };
   }
-
-
-
 
   static append(currentMessages = [], messages) {
     if (!Array.isArray(messages)) {
@@ -602,13 +589,13 @@ export default class GiftedChat extends React.Component {
   }
 
   encryptMessage() {
-    console.log('encrypt Message is working well');
-    this.setState({ showMenu: !this.state.showMenu });
-    this.setState({ encryptedVisible: !this.state.encryptedVisible });
+    this.setState({
+      showMenu: !this.state.showMenu,
+      encryptedVisible: !this.state.encryptedVisible
+    });
   }
 
   viewProfile() {
-    console.log('Voice Call is working well');
     //this.props.userPicture = '';
     liveSrv.Connect(this.props.convId);
     Actions.Call({ userName: this.props.userName, userPicture: this.props.userPicture });
@@ -631,7 +618,6 @@ export default class GiftedChat extends React.Component {
   cancel_chatRoom(lastMessage, lastMessageTime) {
     Event.trigger('lastMessage', lastMessage, lastMessageTime, this.props.convId, false);
   }
-
 
   // renderRowOnlineMsg(){
   //   try {

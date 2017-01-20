@@ -144,6 +144,7 @@ export default class NewGroupInfo extends Component {
                             });
                             serverSrv.createNewGroup(this.state.groupName, this.state.groupAvatar.uri, participateArray);
                             Actions.Tabs({ type: 'reset' });
+                            //Actions.pop({popNum: 2});
                         } }>
                             <View>
                                 <Text style={styles.buttonText}>Create Group</Text>
