@@ -189,6 +189,7 @@ export default class Chats extends Component {
     openChat(rowData) {
         try {
             Actions.ChatRoom(rowData);
+            this.UpdatelastMessage(null, null , rowData.id, false)
             Event.trigger('LoadNewChat', rowData.id, false);
         } catch (e) {
             ErrorHandler.WriteError('Chats.js => openChat', e);
@@ -283,8 +284,10 @@ UpdatelastMessage(lastMessage, lastMessageTime , convId, isNewMessage)
     this.myChats = this.myChats.map((chat) => {
         if (chat.id == convId) {
             isFound = true;
-            chat.lastMessage = lastMessage;
-            chat.lastMessageTime = lastMessageTime;
+            if (chat.lastMessage || chat.lastMessageTime) {
+                chat.lastMessage = lastMessage;
+                chat.lastMessageTime = lastMessageTime;
+            }
             if (isNewMessage == false) {
                 chat.notifications = null;
             } else {

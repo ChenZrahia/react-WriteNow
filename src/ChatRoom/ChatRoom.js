@@ -69,7 +69,7 @@ export default class ChatRoom extends Component {
             Event.on('showSignature', this.showSignature);
             Event.on('sendSegnature', this.sendImageMessage);
             Event.on('imojiType', this.onType);
-            Event.on('encryptedMessage', this.onType);
+            Event.on('encryptedMessage', this.onSend);
             BackAndroid.addEventListener('hardwareBackPress', () => {
                 if (this.convId) {
                     Event.trigger('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false);
@@ -232,19 +232,21 @@ export default class ChatRoom extends Component {
         try {
             return (
                 <Modal
-                    transparent={false}
+                    transparent={true}
                     visible={this.state.imageVisible}
                     onRequestClose={() => { console.log('image closed') } }
                     >
                     <View style={{ backgroundColor: 'rgba(0,0,0,0.7)', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                        <TouchableOpacity onPress={() => {
+                        <TouchableOpacity 
+                        style={{top: 15, marginLeft: 295, zIndex:5}}
+                        onPress={() => {
                             this.setImageVisible(!this.state.imageVisible);
                         } }>
                             <View style={{ width: 30, height: 30, backgroundColor: 'gray', borderRadius: 15 }}>
-                                <Icon name="md-close" size={15} color="black" style={{ alignSelf: 'center', paddingTop: 7 }} />
+                                <Icon name="md-close" size={15} color="white" style={{ alignSelf: 'center', paddingTop: 7 }} />
                             </View>
                         </TouchableOpacity>
-                        <Image style={{ width: 300, height: 300, borderRadius: 0, borderWidth: 1, borderColor: 'gray' }} source={{ uri: image }} />
+                        <Image style={{ width: 300, height: 300, borderRadius: 0, borderWidth: 1, borderColor: 'gray' , zIndex:0}} source={{ uri: image }} />
                         <View style={{ width: 300, flexDirection: 'row', backgroundColor: 'white', borderColor: 'gray', borderWidth: 1 }}>
                             <TextInput
                                 style={{ flex: 1, height: 40, backgroundColor: 'white' }}
@@ -350,8 +352,24 @@ export default class ChatRoom extends Component {
         }
     }
 
-    onSend(messages = []) {
+    onSend(messages = [],saveLocal) {
         try {
+            if (this._messageId == null && !messages.mid) { //for encrypted message
+                this._messageId = this.guid();
+            }
+            if(messages.isEncrypted ==true){
+                this._messageId= messages.mid;
+                messages._id = this._messageId;
+                messages.id = this._messageId;
+                messages.convId = this.convId;
+                messages.text = messages.content;
+                if(messages.from == serverSrv._uid){
+                    messages.createdAt = Date.now();
+                }
+                else{
+                    messages.createdAt = messages.sendTime;
+                }
+            }
             if (!messages.forEach) {
                 messages = [messages];
             }
@@ -364,14 +382,14 @@ export default class ChatRoom extends Component {
                 } else {
                     msg.createdAt = moment(msg.sendTime).format();
                 }
-                if (msg._id.indexOf('temp-id') >= 0 || (msg.image && msg.from == serverSrv._uid)) {
+                if (msg._id.indexOf('temp-id') >= 0 || (msg.image && msg.from == serverSrv._uid) || msg.isEncrypted == true) {
                     msg._id = this._messageId;
                     msg.id = this._messageId;
                     msg.from = serverSrv._uid;
                     msg.createdAt = msg.sendTime;
                     msg.content = msg.text;
                     msg.convId = this.convId;
-                    serverSrv.saveNewMessage(msg);
+                    serverSrv.saveNewMessage(msg,saveLocal);
                     this._messageId = null;
                 }
 
@@ -380,7 +398,9 @@ export default class ChatRoom extends Component {
                     name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName,
                     _id: serverSrv._myFriendsJson[msg.from].id
                 }
-                this.messages.splice(0, 0, msg); //push
+                if (saveLocal != false) {
+                    this.messages.splice(0, 0, msg); //push
+                } 
                 this.onlineMessages = this.onlineMessages.filter((o_msg) => {
                     return o_msg.id != msg.id;
                 });

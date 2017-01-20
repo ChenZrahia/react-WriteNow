@@ -18,6 +18,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import ImageResizer from 'react-native-image-resizer';
 
 var Event = require('../../Services/Events');
+var CryptoJS = require("crypto-js");
 var Platform = require('react-native').Platform;
 var ImagePicker = require('react-native-image-picker');
 var generalStyles = require('../../styles/generalStyle');
@@ -78,10 +79,17 @@ export default class SignUp extends Component {
             return;
         }
         disabled = true;
-
+        console.log(this.state.SpinnerVisible);
+        setTimeout(()=> {
         this.setState({
             SpinnerVisible: true
         });
+        }, 1000);
+       
+        console.log(this.state.SpinnerVisible);
+
+         
+        var hashPassword = CryptoJS.SHA256(this.state.Password);
         var newUser = {
             pkey: '',
             lastSeen: Date.now(),
@@ -97,10 +105,13 @@ export default class SignUp extends Component {
             },
             privateInfo: {
                 tokenNotification: '',
-                password: this.state.Password,
+                password: hashPassword.toString(),
             }
         };
+        
 
+  
+           
         serverSrv.signUpFunc(newUser, (userId) => {  
             this.setState({
                 SpinnerVisible: false
