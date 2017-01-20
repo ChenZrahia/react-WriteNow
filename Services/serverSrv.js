@@ -59,8 +59,7 @@ export var _myFriendPublicKey = null;
 export var _hashPassword = null;
 export var _token = '';
 export var _privateKey = '';
-
-
+export var _isCallMode = false;
 
 
 
