@@ -377,7 +377,7 @@ export default class ChatRoom extends Component {
                 } else {
                     msg.createdAt = moment(msg.sendTime).format();
                 }
-                if (msg._id.indexOf('temp-id') >= 0 || (msg.image && msg.from == serverSrv._uid) || msg.isEncrypted == true) {
+                if (msg._id.indexOf('temp-id') >= 0 || (msg.image && msg.from == serverSrv._uid) || (msg.isEncrypted == true && msg.from == serverSrv._uid)) {
                     msg._id = this._messageId;
                     msg.id = this._messageId;
                     msg.from = serverSrv._uid;
