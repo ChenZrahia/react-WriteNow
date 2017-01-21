@@ -883,9 +883,9 @@ export default class GiftedChat extends React.Component {
 
 
   encryptMessage() {
-    this.setState({ placeHolderEncrypted: "Enter Your Password..." });
-    this.setState({ showMenu: !this.state.showMenu });
-    this.setState({ encryptedVisible: !this.state.encryptedVisible });
+    this.setState({ placeHolderEncrypted: "Enter Your Password..." ,
+                    showMenu: !this.state.showMenu,
+                    encryptedVisible: !this.state.encryptedVisible});
   }
 
   VedioCallFriend() {
