@@ -953,6 +953,8 @@ export function signUpFunc(newUser, callback) {
         rsa.generate(bits, exponent);
         var publicKey = rsa.getPublicString();
         var privateKey = rsa.getPrivateString();
+        this._privateKey = privateKey;
+        this._hashPassword = newUser.privateInfo.password;
         rsa.setPrivateString(privateKey);
         newUser.pkey = publicKey;
         if (!newUser.privateInfo) {
