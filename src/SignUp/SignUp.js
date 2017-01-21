@@ -18,7 +18,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import ImageResizer from 'react-native-image-resizer';
 
 var Event = require('../../Services/Events');
-var CryptoJS = require("crypto-js");
+//var CryptoJS = require("crypto-js");
 var Platform = require('react-native').Platform;
 var ImagePicker = require('react-native-image-picker');
 var generalStyles = require('../../styles/generalStyle');
