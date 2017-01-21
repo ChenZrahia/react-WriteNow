@@ -18,6 +18,7 @@ import {
 
 import { Actions } from 'react-native-router-flux'
 var Sound = require('react-native-sound');
+var liveSrv = require('./Services/liveSrv');
 
 import InitRout from './src/InitRout';
 import ChatRoom from './src/ChatRoom/ChatRoom';
@@ -32,7 +33,7 @@ import FCM from 'react-native-fcm';
 
 var newMsg_ring = null;
 setTimeout(() => {
-    newMsg_ring = new Sound('new_msg.mp3', Sound.MAIN_BUNDLE, (error) => {});
+    newMsg_ring = new Sound('new_msg.mp3', Sound.MAIN_BUNDLE, (error) => { });
 }, 500);
 
 //import ReactNativeRSAUtil from 'react-native-rsa-util';
@@ -103,25 +104,22 @@ setTimeout(() => {
 
 
 export default class WriteNow extends Component {
-    constructor(a,b,c,d,e,f) {
+    constructor(a, b, c, d, e, f) {
         super();
     }
 
     componentWillMount() {
-        FCM.getInitialNotification().then(notif=>{
-            console.log(notif);
+        FCM.getInitialNotification().then(notif => {
             if (notif && notif.data) {
                 var notifData = JSON.parse(notif.data);
                 if (notifData.isVoiceCall == 'true') {
-                    console.log('111111111111');
                     serverSrv._isCallMode = true;
+                    console.log('notifData 111');
                     Actions.Call(notifData);
                     setTimeout(() => {
                         Event.trigger('getCall', true);
                     }, 100);
                 } else {
-                    console.log(notifData);
-                    console.log('notifData 111');
                     Event.trigger('lastMessage', notifData.message, notifData.message_time, notifData.convId, true);
                 }
             }
@@ -129,55 +127,44 @@ export default class WriteNow extends Component {
         FCM.getFCMToken().then(token => {
             serverSrv._token = token;
             serverSrv.login(token);
-            console.log(token);
         });
         this.notificationUnsubscribe = FCM.on('notification', (notif) => {   //application alrady open
-            console.log(notif);
-            
             if (notif && notif.data) {
                 var notifData = JSON.parse(notif.data);
-                console.log(notif);
-                console.log(notifData);
-                console.log('notifData+++');
-                console.log(1);
                 if (notifData.isVoiceCall == 'true') {
-                    console.log('22222222222');
                     serverSrv._isCallMode = false;
-                    Actions.Call(notifData);
-                    setTimeout(() => {
-                        Event.trigger('getCall', true);
-                    }, 100);
+                    console.log('notifData 2222');
+                    if (liveSrv._isInCall == true) {
+                        liveSrv.socket.emit('unavailableCall'); //לממש
+                        console.log('unavailableCall');
+                    } else {
+                        Actions.Call(notifData);
+                        setTimeout(() => {
+                            Event.trigger('getCall', true);
+                        }, 100);
+                    }
                 } else {
-                    console.log(2);
                     if (newMsg_ring) {
-                        console.log(22);
-                        newMsg_ring.play((success) => {});
-                    } 
+                        newMsg_ring.play((success) => { });
+                    }
                     if (notifData && notifData.message) {
-                        console.log(222);
                         Event.trigger('lastMessage', notifData.message, notifData.message_time, notifData.convId, true);
-                    } else if(notifData && notifData.lastMessage){
-                        console.log(3);
+                    } else if (notifData && notifData.lastMessage) {
                         Event.trigger('lastMessage', notifData.lastMessage, notifData.lastMessageTime, notifData.id, true);
                     }
                 }
             } else {
-                console.log(4);
-                console.log(4);
-                console.log(notif);
                 if (notif.isVoiceCall != 'true') {
                     if (newMsg_ring) {
-                        newMsg_ring.play((success) => {});
-                    } 
+                        newMsg_ring.play((success) => { });
+                    }
                     Event.trigger('lastMessage', notif.message, notif.message_time, notif.convId, true);
                 }
             }
             // there are two parts of notif. notif.notification contains the notification payload, notif.data contains data payload
-            if(notif.local_notification){
-              console.log('notif.local_notification');
+            if (notif.local_notification) {
             }
-            if(notif.opened_from_tray){
-              console.log('notif.opened_from_tray');
+            if (notif.opened_from_tray) {
             }
         });
     }
@@ -222,7 +209,7 @@ export default class WriteNow extends Component {
         });
     }
 
-    componentDidMount() {        
+    componentDidMount() {
         this.loadContacts();
         try {
             serverSrv.GetAllMyFriends((result) => {
@@ -241,7 +228,7 @@ export default class WriteNow extends Component {
         return (
 
 
-   <View style={styles.container}>
+            <View style={styles.container}>
                 <StatusBar
                     backgroundColor="#820cf7"
                     animated={true}
@@ -254,7 +241,7 @@ export default class WriteNow extends Component {
     }
 }
 
-         
+
 
 
 // <StatusBar barStyle="light-content" />

@@ -62,7 +62,6 @@ export default class GiftedChat extends React.Component {
   constructor(props) {
     super(props);
     Event.on('LoadNewChat', () => {
-      console.log('LoadNewChat - clear input chat!');
       this.setState({ text: '' });
 
     });
@@ -125,7 +124,8 @@ export default class GiftedChat extends React.Component {
     this.getLocale = this.getLocale.bind(this);
     this.cancel_chatRoom = this.cancel_chatRoom.bind(this);
 
-    this.viewProfile = this.viewProfile.bind(this);
+    this.CallFriend = this.CallFriend.bind(this);
+    this.VedioCallFriend = this.VedioCallFriend.bind(this);
     this.invertibleScrollViewProps = {
       inverted: true,
       keyboardShouldPersistTaps: true,
@@ -415,209 +415,208 @@ export default class GiftedChat extends React.Component {
     messages = messages.map((message) => {
       return {
         ...message,
-      user: this.props.user,
-      createdAt: new Date(),
-      _id: 'temp-id-' + Math.round(Math.random() * 1000000),
+        user: this.props.user,
+        createdAt: new Date(),
+        _id: 'temp-id-' + Math.round(Math.random() * 1000000),
       };
-});
+    });
 
-if (shouldResetInputToolbar === true) {
-  this.setIsTypingDisabled(true);
-  this.resetInputToolbar();
-}
-
-this.props.onSend(messages);
-this.scrollToBottom();
-
-if (shouldResetInputToolbar === true) {
-  setTimeout(() => {
-    if (this.getIsMounted() === true) {
-      this.setIsTypingDisabled(false);
+    if (shouldResetInputToolbar === true) {
+      this.setIsTypingDisabled(true);
+      this.resetInputToolbar();
     }
-  }, 200);
-}
+
+    this.props.onSend(messages);
+    this.scrollToBottom();
+
+    if (shouldResetInputToolbar === true) {
+      setTimeout(() => {
+        if (this.getIsMounted() === true) {
+          this.setIsTypingDisabled(false);
+        }
+      }, 200);
+    }
   }
 
-resetInputToolbar() {
-  this.setState((previousState) => {
-    return {
-      text: '',
-      composerHeight: MIN_COMPOSER_HEIGHT,
-      messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight() - this.getKeyboardHeight() + this.getBottomOffset()),
-    };
-  });
-}
-
-calculateInputToolbarHeight(newComposerHeight) {
-  return newComposerHeight + (this.getMinInputToolbarHeight() - MIN_COMPOSER_HEIGHT);
-}
-
-
-onType(e) {
-  if (this.getIsTypingDisabled() === true) {
-    return;
-  }
-  let newComposerHeight = null;
-  if (e.nativeEvent && e.nativeEvent.contentSize) {
-    newComposerHeight = Math.max(MIN_COMPOSER_HEIGHT, Math.min(MAX_COMPOSER_HEIGHT, e.nativeEvent.contentSize.height));
-  } else {
-    newComposerHeight = MIN_COMPOSER_HEIGHT;
+  resetInputToolbar() {
+    this.setState((previousState) => {
+      return {
+        text: '',
+        composerHeight: MIN_COMPOSER_HEIGHT,
+        messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight() - this.getKeyboardHeight() + this.getBottomOffset()),
+      };
+    });
   }
 
-  const newMessagesContainerHeight = this.getMaxHeight() - this.calculateInputToolbarHeight(newComposerHeight) - this.getKeyboardHeight() + this.getBottomOffset();
-  const newText = e.nativeEvent.text;
-  this.setState((previousState) => {
-    return {
-      text: newText,
-      composerHeight: newComposerHeight,
-      messagesContainerHeight: this.prepareMessagesContainerHeight(newMessagesContainerHeight),
-    };
-  });
-  this.props.onType(newText, false);
-}
+  calculateInputToolbarHeight(newComposerHeight) {
+    return newComposerHeight + (this.getMinInputToolbarHeight() - MIN_COMPOSER_HEIGHT);
+  }
 
-changeText = (data) => {
-  Event.trigger('imojiType', this.state.text + data, false);
-  this.setState({ text: this.state.text + data });
-}
 
- 
-renderInputToolbar() {
-  const inputToolbarProps = {
+  onType(e) {
+    if (this.getIsTypingDisabled() === true) {
+      return;
+    }
+    let newComposerHeight = null;
+    if (e.nativeEvent && e.nativeEvent.contentSize) {
+      newComposerHeight = Math.max(MIN_COMPOSER_HEIGHT, Math.min(MAX_COMPOSER_HEIGHT, e.nativeEvent.contentSize.height));
+    } else {
+      newComposerHeight = MIN_COMPOSER_HEIGHT;
+    }
+
+    const newMessagesContainerHeight = this.getMaxHeight() - this.calculateInputToolbarHeight(newComposerHeight) - this.getKeyboardHeight() + this.getBottomOffset();
+    const newText = e.nativeEvent.text;
+    this.setState((previousState) => {
+      return {
+        text: newText,
+        composerHeight: newComposerHeight,
+        messagesContainerHeight: this.prepareMessagesContainerHeight(newMessagesContainerHeight),
+      };
+    });
+    this.props.onType(newText, false);
+  }
+
+  changeText = (data) => {
+    Event.trigger('imojiType', this.state.text + data, false);
+    this.setState({ text: this.state.text + data });
+  }
+
+
+  renderInputToolbar() {
+    const inputToolbarProps = {
       ...this.props,
-    text: this.state.text,
+      text: this.state.text,
       composerHeight: Math.max(MIN_COMPOSER_HEIGHT, this.state.composerHeight),
-        onChange: this.onType,
-          onSend: this.onSend,
+      onChange: this.onType,
+      onSend: this.onSend,
     };
 
-if (this.props.renderInputToolbar) {
-  return this.props.renderInputToolbar(inputToolbarProps);
-}
-return (
-  <InputToolbar
-    changeText={this.changeText}
-    textInput={this.state.text}
-    {...inputToolbarProps}
-    />
-);
+    if (this.props.renderInputToolbar) {
+      return this.props.renderInputToolbar(inputToolbarProps);
+    }
+    return (
+      <InputToolbar
+        changeText={this.changeText}
+        textInput={this.state.text}
+        {...inputToolbarProps}
+        />
+    );
   }
 
-renderChatFooter() {
-  if (this.props.renderChatFooter) {
-    const footerProps = {
+  renderChatFooter() {
+    if (this.props.renderChatFooter) {
+      const footerProps = {
         ...this.props,
       };
-  return this.props.renderChatFooter(footerProps);
-}
-return null;
-  }
-
-renderLoading() {
-  if (this.props.renderLoading) {
-    return this.props.renderLoading();
-  }
-  return null;
-}
-
-
-setImageVisible(visible) {
-  this.setState({ imageVisible: visible });
-}
-
-
-setEncryptedVisible(visible){
-  this.setState({
-    encryptedMessageText: '',
-    placeHolderEncrypted: 'Enter Your Password...',
-    headerTextEncrypted: "Password Validation",
-    secureTextEntry: true,
-    validate: true,
-    encryptedVisible: visible
-  });
-}
-
-menuOption()
-{
-  this.setState({ showMenu: !this.state.showMenu });
-}
-
-setImageVisible(visible) {
-  this.setState({ imageVisible: visible });
-}
-
-newList(){
-  console.log('new list is working well');
-  this.setState({ showMenu: !this.state.showMenu });
-}
-
-guid() {
-  try {
-    function s4() {
-      try {
-        return Math.floor((1 + Math.random()) * 0x10000)
-          .toString(16)
-          .substring(1);
-      } catch (e) {
-        ErrorHandler.WriteError('ChatRoom.js => s4', e);
-      }
+      return this.props.renderChatFooter(footerProps);
     }
-    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-      s4() + '-' + s4() + s4() + s4();
-  } catch (e) {
-    ErrorHandler.WriteError('GiftedChat.js => guid', e);
+    return null;
   }
-}
 
-encryptedMessage(message){
-  var password = this.state.encryptedPassword;
-  this.setState({
-    encryptedMessageText: '',
-    placeHolderEncrypted: 'Enter Your Password...',
-    headerTextEncrypted: "Password Validation",
-    secureTextEntry: true,
-    validate: true,
-  });
-
-  // Encrypt wuth aes
-  var messageId = this.guid();
-  // Encrypt 
-  var ciphertext = CryptoJS.AES.encrypt(this.state.encryptedMessageText, password);
-
-  var msgSaveInPhone = {
-    mid: messageId,
-    isEncrypted: true,
-    lastTypingTime: Date.now(),
-    from: serverSrv._uid,
-    content: ciphertext.toString()
-  };
-  Event.trigger('encryptedMessage', msgSaveInPhone, true);
-
-
-  var rsa = new RSAKey();
-  var friendPublicKey = serverSrv._myFriendPublicKey;
-  rsa.setPublicString(friendPublicKey);
-  var encrypedMessage = rsa.encryptWithPublic(this.state.encryptedMessageText); // decrypted == originText
-  var msg = {
-    mid: messageId,
-    isEncrypted: true,
-    lastTypingTime: Date.now(),
-    from: serverSrv._uid,
-    content: encrypedMessage
-  };
-  Event.trigger('encryptedMessage', msg, false);
-  this.setState({ encryptedMessageText: '' });
-  this.setEncryptedVisible(!this.state.encryptedVisible);
-}
-
-tryToDecrypt(password){
-  
-  var min = 0;
-  if (this._blockStartTime != null) {
-    min = (Date.now() - this._blockStartTime);
+  renderLoading() {
+    if (this.props.renderLoading) {
+      return this.props.renderLoading();
+    }
+    return null;
   }
-  if (min > 0 && min < 5) {
-    var toast = Toast.show("You blocked for " + min + " minute", {
+
+
+  setImageVisible(visible) {
+    this.setState({ imageVisible: visible });
+  }
+
+
+  setEncryptedVisible(visible) {
+    this.setState({
+      encryptedMessageText: '',
+      placeHolderEncrypted: 'Enter Your Password...',
+      headerTextEncrypted: "Password Validation",
+      secureTextEntry: true,
+      validate: true,
+      encryptedVisible: visible
+    });
+  }
+
+  menuOption() {
+    this.setState({ showMenu: !this.state.showMenu });
+  }
+
+  setImageVisible(visible) {
+    this.setState({ imageVisible: visible });
+  }
+
+  newList() {
+    console.log('new list is working well');
+    this.setState({ showMenu: !this.state.showMenu });
+  }
+
+  guid() {
+    try {
+      function s4() {
+        try {
+          return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+        } catch (e) {
+          ErrorHandler.WriteError('ChatRoom.js => s4', e);
+        }
+      }
+      return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+        s4() + '-' + s4() + s4() + s4();
+    } catch (e) {
+      ErrorHandler.WriteError('GiftedChat.js => guid', e);
+    }
+  }
+
+  encryptedMessage(message) {
+    var password = this.state.encryptedPassword;
+    this.setState({
+      encryptedMessageText: '',
+      placeHolderEncrypted: 'Enter Your Password...',
+      headerTextEncrypted: "Password Validation",
+      secureTextEntry: true,
+      validate: true,
+    });
+
+    // Encrypt wuth aes
+    var messageId = this.guid();
+    // Encrypt 
+    var ciphertext = CryptoJS.AES.encrypt(this.state.encryptedMessageText, password);
+
+    var msgSaveInPhone = {
+      mid: messageId,
+      isEncrypted: true,
+      lastTypingTime: Date.now(),
+      from: serverSrv._uid,
+      content: ciphertext.toString()
+    };
+    Event.trigger('encryptedMessage', msgSaveInPhone, true);
+
+
+    var rsa = new RSAKey();
+    var friendPublicKey = serverSrv._myFriendPublicKey;
+    rsa.setPublicString(friendPublicKey);
+    var encrypedMessage = rsa.encryptWithPublic(this.state.encryptedMessageText); // decrypted == originText
+    var msg = {
+      mid: messageId,
+      isEncrypted: true,
+      lastTypingTime: Date.now(),
+      from: serverSrv._uid,
+      content: encrypedMessage
+    };
+    Event.trigger('encryptedMessage', msg, false);
+    this.setState({ encryptedMessageText: '' });
+    this.setEncryptedVisible(!this.state.encryptedVisible);
+  }
+
+  tryToDecrypt(password) {
+
+    var min = 0;
+    if (this._blockStartTime != null) {
+      min = (Date.now() - this._blockStartTime);
+    }
+    if (min > 0 && min < 5) {
+      var toast = Toast.show("You blocked for " + min + " minute", {
         duration: Toast.durations.LONG,
         position: Toast.positions.BOTTOM,
         shadow: true,
@@ -625,118 +624,242 @@ tryToDecrypt(password){
         hideOnPress: true,
         delay: 0
       });
-    return;
-  } else {
-    this._blockStartTime = null;
-  }
-  
-  var hash = CryptoJS.SHA256(password);
-  var hashFromServer = serverSrv._hashPassword;
-  if (hash.toString() == hashFromServer.toString()) {
-    serverSrv.GetEncryptedMessage_ById(this.state.mid, (result) => {
-       var ciphertext = result.content;
-      if(result.from == serverSrv._uid){
-      var bytes = CryptoJS.AES.decrypt(ciphertext.toString(), password);
-      var plaintext = bytes.toString(CryptoJS.enc.Utf8);
-        this.setState({
-           DecryptedMessageText: plaintext,
-        })
-      }
-      else if(result.from != serverSrv._uid){
-         var rsa = new RSAKey();
-         var pKey = serverSrv._privateKey;
-         console.log("private key :" +pKey);
-          rsa.setPrivateString(pKey);
-        var encrypedMessage = rsa.decryptWithPrivate(ciphertext);
-        this.setState({
-           DecryptedMessageText: encrypedMessage,
-        })
+      return;
+    } else {
+      this._blockStartTime = null;
+    }
 
+    var hash = CryptoJS.SHA256(password);
+    var hashFromServer = serverSrv._hashPassword;
+    if (hash.toString() == hashFromServer.toString()) {
+      serverSrv.GetEncryptedMessage_ById(this.state.mid, (result) => {
+        var ciphertext = result.content;
+        if (result.from == serverSrv._uid) {
+          var bytes = CryptoJS.AES.decrypt(ciphertext.toString(), password);
+          var plaintext = bytes.toString(CryptoJS.enc.Utf8);
+          this.setState({
+            DecryptedMessageText: plaintext,
+          })
+        }
+        else if (result.from != serverSrv._uid) {
+          var rsa = new RSAKey();
+          var pKey = serverSrv._privateKey;
+          rsa.setPrivateString(pKey);
+          var encrypedMessage = rsa.decryptWithPrivate(ciphertext);
+          this.setState({
+            DecryptedMessageText: encrypedMessage,
+          })
+
+        }
+        this.setState({
+          decryptedsecureTextEntry: false,
+          placeHolderDecrypted: '',
+          headerTextDecrypted: "Message Decrypted Successfully",
+          encryptedPassword: '',
+        });
+      });
+    }
+    else {
+      if (this._numOfInvalidPassword < 4) {
+        this._numOfInvalidPassword++;
+        var toast = Toast.show("Invalid Password! (" + this._numOfInvalidPassword + ")", {
+          duration: Toast.durations.LONG,
+          position: Toast.positions.BOTTOM,
+          shadow: true,
+          animation: true,
+          hideOnPress: true,
+          delay: 0
+        });
+      } else {
+        this._numOfInvalidPassword = 0;
+        this._blockStartTime = Date.now();
+        var toast = Toast.show("Invalid Password! You blocked for 5 minute  ", {
+          duration: Toast.durations.LONG,
+          position: Toast.positions.BOTTOM,
+          shadow: true,
+          animation: true,
+          hideOnPress: true,
+          delay: 0
+        });
       }
       this.setState({
-        decryptedsecureTextEntry: false,
-        placeHolderDecrypted: '',
-        headerTextDecrypted: "Message Decrypted Successfully",
+        decryptedsecureTextEntry: true,
+        DecryptedMessageText: '',
+        placeHolderDecrypted: "Enter Your Password...",
+        headerTextDecrypted: "Password Validation",
         encryptedPassword: '',
       });
-    });
-  }
-  else {
-    if (this._numOfInvalidPassword < 4) {
-      this._numOfInvalidPassword ++;
-      var toast = Toast.show("Invalid Password! (" + this._numOfInvalidPassword +")", {
-        duration: Toast.durations.LONG,
-        position: Toast.positions.BOTTOM,
-        shadow: true,
-        animation: true,
-        hideOnPress: true,
-        delay: 0
-      });
-    } else {
-      this._numOfInvalidPassword = 0;
-      this._blockStartTime = Date.now();
-      var toast = Toast.show("Invalid Password! You blocked for 5 minute  ", {
-        duration: Toast.durations.LONG,
-        position: Toast.positions.BOTTOM,
-        shadow: true,
-        animation: true,
-        hideOnPress: true,
-        delay: 0
-      });
     }
-    this.setState({
-      decryptedsecureTextEntry: true,
-      DecryptedMessageText: '',
-      placeHolderDecrypted: "Enter Your Password...",
-      headerTextDecrypted: "Password Validation",
-      encryptedPassword: '',
-    });
+
   }
 
-}
 
+  decryptedMessage(encryptedMessage, _mid) {
+    this.setState({ decryptedMessageVisible: !this.state.decryptedMessageVisible, mid: _mid });
 
-decryptedMessage(encryptedMessage, _mid){
-  this.setState({ decryptedMessageVisible: !this.state.decryptedMessageVisible, mid: _mid });
+  }
+  renderdecryptedMessage() {
+    try {
+      return (
+        <Modal
+          transparent={true}
+          visible={this.state.decryptedMessageVisible}
+          onRequestClose={() => { console.log('decryptedMessage modal closed') } }
+          >
+          <View style={generalStyles.styles.imageModal}>
+            <View style={{ flex: 1 }}>
+            </View>
+            <View style={generalStyles.styles.encryptedMessageModal}>
+              <View style={generalStyles.styles.encryptedMessageHeader}>
+                <Text style={{ color: 'white', textAlign: 'left' }}>{this.state.headerTextDecrypted}</Text>
+              </View>
+              <View style={{ flexDirection: "row", flex: 1, backgroundColor: 'white' }}>
+                <TextInput
+                  secureTextEntry={this.state.decryptedsecureTextEntry}
+                  editable={this.state.decryptedsecureTextEntry}
+                  autoCorrect={true}
+                  placeholder={this.state.placeHolderDecrypted}
+                  placeholderTextColor='#b2b2b2'
+                  multiline={this.state.multiline}
+                  onChangeText={(DecryptedMessageText) => {
+                    this.setState({ DecryptedMessageText });
+                  }
+                  }
+                  style={[styles.textInput, { textAlign: 'left', textAlignVertical: 'top' }, { height: Math.max(35, this.state.height) }]}
+                  value={this.state.DecryptedMessageText}
+                  enablesReturnKeyAutomatically={true}
+                  underlineColorAndroid="transparent"
+                  />
+              </View>
+              <View style={{ flexDirection: "row", flex: 0.5 }}>
+                <TouchableOpacity style={styles.buttonStyle}
+                  onPress={() => { this.tryToDecrypt(this.state.DecryptedMessageText) } } >
+                  <Text style={{ color: 'white' }}>Decrypt</Text>
+                </TouchableOpacity>
+                <View style={{ flex: 0.6, justifyContent: "center", alignItems: "center" }}>
+                  <Image
+                    style={{ width: 40, height: 40, padding: 2 }}
+                    source={{ uri: 'https://cdn4.iconfinder.com/data/icons/social-productivity-line-art-4/128/security-shield-lock-512.png' }}
+                    />
+                </View>
+                <TouchableOpacity style={styles.buttonStyle}
+                  onPress={() =>
+                    this.setState({
+                      decryptedMessageVisible: !this.state.decryptedMessageVisible,
+                      DecryptedMessageText: '',
+                      placeHolderDecrypted: "Enter Your Password...",
+                      headerTextDecrypted: "Password Validation",
+                      encryptedPassword: '',
+                      decryptedsecureTextEntry: true,
+                    })}>
+                  <Text style={{ color: 'white' }}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={{ flex: 1 }}>
+            </View>
+          </View>
+        </Modal>
+      )
+    } catch (e) {
+      ErrorHandler.WriteError('GiftedChat.js => decryptedMessage', e);
+    }
+  }
 
-}
-renderdecryptedMessage(){
-  try {
+  checkEncryptedPassword(password) {
+
+    var hash = CryptoJS.SHA256(password);
+    var hashFromServer = serverSrv._hashPassword;
+    if (hash && hashFromServer && hash.toString() == hashFromServer.toString()) {
+      this.setState({
+        encryptedMessageText: '',
+        placeHolderEncrypted: 'Type a message...',
+        headerTextEncrypted: "Encrypt Your Message",
+        secureTextEntry: false,
+        validate: false,
+        encryptedPassword: password,
+      });
+
+    }
+    else {
+      var toast = Toast.show("Invalid Password!", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.BOTTOM,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0
+      });
+
+      this.setState({
+        encryptedMessageText: '',
+        placeHolderEncrypted: 'Enter Your Password...',
+        headerTextEncrypted: "Password Validation",
+        secureTextEntry: true,
+        validate: true
+      });
+
+    }
+  }
+  openImageModal(image) {
     return (
       <Modal
         transparent={true}
-        visible={this.state.decryptedMessageVisible}
-        onRequestClose={() => { console.log('decryptedMessage modal closed') } }
+        visible={this.state.imageVisible}
+        onRequestClose={() => { console.log('image closed') } }
+        >
+        <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
+          this.setImageVisible(!this.state.imageVisible)
+        } }>
+          <View style={generalStyles.styles.imageModal}>
+            <Image style={generalStyles.styles.imageInsideModal} source={image} />
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    );
+  }
+  encrypteModal() {
+    return (
+      <Modal
+        transparent={true}
+        visible={this.state.encryptedVisible}
+        onRequestClose={() => { console.log('encrypted message modal closed') } }
         >
         <View style={generalStyles.styles.imageModal}>
           <View style={{ flex: 1 }}>
           </View>
           <View style={generalStyles.styles.encryptedMessageModal}>
             <View style={generalStyles.styles.encryptedMessageHeader}>
-              <Text style={{ color: 'white', textAlign: 'left' }}>{this.state.headerTextDecrypted}</Text>
+              <Text style={{ color: 'white', textAlign: 'left' }}>{this.state.headerTextEncrypted}</Text>
             </View>
             <View style={{ flexDirection: "row", flex: 1, backgroundColor: 'white' }}>
               <TextInput
-                secureTextEntry={this.state.decryptedsecureTextEntry}
-                editable={this.state.decryptedsecureTextEntry}
+                secureTextEntry={this.state.secureTextEntry}
                 autoCorrect={true}
-                placeholder={this.state.placeHolderDecrypted}
+                placeholder={this.state.placeHolderEncrypted}
                 placeholderTextColor='#b2b2b2'
                 multiline={this.state.multiline}
-                onChangeText={(DecryptedMessageText) => {
-                  this.setState({ DecryptedMessageText });
+                onChangeText={(encryptedMessageText) => {
+                  this.setState({ encryptedMessageText });
                 }
                 }
                 style={[styles.textInput, { textAlign: 'left', textAlignVertical: 'top' }, { height: Math.max(35, this.state.height) }]}
-                value={this.state.DecryptedMessageText}
+                value={this.state.encryptedMessageText}
                 enablesReturnKeyAutomatically={true}
                 underlineColorAndroid="transparent"
                 />
             </View>
             <View style={{ flexDirection: "row", flex: 0.5 }}>
               <TouchableOpacity style={styles.buttonStyle}
-                onPress={() => { this.tryToDecrypt(this.state.DecryptedMessageText) } } >
-                <Text style={{ color: 'white' }}>Decrypt</Text>
+                onPress={() => {
+                  if (this.state.validate) {
+                    this.checkEncryptedPassword(this.state.encryptedMessageText)
+                  }
+                  else {
+                    this.encryptedMessage(this.state.encryptedPassword);
+                  }
+                } } >
+                <Text style={{ color: 'white' }}>Send</Text>
               </TouchableOpacity>
               <View style={{ flex: 0.6, justifyContent: "center", alignItems: "center" }}>
                 <Image
@@ -744,131 +867,6 @@ renderdecryptedMessage(){
                   source={{ uri: 'https://cdn4.iconfinder.com/data/icons/social-productivity-line-art-4/128/security-shield-lock-512.png' }}
                   />
               </View>
-              <TouchableOpacity style={styles.buttonStyle}
-                onPress={() =>
-                  this.setState({
-                    decryptedMessageVisible: !this.state.decryptedMessageVisible,
-                    DecryptedMessageText: '',
-                    placeHolderDecrypted: "Enter Your Password...",
-                    headerTextDecrypted: "Password Validation",
-                    encryptedPassword: '',
-                    decryptedsecureTextEntry: true,
-                  })}>
-                <Text style={{ color: 'white' }}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View style={{ flex: 1 }}>
-          </View>
-        </View>
-      </Modal>
-    )
-  } catch (e) {
-    ErrorHandler.WriteError('GiftedChat.js => decryptedMessage', e);
-  }
-}
-
-checkEncryptedPassword(password){
-
-  var hash = CryptoJS.SHA256(password);
-  var hashFromServer = serverSrv._hashPassword;
-  if (hash && hashFromServer && hash.toString() == hashFromServer.toString()) {
-    this.setState({
-      encryptedMessageText: '',
-      placeHolderEncrypted: 'Type a message...',
-      headerTextEncrypted: "Encrypt Your Message",
-      secureTextEntry: false,
-      validate: false,
-      encryptedPassword: password,
-    });
-
-  }
-  else {
-    var toast = Toast.show("Invalid Password!", {
-      duration: Toast.durations.LONG,
-      position: Toast.positions.BOTTOM,
-      shadow: true,
-      animation: true,
-      hideOnPress: true,
-      delay: 0
-    });
-
-    this.setState({
-      encryptedMessageText: '',
-      placeHolderEncrypted: 'Enter Your Password...',
-      headerTextEncrypted: "Password Validation",
-      secureTextEntry: true,
-      validate: true
-    });
-
-  }
-}
-openImageModal(image) {
-  return (
-    <Modal
-      transparent={true}
-      visible={this.state.imageVisible}
-      onRequestClose={() => { console.log('image closed') } }
-      >
-      <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
-        this.setImageVisible(!this.state.imageVisible)
-      } }>
-        <View style={generalStyles.styles.imageModal}>
-          <Image style={generalStyles.styles.imageInsideModal} source={image} />
-        </View>
-      </TouchableOpacity>
-    </Modal>
-  );
-}
-encrypteModal(){
-  return (
-    <Modal
-      transparent={true}
-      visible={this.state.encryptedVisible}
-      onRequestClose={() => { console.log('encrypted message modal closed') } }
-      >
-      <View style={generalStyles.styles.imageModal}>
-        <View style={{ flex: 1 }}>
-        </View>
-        <View style={generalStyles.styles.encryptedMessageModal}>
-          <View style={generalStyles.styles.encryptedMessageHeader}>
-            <Text style={{ color: 'white', textAlign: 'left' }}>{this.state.headerTextEncrypted}</Text>
-          </View>
-          <View style={{ flexDirection: "row", flex: 1, backgroundColor: 'white' }}>
-            <TextInput
-              secureTextEntry={this.state.secureTextEntry}
-              autoCorrect={true}
-              placeholder={this.state.placeHolderEncrypted}
-              placeholderTextColor='#b2b2b2'
-              multiline={this.state.multiline}
-              onChangeText={(encryptedMessageText) => {
-                this.setState({ encryptedMessageText });
-              }
-              }
-              style={[styles.textInput, { textAlign: 'left', textAlignVertical: 'top' }, { height: Math.max(35, this.state.height) }]}
-              value={this.state.encryptedMessageText}
-              enablesReturnKeyAutomatically={true}
-              underlineColorAndroid="transparent"
-              />
-          </View>
-          <View style={{ flexDirection: "row", flex: 0.5 }}>
-            <TouchableOpacity style={styles.buttonStyle}
-              onPress={() => {
-                if (this.state.validate) {
-                  this.checkEncryptedPassword(this.state.encryptedMessageText)
-                }
-                else {
-                  this.encryptedMessage(this.state.encryptedPassword);
-                }
-              } } >
-              <Text style={{ color: 'white' }}>Send</Text>
-            </TouchableOpacity>
-            <View style={{ flex: 0.6, justifyContent: "center", alignItems: "center" }}>
-              <Image
-                style={{ width: 40, height: 40, padding: 2 }}
-                source={{ uri: 'https://cdn4.iconfinder.com/data/icons/social-productivity-line-art-4/128/security-shield-lock-512.png' }}
-                />
-            </View>
               <TouchableOpacity style={styles.buttonStyle}
                 onPress={() => { this.setEncryptedVisible(!this.state.encryptedVisible) } } >
                 <Text style={{ color: 'white' }}>Cancel</Text>
@@ -879,215 +877,226 @@ encrypteModal(){
           </View>
         </View>
       </Modal>
-      );
+    );
   }
 
 
-encryptMessage(){
-        console.log('encrypt Message is working well');
-      this.setState({placeHolderEncrypted: "Enter Your Password..." });
-  this.setState({showMenu: !this.state.showMenu });
-  this.setState({encryptedVisible: !this.state.encryptedVisible });
-}
+  encryptMessage() {
+    this.setState({ placeHolderEncrypted: "Enter Your Password..." });
+    this.setState({ showMenu: !this.state.showMenu });
+    this.setState({ encryptedVisible: !this.state.encryptedVisible });
+  }
 
-
-
-  viewProfile() {
-        console.log('Voice Call is working well');
-      //this.props.userPicture = '';
-      liveSrv.Connect(this.props.convId);
-    Actions.Call({userName: this.props.userName, userPicture: this.props.userPicture });
+  VedioCallFriend() {
+    liveSrv.Connect(this.props.convId);
+    Actions.Video({ userName: this.props.userName, userPicture: this.props.userPicture, convId: this.props.convId });
     setTimeout(() => {
-        Event.trigger('getCall', false);
-      }, 100);
-    this.setState({showMenu: !this.state.showMenu });
+      Event.trigger('getVideoCall', false);
+    }, 100);
+    this.setState({ showMenu: !this.state.showMenu });
+  }
+
+  CallFriend() {
+    liveSrv.Connect(this.props.convId);
+    Actions.Call({ userName: this.props.userName, userPicture: this.props.userPicture, convId: this.props.convId });
+    setTimeout(() => {
+      Event.trigger('getCall', false);
+    }, 100);
+    this.setState({ showMenu: !this.state.showMenu });
   }
 
   settings() {
-        console.log('settings is working well');
-      this.setState({showMenu: !this.state.showMenu });
+    console.log('settings is working well');
+    this.setState({ showMenu: !this.state.showMenu });
   }
 
   walkieTalkie() {
-        console.log('walkieTalkie is working well');
-      this.setState({showMenu: !this.state.showMenu });
+    console.log('walkieTalkie is working well');
+    this.setState({ showMenu: !this.state.showMenu });
   }
 
   cancel_chatRoom(lastMessage, lastMessageTime) {
-      Event.trigger('lastMessage', lastMessage, lastMessageTime, this.props.convId, false);
+    Event.trigger('lastMessage', lastMessage, lastMessageTime, this.props.convId, false);
   }
 
 
-// renderRowOnlineMsg(){
-        //   try {
-        //     return ((msg) => <View>
-        //       <Text style={{color: 'white'}}>{msg.content}</Text>
-        //    </View>);
-        //   } catch (error) {
+  // renderRowOnlineMsg(){
+  //   try {
+  //     return ((msg) => <View>
+  //       <Text style={{color: 'white'}}>{msg.content}</Text>
+  //    </View>);
+  //   } catch (error) {
 
-        //   }
-        // }
+  //   }
+  // }
 
-        //   getDataSourceOnlineMsg() {
-        //       const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1.id !== r2.id });
-        //       return ds.cloneWithRows(this.state.onlineMessages);
-        //   }
+  //   getDataSourceOnlineMsg() {
+  //       const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1.id !== r2.id });
+  //       return ds.cloneWithRows(this.state.onlineMessages);
+  //   }
 
-    render() {
-      if (this.state.isInitialized === true) {
+  render() {
+    if (this.state.isInitialized === true) {
       return (
         <View style={styles.chatRoomMain}>
-        <View style={generalStyles.styles.appbar}>
-          <TouchableOpacity onPress={() => {
-            if (this.props.messages && this.props.messages.length > 0) {
-              this.cancel_chatRoom(this.props.messages[0].text, this.props.messages[0].sendTime);
-            }
-            Actions.pop();
-          } }>
-            <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => {
-            this.imgSelected = this.props.userPicture ? { uri: this.props.userPicture } : null
-            if (this.imgSelected) {
-              this.setImageVisible(true);
-            }
-          } }>
-            <View style={generalStyles.styles.viewImg}>
-              <Image style={generalStyles.styles.thumb} source={this.props.userPicture ? { uri: this.props.userPicture } : require('../../img/user.jpg')} />
-            </View>
-          </TouchableOpacity>
-          <Text style={generalStyles.styles.titleHeader}>
-            {this.props.userName}
-          </Text>
-          <TouchableOpacity style={{ margin: 7 }} onPress={() => {
-            Event.trigger('showImagePicker');
-          } }>
-            <IconMat name="photo-camera" size={25} color="rgb(177,100,255)" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={{ margin: 7 }} onPress={() => {
-            Event.trigger('showSignature');
-          } }>
-            <IconMat name="brush" size={25} color="rgb(177,100,255)" />
-          </TouchableOpacity>
-          <TouchableOpacity style={{ margin: 7 }} onPress={() => {
-            this.menuOption();
-          } }>
-            <IconMat name="more-vert" size={25} color="rgb(177,100,255)" />
-          </TouchableOpacity>
-
-          {renderIf(this.state.showMenu)(
-            <Modal
-              onRequestClose={() => { } }
-              style={{ flex: 1 }}
-              transparent={true}
-              >
-
-              <TouchableOpacity style={{ flex: 1 }} onPress={() => {
-                this.setState({ showMenu: !this.state.showMenu })
-              } }>
-                <View style={{
-                  width: 160,
-                  height: 170,
-                  backgroundColor: 'white',
-                  position: 'absolute',
-                  top: 35,
-                  right: 25,
-                }}
-                  >
-                  <TouchableOpacity onPress={() => {
-                    this.viewProfile();
-                  } }>
-                    <Text style={{ margin: 7, marginTop: 7, left: 6 }}>
-                      Voice Call
-         </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => {
-                    this.encryptMessage();
-                  } }>
-                    <Text style={{ margin: 7, left: 6 }}>
-                      Encrypt Message
-         </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => {
-                    this.newList();
-                  } }>
-                    <Text style={{ margin: 7, left: 6 }}>
-                      New List
-         </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => {
-                    this.walkieTalkie();
-                  } }>
-                    <Text style={{ margin: 7, left: 6 }}>
-                      Walkie-Talkie
-         </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => {
-                    this.settings();
-                  } }>
-                    <Text style={{ margin: 7, left: 6 }}>
-                      Settings
-         </Text>
-
-                  </TouchableOpacity>
-                </View>
-              </TouchableOpacity>
-            </Modal>
-          )}
-          <View style={styles.button} />
-        </View>
-        <ActionSheet ref={component => this._actionSheetRef = component}>
-          <View
-            style={styles.container}
-            onLayout={(e) => {
-              if (Platform.OS === 'android') {
-                // fix an issue when keyboard is dismissing during the initialization
-                const layout = e.nativeEvent.layout;
-                if (this.getMaxHeight() !== layout.height && this.getIsFirstLayout() === true) {
-                  this.setMaxHeight(layout.height);
-                  this.setState({
-                    messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight()),
-                  });
-                }
+          <View style={generalStyles.styles.appbar}>
+            <TouchableOpacity onPress={() => {
+              if (this.props.messages && this.props.messages.length > 0) {
+                this.cancel_chatRoom(this.props.messages[0].text, this.props.messages[0].sendTime);
               }
-               if (this.getIsFirstLayout() === true) {
+              Actions.pop();
+            } }>
+              <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => {
+              this.imgSelected = this.props.userPicture ? { uri: this.props.userPicture } : null
+              if (this.imgSelected) {
+                this.setImageVisible(true);
+              }
+            } }>
+              <View style={generalStyles.styles.viewImg}>
+                <Image style={generalStyles.styles.thumb} source={this.props.userPicture ? { uri: this.props.userPicture } : require('../../img/user.jpg')} />
+              </View>
+            </TouchableOpacity>
+            <Text style={generalStyles.styles.titleHeader}>
+              {this.props.userName}
+            </Text>
+            <TouchableOpacity style={{ margin: 7 }} onPress={() => {
+              Event.trigger('showImagePicker');
+            } }>
+              <IconMat name="photo-camera" size={25} color="rgb(177,100,255)" />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={{ margin: 7 }} onPress={() => {
+              Event.trigger('showSignature');
+            } }>
+              <IconMat name="brush" size={25} color="rgb(177,100,255)" />
+            </TouchableOpacity>
+            <TouchableOpacity style={{ margin: 7 }} onPress={() => {
+              this.menuOption();
+            } }>
+              <IconMat name="more-vert" size={25} color="rgb(177,100,255)" />
+            </TouchableOpacity>
+
+            {renderIf(this.state.showMenu)(
+              <Modal
+                onRequestClose={() => { } }
+                style={{ flex: 1 }}
+                transparent={true}
+                >
+
+                <TouchableOpacity style={{ flex: 1 }} onPress={() => {
+                  this.setState({ showMenu: !this.state.showMenu })
+                } }>
+                  <View style={{
+                    width: 160,
+                    height: 170,
+                    backgroundColor: 'white',
+                    position: 'absolute',
+                    top: 35,
+                    right: 25,
+                  }}
+                    >
+                    <TouchableOpacity onPress={() => {
+                      this.CallFriend();
+                    } }>
+                      <Text style={{ margin: 7, marginTop: 7, left: 6 }}>
+                        Voice Call
+         </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => {
+                      this.VedioCallFriend();
+                    } }>
+                      <Text style={{ margin: 7, marginTop: 7, left: 6 }}>
+                        Video Call
+         </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => {
+                      this.encryptMessage();
+                    } }>
+                      <Text style={{ margin: 7, left: 6 }}>
+                        Encrypt Message
+         </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => {
+                      this.newList();
+                    } }>
+                      <Text style={{ margin: 7, left: 6 }}>
+                        New List
+         </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => {
+                      this.walkieTalkie();
+                    } }>
+                      <Text style={{ margin: 7, left: 6 }}>
+                        Walkie-Talkie
+         </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => {
+                      this.settings();
+                    } }>
+                      <Text style={{ margin: 7, left: 6 }}>
+                        Settings
+         </Text>
+
+                    </TouchableOpacity>
+                  </View>
+                </TouchableOpacity>
+              </Modal>
+            )}
+            <View style={styles.button} />
+          </View>
+          <ActionSheet ref={component => this._actionSheetRef = component}>
+            <View
+              style={styles.container}
+              onLayout={(e) => {
+                if (Platform.OS === 'android') {
+                  // fix an issue when keyboard is dismissing during the initialization
+                  const layout = e.nativeEvent.layout;
+                  if (this.getMaxHeight() !== layout.height && this.getIsFirstLayout() === true) {
+                    this.setMaxHeight(layout.height);
+                    this.setState({
+                      messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight()),
+                    });
+                  }
+                }
+                if (this.getIsFirstLayout() === true) {
                   this.setIsFirstLayout(false);
                 }
-            }}
-            >
-            {this.renderMessages()}
-          {this.renderInputToolbar()}
+              } }
+              >
+              {this.renderMessages()}
+              {this.renderInputToolbar()}
 
-          </View>
-        </ActionSheet>
-      {this.openImageModal(this.imgSelected)}
-      {this.encrypteModal()}
-      {this.renderdecryptedMessage()}
-      
+            </View>
+          </ActionSheet>
+          {this.openImageModal(this.imgSelected)}
+          {this.encrypteModal()}
+          {this.renderdecryptedMessage()}
+
         </View>
-  );
-}
-return (
-  <View
-    style={styles.container}
-    onLayout={(e) => {
-      const layout = e.nativeEvent.layout;
-      this.setMaxHeight(layout.height);
-      InteractionManager.runAfterInteractions(() => {
-        this.setState({
-          isInitialized: true,
-          text: '',
-          composerHeight: MIN_COMPOSER_HEIGHT,
-          messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight()),
-        });
-      });
-    } }
-    >
-    {this.renderLoading()}
-  </View>
-);
+      );
     }
+    return (
+      <View
+        style={styles.container}
+        onLayout={(e) => {
+          const layout = e.nativeEvent.layout;
+          this.setMaxHeight(layout.height);
+          InteractionManager.runAfterInteractions(() => {
+            this.setState({
+              isInitialized: true,
+              text: '',
+              composerHeight: MIN_COMPOSER_HEIGHT,
+              messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight()),
+            });
+          });
+        } }
+        >
+        {this.renderLoading()}
+      </View>
+    );
+  }
 }
 
 

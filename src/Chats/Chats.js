@@ -62,8 +62,8 @@ export default class Chats extends Component {
                         ErrorHandler.WriteError("Chats.js -> UpdateChatsList -> setState", e);
                     }
                     this.setState({
-                            dataSource: ds.cloneWithRows(this.myChats)
-                        });
+                        dataSource: ds.cloneWithRows(this.myChats)
+                    });
                 } catch (e) {
                     ErrorHandler.WriteError("Chats.js -> UpdateChatsList -> GetAllUserConv", e);
                 }
@@ -77,7 +77,7 @@ export default class Chats extends Component {
         try {
             this.myChats.push(chat);
             this.setState({
-                dataSource:  this.ds.cloneWithRows(this.myChats)
+                dataSource: this.ds.cloneWithRows(this.myChats)
             });
         } catch (e) {
             ErrorHandler.WriteError("Chats.js -> NewChat", e);
@@ -189,7 +189,7 @@ export default class Chats extends Component {
     openChat(rowData) {
         try {
             Actions.ChatRoom(rowData);
-            this.UpdatelastMessage(null, null , rowData.id, false)
+            this.UpdatelastMessage(null, null, rowData.id, false)
             Event.trigger('LoadNewChat', rowData.id, false);
         } catch (e) {
             ErrorHandler.WriteError('Chats.js => openChat', e);
@@ -229,8 +229,8 @@ export default class Chats extends Component {
     onFilterChange(event) {
         try {
             this.setState({
-               filter: event.nativeEvent.text,
-               dataSource: this.getDataSource(event.nativeEvent.text)
+                filter: event.nativeEvent.text,
+                dataSource: this.getDataSource(event.nativeEvent.text)
             });
         } catch (e) {
             ErrorHandler.WriteError('Chats.js => onFilterChange', e);
@@ -276,38 +276,33 @@ export default class Chats extends Component {
             ErrorHandler.WriteError('Chats.js => _renderCancel', e);
         }
     }
-UpdatelastMessage(lastMessage, lastMessageTime , convId, isNewMessage)
-{
-    var isFound = false;
-    this.myChats = this.myChats.map((chat) => {
-        if (chat.id == convId) {
-            isFound = true;
-            if (lastMessage != null && (chat.lastMessage || chat.lastMessageTime)) {
-                chat.lastMessage = lastMessage;
-                chat.lastMessageTime = lastMessageTime;
-            }
-            if (isNewMessage == false) {
-                chat.notifications = null;
-            } else {
-                if (!chat.notifications) {
-                    chat.notifications = 0;
+    UpdatelastMessage(lastMessage, lastMessageTime, convId, isNewMessage) {
+        var isFound = false;
+        this.myChats = this.myChats.map((chat) => {
+            if (chat.id == convId) {
+                isFound = true;
+                if (lastMessage != null && (chat.lastMessage || chat.lastMessageTime)) {
+                    chat.lastMessage = lastMessage;
+                    chat.lastMessageTime = lastMessageTime;
                 }
-                chat.notifications = chat.notifications + 1;
+                if (isNewMessage == false) {
+                    chat.notifications = null;
+                } else {
+                    if (!chat.notifications) {
+                        chat.notifications = 0;
+                    }
+                    chat.notifications = chat.notifications + 1;
+                }
             }
-         }
-        return chat;
-    });
-    console.log(isFound);
-    console.log('isFound');
-    if ((isFound == false) && isNewMessage == true) {
-        this.UpdateChatsList(true);
-        console.log('isFound');
-    } else {
-        this.myChats = this.sortDates(this.myChats);
+            return chat;
+        });
+        if ((isFound == false) && isNewMessage == true) {
+            this.UpdateChatsList(true);
+        } else {
+            this.myChats = this.sortDates(this.myChats);
+        }
+        this.setState({ dataSource: this.ds.cloneWithRows(this.myChats) });
     }
-    console.log(this.myChats);
-    this.setState({dataSource: this.ds.cloneWithRows(this.myChats)});
-}
 
     render() {
         try {
@@ -338,7 +333,7 @@ UpdatelastMessage(lastMessage, lastMessageTime , convId, isNewMessage)
                             } }>
                                 <View style={generalStyle.styles.row}>
                                     <TouchableOpacity onPress={() => {
-                                        this.imgSelected = rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ?  rowData.isGroup : require('../../img/user.jpg'))
+                                        this.imgSelected = rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? rowData.isGroup : require('../../img/user.jpg'))
                                         this.setImageVisible(true);
                                     } }>
                                         <View style={generalStyle.styles.viewImg}>
@@ -353,9 +348,9 @@ UpdatelastMessage(lastMessage, lastMessageTime , convId, isNewMessage)
                                             <Text style={generalStyle.styles.textDate}>
                                                 {this.getDateFormated(rowData.lastMessageTime)}
                                             </Text>
-                                        </View> 
+                                        </View>
                                         <Text style={generalStyle.styles.textStatus}>
-                                               {rowData.lastMessage}
+                                            {rowData.lastMessage}
                                         </Text>
                                     </View>
                                     {this._renderCancel(rowData.notifications)}

@@ -8,6 +8,8 @@ var moment = require('moment');
 //אימות
 
 export var socket = null;
+export var _convId = null;
+export var _isInCall = false; //האם המשתמש בשיחה ברגע זה
 
 var ErrorHandler = require('../ErrorHandler');
 var serverSrv = require('./serverSrv');
@@ -37,10 +39,13 @@ export function makeCall(callback) {
     }
 }
 
-export function Connect(convId, hungUpCallback) {
+export function Connect(convId, hungUpCallback, IsIncomingCall, isVideo) {
     try {
+        if (convId) {
+            _convId = convId;
+        }
+        _isInCall = true;
         //socket.disconnect();
-        console.log(serverSrv._uid + " Try To Connect To The Server...");
         socket = io.connect('https://server-sagi-uziel.c9users.io:8081', { transports: ['websocket'], query: { uid: serverSrv._uid } });
         if (hungUpCallback) {
             socket.on('hungUp', hungUpCallback);
@@ -53,11 +58,10 @@ export function Connect(convId, hungUpCallback) {
         });
 
         socket.on('connect', (data) => {
-            if(convId){
-                socket.emit('makeCall', () => {console.log('make a call');}, convId);
+            if (convId && !IsIncomingCall) {
+                socket.emit('makeCall', () => { console.log('make a call'); }, convId);
             }
-            console.log('connect');
-            getLocalStream(true, (stream) => {
+            getLocalStream(isVideo, true, (stream) => {
                 localStream = stream;
                 Event.trigger('container_setState', { selfViewSrc: stream.toURL() });
                 Event.trigger('container_setState', { status: 'ready', info: 'Please enter or create room ID' });
@@ -75,15 +79,20 @@ export function hungUp() {
         if (socket) {
             socket.emit('hungUp');
             socket.disconnect();
-        }        
+        } else {
+            console.log('socket is null or undefined! ----');
+        }
+        _isInCall = false;
     } catch (error) {
         ErrorHandler.WriteError('liveSrv.js => hungUp', error);
     }
 }
 
-export function getLocalStream(isFront, callback) {
+export function getLocalStream(isVideo, isFront, callback) {
+    if (!isVideo) {
+        isVideo = false;
+    }
     MediaStreamTrack.getSources(sourceInfos => {
-        console.log(sourceInfos);
         let videoSourceId;
         for (const i = 0; i < sourceInfos.length; i++) {
             const sourceInfo = sourceInfos[i];
@@ -93,9 +102,8 @@ export function getLocalStream(isFront, callback) {
         }
         getUserMedia({
             audio: true,
-            video: false
+            video: isVideo
         }, function (stream) {
-            console.log('dddd', stream);
             callback(stream);
         }, logError);
     });
@@ -116,7 +124,6 @@ function createPC(socketId, isOffer) {
     pcPeers[socketId] = pc;
 
     pc.onicecandidate = function (event) {
-        console.log('onicecandidate', event.candidate);
         if (event.candidate) {
             socket.emit('exchange', { 'to': socketId, 'candidate': event.candidate });
         }
@@ -124,23 +131,19 @@ function createPC(socketId, isOffer) {
 
     function createOffer() {
         pc.createOffer(function (desc) {
-            console.log('createOffer', desc);
             pc.setLocalDescription(desc, function () {
-                console.log('setLocalDescription', pc.localDescription);
                 socket.emit('exchange', { 'to': socketId, 'sdp': pc.localDescription });
             }, logError);
         }, logError);
     }
 
     pc.onnegotiationneeded = function () {
-        console.log('onnegotiationneeded');
         if (isOffer) {
             createOffer();
         }
     }
 
     pc.oniceconnectionstatechange = function (event) {
-        console.log('oniceconnectionstatechange', event.target.iceConnectionState);
         if (event.target.iceConnectionState === 'completed') {
             setTimeout(() => {
                 getStats();
@@ -151,16 +154,13 @@ function createPC(socketId, isOffer) {
         }
     };
     pc.onsignalingstatechange = function (event) {
-        console.log('onsignalingstatechange', event.target.signalingState);
     };
 
     pc.onaddstream = function (event) {
-        console.log('onaddstream', event.stream);
         Event.trigger('container_setState', { info: 'One peer join!' });
         Event.trigger('add_remoteList', socketId, event);
     };
     pc.onremovestream = function (event) {
-        console.log('onremovestream', event.stream);
     };
 
     pc.addStream(localStream);
@@ -175,17 +175,14 @@ function createPC(socketId, isOffer) {
         };
 
         dataChannel.onmessage = function (event) {
-            console.log("dataChannel.onmessage:", event.data);
             Event.trigger('receiveTextData', { user: socketId, message: event.data });
         };
 
         dataChannel.onopen = function () {
-            console.log('dataChannel.onopen');
             Event.trigger('container_setState', { textRoomConnected: true });
         };
 
         dataChannel.onclose = function () {
-            console.log("dataChannel.onclose");
         };
 
         pc.textDataChannel = dataChannel;
@@ -203,19 +200,15 @@ function exchange(data) {
     }
 
     if (data.sdp) {
-        console.log('exchange sdp', data);
         pc.setRemoteDescription(new RTCSessionDescription(data.sdp), function () {
             if (pc.remoteDescription.type == "offer")
                 pc.createAnswer(function (desc) {
-                    console.log('createAnswer', desc);
                     pc.setLocalDescription(desc, function () {
-                        console.log('setLocalDescription', pc.localDescription);
                         socket.emit('exchange', { 'to': fromId, 'sdp': pc.localDescription });
                     }, logError);
                 }, logError);
         }, logError);
     } else {
-        console.log('exchange candidate', data);
         pc.addIceCandidate(new RTCIceCandidate(data.candidate));
     }
 }
@@ -228,9 +221,10 @@ function leave(socketId) {
 
     Event.trigger('delete_remoteList', socketId);
     Event.trigger('container_setState', { info: 'One peer leave!' });
-    if (!pcPeers.length ) {
+    if (!pcPeers.length) {
         Event.trigger('hungUp');
     }
+    _isInCall = false;
 }
 
 function logError(error) {
@@ -250,9 +244,7 @@ function getStats() {
     const pc = pcPeers[Object.keys(pcPeers)[0]];
     if (pc.getRemoteStreams()[0] && pc.getRemoteStreams()[0].getAudioTracks()[0]) {
         const track = pc.getRemoteStreams()[0].getAudioTracks()[0];
-        console.log('track', track);
         pc.getStats(track, function (report) {
-            console.log('getStats report', report);
         }, logError);
     }
 }

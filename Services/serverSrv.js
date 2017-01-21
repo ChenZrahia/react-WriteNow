@@ -160,7 +160,6 @@ export function GetAllMyFriends(callback, isUpdate) {
                 try {
                     var finalResult = [];
                     for (var i = 0; i < rs.rows.length; i++) {
-                        console.log(this._uid);
                         if (rs.rows.item(i).id != this._uid) {
                             finalResult.push({
                                 id: rs.rows.item(i).id,
@@ -304,13 +303,9 @@ export function GetAllMyFriends_Server(callback) {
             phonesArray: phonesArray,
             friendUidArray: friendUidArray
         };
-        console.log('GetMyFriendsChanges');
         socket.emit('GetMyFriendsChanges', usersToServer, ((data) => {
             db.transaction((tx) => {
                 try {
-                    console.log('GetAllMyFriends_Server(callback);');
-                    console.log(data);
-                    console.log('GetAllMyFriends_Server(callback);');
                     for (var i = 0; i < data.length; i++) {
                         if (data[i].deletedUser == true && data[i].id) {
                             //tx.executeSql('DELETE FROM Friends WHERE id=?', [data[i].id]);
@@ -342,10 +337,6 @@ export function GetAllMyFriends_Server(callback) {
 //Conversation
 export function GetAllUserConv(callback, isUpdate) {
     try {
-        // if (_myChats && callback && !isUpdate) {
-        //     callback(_myChats);
-        //     return;
-        // }
         if (isUpdate == true) {
             _isFirstTime_Chats = true;
         }
@@ -406,7 +397,7 @@ function GetAllUserConv_Server(callback) {
         }
         let convIdArray = chats.map((chat) => { return chat.id; });
         socket.emit('GetAllUserConvChanges', convIdArray, ((data) => {
-            
+
             db.transaction((tx) => {
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].deletedConv == true && data[i].id) {
@@ -460,14 +451,14 @@ export function exitChatCall(convId) {
     }
 }
 
-export function exitChatCall_server(callback){
+export function exitChatCall_server(callback) {
     try {
         socket.removeAllListeners("enterChatCall");
         socket.on('exitChatCall_server', callback);
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => exitChatCall_server', error);
     }
-} 
+}
 
 //ChatRoom
 export function GetConv(callback, convId, isUpdate) {
@@ -508,8 +499,6 @@ export function GetConv(callback, convId, isUpdate) {
                         if (chat.user.name == "ERROR") {
                             console.log(rs.rows.item(i).msgFrom);
                             console.log('_myFriendsJson[k].id');
-                        } else {
-
                         }
                         myChatsJson[rs.rows.item(i).id] = chat;
                         result.push(chat);
@@ -582,7 +571,6 @@ function GetConv_server(convId, callback) {
         socket.emit('enterChat', convId);
         socket.emit('GetConvChangesById', convId, lastMessageTime, ((data) => {
             _myFriendPublicKey = data.participates[0].pkey;
-            console.log(data);
             if (!_myConvs[convId] || !_myConvs[convId].participates) {
                 _myConvs[convId] = { participates: [] };
             }
@@ -665,10 +653,7 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
                                 }
                                 _myFriendsJson[Fid].id = Fid;
                                 _myFriendsJson[Fid]._id = Fid;
-                                console.log('----1----');
-                                console.log(Fid);
                                 if (_myChats.filter((chat) => { return chat.id == result.id; }).length == 0) { //if the chat not axist
-                                    console.log('----2----');
                                     db.transaction((tx2) => {
                                         tx2.executeSql('INSERT OR REPLACE into Conversation values(?,?,?,?,?,?,?,?)', [result.id.toString(), false, result.manager, _myFriendsJson[Fid].publicInfo.fullName, _myFriendsJson[Fid].publicInfo.picture, false]);
                                         tx2.executeSql('INSERT OR REPLACE into Participates values(?,?,?)', [result.id.toString(), Fid.toString(), false]);
@@ -786,7 +771,6 @@ export function onServerTyping(callback) {
         _isFirstTime_Conv = true;
         socket.removeAllListeners("typing");
         socket.on('typing', (msg) => {
-            console.log('2 - typing');
             Event.trigger('serverTyping', msg);
             callback(msg);
             if (msg.sendTime && msg.from != _uid) {
@@ -811,57 +795,48 @@ export function onServerTyping(callback) {
     }
 }
 
-export function saveNewMessage(msg,saveLocal) {
+export function saveNewMessage(msg, saveLocal) {
     try {
         var pathOrImage = msg.image;
         if (msg.imgPath) {
             pathOrImage = msg.imgPath;
         }
-        if(saveLocal == true || saveLocal != false){
-             console.log("saved in local sql");
-             console.log( msg.content);
-             console.log( msg.id);
-            console.log( msg.convId);
-        db.transaction((tx) => {
-            tx.executeSql('INSERT INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                [msg.id,
-                msg.convId,
-                msg.isEncrypted,
-                msg.from,
-                msg.content,
-                moment(msg.sendTime).toISOString(),
-                msg.lastTypingTime,
-                msg.isSeenByAll,
-                    pathOrImage
-                ]);
+        if (saveLocal == true || saveLocal != false) {
+            db.transaction((tx) => {
+                tx.executeSql('INSERT INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [msg.id,
+                    msg.convId,
+                    msg.isEncrypted,
+                    msg.from,
+                    msg.content,
+                    moment(msg.sendTime).toISOString(),
+                    msg.lastTypingTime,
+                    msg.isSeenByAll,
+                        pathOrImage
+                    ]);
 
-            tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ? WHERE id = ? AND lastMessageTime < ?',
-                [msg.content,
-                moment(msg.sendTime).toISOString(),
-                msg.convId,
-                moment(msg.sendTime).toISOString()
-                ], (rs) => {
-                    console.log(rs);
-                });
-        });
+                tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ? WHERE id = ? AND lastMessageTime < ?',
+                    [msg.content,
+                    moment(msg.sendTime).toISOString(),
+                    msg.convId,
+                    moment(msg.sendTime).toISOString()
+                    ], (rs) => {
+                    });
+            });
         }
- if(saveLocal == false || saveLocal != true){
-        if (msg.from == _uid) {
-            console.log("saved in server");
-            console.log( msg.content);
-            console.log( msg.id);
-            console.log( msg.convId);
-            socket.emit('saveMessage', msg);
+        if (saveLocal == false || saveLocal != true) {
+            if (msg.from == _uid) {
+                socket.emit('saveMessage', msg);
+            }
         }
- }
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => saveNewMessage' + error.message, error);
     }
 }
-export function GetEncryptedMessage_ById(mid, callback){
-      try {
+export function GetEncryptedMessage_ById(mid, callback) {
+    try {
         db.transaction((tx) => {
-            tx.executeSql('SELECT * FROM Messages WHERE id=?' ,[mid] , (tx, rs) => {
+            tx.executeSql('SELECT * FROM Messages WHERE id=?', [mid], (tx, rs) => {
                 try {
                     var result = [];
                     if (rs.rows.length == 1 && callback) {
@@ -869,7 +844,6 @@ export function GetEncryptedMessage_ById(mid, callback){
                             content: rs.rows.item(0).content,
                             from: rs.rows.item(0).msgFrom,
                         };
-                        console.log(msg);
                         callback(msg);
                     }
                 } catch (error) {
@@ -879,7 +853,7 @@ export function GetEncryptedMessage_ById(mid, callback){
 
         });
 
-    
+
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => GetEncryptedMessage_ById' + error.message, error);
     }
@@ -900,7 +874,6 @@ export function GetConvData_ByConvId(convId, callback) {
                             groupPicture: rs.rows.item(0).groupPicture,
                             isGroup: rs.rows.item(0).isGroup
                         };
-                        console.log(chat);
                         callback(chat);
                     }
                 } catch (error) {
@@ -932,12 +905,15 @@ export function login(_token) {
                     this._privateKey = item.privateKey;
                     socket.disconnect();
 
-                    socket = io.connect('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: _encryptedUid,
-                         publicKey: item.publicKey, uid: _uid, token: this._token } });
+                    socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {
+                        query: {
+                            encryptedUid: _encryptedUid,
+                            publicKey: item.publicKey, uid: _uid, token: this._token
+                        }
+                    });
                     socket.removeAllListeners("AuthenticationOk");
                     socket.on('AuthenticationOk', (ok) => {
                         try {
-                            console.log('connected');
                             this.userIsConnected = true;
                         } catch (e) {
                             Actions.SignUp({ type: 'replace' });
@@ -948,11 +924,9 @@ export function login(_token) {
                 else {
                     try {
                         socket = io.connect('https://server-sagi-uziel.c9users.io:8080');
-                        console.log('rs.rows.length < 0');
                         setTimeout(function () {
                             Actions.SignUp({ type: 'replace' });
                         }, 100);
-                        console.log('rs.rows.length < 0');
                     } catch (error) {
                         ErrorHandler.WriteError('EnterPage constructor => userNotExist in DB ', error);
                     }
@@ -978,9 +952,8 @@ export function signUpFunc(newUser, callback) {
         var rsa = new RSAKey();
         rsa.generate(bits, exponent);
         var publicKey = rsa.getPublicString();
-        var privateKey = rsa.getPrivateString(); 
+        var privateKey = rsa.getPrivateString();
         rsa.setPrivateString(privateKey);
-        console.log(newUser);
         newUser.pkey = publicKey;
         if (!newUser.privateInfo) {
             newUser.privateInfo = {};
@@ -992,7 +965,6 @@ export function signUpFunc(newUser, callback) {
                 db.transaction(function (tx) {
                     this._uid = user.id;
                     login();
-                    console.log(user.privateInfo.password);
                     tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?,?)', [user.id, publicKey, privateKey, encryptedUid, user.privateInfo.password]);
                     tx.executeSql('INSERT INTO Friends VALUES (?,?,?,?,?,?,?)', [user.id, newUser.phoneNumber, newUser.ModifyDate, newUser.ModifyPicDate, newUser.publicInfo.fullName, newUser.publicInfo.picture]);
                 }, (error) => {
