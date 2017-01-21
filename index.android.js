@@ -209,7 +209,7 @@ export default class WriteNow extends Component {
         });
     }
 
-    componentDidMount() {
+    componentDidMount() {      
         this.loadContacts();
         try {
             serverSrv.GetAllMyFriends((result) => {

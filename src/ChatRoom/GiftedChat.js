@@ -857,7 +857,7 @@ export default class GiftedChat extends React.Component {
                     this.checkEncryptedPassword(this.state.encryptedMessageText)
                   }
                   else {
-                    this.encryptedMessage(this.state.encryptedPassword);
+                    this.encryptedMessageFunc(this.state.encryptedPassword);
                   }
                 } } >
                 <Text style={{ color: 'white' }}>Send</Text>
