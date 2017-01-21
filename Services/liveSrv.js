@@ -72,8 +72,10 @@ export function Connect(convId, hungUpCallback) {
 
 export function hungUp() {
     try {
-        socket.emit('hungUp');
-        socket.disconnect();
+        if (socket) {
+            socket.emit('hungUp');
+            socket.disconnect();
+        }        
     } catch (error) {
         ErrorHandler.WriteError('liveSrv.js => hungUp', error);
     }

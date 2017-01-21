@@ -13,6 +13,7 @@ import {
   ListView
 } from 'react-native';
 import Menu, { MenuContext, MenuOptions, MenuOption, MenuTrigger } from 'react-native-menu';
+var ErrorHandler = require('../../ErrorHandler');
 import Toast from 'react-native-root-toast';
 import SGListView from 'react-native-sglistview';
 
@@ -39,9 +40,9 @@ import Time from './Time';
 import IconMat from 'react-native-vector-icons/MaterialIcons';
 
 var Event = require('../../Services/Events');
-import CryptLib from 'react-native-aes-encryption';
+//import CryptLib from 'react-native-aes-encryption';
 //var CryptoJS = require("crypto-js");
-//var SHA256 = require("crypto-js/sha256");
+var SHA256 = require("crypto-js/sha256");
 var serverSrv = require('../../Services/serverSrv');
 var RSAKey = require('react-native-rsa');
 var generalStyles = require('../../styles/generalStyle');
@@ -63,6 +64,7 @@ export default class GiftedChat extends React.Component {
     Event.on('LoadNewChat', () => {
       console.log('LoadNewChat - clear input chat!');
       this.setState({ text: '' });
+
     });
     // default values
     this._isMounted = false;
@@ -76,6 +78,8 @@ export default class GiftedChat extends React.Component {
     this._messages = [];
     this._onlineMessages = [];
     this._onlineMessagesIds = {};
+    this._numOfInvalidPassword = 0;
+    this._blockStartTime = null;
     this.state = {
       isInitialized: false, // initialization will calculate maxHeight before rendering the chat
       imageVisible: false,
@@ -395,7 +399,6 @@ export default class GiftedChat extends React.Component {
     if (!Array.isArray(messages)) {
       messages = [messages];
     }
-
     messages = messages.map((message) => {
       return {
         ...message,
@@ -409,10 +412,8 @@ export default class GiftedChat extends React.Component {
       this.setIsTypingDisabled(true);
       this.resetInputToolbar();
     }
-
     this.props.onSend(messages);
     this.scrollToBottom();
-
     if (shouldResetInputToolbar === true) {
       setTimeout(() => {
         if (this.getIsMounted() === true) {
@@ -436,7 +437,6 @@ export default class GiftedChat extends React.Component {
     return newComposerHeight + (this.getMinInputToolbarHeight() - MIN_COMPOSER_HEIGHT);
   }
 
-
   onType(e) {
     if (this.getIsTypingDisabled() === true) {
       return;
@@ -447,7 +447,6 @@ export default class GiftedChat extends React.Component {
     } else {
       newComposerHeight = MIN_COMPOSER_HEIGHT;
     }
-
     const newMessagesContainerHeight = this.getMaxHeight() - this.calculateInputToolbarHeight(newComposerHeight) - this.getKeyboardHeight() + this.getBottomOffset();
     const newText = e.nativeEvent.text;
     this.setState((previousState) => {
@@ -465,8 +464,6 @@ export default class GiftedChat extends React.Component {
     this.setState({ text: this.state.text + data });
   }
 
-
-
   renderInputToolbar() {
     const inputToolbarProps = {
       ...this.props,
@@ -475,7 +472,6 @@ export default class GiftedChat extends React.Component {
       onChange: this.onType,
       onSend: this.onSend,
     };
-
     if (this.props.renderInputToolbar) {
       return this.props.renderInputToolbar(inputToolbarProps);
     }
@@ -505,9 +501,10 @@ export default class GiftedChat extends React.Component {
     return null;
   }
 
-  setImageVisible(visible) {
+ setImageVisible(visible) {
     this.setState({ imageVisible: visible });
   }
+
   setEncryptedVisible(visible) {
     this.setState({
       encryptedMessageText: '',
@@ -523,25 +520,9 @@ export default class GiftedChat extends React.Component {
     this.setState({ showMenu: !this.state.showMenu });
   }
 
-
-  openImageModal(image) {
-    return (
-      <Modal
-        transparent={true}
-        visible={this.state.imageVisible}
-        onRequestClose={() => { console.log('image closed') } }
-        >
-        <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
-          this.setImageVisible(!this.state.imageVisible)
-        } }>
-          <View style={generalStyles.styles.imageModal}>
-            <Image style={generalStyles.styles.imageInsideModal} source={image} />
-          </View>
-        </TouchableOpacity>
-      </Modal>
-    );
+  setImageVisible(visible) {
+    this.setState({ imageVisible: visible });
   }
-
 
   newList() {
     console.log('new list is working well');
@@ -576,7 +557,7 @@ export default class GiftedChat extends React.Component {
       validate: true,
     });
 
-    // Encrypt wuth aes
+    // Encrypt with aes
     var messageId = this.guid();
     // Encrypt 
     var ciphertext = CryptoJS.AES.encrypt(this.state.encryptedMessageText, password);
@@ -589,8 +570,6 @@ export default class GiftedChat extends React.Component {
       content: ciphertext.toString()
     };
     Event.trigger('encryptedMessage', msgSaveInPhone, true);
-
-
     var rsa = new RSAKey();
     var friendPublicKey = serverSrv._myFriendPublicKey;
     rsa.setPublicString(friendPublicKey);
@@ -608,27 +587,12 @@ export default class GiftedChat extends React.Component {
   }
 
   tryToDecrypt(password) {
-    var hash = CryptoJS.SHA256(password);
-    var hashFromServer = serverSrv._hashPassword;
-    if (hash.toString() == hashFromServer.toString()) {
-      serverSrv.GetEncryptedMessage_ById(this.state.mid, (result) => {
-        // var localMessage = result;
-        // Decrypt 
-        var ciphertext = result.content;
-        // Decrypt 
-        var bytes = CryptoJS.AES.decrypt(ciphertext.toString(), password);
-        var plaintext = bytes.toString(CryptoJS.enc.Utf8);
-        this.setState({
-          decryptedsecureTextEntry: false,
-          DecryptedMessageText: plaintext,
-          placeHolderDecrypted: '',
-          headerTextDecrypted: "Message Decrypted Successfully",
-          encryptedPassword: '',
-        });
-      });
+    var min = 0;
+    if (this._blockStartTime != null) {
+      min = (Date.now() - this._blockStartTime);
     }
-    else {
-      var toast = Toast.show("Invalid Password!", {
+    if (min > 0 && min < 5) {
+      var toast = Toast.show("You blocked for " + min + " minute", {
         duration: Toast.durations.LONG,
         position: Toast.positions.BOTTOM,
         shadow: true,
@@ -636,6 +600,65 @@ export default class GiftedChat extends React.Component {
         hideOnPress: true,
         delay: 0
       });
+      return;
+    } else {
+      this._blockStartTime = null;
+    }
+
+    var hash = CryptoJS.SHA256(password);
+    var hashFromServer = serverSrv._hashPassword;
+    if (hash.toString() == hashFromServer.toString()) {
+      serverSrv.GetEncryptedMessage_ById(this.state.mid, (result) => {
+        var ciphertext = result.content;
+        if (result.from == serverSrv._uid) {
+          var bytes = CryptoJS.AES.decrypt(ciphertext.toString(), password);
+          var plaintext = bytes.toString(CryptoJS.enc.Utf8);
+          this.setState({
+            DecryptedMessageText: plaintext,
+          })
+        }
+        else if (result.from != serverSrv._uid) {
+          var rsa = new RSAKey();
+          var pKey = serverSrv._privateKey;
+          console.log("private key :" + pKey);
+          rsa.setPrivateString(pKey);
+          var encrypedMessage = rsa.decryptWithPrivate(ciphertext);
+          this.setState({
+            DecryptedMessageText: encrypedMessage,
+          })
+
+        }
+        this.setState({
+          decryptedsecureTextEntry: false,
+          placeHolderDecrypted: '',
+          headerTextDecrypted: "Message Decrypted Successfully",
+          encryptedPassword: '',
+        });
+      });
+    }
+    else {
+      if (this._numOfInvalidPassword < 4) {
+        this._numOfInvalidPassword++;
+        var toast = Toast.show("Invalid Password! (" + this._numOfInvalidPassword + ")", {
+          duration: Toast.durations.LONG,
+          position: Toast.positions.BOTTOM,
+          shadow: true,
+          animation: true,
+          hideOnPress: true,
+          delay: 0
+        });
+      } else {
+        this._numOfInvalidPassword = 0;
+        this._blockStartTime = Date.now();
+        var toast = Toast.show("Invalid Password! You blocked for 5 minute  ", {
+          duration: Toast.durations.LONG,
+          position: Toast.positions.BOTTOM,
+          shadow: true,
+          animation: true,
+          hideOnPress: true,
+          delay: 0
+        });
+      }
       this.setState({
         decryptedsecureTextEntry: true,
         DecryptedMessageText: '',
@@ -644,14 +667,13 @@ export default class GiftedChat extends React.Component {
         encryptedPassword: '',
       });
     }
-
   }
-
 
   decryptedMessage(encryptedMessage, _mid) {
     this.setState({ decryptedMessageVisible: !this.state.decryptedMessageVisible, mid: _mid });
 
   }
+
   renderdecryptedMessage() {
     try {
       return (
@@ -677,8 +699,7 @@ export default class GiftedChat extends React.Component {
                   multiline={this.state.multiline}
                   onChangeText={(DecryptedMessageText) => {
                     this.setState({ DecryptedMessageText });
-                  }
-                  }
+                  } }
                   style={[styles.textInput, { textAlign: 'left', textAlignVertical: 'top' }, { height: Math.max(35, this.state.height) }]}
                   value={this.state.DecryptedMessageText}
                   enablesReturnKeyAutomatically={true}
@@ -721,10 +742,9 @@ export default class GiftedChat extends React.Component {
   }
 
   checkEncryptedPassword(password) {
-
     var hash = CryptoJS.SHA256(password);
     var hashFromServer = serverSrv._hashPassword;
-    if (hash.toString() == hashFromServer.toString()) {
+    if (hash && hashFromServer && hash.toString() == hashFromServer.toString()) {
       this.setState({
         encryptedMessageText: '',
         placeHolderEncrypted: 'Type a message...',
@@ -754,7 +774,24 @@ export default class GiftedChat extends React.Component {
       });
 
     }
+  }
 
+  openImageModal(image) {
+    return (
+      <Modal
+        transparent={true}
+        visible={this.state.imageVisible}
+        onRequestClose={() => { console.log('image closed') } }
+        >
+        <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
+          this.setImageVisible(!this.state.imageVisible)
+        } }>
+          <View style={generalStyles.styles.imageModal}>
+            <Image style={generalStyles.styles.imageInsideModal} source={image} />
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    );
   }
 
   encrypteModal() {
@@ -780,8 +817,7 @@ export default class GiftedChat extends React.Component {
                 multiline={this.state.multiline}
                 onChangeText={(encryptedMessageText) => {
                   this.setState({ encryptedMessageText });
-                }
-                }
+                } }
                 style={[styles.textInput, { textAlign: 'left', textAlignVertical: 'top' }, { height: Math.max(35, this.state.height) }]}
                 value={this.state.encryptedMessageText}
                 enablesReturnKeyAutomatically={true}
@@ -791,7 +827,6 @@ export default class GiftedChat extends React.Component {
             <View style={{ flexDirection: "row", flex: 0.5 }}>
               <TouchableOpacity style={styles.buttonStyle}
                 onPress={() => {
-
                   if (this.state.validate) {
                     this.checkEncryptedPassword(this.state.encryptedMessageText)
                   }
@@ -818,14 +853,15 @@ export default class GiftedChat extends React.Component {
         </View>
       </Modal>
     );
-
   }
+
   encryptMessage() {
     console.log('encrypt Message is working well');
     this.setState({ placeHolderEncrypted: "Enter Your Password..." });
     this.setState({ showMenu: !this.state.showMenu });
     this.setState({ encryptedVisible: !this.state.encryptedVisible });
   }
+
   viewProfile() {
     console.log('Voice Call is working well');
     //this.props.userPicture = '';
@@ -836,10 +872,12 @@ export default class GiftedChat extends React.Component {
     }, 100);
     this.setState({ showMenu: !this.state.showMenu });
   }
+
   settings() {
     console.log('settings is working well');
     this.setState({ showMenu: !this.state.showMenu });
   }
+
   walkieTalkie() {
     console.log('walkieTalkie is working well');
     this.setState({ showMenu: !this.state.showMenu });
@@ -848,7 +886,6 @@ export default class GiftedChat extends React.Component {
   cancel_chatRoom(lastMessage, lastMessageTime) {
     Event.trigger('lastMessage', lastMessage, lastMessageTime, this.props.convId, false);
   }
-
 
   // renderRowOnlineMsg(){
   //   try {
@@ -914,7 +951,6 @@ export default class GiftedChat extends React.Component {
                 style={{ flex: 1 }}
                 transparent={true}
                 >
-
                 <TouchableOpacity style={{ flex: 1 }} onPress={() => {
                   this.setState({ showMenu: !this.state.showMenu })
                 } }>
@@ -995,9 +1031,11 @@ export default class GiftedChat extends React.Component {
           {this.openImageModal(this.imgSelected)}
           {this.encrypteModal()}
           {this.renderdecryptedMessage()}
+
         </View>
       );
     }
+
     return (
       <View
         style={styles.container}
@@ -1020,25 +1058,10 @@ export default class GiftedChat extends React.Component {
   }
 }
 
-
-// <View style={{backgroundColor:'rgba(0,0,0,0.5)', minHeight: 0, maxHeight: 200, position: 'absolute', top: 0, right: 0, left: 0, zIndex: 9}}>
-//     <SGListView style={{ paddingTop: 5, flex: 1 }}
-//             enableEmptySections={true}
-//             dataSource={this.getDataSourceOnlineMsg()}
-//             initialListSize={1}
-//             stickyHeaderIndices={[]}
-//             onEndReachedThreshold={1}
-//             scrollRenderAheadDistance={20}
-//             pageSize={20}
-//             renderRow={this.renderRowOnlineMsg()}
-//             />
-// </View>
-
 const styles = StyleSheet.create({
   chatRoomMain: {
     flex: 1,
     flexDirection: 'column'
-
   },
   buttonStyle: {
     flex: 0.6, justifyContent: "center", alignItems: "center", height: 35,

@@ -9,7 +9,8 @@ import {
     View,
     Modal,
     TextInput,
-    TouchableHighlight
+    TouchableHighlight,
+    BackAndroid
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import IconMat from 'react-native-vector-icons/MaterialIcons';
@@ -98,6 +99,13 @@ export default class Call extends Component {
     }
     getCall(IsIncomingCall) {
         try {
+            serverSrv.enterChatCall('33333333333333333');
+            serverSrv.enterChatCall(this.state.roomID);
+            if (this.state.roomID) {
+                serverSrv.enterChatCall(this.state.roomID);
+            } else {
+                serverSrv.enterChatCall('3333333');
+            }
             if (IsIncomingCall == true) {
                 callRingtone.play((success) => { });
                 callRingtone.setNumberOfLoops(-1);
@@ -105,6 +113,7 @@ export default class Call extends Component {
 
             if (this.props.convId) {
                 serverSrv.GetConvData_ByConvId(this.props.convId, (convData) => {
+                    //if convData is null or user not exist in local DB  -------- להשלים בדיקה
                     ImageResizer.createResizedImage(convData.groupPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {
                         this.setState({ userPicture: resizedImageUri });
                     }).catch((err) => {
@@ -129,6 +138,15 @@ export default class Call extends Component {
         try {
             InCallManager.turnScreenOn();
             container = this;
+            BackAndroid.removeEventListener('hardwareBackPress', () => {});
+            BackAndroid.addEventListener('hardwareBackPress', () => {
+                this.hungUp(true);
+            });
+            serverSrv.exitChatCall_server((convId) => {
+                if (this.state.roomID.indexOf(convId) == 0) {
+                    this.hungUp();
+                }
+            });
         } catch (e) {
             ErrorHandler.WriteError("Call.js -> componentDidMount", e);
         }
@@ -237,7 +255,7 @@ export default class Call extends Component {
         }
     }
 
-    hungUp() {
+    hungUp(isBackAndroid) {
         try {
             callRingtone.stop();
             liveSrv.hungUp();
@@ -246,7 +264,15 @@ export default class Call extends Component {
             if (this.callInterval) {
                 clearInterval(this.callInterval);
             }
-            Actions.pop();
+            if (this.state.roomID) {
+                serverSrv.exitChatCall(this.state.roomID);
+            }
+            if (isBackAndroid != true) {
+                Actions.pop();
+            }
+            if (serverSrv._isCallMode == true) {
+                BackAndroid.exitApp();
+            } 
         } catch (e) {
             ErrorHandler.WriteError("Call.js -> hungUp", e);
         }

@@ -58,10 +58,8 @@ export var _myConvs = {};
 export var _myFriendPublicKey = null;
 export var _hashPassword = null;
 export var _token = '';
-
-
-
-
+export var _privateKey = '';
+export var _isCallMode = false;
 
 function printTable(tblName) {
     db.transaction((tx) => {
@@ -83,12 +81,11 @@ function printTable(tblName) {
     });
 }
 
-setTimeout(function () {
-    printTable('Messages');
-}, 500);
+// setTimeout(function () {
+//     printTable('Messages');
+// }, 500);
 
 export function DeleteDb() {
-    console.log('delete 1');
     db.transaction((tx) => {
         tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
@@ -163,6 +160,7 @@ export function GetAllMyFriends(callback, isUpdate) {
                 try {
                     var finalResult = [];
                     for (var i = 0; i < rs.rows.length; i++) {
+                        console.log(this._uid);
                         if (rs.rows.item(i).id != this._uid) {
                             finalResult.push({
                                 id: rs.rows.item(i).id,
@@ -444,6 +442,32 @@ function GetAllUserConv_Server(callback) {
         ErrorHandler.WriteError('serverSrv.js => GetAllUserConv_Server', error);
     }
 }
+
+//liveCall
+export function enterChatCall(convId) {
+    try {
+        socket.emit('enterChatCall', convId);
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => enterChatCall', error);
+    }
+}
+
+export function exitChatCall(convId) {
+    try {
+        socket.emit('exitChatCall', convId);
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => exitChatCall', error);
+    }
+}
+
+export function exitChatCall_server(callback){
+    try {
+        socket.removeAllListeners("enterChatCall");
+        socket.on('exitChatCall_server', callback);
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => exitChatCall_server', error);
+    }
+} 
 
 //ChatRoom
 export function GetConv(callback, convId, isUpdate) {
@@ -842,7 +866,9 @@ export function GetEncryptedMessage_ById(mid, callback){
                     if (rs.rows.length == 1 && callback) {
                         var msg = {
                             content: rs.rows.item(0).content,
+                            from: rs.rows.item(0).msgFrom,
                         };
+                        console.log(msg);
                         callback(msg);
                     }
                 } catch (error) {
@@ -902,16 +928,14 @@ export function login(_token) {
                     this._hashPassword = item.password;
                     this._uid = item.uid;
                     var _encryptedUid = item.encryptedUid;
-                    //Actions.Tabs();
-
-
+                    this._privateKey = item.privateKey;
                     socket.disconnect();
-                    socket = io.connect('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: _encryptedUid, publicKey: item.publicKey, uid: _uid, token: this._token } });
-                    socket.removeAllListeners("AuthenticationOk");
 
+                    socket = io.connect('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: _encryptedUid,
+                         publicKey: item.publicKey, uid: _uid, token: this._token } });
+                    socket.removeAllListeners("AuthenticationOk");
                     socket.on('AuthenticationOk', (ok) => {
                         try {
-                            //Actions.Tabs();
                             console.log('connected');
                             this.userIsConnected = true;
                         } catch (e) {
@@ -949,14 +973,12 @@ export function login(_token) {
 export function signUpFunc(newUser, callback) {
     try {
         const bits = 512;
-        const exponent = '10001'; // must be a string. This is hex string. decimal = 65537
+        const exponent = '10001';
         var rsa = new RSAKey();
         rsa.generate(bits, exponent);
-        var publicKey = rsa.getPublicString(); // return json encoded string
-        var privateKey = rsa.getPrivateString(); // return json encoded string
+        var publicKey = rsa.getPublicString();
+        var privateKey = rsa.getPrivateString(); 
         rsa.setPrivateString(privateKey);
-
-
         console.log(newUser);
         newUser.pkey = publicKey;
         if (!newUser.privateInfo) {
