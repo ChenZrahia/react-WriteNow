@@ -395,6 +395,7 @@ export default class ChatRoom extends Component {
                 }
                 if (saveLocal != false) {
                     this.messages.splice(0, 0, msg); //push
+                    console.log("************************************************************");
                 } 
                 this.onlineMessages = this.onlineMessages.filter((o_msg) => {
                     return o_msg.id != msg.id;
