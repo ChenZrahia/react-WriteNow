@@ -97,8 +97,11 @@ export default class Chats extends Component {
 
     componentDidMount() {
         try {
+            Event.removeAllListeners('UpdateChatsList');
             Event.on('UpdateChatsList', this.UpdateChatsList);
+            Event.removeAllListeners('newMessage');
             Event.on('newMessage', this.newMessage);
+            Event.removeAllListeners('NewChat');
             Event.on('NewChat', this.NewChat);
             Event.removeAllListeners('lastMessage');
             Event.on('lastMessage', this.UpdatelastMessage);

@@ -352,7 +352,7 @@ export default class ChatRoom extends Component {
             if (this._messageId == null && !messages.mid) { //for encrypted message
                 this._messageId = this.guid();
             }
-            if(messages.isEncrypted ==true){
+            if(messages.isEncrypted == true){
                 this._messageId= messages.mid;
                 messages._id = this._messageId;
                 messages.id = this._messageId;
@@ -377,7 +377,7 @@ export default class ChatRoom extends Component {
                 } else {
                     msg.createdAt = moment(msg.sendTime).format();
                 }
-                if (msg._id.indexOf('temp-id') >= 0 || (msg.image && msg.from == serverSrv._uid) || (msg.isEncrypted == true && msg.from == serverSrv._uid)) {
+                if (msg._id.indexOf('temp-id') >= 0 || (msg.image && msg.from == serverSrv._uid) || (msg.isEncrypted == true && msg.from == serverSrv._uid )) {
                     msg._id = this._messageId;
                     msg.id = this._messageId;
                     msg.from = serverSrv._uid;
@@ -395,7 +395,6 @@ export default class ChatRoom extends Component {
                 }
                 if (saveLocal != false) {
                     this.messages.splice(0, 0, msg); //push
-                    console.log("************************************************************");
                 } 
                 this.onlineMessages = this.onlineMessages.filter((o_msg) => {
                     return o_msg.id != msg.id;
