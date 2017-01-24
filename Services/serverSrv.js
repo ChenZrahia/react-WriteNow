@@ -802,8 +802,6 @@ export function onServerTyping(callback) {
 
 export function saveNewMessage(msg, saveLocal) {
     try {
-        console.log("msg.convId");
-        console.log(msg.convId);
         var pathOrImage = msg.image;
         if (msg.imgPath) {
             pathOrImage = msg.imgPath;
@@ -833,8 +831,6 @@ export function saveNewMessage(msg, saveLocal) {
         }
         if (saveLocal != true) {
             if (msg.from == _uid) {
-                console.log("socket.emit('saveMessage'");
-                console.log(msg.convId);
                 socket.emit('saveMessage', msg);
             }
         }

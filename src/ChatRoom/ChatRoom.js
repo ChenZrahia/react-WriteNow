@@ -400,6 +400,7 @@ export default class ChatRoom extends Component {
                     return o_msg.id != msg.id;
                 });
                 Event.trigger('newMessage', msg);
+                this._messageId = null; //clean if encrypted message send
             }
             this.setState((previousState) => {
                 return {
