@@ -210,9 +210,9 @@ export default class WriteNow extends Component {
     }
 
     componentDidMount() {  
-        setTimeout(() => {
-            ErrorHandler.WriteError({message: 'india'}, 'india');
-        }, 2000);
+        // setTimeout(() => {
+        //     ErrorHandler.WriteError({message: 'india'}, 'india');
+        // }, 2000);
         this.loadContacts();
         try {
             serverSrv.GetAllMyFriends((result) => {

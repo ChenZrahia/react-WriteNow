@@ -577,8 +577,13 @@ function GetConv_server(convId, callback) {
             lastMessageTime = _myConvs[convId].lastMessageTime; //last message time
         }
         socket.emit('enterChat', convId);
-        socket.emit('GetConvChangesById', convId, lastMessageTime, ((data) => {            
-            _myFriendPublicKey = data.participates[0].pkey;
+        socket.emit('GetConvChangesById', convId, lastMessageTime, ((data) => {
+            var result = data.participates.filter((user)=>{ return user.id != _uid;});
+          
+            if (result.length > 0) {
+                 _myFriendPublicKey = result[0].pkey
+            }
+       
             if (!_myConvs[convId] || !_myConvs[convId].participates) {
                 _myConvs[convId] = { participates: [] };
             }
@@ -805,6 +810,8 @@ export function onServerTyping(callback) {
 
 export function saveNewMessage(msg, saveLocal) {
     try {
+        console.log("msg.convId");
+        console.log(msg.convId);
         var pathOrImage = msg.image;
         if (msg.imgPath) {
             pathOrImage = msg.imgPath;
@@ -834,6 +841,7 @@ export function saveNewMessage(msg, saveLocal) {
         }
         if (saveLocal != true && msg.from == _uid) {
             socket.emit('saveMessage', msg);
+
         }
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => saveNewMessage' + error.message, error);
