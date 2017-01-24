@@ -335,8 +335,13 @@ export function GetAllMyFriends_Server(callback) {
 }
 
 //Conversation
+var testMode = true;
 export function GetAllUserConv(callback, isUpdate) {
     try {
+        if (testMode == true) {
+            GetAllUserConv_Server(callback); 
+            return;
+        } 
         if (isUpdate == true) {
             _isFirstTime_Chats = true;
         }
@@ -397,7 +402,10 @@ function GetAllUserConv_Server(callback) {
         }
         let convIdArray = chats.map((chat) => { return chat.id; });
         socket.emit('GetAllUserConvChanges', convIdArray, ((data) => {
-
+                if (testMode == true) {
+                    callback(data);
+                    return;
+                }
             db.transaction((tx) => {
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].deletedConv == true && data[i].id) {
@@ -569,7 +577,7 @@ function GetConv_server(convId, callback) {
             lastMessageTime = _myConvs[convId].lastMessageTime; //last message time
         }
         socket.emit('enterChat', convId);
-        socket.emit('GetConvChangesById', convId, lastMessageTime, ((data) => {
+        socket.emit('GetConvChangesById', convId, lastMessageTime, ((data) => {            
             _myFriendPublicKey = data.participates[0].pkey;
             if (!_myConvs[convId] || !_myConvs[convId].participates) {
                 _myConvs[convId] = { participates: [] };
@@ -801,7 +809,7 @@ export function saveNewMessage(msg, saveLocal) {
         if (msg.imgPath) {
             pathOrImage = msg.imgPath;
         }
-        if (saveLocal == true || saveLocal != false) {
+        if (saveLocal != false) {
             db.transaction((tx) => {
                 tx.executeSql('INSERT INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     [msg.id,
@@ -824,10 +832,8 @@ export function saveNewMessage(msg, saveLocal) {
                     });
             });
         }
-        if (saveLocal == false || saveLocal != true) {
-            if (msg.from == _uid) {
-                socket.emit('saveMessage', msg);
-            }
+        if (saveLocal != true && msg.from == _uid) {
+            socket.emit('saveMessage', msg);
         }
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => saveNewMessage' + error.message, error);

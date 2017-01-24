@@ -393,6 +393,7 @@ export default class ChatRoom extends Component {
                     name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName,
                     _id: serverSrv._myFriendsJson[msg.from].id
                 }
+                    console.log("************************************************************",saveLocal);
                 if (saveLocal != false) {
                     this.messages.splice(0, 0, msg); //push
                     console.log("************************************************************");
@@ -400,7 +401,6 @@ export default class ChatRoom extends Component {
                 this.onlineMessages = this.onlineMessages.filter((o_msg) => {
                     return o_msg.id != msg.id;
                 });
-                Event.trigger('newMessage', msg);
             }
             this.setState((previousState) => {
                 return {
@@ -460,7 +460,6 @@ export default class ChatRoom extends Component {
                     messages={this.state.messages}
                     onSend={this.onSend}
                     onType={this.onType}
-                    convId={this.convId}
                     user={{
                         _id: serverSrv._uid,
                     }}
