@@ -76,10 +76,6 @@ export default class Contacts extends Component {
                     dataSource: this.ds.cloneWithRows(result)
                 })
             }, 20);
-            this.myFriends = result;
-            if (this.myFriends.indexOf(serverSrv._uid) !== -1) {
-                this.myFriends.splice(this.myFriends.indexOf(serverSrv._uid), 1);
-            }
         } catch (e) {
             ErrorHandler.WriteError("Contacts.js => UpdateMyFriends", e);
         }

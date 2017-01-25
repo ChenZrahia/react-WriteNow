@@ -40,8 +40,8 @@ import Time from './Time';
 import IconMat from 'react-native-vector-icons/MaterialIcons';
 
 var Event = require('../../Services/Events');
-//import CryptLib from 'react-native-aes-encryption';
-//var CryptoJS = require("crypto-js");
+import CryptLib from 'react-native-aes-encryption';
+var CryptoJS = require("crypto-js");
 var SHA256 = require("crypto-js/sha256");
 var serverSrv = require('../../Services/serverSrv');
 var RSAKey = require('react-native-rsa');
@@ -62,9 +62,7 @@ export default class GiftedChat extends React.Component {
   constructor(props) {
     super(props);
     Event.on('LoadNewChat', () => {
-      console.log('LoadNewChat - clear input chat!');
       this.setState({ text: '' });
-
     });
     // default values
     this._isMounted = false;
@@ -501,7 +499,7 @@ export default class GiftedChat extends React.Component {
     return null;
   }
 
- setImageVisible(visible) {
+  setImageVisible(visible) {
     this.setState({ imageVisible: visible });
   }
 
@@ -902,6 +900,17 @@ export default class GiftedChat extends React.Component {
   //       return ds.cloneWithRows(this.state.onlineMessages);
   //   }
 
+
+
+
+  // OLD render
+  //  <TouchableOpacity onPress={() => {
+  //                 this.imgSelected = this.props.userPicture ? {uri: this.props.userPicture } : null
+  //                 if (this.imgSelected) {
+  //                   this.setImageVisible(true);
+  //                 }
+  //               } }>
+
   render() {
     if (this.state.isInitialized === true) {
       return (
@@ -916,18 +925,31 @@ export default class GiftedChat extends React.Component {
               <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => {
-              this.imgSelected = this.props.userPicture ? { uri: this.props.userPicture } : null
-              if (this.imgSelected) {
-                this.setImageVisible(true);
+              if (this.props.isGroup) {
+                Actions.GroupProfile(this.props);
+              }
+              else {
+                Actions.GroupProfile(this.props);
               }
             } }>
               <View style={generalStyles.styles.viewImg}>
                 <Image style={generalStyles.styles.thumb} source={this.props.userPicture ? { uri: this.props.userPicture } : require('../../img/user.jpg')} />
               </View>
             </TouchableOpacity>
-            <Text style={generalStyles.styles.titleHeader}>
-              {this.props.userName}
-            </Text>
+            <TouchableOpacity style={generalStyles.styles.titleHeaderContainer} onPress={() => {
+              if (this.props.isGroup) {
+                Actions.GroupProfile(this.props);
+              }
+              else {
+                Actions.GroupProfile(this.props);
+              }
+            } }>
+              <Text style={generalStyles.styles.titleHeader}>
+                {this.props.userName}
+              </Text>
+            </TouchableOpacity>
+
+
             <TouchableOpacity style={{ margin: 7 }} onPress={() => {
               Event.trigger('showImagePicker');
             } }>
@@ -1001,7 +1023,8 @@ export default class GiftedChat extends React.Component {
                   </View>
                 </TouchableOpacity>
               </Modal>
-            )}
+            )
+            }
             <View style={styles.button} />
           </View>
           <ActionSheet ref={component => this._actionSheetRef = component}>
@@ -1031,7 +1054,6 @@ export default class GiftedChat extends React.Component {
           {this.openImageModal(this.imgSelected)}
           {this.encrypteModal()}
           {this.renderdecryptedMessage()}
-
         </View>
       );
     }

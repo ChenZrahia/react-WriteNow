@@ -71,20 +71,12 @@ export default class ChatRoom extends Component {
             Event.on('imojiType', this.onType);
             Event.on('encryptedMessage', this.onSend);
             BackAndroid.addEventListener('hardwareBackPress', () => {
-                if (this.convId && this.messages[0].text && this.messages[0].text.length > 0 && this.messages[0].sendTime) {
-                    console.log('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false);
-                    console.log('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false);
-                    console.log('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false);
+                if (this.convId && this.messages.length > 0 && this.messages[0].text && this.messages[0].text.length > 0 && this.messages[0].sendTime) {
                     Event.trigger('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false);
-                } else {
-                    console.log('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false);
-                    console.log('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false);
-                    console.log('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false);
                 }
             });
             this.LoadNewChat(this.props.id, this.props.isContact, this.props.id, this.props.phoneNumber, this.props.fullName);
             Event.on('LoadNewChat', this.LoadNewChat);
-
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => componentDidMount', e);
         }
@@ -121,7 +113,6 @@ export default class ChatRoom extends Component {
             }
 
             var callback = (data, convId) => {
-                console.log(data);
                 if (!data) {
                     data = [];
                 }
@@ -205,7 +196,6 @@ export default class ChatRoom extends Component {
                     }
                     var img = response.data;
                     var img2 = source;
-                    console.log(response.uri);
                     ImageResizer.createResizedImage(response.uri, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
                         NativeModules.RNImageToBase64.getBase64String(resizedImageUri, (err, base64) => {
                             //this.sendImageMessage('data:image/jpeg;base64,' + base64);
@@ -471,7 +461,6 @@ export default class ChatRoom extends Component {
                     messages={this.state.messages}
                     onSend={this.onSend}
                     onType={this.onType}
-                    convId={this.convId}
                     user={{
                         _id: serverSrv._uid,
                     }}

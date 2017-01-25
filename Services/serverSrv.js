@@ -304,13 +304,9 @@ export function GetAllMyFriends_Server(callback) {
             phonesArray: phonesArray,
             friendUidArray: friendUidArray
         };
-        console.log('GetMyFriendsChanges');
         socket.emit('GetMyFriendsChanges', usersToServer, ((data) => {
             db.transaction((tx) => {
                 try {
-                    console.log('GetAllMyFriends_Server(callback);');
-                    console.log(data);
-                    console.log('GetAllMyFriends_Server(callback);');
                     for (var i = 0; i < data.length; i++) {
                         if (data[i].deletedUser == true && data[i].id) {
                             //tx.executeSql('DELETE FROM Friends WHERE id=?', [data[i].id]);
@@ -406,7 +402,7 @@ function GetAllUserConv_Server(callback) {
         }
         let convIdArray = chats.map((chat) => { return chat.id; });
         socket.emit('GetAllUserConvChanges', convIdArray, ((data) => {
-            
+
             db.transaction((tx) => {
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].deletedConv == true && data[i].id) {
@@ -460,14 +456,14 @@ export function exitChatCall(convId) {
     }
 }
 
-export function exitChatCall_server(callback){
+export function exitChatCall_server(callback) {
     try {
         socket.removeAllListeners("enterChatCall");
         socket.on('exitChatCall_server', callback);
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => exitChatCall_server', error);
     }
-} 
+}
 
 //ChatRoom
 export function GetConv(callback, convId, isUpdate) {
@@ -780,6 +776,61 @@ export function createNewGroup(_groupName, _groupPicture, _participates) {
     }
 }
 
+export function getConvParticipates(_convId, callback) {
+    try {
+        db.transaction((tx) => {
+            tx.executeSql('SELECT uid FROM Participates WHERE convId=?', [_convId], (tx, rsP) => {
+                var uidArr = '(';
+                for (var i = 0; i < rsP.rows.length; i++) {
+                    if (i == (rsP.rows.length - 1)) {
+                        uidArr += ('"' + rsP.rows.item(i).uid + '"' + ')');
+                    }
+                    else {
+                        uidArr += ('"' + rsP.rows.item(i).uid + '"' + ',');
+                    }
+                }
+                var selectStr = 'SELECT * FROM Friends WHERE id IN ' + uidArr + ' ORDER BY fullName';
+                tx.executeSql(selectStr, [], (tx, rs) => {
+                    var convParticipates = [];
+                    for (var i = 0; i < rs.rows.length; i++) {
+                        if (convParticipates.indexOf(rs.rows.item(i).id) === -1) {
+                            convParticipates.push({
+                                id: rs.rows.item(i).id,
+                                phoneNumber: rs.rows.item(i).phoneNumber,
+                                ModifyDate: rs.rows.item(i).ModifyDate,
+                                ModifyPicDate: rs.rows.item(i).ModifyPicDate,
+                                publicInfo: {
+                                    fullName: rs.rows.item(i).fullName,
+                                    picture: rs.rows.item(i).picture
+                                }
+                            });
+                        }
+                    }
+                    callback(convParticipates)
+                });
+            });
+        });
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => getConvParticipates' + error.message, error);
+    }
+}
+
+export function getGroupManagers(_convId, callback) {
+    try {
+        db.transaction((tx) => {
+            tx.executeSql('SELECT manager FROM Conversation WHERE id=?', [_convId], (tx, rs) => {
+                var groupManagers = [];
+                for (var i = 0; i < rs.rows.length; i++) {
+                    groupManagers.push(rs.rows.item(i).manager);
+                }
+                callback(groupManagers)
+            });
+        });
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => getConvParticipates' + error.message, error);
+    }
+}
+
 export function onServerTyping(callback) {
     try {
         _isFirstTime_Conv = true;
@@ -810,57 +861,57 @@ export function onServerTyping(callback) {
     }
 }
 
-export function saveNewMessage(msg,saveLocal) {
+export function saveNewMessage(msg, saveLocal) {
     try {
         var pathOrImage = msg.image;
         if (msg.imgPath) {
             pathOrImage = msg.imgPath;
         }
-        if(saveLocal == true || saveLocal != false){
-             console.log("saved in local sql");
-             console.log( msg.content);
-             console.log( msg.id);
-            console.log( msg.convId);
-        db.transaction((tx) => {
-            tx.executeSql('INSERT INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                [msg.id,
-                msg.convId,
-                msg.isEncrypted,
-                msg.from,
-                msg.content,
-                moment(msg.sendTime).toISOString(),
-                msg.lastTypingTime,
-                msg.isSeenByAll,
-                    pathOrImage
-                ]);
+        if (saveLocal == true || saveLocal != false) {
+            console.log("saved in local sql");
+            console.log(msg.content);
+            console.log(msg.id);
+            console.log(msg.convId);
+            db.transaction((tx) => {
+                tx.executeSql('INSERT INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [msg.id,
+                    msg.convId,
+                    msg.isEncrypted,
+                    msg.from,
+                    msg.content,
+                    moment(msg.sendTime).toISOString(),
+                    msg.lastTypingTime,
+                    msg.isSeenByAll,
+                        pathOrImage
+                    ]);
 
-            tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ? WHERE id = ? AND lastMessageTime < ?',
-                [msg.content,
-                moment(msg.sendTime).toISOString(),
-                msg.convId,
-                moment(msg.sendTime).toISOString()
-                ], (rs) => {
-                    console.log(rs);
-                });
-        });
+                tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ? WHERE id = ? AND lastMessageTime < ?',
+                    [msg.content,
+                    moment(msg.sendTime).toISOString(),
+                    msg.convId,
+                    moment(msg.sendTime).toISOString()
+                    ], (rs) => {
+                        console.log(rs);
+                    });
+            });
         }
- if(saveLocal == false || saveLocal != true){
-        if (msg.from == _uid) {
-            console.log("saved in server");
-            console.log( msg.content);
-            console.log( msg.id);
-            console.log( msg.convId);
-            socket.emit('saveMessage', msg);
+        if (saveLocal == false || saveLocal != true) {
+            if (msg.from == _uid) {
+                console.log("saved in server");
+                console.log(msg.content);
+                console.log(msg.id);
+                console.log(msg.convId);
+                socket.emit('saveMessage', msg);
+            }
         }
- }
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => saveNewMessage' + error.message, error);
     }
 }
-export function GetEncryptedMessage_ById(mid, callback){
-      try {
+export function GetEncryptedMessage_ById(mid, callback) {
+    try {
         db.transaction((tx) => {
-            tx.executeSql('SELECT * FROM Messages WHERE id=?' ,[mid] , (tx, rs) => {
+            tx.executeSql('SELECT * FROM Messages WHERE id=?', [mid], (tx, rs) => {
                 try {
                     var result = [];
                     if (rs.rows.length == 1 && callback) {
@@ -878,7 +929,7 @@ export function GetEncryptedMessage_ById(mid, callback){
 
         });
 
-    
+
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => GetEncryptedMessage_ById' + error.message, error);
     }
@@ -931,8 +982,12 @@ export function login(_token) {
                     this._privateKey = item.privateKey;
                     socket.disconnect();
 
-                    socket = io.connect('https://server-sagi-uziel.c9users.io:8080', { query: { encryptedUid: _encryptedUid,
-                         publicKey: item.publicKey, uid: _uid, token: this._token } });
+                    socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {
+                        query: {
+                            encryptedUid: _encryptedUid,
+                            publicKey: item.publicKey, uid: _uid, token: this._token
+                        }
+                    });
                     socket.removeAllListeners("AuthenticationOk");
                     socket.on('AuthenticationOk', (ok) => {
                         try {
@@ -947,11 +1002,9 @@ export function login(_token) {
                 else {
                     try {
                         socket = io.connect('https://server-sagi-uziel.c9users.io:8080');
-                        console.log('rs.rows.length < 0');
                         setTimeout(function () {
                             Actions.SignUp({ type: 'replace' });
                         }, 100);
-                        console.log('rs.rows.length < 0');
                     } catch (error) {
                         ErrorHandler.WriteError('EnterPage constructor => userNotExist in DB ', error);
                     }
@@ -977,9 +1030,8 @@ export function signUpFunc(newUser, callback) {
         var rsa = new RSAKey();
         rsa.generate(bits, exponent);
         var publicKey = rsa.getPublicString();
-        var privateKey = rsa.getPrivateString(); 
+        var privateKey = rsa.getPrivateString();
         rsa.setPrivateString(privateKey);
-        console.log(newUser);
         newUser.pkey = publicKey;
         if (!newUser.privateInfo) {
             newUser.privateInfo = {};
