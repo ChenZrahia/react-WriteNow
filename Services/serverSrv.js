@@ -335,8 +335,13 @@ export function GetAllMyFriends_Server(callback) {
 }
 
 //Conversation
+var testMode = true;
 export function GetAllUserConv(callback, isUpdate) {
     try {
+        if (testMode == true) {
+            GetAllUserConv_Server(callback); 
+            return;
+        } 
         if (isUpdate == true) {
             _isFirstTime_Chats = true;
         }
@@ -399,7 +404,10 @@ function GetAllUserConv_Server(callback) {
         let convIdArray = chats.map((chat) => { return chat.id; });
         
         socket.emit('GetAllUserConvChanges', convIdArray, ((data) => {
-
+                if (testMode == true) {
+                    callback(data);
+                    return;
+                }
             db.transaction((tx) => {
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].deletedConv == true && data[i].id) {
@@ -836,10 +844,8 @@ export function saveNewMessage(msg, saveLocal) {
                     });
             });
         }
-        if (saveLocal != true) {
-            if (msg.from == _uid) {
-                socket.emit('saveMessage', msg);
-            }
+        if (saveLocal != true && msg.from == _uid) {
+            socket.emit('saveMessage', msg);
         }
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => saveNewMessage' + error.message, error);

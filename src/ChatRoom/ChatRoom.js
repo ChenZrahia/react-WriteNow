@@ -388,7 +388,6 @@ export default class ChatRoom extends Component {
                     this._messageId = null;
                 }
 
-                //serverSrv._myFriendsJson[msg.user._id];
                 msg.user = {
                     name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName,
                     _id: serverSrv._myFriendsJson[msg.from].id
@@ -460,7 +459,6 @@ export default class ChatRoom extends Component {
                     messages={this.state.messages}
                     onSend={this.onSend}
                     onType={this.onType}
-                    convId={this.convId}
                     user={{
                         _id: serverSrv._uid,
                     }}
