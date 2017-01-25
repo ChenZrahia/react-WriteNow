@@ -63,17 +63,17 @@ export var _isCallMode = false;
 
 function printTable(tblName) {
     db.transaction((tx) => {
-        tx.executeSql('SELECT * FROM UserInfo', [], (tx, rs) => {
+        // tx.executeSql('SELECT * FROM UserInfo', [], (tx, rs) => {
+        //     console.log('---------------------------------------');
+        //     for (var i = 0; i < rs.rows.length; i++) {
+        //         console.log(rs.rows.item(i));
+        //     }
+        //     console.log('---------------------------------------');
+        // }, errorDB);
+        tx.executeSql('SELECT * FROM Conversation', [], (tx, rs) => {
             console.log('---------------------------------------');
             for (var i = 0; i < rs.rows.length; i++) {
-                console.log(rs.rows.item(i));
-            }
-            console.log('---------------------------------------');
-        }, errorDB);
-        tx.executeSql('SELECT * FROM Friends', [], (tx, rs) => {
-            console.log('---------------------------------------');
-            for (var i = 0; i < rs.rows.length; i++) {
-                console.log(rs.rows.item(i).id);
+                console.log(rs.rows.item(i).lastMessageEncrypted);
             }
             console.log('---------------------------------------');
         }, errorDB);
@@ -81,26 +81,26 @@ function printTable(tblName) {
     });
 }
 
-// setTimeout(function () {
-//     printTable('Messages');
-// }, 500);
+setTimeout(function () {
+    printTable('Messages');
+}, 500);
 
 export function DeleteDb() {
     db.transaction((tx) => {
-        tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
-        tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
-        tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
-        tx.executeSql('DELETE FROM Participates', [], null, errorDB); //------------------
+         tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
+        // tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
+        // tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
+        // tx.executeSql('DELETE FROM Participates', [], null, errorDB); //------------------
 
 
-        tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
-        tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
-        tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
-        tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
-        tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
+        // tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
+         tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
+        // tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
+        // tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
+        // tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
 
         tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid,password)', [], null, errorDB);
-        tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime)', [], null, errorDB); //להוציא לפונקציה נפרדת
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime, lastMessageEncrypted)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, picture, isMyContact)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll, image)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Participates (convId NOT NULL, uid NOT NULL, isGroup, PRIMARY KEY (convId, uid))', [], null, errorDB);
@@ -110,7 +110,7 @@ export function DeleteDb() {
 setTimeout(() => {
     db.transaction((tx) => {
         tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid,password)', [], null, errorDB);
-        tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime)', [], null, errorDB); //להוציא לפונקציה נפרדת
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime, lastMessageEncrypted)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, picture, isMyContact)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll, image)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Participates (convId NOT NULL, uid NOT NULL, isGroup, PRIMARY KEY (convId, uid))', [], null, errorDB);
@@ -364,6 +364,7 @@ export function GetAllUserConv(callback, isUpdate) {
                             isGroup: rs.rows.item(i).isGroup,
                             lastMessage: rs.rows.item(i).lastMessage,
                             lastMessageTime: rs.rows.item(i).lastMessageTime,
+                            lastMessageEncrypted: rs.rows.item(i).lastMessageEncrypted,
                             notifications: _notifications
                         };
                         myChatsJson[rs.rows.item(i).id] = chat;
@@ -396,6 +397,7 @@ function GetAllUserConv_Server(callback) {
             chats = _myChats;
         }
         let convIdArray = chats.map((chat) => { return chat.id; });
+        
         socket.emit('GetAllUserConvChanges', convIdArray, ((data) => {
 
             db.transaction((tx) => {
@@ -403,15 +405,17 @@ function GetAllUserConv_Server(callback) {
                     if (data[i].deletedConv == true && data[i].id) {
                         tx.executeSql('DELETE FROM Conversation WHERE id=?', [data[i].id]);
                     } else if (data[i].isExist == true) {
+                        
                         tx.executeSql(' UPDATE Conversation ' +
                             ' set isEncrypted = ?, ' +
                             ' manager = ?, ' +
                             ' groupName = ?, ' +
                             ' lastMessage = ?,' +
-                            ' lastMessageTime = ? ' +
-                            ' WHERE id = ? ', [data[i].isEncrypted, data[i].manager, data[i].groupName, data[i].lastMessage, data[i].lastMessageTime, data[i].id], null, errorDB);
+                            ' lastMessageTime = ?, ' +
+                            ' lastMessageEncrypted = ? ' +
+                            ' WHERE id = ? ', [data[i].isEncrypted, data[i].manager, data[i].groupName, data[i].lastMessage, data[i].lastMessageTime, data[i].lastMessageEncrypted, data[i].id], null, errorDB);
                     } else {
-                        tx.executeSql('INSERT INTO Conversation VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                        tx.executeSql('INSERT INTO Conversation VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                             [data[i].id,
                             data[i].isEncrypted,
                             data[i].manager,
@@ -419,7 +423,8 @@ function GetAllUserConv_Server(callback) {
                             data[i].groupPicture,
                             data[i].isGroup,
                             data[i].lastMessage,
-                            data[i].lastMessageTime
+                            data[i].lastMessageTime,
+                            data[i].lastMessageEncrypted,
                             ]);
                     }
                 }
@@ -550,11 +555,12 @@ function InsertNewContact(tx, user) {
             user.isSeenByAll,
                 imgOrPath
             ]);
-        tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ? WHERE id = ? AND lastMessageTime < ?',
+        tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ?, lastMessageEncrypted = ? WHERE id = ? AND lastMessageTime < ?',
             [user.content,
             user.sendTime,
             user.convId,
-            user.sendTime
+            user.sendTime,
+            user.lastMessageEncrypted
             ]);
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => InsertNewContact', error);
@@ -820,11 +826,12 @@ export function saveNewMessage(msg, saveLocal) {
                         pathOrImage
                     ]);
 
-                tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ? WHERE id = ? AND lastMessageTime < ?',
+                tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ?, lastMessageEncrypted = ? WHERE id = ? AND lastMessageTime < ?',
                     [msg.content,
                     moment(msg.sendTime).toISOString(),
                     msg.convId,
-                    moment(msg.sendTime).toISOString()
+                    moment(msg.sendTime).toISOString(),
+                    msg.isEncrypted
                     ], (rs) => {
                     });
             });

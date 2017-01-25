@@ -120,7 +120,7 @@ export default class WriteNow extends Component {
                         Event.trigger('getCall', true);
                     }, 100);
                 } else {
-                    Event.trigger('lastMessage', notifData.message, notifData.message_time, notifData.convId, true);
+                    Event.trigger('lastMessage', notifData.message, notifData.message_time, notifData.convId, true, notifData.isEncrypted == 'true');
                 }
             }
         });
@@ -147,10 +147,12 @@ export default class WriteNow extends Component {
                     if (newMsg_ring) {
                         newMsg_ring.play((success) => { });
                     }
+                    console.log("notifData");
+                    console.log(notifData);
                     if (notifData && notifData.message) {
-                        Event.trigger('lastMessage', notifData.message, notifData.message_time, notifData.convId, true);
+                        Event.trigger('lastMessage', notifData.message, notifData.message_time, notifData.convId, true, notifData.isEncrypted == 'true');
                     } else if (notifData && notifData.lastMessage) {
-                        Event.trigger('lastMessage', notifData.lastMessage, notifData.lastMessageTime, notifData.id, true);
+                        Event.trigger('lastMessage', notifData.lastMessage, notifData.lastMessageTime, notifData.id, true, notifData.isEncrypted == 'true');
                     }
                 }
             } else {
@@ -158,7 +160,9 @@ export default class WriteNow extends Component {
                     if (newMsg_ring) {
                         newMsg_ring.play((success) => { });
                     }
-                    Event.trigger('lastMessage', notif.message, notif.message_time, notif.convId, true);
+                    console.log("notif");
+                    console.log(notif);
+                    Event.trigger('lastMessage', notif.message, notif.message_time, notif.convId, true, notif.isEncrypted == 'true');
                 }
             }
             // there are two parts of notif. notif.notification contains the notification payload, notif.data contains data payload
