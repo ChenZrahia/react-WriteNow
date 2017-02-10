@@ -335,7 +335,7 @@ export function GetAllMyFriends_Server(callback) {
 }
 
 //Conversation
-var testMode = true;
+var testMode = false;
 export function GetAllUserConv(callback, isUpdate) {
     try {
         if (testMode == true) {
@@ -401,11 +401,19 @@ function GetAllUserConv_Server(callback) {
             chats = _myChats;
         }
         let convIdArray = chats.map((chat) => { return chat.id; });
+        if (testMode == true) {
+            convIdArray = [];
+        }
         socket.emit('GetAllUserConvChanges', convIdArray, ((data) => {
+                    console.log('data222');
                 if (testMode == true) {
+                    console.log(data);
                     callback(data);
                     return;
+                } else{
+                    console.log('data', testMode);
                 }
+                    console.log('data');
             db.transaction((tx) => {
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].deletedConv == true && data[i].id) {
