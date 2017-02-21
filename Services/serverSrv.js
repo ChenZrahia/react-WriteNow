@@ -88,16 +88,16 @@ setTimeout(function () {
 export function DeleteDb() {
     db.transaction((tx) => {
          tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
-        // tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
-        // tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
-        // tx.executeSql('DELETE FROM Participates', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Participates', [], null, errorDB); //------------------
 
 
-        // tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
          tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
-        // tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
-        // tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
-        // tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
 
         tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid,password)', [], null, errorDB);
         tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime, lastMessageEncrypted)', [], null, errorDB); //להוציא לפונקציה נפרדת
