@@ -100,11 +100,14 @@ export default class GiftedChat extends React.Component {
       encryptedPassword: '',
       decryptedsecureTextEntry: true,
     };
+
     this.decryptedMessage = this.decryptedMessage.bind(this);
     this.serverTyping = this.serverTyping.bind(this);
+    Event.removeAllListeners('serverTyping');
     Event.on('serverTyping', this.serverTyping);
     Event.removeAllListeners('decryptedMessage');
     Event.on('decryptedMessage', this.decryptedMessage);
+
     this.onTouchStart = this.onTouchStart.bind(this);
     this.onTouchMove = this.onTouchMove.bind(this);
     this.onTouchEnd = this.onTouchEnd.bind(this);
@@ -116,7 +119,9 @@ export default class GiftedChat extends React.Component {
     this.onSend = this.onSend.bind(this);
     this.getLocale = this.getLocale.bind(this);
     this.cancel_chatRoom = this.cancel_chatRoom.bind(this);
-    this.viewProfile = this.viewProfile.bind(this);
+
+    this.CallFriend = this.CallFriend.bind(this);
+    this.VedioCallFriend = this.VedioCallFriend.bind(this);
     this.invertibleScrollViewProps = {
       inverted: true,
       keyboardShouldPersistTaps: true,
@@ -397,6 +402,7 @@ export default class GiftedChat extends React.Component {
     if (!Array.isArray(messages)) {
       messages = [messages];
     }
+
     messages = messages.map((message) => {
       return {
         ...message,
@@ -410,8 +416,10 @@ export default class GiftedChat extends React.Component {
       this.setIsTypingDisabled(true);
       this.resetInputToolbar();
     }
+
     this.props.onSend(messages);
     this.scrollToBottom();
+
     if (shouldResetInputToolbar === true) {
       setTimeout(() => {
         if (this.getIsMounted() === true) {
@@ -445,6 +453,7 @@ export default class GiftedChat extends React.Component {
     } else {
       newComposerHeight = MIN_COMPOSER_HEIGHT;
     }
+
     const newMessagesContainerHeight = this.getMaxHeight() - this.calculateInputToolbarHeight(newComposerHeight) - this.getKeyboardHeight() + this.getBottomOffset();
     const newText = e.nativeEvent.text;
     this.setState((previousState) => {
@@ -504,14 +513,19 @@ export default class GiftedChat extends React.Component {
   }
 
   setEncryptedVisible(visible) {
-    this.setState({
-      encryptedMessageText: '',
-      placeHolderEncrypted: 'Enter Your Password...',
-      headerTextEncrypted: "Password Validation",
-      secureTextEntry: true,
-      validate: true,
-      encryptedVisible: visible
-    });
+    try {
+      this.setState({
+        encryptedMessageText: '',
+        placeHolderEncrypted: 'Enter Your Password...',
+        headerTextEncrypted: "Password Validation",
+        secureTextEntry: true,
+        validate: true,
+        encryptedVisible: visible
+      });
+    }
+    catch (e) {
+      ErrorHandler.WriteError('GiftedChat.js => setEncryptedVisible', e);
+    }
   }
 
   menuOption() {
@@ -535,7 +549,7 @@ export default class GiftedChat extends React.Component {
             .toString(16)
             .substring(1);
         } catch (e) {
-          ErrorHandler.WriteError('ChatRoom.js => s4', e);
+          ErrorHandler.WriteError('GiftedChat.js => s4', e);
         }
       }
       return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
@@ -545,99 +559,57 @@ export default class GiftedChat extends React.Component {
     }
   }
 
-  encryptedMessage(message) {
-    var password = this.state.encryptedPassword;
-    this.setState({
-      encryptedMessageText: '',
-      placeHolderEncrypted: 'Enter Your Password...',
-      headerTextEncrypted: "Password Validation",
-      secureTextEntry: true,
-      validate: true,
-    });
+  encryptedMessageFunc(message) {
+    try {
+      var password = this.state.encryptedPassword;
+      this.setState({
+        encryptedMessageText: '',
+        placeHolderEncrypted: 'Enter Your Password...',
+        headerTextEncrypted: "Password Validation",
+        secureTextEntry: true,
+        validate: true,
+      });
+      // Encrypt wuth aes
+      var messageId = this.guid();
+      // Encrypt
+      var ciphertext = CryptoJS.AES.encrypt(this.state.encryptedMessageText, password);
 
-    // Encrypt with aes
-    var messageId = this.guid();
-    // Encrypt 
-    var ciphertext = CryptoJS.AES.encrypt(this.state.encryptedMessageText, password);
+      var msgSaveInPhone = {
+        mid: messageId,
+        isEncrypted: true,
+        lastTypingTime: Date.now(),
+        from: serverSrv._uid,
+        content: ciphertext.toString()
+      };
+      Event.trigger('encryptedMessage', msgSaveInPhone, true);
 
-    var msgSaveInPhone = {
-      mid: messageId,
-      isEncrypted: true,
-      lastTypingTime: Date.now(),
-      from: serverSrv._uid,
-      content: ciphertext.toString()
-    };
-    Event.trigger('encryptedMessage', msgSaveInPhone, true);
-    var rsa = new RSAKey();
-    var friendPublicKey = serverSrv._myFriendPublicKey;
-    rsa.setPublicString(friendPublicKey);
-    var encrypedMessage = rsa.encryptWithPublic(this.state.encryptedMessageText); // decrypted == originText
-    var msg = {
-      mid: messageId,
-      isEncrypted: true,
-      lastTypingTime: Date.now(),
-      from: serverSrv._uid,
-      content: encrypedMessage
-    };
-    Event.trigger('encryptedMessage', msg, false);
-    this.setState({ encryptedMessageText: '' });
-    this.setEncryptedVisible(!this.state.encryptedVisible);
+      var rsa = new RSAKey();
+      var friendPublicKey = serverSrv._myFriendPublicKey;
+      rsa.setPublicString(friendPublicKey);
+      var encrypedMessage = rsa.encryptWithPublic(this.state.encryptedMessageText); // decrypted == originText
+      var msg = {
+        mid: messageId,
+        isEncrypted: true,
+        lastTypingTime: Date.now(),
+        from: serverSrv._uid,
+        content: encrypedMessage
+      };
+      Event.trigger('encryptedMessage', msg, false);
+      this.setState({ encryptedMessageText: '' });
+      this.setEncryptedVisible(!this.state.encryptedVisible);
+    } catch (e) {
+      ErrorHandler.WriteError('GiftedChat.js => encryptedMessageFunc', e);
+    }
   }
 
   tryToDecrypt(password) {
-    var min = 0;
-    if (this._blockStartTime != null) {
-      min = (Date.now() - this._blockStartTime);
-    }
-    if (min > 0 && min < 5) {
-      var toast = Toast.show("You blocked for " + min + " minute", {
-        duration: Toast.durations.LONG,
-        position: Toast.positions.BOTTOM,
-        shadow: true,
-        animation: true,
-        hideOnPress: true,
-        delay: 0
-      });
-      return;
-    } else {
-      this._blockStartTime = null;
-    }
-
-    var hash = CryptoJS.SHA256(password);
-    var hashFromServer = serverSrv._hashPassword;
-    if (hash.toString() == hashFromServer.toString()) {
-      serverSrv.GetEncryptedMessage_ById(this.state.mid, (result) => {
-        var ciphertext = result.content;
-        if (result.from == serverSrv._uid) {
-          var bytes = CryptoJS.AES.decrypt(ciphertext.toString(), password);
-          var plaintext = bytes.toString(CryptoJS.enc.Utf8);
-          this.setState({
-            DecryptedMessageText: plaintext,
-          })
-        }
-        else if (result.from != serverSrv._uid) {
-          var rsa = new RSAKey();
-          var pKey = serverSrv._privateKey;
-          console.log("private key :" + pKey);
-          rsa.setPrivateString(pKey);
-          var encrypedMessage = rsa.decryptWithPrivate(ciphertext);
-          this.setState({
-            DecryptedMessageText: encrypedMessage,
-          })
-
-        }
-        this.setState({
-          decryptedsecureTextEntry: false,
-          placeHolderDecrypted: '',
-          headerTextDecrypted: "Message Decrypted Successfully",
-          encryptedPassword: '',
-        });
-      });
-    }
-    else {
-      if (this._numOfInvalidPassword < 4) {
-        this._numOfInvalidPassword++;
-        var toast = Toast.show("Invalid Password! (" + this._numOfInvalidPassword + ")", {
+    try {
+      var min = 0;
+      if (this._blockStartTime != null) {
+        min = (Date.now() - this._blockStartTime);
+      }
+      if (min > 0 && min < 5) {
+        var toast = Toast.show("You blocked for " + min + " minute", {
           duration: Toast.durations.LONG,
           position: Toast.positions.BOTTOM,
           shadow: true,
@@ -645,31 +617,83 @@ export default class GiftedChat extends React.Component {
           hideOnPress: true,
           delay: 0
         });
+        return;
       } else {
-        this._numOfInvalidPassword = 0;
-        this._blockStartTime = Date.now();
-        var toast = Toast.show("Invalid Password! You blocked for 5 minute  ", {
-          duration: Toast.durations.LONG,
-          position: Toast.positions.BOTTOM,
-          shadow: true,
-          animation: true,
-          hideOnPress: true,
-          delay: 0
+        this._blockStartTime = null;
+      }
+
+      var hash = CryptoJS.SHA256(password);
+      var hashFromServer = serverSrv._hashPassword;
+      if (hash.toString() == hashFromServer.toString()) {
+        serverSrv.GetEncryptedMessage_ById(this.state.mid, (result) => {
+          var ciphertext = result.content;
+          if (result.from == serverSrv._uid) {
+            var bytes = CryptoJS.AES.decrypt(ciphertext.toString(), password);
+            var plaintext = bytes.toString(CryptoJS.enc.Utf8);
+            this.setState({
+              DecryptedMessageText: plaintext,
+            })
+          }
+          else if (result.from != serverSrv._uid) {
+            var rsa = new RSAKey();
+            var pKey = serverSrv._privateKey;
+            rsa.setPrivateString(pKey);
+            var encrypedMessage = rsa.decryptWithPrivate(ciphertext);
+            this.setState({
+              DecryptedMessageText: encrypedMessage,
+            })
+
+          }
+          this.setState({
+            decryptedsecureTextEntry: false,
+            placeHolderDecrypted: '',
+            headerTextDecrypted: "Message Decrypted Successfully",
+            encryptedPassword: '',
+          });
         });
       }
-      this.setState({
-        decryptedsecureTextEntry: true,
-        DecryptedMessageText: '',
-        placeHolderDecrypted: "Enter Your Password...",
-        headerTextDecrypted: "Password Validation",
-        encryptedPassword: '',
-      });
+      else {
+        if (this._numOfInvalidPassword < 4) {
+          this._numOfInvalidPassword++;
+          var toast = Toast.show("Invalid Password! (" + this._numOfInvalidPassword + ")", {
+            duration: Toast.durations.LONG,
+            position: Toast.positions.BOTTOM,
+            shadow: true,
+            animation: true,
+            hideOnPress: true,
+            delay: 0
+          });
+        } else {
+          this._numOfInvalidPassword = 0;
+          this._blockStartTime = Date.now();
+          var toast = Toast.show("Invalid Password! You blocked for 5 minute  ", {
+            duration: Toast.durations.LONG,
+            position: Toast.positions.BOTTOM,
+            shadow: true,
+            animation: true,
+            hideOnPress: true,
+            delay: 0
+          });
+        }
+        this.setState({
+          decryptedsecureTextEntry: true,
+          DecryptedMessageText: '',
+          placeHolderDecrypted: "Enter Your Password...",
+          headerTextDecrypted: "Password Validation",
+          encryptedPassword: '',
+        });
+      }
+    } catch (e) {
+      ErrorHandler.WriteError('GiftedChat.js => tryToDecrypt', e);
     }
   }
 
   decryptedMessage(encryptedMessage, _mid) {
-    this.setState({ decryptedMessageVisible: !this.state.decryptedMessageVisible, mid: _mid });
-
+    try {
+      this.setState({ decryptedMessageVisible: !this.state.decryptedMessageVisible, mid: _mid });
+    } catch (e) {
+      ErrorHandler.WriteError('GiftedChat.js => decryptedMessage', e);
+    }
   }
 
   renderdecryptedMessage() {
@@ -740,131 +764,152 @@ export default class GiftedChat extends React.Component {
   }
 
   checkEncryptedPassword(password) {
-    var hash = CryptoJS.SHA256(password);
-    var hashFromServer = serverSrv._hashPassword;
-    if (hash && hashFromServer && hash.toString() == hashFromServer.toString()) {
-      this.setState({
-        encryptedMessageText: '',
-        placeHolderEncrypted: 'Type a message...',
-        headerTextEncrypted: "Encrypt Your Message",
-        secureTextEntry: false,
-        validate: false,
-        encryptedPassword: password,
-      });
-
-    }
-    else {
-      var toast = Toast.show("Invalid Password!", {
-        duration: Toast.durations.LONG,
-        position: Toast.positions.BOTTOM,
-        shadow: true,
-        animation: true,
-        hideOnPress: true,
-        delay: 0
-      });
-
-      this.setState({
-        encryptedMessageText: '',
-        placeHolderEncrypted: 'Enter Your Password...',
-        headerTextEncrypted: "Password Validation",
-        secureTextEntry: true,
-        validate: true
-      });
-
+    try {
+      var hash = CryptoJS.SHA256(password);
+      var hashFromServer = serverSrv._hashPassword;
+      if (hash && hashFromServer && hash.toString() == hashFromServer.toString()) {
+        this.setState({
+          encryptedMessageText: '',
+          placeHolderEncrypted: 'Type a message...',
+          headerTextEncrypted: "Encrypt Your Message",
+          secureTextEntry: false,
+          validate: false,
+          encryptedPassword: password,
+        });
+      }
+      else {
+        var toast = Toast.show("Invalid Password!", {
+          duration: Toast.durations.LONG,
+          position: Toast.positions.BOTTOM,
+          shadow: true,
+          animation: true,
+          hideOnPress: true,
+          delay: 0
+        });
+        this.setState({
+          encryptedMessageText: '',
+          placeHolderEncrypted: 'Enter Your Password...',
+          headerTextEncrypted: "Password Validation",
+          secureTextEntry: true,
+          validate: true
+        });
+      }
+    } catch (e) {
+      ErrorHandler.WriteError('GiftedChat.js => checkEncryptedPassword', e);
     }
   }
 
   openImageModal(image) {
-    return (
-      <Modal
-        transparent={true}
-        visible={this.state.imageVisible}
-        onRequestClose={() => { console.log('image closed') } }
-        >
-        <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
-          this.setImageVisible(!this.state.imageVisible)
-        } }>
-          <View style={generalStyles.styles.imageModal}>
-            <Image style={generalStyles.styles.imageInsideModal} source={image} />
-          </View>
-        </TouchableOpacity>
-      </Modal>
-    );
+    try {
+      return (
+        <Modal
+          transparent={true}
+          visible={this.state.imageVisible}
+          onRequestClose={() => { console.log('image closed') } }
+          >
+          <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
+            this.setImageVisible(!this.state.imageVisible)
+          } }>
+            <View style={generalStyles.styles.imageModal}>
+              <Image style={generalStyles.styles.imageInsideModal} source={image} />
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      );
+    } catch (e) {
+      ErrorHandler.WriteError('GiftedChat.js => openImageModal', e);
+    }
   }
 
   encrypteModal() {
-    return (
-      <Modal
-        transparent={true}
-        visible={this.state.encryptedVisible}
-        onRequestClose={() => { console.log('encrypted message modal closed') } }
-        >
-        <View style={generalStyles.styles.imageModal}>
-          <View style={{ flex: 1 }}>
-          </View>
-          <View style={generalStyles.styles.encryptedMessageModal}>
-            <View style={generalStyles.styles.encryptedMessageHeader}>
-              <Text style={{ color: 'white', textAlign: 'left' }}>{this.state.headerTextEncrypted}</Text>
+    try {
+      return (
+        <Modal
+          transparent={true}
+          visible={this.state.encryptedVisible}
+          onRequestClose={() => { console.log('encrypted message modal closed') } }
+          >
+          <View style={generalStyles.styles.imageModal}>
+            <View style={{ flex: 1, minHeight: 50 }}>
             </View>
-            <View style={{ flexDirection: "row", flex: 1, backgroundColor: 'white' }}>
-              <TextInput
-                secureTextEntry={this.state.secureTextEntry}
-                autoCorrect={true}
-                placeholder={this.state.placeHolderEncrypted}
-                placeholderTextColor='#b2b2b2'
-                multiline={this.state.multiline}
-                onChangeText={(encryptedMessageText) => {
-                  this.setState({ encryptedMessageText });
-                } }
-                style={[styles.textInput, { textAlign: 'left', textAlignVertical: 'top' }, { height: Math.max(35, this.state.height) }]}
-                value={this.state.encryptedMessageText}
-                enablesReturnKeyAutomatically={true}
-                underlineColorAndroid="transparent"
-                />
-            </View>
-            <View style={{ flexDirection: "row", flex: 0.5 }}>
-              <TouchableOpacity style={styles.buttonStyle}
-                onPress={() => {
-                  if (this.state.validate) {
-                    this.checkEncryptedPassword(this.state.encryptedMessageText)
-                  }
-                  else {
-                    this.encryptedMessage(this.state.encryptedPassword);
-                  }
-                } } >
-                <Text style={{ color: 'white' }}>Send</Text>
-              </TouchableOpacity>
-              <View style={{ flex: 0.6, justifyContent: "center", alignItems: "center" }}>
-                <Image
-                  style={{ width: 40, height: 40, padding: 2 }}
-                  source={{ uri: 'https://cdn4.iconfinder.com/data/icons/social-productivity-line-art-4/128/security-shield-lock-512.png' }}
+            <View style={generalStyles.styles.encryptedMessageModal}>
+              <View style={generalStyles.styles.encryptedMessageHeader}>
+                <Text style={{ color: 'white', textAlign: 'left' }}>{this.state.headerTextEncrypted}</Text>
+              </View>
+              <View style={{ flexDirection: "row", flex: 1, backgroundColor: 'white' }}>
+                <TextInput
+                  secureTextEntry={this.state.secureTextEntry}
+                  autoCorrect={true}
+                  placeholder={this.state.placeHolderEncrypted}
+                  placeholderTextColor='#b2b2b2'
+                  multiline={this.state.multiline}
+                  onChangeText={(encryptedMessageText) => {
+                    this.setState({ encryptedMessageText });
+                  } }
+                  style={[styles.textInput, { textAlign: 'left', textAlignVertical: 'top' }, { height: Math.max(35, this.state.height) }]}
+                  value={this.state.encryptedMessageText}
+                  enablesReturnKeyAutomatically={true}
+                  underlineColorAndroid="transparent"
                   />
               </View>
-              <TouchableOpacity style={styles.buttonStyle}
-                onPress={() => { this.setEncryptedVisible(!this.state.encryptedVisible) } } >
-                <Text style={{ color: 'white' }}>Cancel</Text>
-              </TouchableOpacity>
+              <View style={{ flexDirection: "row", flex: 0.5 }}>
+                <TouchableOpacity style={styles.buttonStyle}
+                  onPress={() => {
+                    if (this.state.validate) {
+                      this.checkEncryptedPassword(this.state.encryptedMessageText)
+                    }
+                    else {
+                      this.encryptedMessageFunc(this.state.encryptedPassword);
+                    }
+                  } } >
+                  <Text style={{ color: 'white' }}>Send</Text>
+                </TouchableOpacity>
+                <View style={{ flex: 0.6, justifyContent: "center", alignItems: "center" }}>
+                  <Image
+                    style={{ width: 40, height: 40, padding: 2 }}
+                    source={{ uri: 'https://cdn4.iconfinder.com/data/icons/social-productivity-line-art-4/128/security-shield-lock-512.png' }}
+                    />
+                </View>
+                <TouchableOpacity style={styles.buttonStyle}
+                  onPress={() => { this.setEncryptedVisible(!this.state.encryptedVisible) } } >
+                  <Text style={{ color: 'white' }}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={{ flex: 1 }}>
             </View>
           </View>
-          <View style={{ flex: 1 }}>
-          </View>
-        </View>
-      </Modal>
-    );
+        </Modal>
+      );
+    } catch (e) {
+      ErrorHandler.WriteError('GiftedChat.js => encrypteModal', e);
+    }
   }
 
   encryptMessage() {
-    console.log('encrypt Message is working well');
-    this.setState({ placeHolderEncrypted: "Enter Your Password..." });
-    this.setState({ showMenu: !this.state.showMenu });
-    this.setState({ encryptedVisible: !this.state.encryptedVisible });
+    try {
+      this.setState({
+        placeHolderEncrypted: "Enter Your Password...",
+        showMenu: !this.state.showMenu,
+        encryptedVisible: !this.state.encryptedVisible
+      });
+    } catch (e) {
+      ErrorHandler.WriteError('GiftedChat.js => encryptMessage', e);
+    }
   }
 
-  viewProfile() {
-    console.log('Voice Call is working well');
-    //this.props.userPicture = '';
+  VedioCallFriend() {
     liveSrv.Connect(this.props.convId);
-    Actions.Call({ userName: this.props.userName, userPicture: this.props.userPicture });
+    Actions.Video({ userName: this.props.userName, userPicture: this.props.userPicture, convId: this.props.convId });
+    setTimeout(() => {
+      Event.trigger('getVideoCall', false);
+    }, 100);
+    this.setState({ showMenu: !this.state.showMenu });
+  }
+
+  CallFriend() {
+    liveSrv.Connect(this.props.convId);
+    Actions.Call({ userName: this.props.userName, userPicture: this.props.userPicture, convId: this.props.convId });
     setTimeout(() => {
       Event.trigger('getCall', false);
     }, 100);
@@ -881,8 +926,8 @@ export default class GiftedChat extends React.Component {
     this.setState({ showMenu: !this.state.showMenu });
   }
 
-  cancel_chatRoom(lastMessage, lastMessageTime) {
-    Event.trigger('lastMessage', lastMessage, lastMessageTime, this.props.convId, false);
+  cancel_chatRoom(lastMessage, lastMessageTime, lastMessageIsEncrypted) {
+    Event.trigger('lastMessage', lastMessage, lastMessageTime, this.props.convId, false, lastMessageIsEncrypted);
   }
 
   // renderRowOnlineMsg(){
@@ -899,9 +944,6 @@ export default class GiftedChat extends React.Component {
   //       const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1.id !== r2.id });
   //       return ds.cloneWithRows(this.state.onlineMessages);
   //   }
-
-
-
 
   // OLD render
   //  <TouchableOpacity onPress={() => {
@@ -948,8 +990,6 @@ export default class GiftedChat extends React.Component {
                 {this.props.userName}
               </Text>
             </TouchableOpacity>
-
-
             <TouchableOpacity style={{ margin: 7 }} onPress={() => {
               Event.trigger('showImagePicker');
             } }>
@@ -986,10 +1026,17 @@ export default class GiftedChat extends React.Component {
                   }}
                     >
                     <TouchableOpacity onPress={() => {
-                      this.viewProfile();
+                      this.CallFriend();
                     } }>
                       <Text style={{ margin: 7, marginTop: 7, left: 6 }}>
                         Voice Call
+         </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => {
+                      this.VedioCallFriend();
+                    } }>
+                      <Text style={{ margin: 7, marginTop: 7, left: 6 }}>
+                        Video Call
          </Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => {
@@ -1023,8 +1070,7 @@ export default class GiftedChat extends React.Component {
                   </View>
                 </TouchableOpacity>
               </Modal>
-            )
-            }
+            )}
             <View style={styles.button} />
           </View>
           <ActionSheet ref={component => this._actionSheetRef = component}>
@@ -1057,7 +1103,6 @@ export default class GiftedChat extends React.Component {
         </View>
       );
     }
-
     return (
       <View
         style={styles.container}

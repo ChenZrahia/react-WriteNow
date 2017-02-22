@@ -92,7 +92,6 @@ greenLock(){
          
           <View >
            <TouchableOpacity onPress={() => {
-             console.log(this.props.currentMessage.text + this.props.currentMessage._id);
              Event.trigger('decryptedMessage',this.props.currentMessage.text,this.props.currentMessage._id);
             } }>
          

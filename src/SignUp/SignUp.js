@@ -46,7 +46,7 @@ export default class SignUp extends Component {
         }
     }
 
-    checkStringPassword_pam(password){
+    checkStringPassword_pam(password) {
         var msg = '';
         return msg; //for test only -----
         if (!password) {
@@ -78,9 +78,9 @@ export default class SignUp extends Component {
         } else if (!this.state.DisplayName || this.state.DisplayName < 2) {
             msg = 'Enter Your Name';
         }
-         else {
+        else {
             msg = this.checkStringPassword_pam(this.state.Password);
-        } 
+        }
         if (msg.length > 0) {
             var toast = Toast.show(msg, {
                 duration: Toast.durations.LONG,
@@ -93,16 +93,12 @@ export default class SignUp extends Component {
             return;
         }
         disabled = true;
-        console.log(this.state.SpinnerVisible);
-        setTimeout(()=> {
+        setTimeout(() => {
             this.setState({
                 SpinnerVisible: true
             });
         }, 0);
-       
-        console.log(this.state.SpinnerVisible);
 
-         
         var hashPassword = CryptoJS.SHA256(this.state.Password);
         var newUser = {
             pkey: '',
@@ -122,12 +118,12 @@ export default class SignUp extends Component {
                 password: hashPassword.toString(),
             }
         };
-           
-        serverSrv.signUpFunc(newUser, (userId) => {  
+
+        serverSrv.signUpFunc(newUser, (userId) => {
             setTimeout(() => {
                 this.setState({
                     SpinnerVisible: false
-                }); 
+                });
             }, 100);
             if (userId) {
                 Actions.Tabs({ type: 'reset' });
@@ -186,20 +182,20 @@ export default class SignUp extends Component {
 
     logInSpinner() {
         if (this.state.SpinnerVisible == true) {
-             return( 
-            <View style={{ flex:1, backgroundColor: 'rgba(0,0,0,0)', position: 'absolute', top: 0, bottom:0, left: 0, right: 0 }}>
-            <Modal
-                    transparent={true}
-                    style={{backgroundColor: 'rgba(0,0,0,0)'}}
-                    visible={this.state.SpinnerVisible}
-                    onRequestClose={() => { console.log('closed') } }
-                    >
-                    <View  style={{ flex:1, alignSelf: 'stretch', backgroundColor: 'rgba(0,0,0,0)', position: 'absolute' }}>
-                        <Spinner  visible={true} />
-                    </View>
-            </Modal>
-            </View>)
-        } 
+            return (
+                <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0)', position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}>
+                    <Modal
+                        transparent={true}
+                        style={{ backgroundColor: 'rgba(0,0,0,0)' }}
+                        visible={this.state.SpinnerVisible}
+                        onRequestClose={() => { console.log('closed') } }
+                        >
+                        <View style={{ flex: 1, alignSelf: 'stretch', backgroundColor: 'rgba(0,0,0,0)', position: 'absolute' }}>
+                            <Spinner visible={true} />
+                        </View>
+                    </Modal>
+                </View>)
+        }
     }
 
     render() {
@@ -248,13 +244,13 @@ export default class SignUp extends Component {
                             keyboardType="phone-pad"
                             onChangeText={(val) => this.setState({ PhoneNumber: val })}
                             />
-                             <Fumi
+                        <Fumi
                             label={'Password'}
                             iconClass={FontAwesomeIcon}
                             iconName={'key'}
                             iconColor={'#f50057'}
                             style={styles.input}
-                            secureTextEntry = {true}
+                            secureTextEntry={true}
                             onChangeText={(val) => this.setState({ Password: val })}
                             />
                         <TouchableOpacity disabled={disabled} style={styles.button} underlayColor='#ededed' onPress={this.SignUpSubmit}>

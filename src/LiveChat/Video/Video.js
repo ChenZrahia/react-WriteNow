@@ -58,7 +58,7 @@ var callRingtone = new Sound('voicecall.mp3', Sound.MAIN_BUNDLE, (error) => {
 
 let container = null;
 
-export default class Call extends Component {
+export default class Video extends Component {
     constructor() {
         super();
         this.container_setState = this.container_setState.bind(this);
@@ -72,7 +72,7 @@ export default class Call extends Component {
         Event.on('delete_remoteList', this.delete_remoteList);
         Event.on('add_remoteList', this.add_remoteList);
         Event.on('hungUp', this.hungUp);
-        Event.on('getCall', this.getCall);
+        Event.on('getVideoCall', this.getCall);
         try {
             dismissKeyboard();
             this.callInterval = null;
@@ -202,7 +202,7 @@ export default class Call extends Component {
     _switchVideoType() {
         const isFront = !this.state.isFront;
         this.setState({ isFront });
-        liveSrv.getLocalStream(false, isFront, function (stream) {
+        liveSrv.getLocalStream(true, isFront, function (stream) {
             if (liveSrv.localStream) {
                 for (const id in liveSrv.pcPeers) {
                     const pc = liveSrv.pcPeers[id];
@@ -241,18 +241,16 @@ export default class Call extends Component {
 
     startCall() {
         try {
-            if (liveSrv._isInCall == false) {
-                callRingtone.stop();
-                liveSrv.Connect(this.props.convId, this.hungUp, _IsIncomingCall);
-                if (this.callInterval) {
-                    clearInterval(this.callInterval);
-                }
-                this.setState({ startTime: moment() });
-                this.callInterval = setInterval(() => {
-                    this.setState({ currentTime: (moment() - this.state.startTime) });
-                }, 1000);
-                mirs1.play((success) => { });
+            callRingtone.stop();
+            liveSrv.Connect(this.props.convId, this.hungUp, _IsIncomingCall, true);
+            if (this.callInterval) {
+                clearInterval(this.callInterval);
             }
+            this.setState({ startTime: moment() });
+            this.callInterval = setInterval(() => {
+                this.setState({ currentTime: (moment() - this.state.startTime) });
+            }, 1000);
+            mirs1.play((success) => { });
         } catch (e) {
             ErrorHandler.WriteError("Call.js -> startCall", e);
         }
@@ -283,16 +281,15 @@ export default class Call extends Component {
 
     pptUp() {
         try {
-            if (liveSrv._isInCall == true) {
-                mirs2.play((success) => { });
-                if (this.state.leftBtn == require('../../../img/speaker_on1.png')) {
-                    this.setState({ leftBtn: require('../../../img/speaker_off.png') });
-                    InCallManager.setSpeakerphoneOn(true);
-                } else {
-                    this.setState({ leftBtn: require('../../../img/speaker_on1.png') });
-                    InCallManager.setSpeakerphoneOn(false);
-                }
+            mirs2.play((success) => { });
+            if (this.state.leftBtn == require('../../../img/speaker_on1.png')) {
+                this.setState({ leftBtn: require('../../../img/speaker_off.png') });
+                InCallManager.setSpeakerphoneOn(true);
+            } else {
+                this.setState({ leftBtn: require('../../../img/speaker_on1.png') });
+                InCallManager.setSpeakerphoneOn(false);
             }
+
         } catch (e) {
             ErrorHandler.WriteError("Call.js -> pptUp", e);
         }
@@ -348,6 +345,9 @@ export default class Call extends Component {
                             })
                         }
                     </View>
+
+
+
                     <View style={styles.clockPanel}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
                             <Text>{moment(this.state.currentTime).format('hh:mm:ss')}</Text>

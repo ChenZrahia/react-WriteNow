@@ -72,7 +72,7 @@ export default class ChatRoom extends Component {
             Event.on('encryptedMessage', this.onSend);
             BackAndroid.addEventListener('hardwareBackPress', () => {
                 if (this.convId && this.messages.length > 0 && this.messages[0].text && this.messages[0].text.length > 0 && this.messages[0].sendTime) {
-                    Event.trigger('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false);
+                    Event.trigger('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false, this.messages[0].isEncrypted);
                 }
             });
             this.LoadNewChat(this.props.id, this.props.isContact, this.props.id, this.props.phoneNumber, this.props.fullName);
@@ -354,7 +354,7 @@ export default class ChatRoom extends Component {
             if (this._messageId == null && !messages.mid) { //for encrypted message
                 this._messageId = this.guid();
             }
-            if(messages.isEncrypted ==true){
+            if(messages.isEncrypted == true){
                 this._messageId= messages.mid;
                 messages._id = this._messageId;
                 messages.id = this._messageId;
@@ -379,7 +379,7 @@ export default class ChatRoom extends Component {
                 } else {
                     msg.createdAt = moment(msg.sendTime).format();
                 }
-                if (msg._id.indexOf('temp-id') >= 0 || (msg.image && msg.from == serverSrv._uid) || msg.isEncrypted == true) {
+                if (msg._id.indexOf('temp-id') >= 0 || (msg.image && msg.from == serverSrv._uid) || (msg.isEncrypted == true && msg.from == serverSrv._uid )) {
                     msg._id = this._messageId;
                     msg.id = this._messageId;
                     msg.from = serverSrv._uid;
@@ -390,7 +390,6 @@ export default class ChatRoom extends Component {
                     this._messageId = null;
                 }
 
-                //serverSrv._myFriendsJson[msg.user._id];
                 msg.user = {
                     name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName,
                     _id: serverSrv._myFriendsJson[msg.from].id
@@ -402,6 +401,7 @@ export default class ChatRoom extends Component {
                     return o_msg.id != msg.id;
                 });
                 Event.trigger('newMessage', msg);
+                this._messageId = null; //clean if encrypted message send
             }
             this.setState((previousState) => {
                 return {
