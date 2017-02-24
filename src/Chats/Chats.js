@@ -267,7 +267,7 @@ export default class Chats extends Component {
             ErrorHandler.WriteError('Chats.js => _renderCancel', e);
         }
     }
-    UpdatelastMessage(lastMessage, lastMessageTime, convId, isNewMessage) {
+    UpdatelastMessage(lastMessage, lastMessageTime, convId, isNewMessage, lastMessageEncrypted) {
         var isFound = false;
         this.myChats = this.myChats.map((chat) => {
             if (chat.id == convId) {
@@ -275,6 +275,7 @@ export default class Chats extends Component {
                 if (lastMessage != null && (chat.lastMessage || chat.lastMessageTime)) {
                     chat.lastMessage = lastMessage;
                     chat.lastMessageTime = lastMessageTime;
+                    chat.lastMessageEncrypted = lastMessageEncrypted;
                 }
                 if (isNewMessage == false) {
                     chat.notifications = null;
@@ -294,7 +295,17 @@ export default class Chats extends Component {
         }
         this.setState({ dataSource: this.ds.cloneWithRows(this.myChats) });
     }
-
+renderEncryptedLastMessage(rowData){
+    if(rowData.lastMessageEncrypted)
+    return(
+            <Text>
+                Encrypted Message
+            </Text>
+    )
+    else{
+       return (<Text>{rowData.lastMessage}</Text>)
+    }
+}
     render() {
         try {
             return (
@@ -341,7 +352,7 @@ export default class Chats extends Component {
                                             </Text>
                                         </View>
                                         <Text style={generalStyle.styles.textStatus}>
-                                            {rowData.lastMessage}
+                                            {this.renderEncryptedLastMessage(rowData)}
                                         </Text>
                                     </View>
                                     {this._renderCancel(rowData.notifications)}

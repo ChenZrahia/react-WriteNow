@@ -44,9 +44,13 @@ export function Connect(convId, hungUpCallback, IsIncomingCall, isVideo) {
         if (convId) {
             _convId = convId;
         }
+        if(_isInCall == true){
+            return;
+        }
         _isInCall = true;
         //socket.disconnect();
-        socket = io.connect('https://server-sagi-uziel.c9users.io:8081', { transports: ['websocket'], query: { uid: serverSrv._uid } });
+        console.log('function Connect 1111');
+        socket = io.connect('https://server-sagi-uziel.c9users.io:8081', { transports: ['websocket'], query: { uid: serverSrv._uid } }); 
         if (hungUpCallback) {
             socket.on('hungUp', hungUpCallback);
         }
@@ -59,8 +63,13 @@ export function Connect(convId, hungUpCallback, IsIncomingCall, isVideo) {
 
         socket.on('connect', (data) => {
             if (convId && !IsIncomingCall) {
-                socket.emit('makeCall', () => { console.log('make a call'); }, convId);
+                var callType = 'voice';
+                if (isVideo == true) {
+                    callType = 'video';
+                } 
+                socket.emit('makeCall', () => { console.log('make a call'); }, convId, callType);
             }
+            
             getLocalStream(isVideo, true, (stream) => {
                 localStream = stream;
                 Event.trigger('container_setState', { selfViewSrc: stream.toURL() });
@@ -100,6 +109,7 @@ export function getLocalStream(isVideo, isFront, callback) {
                 videoSourceId = sourceInfo.id;
             }
         }
+        console.log(isVideo, 'isVideo');
         getUserMedia({
             audio: true,
             video: isVideo
@@ -223,6 +233,9 @@ function leave(socketId) {
     Event.trigger('container_setState', { info: 'One peer leave!' });
     if (!pcPeers.length) {
         Event.trigger('hungUp');
+    }
+    if(socket){
+        socket.disconnect();
     }
     _isInCall = false;
 }
