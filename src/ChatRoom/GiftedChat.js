@@ -971,6 +971,8 @@ export default class GiftedChat extends React.Component {
                 Actions.GroupProfile(this.props);
               }
               else {
+                //TODO
+                //Change to contact profile
                 Actions.GroupProfile(this.props);
               }
             } }>
@@ -983,6 +985,8 @@ export default class GiftedChat extends React.Component {
                 Actions.GroupProfile(this.props);
               }
               else {
+                //TODO
+                //Change to contact profile
                 Actions.GroupProfile(this.props);
               }
             } }>

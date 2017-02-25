@@ -88,16 +88,16 @@ setTimeout(function () {
 export function DeleteDb() {
     db.transaction((tx) => {
         tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
-        // tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
-        // tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
-        // tx.executeSql('DELETE FROM Participates', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Participates', [], null, errorDB); //------------------
 
 
-        // tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
-        // tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
-        // tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
-        // tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
 
         tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid,password)', [], null, errorDB);
         tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime, lastMessageEncrypted)', [], null, errorDB); //להוציא לפונקציה נפרדת
@@ -116,38 +116,6 @@ setTimeout(() => {
         tx.executeSql('CREATE TABLE IF NOT EXISTS Participates (convId NOT NULL, uid NOT NULL, isGroup, PRIMARY KEY (convId, uid))', [], null, errorDB);
     });
 }, 100);
-
-//Users
-//   function setImageVisible(visible) {
-//         try {
-//             this.setState({ imageVisible: visible });
-//         } catch (e) {
-//             ErrorHandler.WriteError('MessageImage.js => setImageVisible', e);
-//         }
-//     }
-// export function openImageModal(image) {
-//         try {
-//             return (
-//                 <Modal
-//                     transparent={true}
-//                     visible={this.state.imageVisible == true}
-//                     onRequestClose={() => { console.log('image closed') } }
-//                     >
-//                     <TouchableOpacity style={{ flex: 1 }} onPress={() => {
-//                         this.setImageVisible(!this.state.imageVisible)
-//                     } }>
-//                         <View style={generalStyles.styles.imageModal}>
-//                             <Image style={generalStyles.styles.imageInsideModal} source={{uri: image}} />
-//                         </View>
-//                     </TouchableOpacity>
-//                 </Modal>
-//             );
-//         } catch (e) {
-//             ErrorHandler.WriteError('serverSrv.js => openImageModal', e);
-//         }
-
-
-//     }
 
 export function GetAllMyFriends(callback, isUpdate) {
     try {
@@ -335,7 +303,7 @@ export function GetAllMyFriends_Server(callback) {
 }
 
 //Conversation
-var testMode = true;
+var testMode = false;
 export function GetAllUserConv(callback, isUpdate) {
     try {
         if (testMode == true) {
