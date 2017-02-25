@@ -46,6 +46,7 @@ export default class ChatRoom extends Component {
             this.onType = this.onType.bind(this);
             this.guid = this.guid.bind(this);
             this.onFriendType = this.onFriendType.bind(this);
+            this.deleteMessage = this.deleteMessage.bind(this);
             this.showImagePicker = this.showImagePicker.bind(this);
             this.sendImageMessage = this.sendImageMessage.bind(this);
             this.LoadNewChat = this.LoadNewChat.bind(this);
@@ -65,6 +66,8 @@ export default class ChatRoom extends Component {
             Event.removeAllListeners('sendSegnature');
             Event.removeAllListeners('imojiType');
             Event.removeAllListeners('encryptedMessage');
+            Event.removeAllListeners('deleteMessage');
+            Event.on('deleteMessage', this.deleteMessage);
             Event.on('showImagePicker', this.showImagePicker);
             Event.on('showSignature', this.showSignature);
             Event.on('sendSegnature', this.sendImageMessage);
@@ -117,6 +120,8 @@ export default class ChatRoom extends Component {
                     data = [];
                 }
                 this.messages = data;
+                // console.log("***LoadNewChat****");
+                // console.log(this.messages);
                 this.convId = convId;
                 this.setState({
                     messages: GiftedChat.append(this.messages, this.onlineMessages),
@@ -140,6 +145,15 @@ export default class ChatRoom extends Component {
         }
     }
 
+deleteMessage(text,id){
+     this.setState({
+    messages: this.state.messages.filter((x) => x.id !== id) //delete message from the UI
+  });
+  serverSrv.deleteMessageFromLocalDB(this.convId,id);
+}
+
+
+    
     guid() {
         try {
             function s4() {

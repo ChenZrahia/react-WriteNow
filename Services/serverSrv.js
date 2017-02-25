@@ -70,10 +70,10 @@ function printTable(tblName) {
         //     }
         //     console.log('---------------------------------------');
         // }, errorDB);
-        tx.executeSql('SELECT * FROM Conversation', [], (tx, rs) => {
+        tx.executeSql('SELECT * FROM Messages', [], (tx, rs) => {
             console.log('---------------------------------------');
             for (var i = 0; i < rs.rows.length; i++) {
-                console.log(rs.rows.item(i).lastMessageEncrypted);
+                console.log(rs.rows.item(i));
             }
             console.log('---------------------------------------');
         }, errorDB);
@@ -87,14 +87,14 @@ setTimeout(function () {
 
 export function DeleteDb() {
     db.transaction((tx) => {
-         tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Participates', [], null, errorDB); //------------------
 
 
         tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
-         tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
@@ -335,7 +335,7 @@ export function GetAllMyFriends_Server(callback) {
 }
 
 //Conversation
-var testMode = true;
+var testMode = false;
 export function GetAllUserConv(callback, isUpdate) {
     try {
         if (testMode == true) {
@@ -724,6 +724,18 @@ function UpdatePhoneNumberToId(phoneNumber, id) {
         });
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => UpdatePhoneNumberToId', error);
+    }
+}
+
+
+export function deleteMessageFromLocalDB(condID, messageID) {
+    try {
+        console.log(messageID);
+        db.transaction((tx) => {
+            tx.executeSql('DELETE FROM Messages WHERE id = ?', [messageID], (tx, rs) => { });
+        });
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => deleteMessageFromLocalDB', error);
     }
 }
 

@@ -66,21 +66,6 @@ greenLock(){
                     />
   );
 }
-//  if (this.props.currentMessage.text == "הודעה מוצפנת") {
-         
-//         return (
-//           <View style={{ flexDirection: 'row'}}>
-//            <Image
-//                     style={{ width: 30, height: 30, padding: 5 }}
-//                     source={{ uri: 'https://openclipart.org/image/2400px/svg_to_png/188461/gesloten-slot.png' }}
-//           />
-//           <MessageText {...messageTextProps} />
-//           </View>
-//         );
-//        }
-//        else{
-
-
 
 
   renderMessageEncrypted() {
@@ -177,6 +162,16 @@ greenLock(){
       ErrorHandler.WriteError('Bubble.js => renderCustomView', e);
     }
   }
+deleteMessage()
+{
+  try{
+  console.log("*********************deleteMessage***************************deleteMessage");
+  Event.trigger('deleteMessage',this.props.currentMessage.text,this.props.currentMessage._id);
+  }catch(e){
+     ErrorHandler.WriteError('Bubble.js => deleteMessage', e);
+  };
+}
+
 
   onLongPress() {
     try {
@@ -186,6 +181,7 @@ greenLock(){
         if (this.props.currentMessage.text) {
           const options = [
             'Copy Text',
+            'Delete Message',
             'Cancel',
           ];
           const cancelButtonIndex = options.length - 1;
@@ -197,6 +193,9 @@ greenLock(){
               switch (buttonIndex) {
                 case 0:
                   Clipboard.setString(this.props.currentMessage.text);
+                  break;
+                case 1:
+                  this.deleteMessage();
                   break;
               }
             });
