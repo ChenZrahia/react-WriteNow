@@ -40,7 +40,7 @@ export function makeCall(callback) {
     }
 }
 
-export function Connect(convId, hungUpCallback, IsIncomingCall, isVideo) {
+export function Connect(convId, hungUpCallback, IsIncomingCall, isVideo, isPTT) {
     try {
         if (convId) {
             _convId = convId;
@@ -50,8 +50,7 @@ export function Connect(convId, hungUpCallback, IsIncomingCall, isVideo) {
         }
         _isInCall = true;
         //socket.disconnect();
-        console.log('function Connect 1111');
-        socket = io.connect('https://server-sagi-uziel.c9users.io:8081', { transports: ['websocket'], query: { uid: serverSrv._uid } }); 
+        socket = io.connect('https://server-sagi-uziel.c9users.io:8081', { transports: ['websocket'], query: { uid: serverSrv._uid, convId: _convId } }); 
         if (hungUpCallback) {
             socket.on('hungUp', hungUpCallback);
         }
@@ -67,7 +66,9 @@ export function Connect(convId, hungUpCallback, IsIncomingCall, isVideo) {
                 var callType = 'voice';
                 if (isVideo == true) {
                     callType = 'video';
-                } 
+                } else if (isPTT == true){
+                    callType = 'ptt';
+                }
                 socket.emit('makeCall', () => { console.log('make a call'); }, convId, callType);
             }
             
@@ -172,7 +173,7 @@ function createPC(socketId, isOffer) {
     };
 
     pc.onaddstream = function (event) {
-        Event.trigger('container_setState', { info: 'One peer join!' });
+        Event.trigger('container_setState', { info: 'One peer join!', statusPtt: 'green' });
         Event.trigger('add_remoteList', socketId, event);
     };
     pc.onremovestream = function (event) {
@@ -235,7 +236,7 @@ function leave(socketId) {
     delete pcPeers[socketId];
 
     Event.trigger('delete_remoteList', socketId);
-    Event.trigger('container_setState', { info: 'One peer leave!' });
+    Event.trigger('container_setState', { info: 'One peer leave!', statusPtt: 'red' });
     if (!pcPeers.length) {
         Event.trigger('hungUp');
     }

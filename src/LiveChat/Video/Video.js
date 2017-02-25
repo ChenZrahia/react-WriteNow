@@ -73,6 +73,8 @@ export default class Video extends Component {
         Event.on('add_remoteList', this.add_remoteList);
         Event.on('hungUp', this.hungUp);
         Event.on('getVideoCall', this.getCall);
+        InCallManager.setSpeakerphoneOn(true);
+
         try {
             dismissKeyboard();
             this.callInterval = null;
@@ -121,12 +123,14 @@ export default class Video extends Component {
             if (this.props.convId) {
                 serverSrv.GetConvData_ByConvId(this.props.convId, (convData) => {
                     //if convData is null or user not exist in local DB  -------- להשלים בדיקה
-                    ImageResizer.createResizedImage(convData.groupPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {
-                        this.setState({ userPicture: resizedImageUri });
-                    }).catch((err) => {
-                        console.log(err);
-                        ErrorHandler.WriteError('Call.js => render => ImageResizer', err);
-                    });
+                    if (convData.groupPicture) {
+                        ImageResizer.createResizedImage(convData.groupPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {
+                            this.setState({ userPicture: resizedImageUri });
+                        }).catch((err) => {
+                            console.log(err);
+                            ErrorHandler.WriteError('Call.js => render => ImageResizer', err);
+                        });
+                    }
                 });
             } else if (this.props.userPicture) {
                 ImageResizer.createResizedImage(this.props.userPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {
@@ -242,7 +246,7 @@ export default class Video extends Component {
         try {
             if (liveSrv._isInCall == false) {
                 callRingtone.stop();
-                liveSrv.Connect(this.props.convId, this.hungUp, _IsIncomingCall, true);
+                liveSrv.Connect(this.props.convId, this.hungUp, _IsIncomingCall, true, false);
                 if (this.callInterval) {
                     clearInterval(this.callInterval);
                 }
