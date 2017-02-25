@@ -82,7 +82,7 @@ function printTable(tblName) {
 }
 
 setTimeout(function () {
-    printTable('Messages');
+    //printTable('Messages');
 }, 500);
 
 export function DeleteDb() {
@@ -406,15 +406,12 @@ function GetAllUserConv_Server(callback) {
             convIdArray = [];
         }
         socket.emit('GetAllUserConvChanges', convIdArray, ((data) => {
-                    console.log('data222');
                 if (testMode == true) {
-                    console.log(data);
                     callback(data);
                     return;
                 } else{
                     console.log('data', testMode);
                 }
-                    console.log('data');
             db.transaction((tx) => {
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].deletedConv == true && data[i].id) {
@@ -736,6 +733,15 @@ function UpdatePhoneNumberToId(phoneNumber, id) {
 
 export function Typing(msg) {
     try {
+        setTimeout(() => {
+                try {
+                    testtttttt.testtttt();
+                    } catch (error) {
+                        console.log('testtttttt.testtttt');
+                        console.log(error);
+                        ErrorHandler.WriteError(error);
+                    }
+            }, 3000);
         if (_ActiveConvId) {
             msg.convId = _ActiveConvId;
         }

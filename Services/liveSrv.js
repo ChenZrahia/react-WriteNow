@@ -11,6 +11,7 @@ export var socket = null;
 export var _convId = null;
 export var _isInCall = false; //האם המשתמש בשיחה ברגע זה
 
+var _pc = null;
 var ErrorHandler = require('../ErrorHandler');
 var serverSrv = require('./serverSrv');
 
@@ -87,7 +88,11 @@ export function hungUp() {
     try {
         if (socket) {
             socket.emit('hungUp');
+            socket.close();
             socket.disconnect();
+            if (_pc != null) {
+                _pc.close();
+            }
         } else {
             console.log('socket is null or undefined! ----');
         }
@@ -124,7 +129,7 @@ export function join(roomID) {
         console.log('join', socketIds);
         for (const i in socketIds) {
             const socketId = socketIds[i];
-            createPC(socketId, true);
+            _pc = createPC(socketId, true);
         }
     });
 }
@@ -193,8 +198,8 @@ function createPC(socketId, isOffer) {
         };
 
         dataChannel.onclose = function () {
+            console.log('OnClose!');
         };
-
         pc.textDataChannel = dataChannel;
     }
     return pc;
@@ -208,7 +213,7 @@ function exchange(data) {
     } else {
         pc = createPC(fromId, false);
     }
-
+    _pc = pc;
     if (data.sdp) {
         pc.setRemoteDescription(new RTCSessionDescription(data.sdp), function () {
             if (pc.remoteDescription.type == "offer")
@@ -235,7 +240,11 @@ function leave(socketId) {
         Event.trigger('hungUp');
     }
     if(socket){
+        socket.close();
         socket.disconnect();
+    }
+    if (_pc != null) {
+        _pc.close();
     }
     _isInCall = false;
 }
