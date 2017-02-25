@@ -73,6 +73,8 @@ export default class Video extends Component {
         Event.on('add_remoteList', this.add_remoteList);
         Event.on('hungUp', this.hungUp);
         Event.on('getVideoCall', this.getCall);
+        InCallManager.setSpeakerphoneOn(true);
+
         try {
             dismissKeyboard();
             this.callInterval = null;
@@ -104,11 +106,10 @@ export default class Video extends Component {
             if (this.props.convId) {
                 roomId = this.props.convId;
                 this.setState({ roomID: this.props.convId });
-                console.log('OKKK!!!', roomId);
             } else {
                 roomId = this.state.roomID;
-                console.log('else!!!', roomId);
             }
+            console.log('roomId', roomId);
             liveSrv._convId = roomId;
             serverSrv.enterChatCall(roomId);
             if (roomId) {
@@ -122,12 +123,14 @@ export default class Video extends Component {
             if (this.props.convId) {
                 serverSrv.GetConvData_ByConvId(this.props.convId, (convData) => {
                     //if convData is null or user not exist in local DB  -------- להשלים בדיקה
-                    ImageResizer.createResizedImage(convData.groupPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {
-                        this.setState({ userPicture: resizedImageUri });
-                    }).catch((err) => {
-                        console.log(err);
-                        ErrorHandler.WriteError('Call.js => render => ImageResizer', err);
-                    });
+                    if (convData.groupPicture) {
+                        ImageResizer.createResizedImage(convData.groupPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {
+                            this.setState({ userPicture: resizedImageUri });
+                        }).catch((err) => {
+                            console.log(err);
+                            ErrorHandler.WriteError('Call.js => render => ImageResizer', err);
+                        });
+                    }
                 });
             } else if (this.props.userPicture) {
                 ImageResizer.createResizedImage(this.props.userPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {
@@ -241,16 +244,18 @@ export default class Video extends Component {
 
     startCall() {
         try {
-            callRingtone.stop();
-            liveSrv.Connect(this.props.convId, this.hungUp, _IsIncomingCall, true);
-            if (this.callInterval) {
-                clearInterval(this.callInterval);
+            if (liveSrv._isInCall == false) {
+                callRingtone.stop();
+                liveSrv.Connect(this.props.convId, this.hungUp, _IsIncomingCall, true, false);
+                if (this.callInterval) {
+                    clearInterval(this.callInterval);
+                }
+                this.setState({ startTime: moment() });
+                this.callInterval = setInterval(() => {
+                    this.setState({ currentTime: (moment() - this.state.startTime) });
+                }, 1000);
+                mirs1.play((success) => { });
             }
-            this.setState({ startTime: moment() });
-            this.callInterval = setInterval(() => {
-                this.setState({ currentTime: (moment() - this.state.startTime) });
-            }, 1000);
-            mirs1.play((success) => { });
         } catch (e) {
             ErrorHandler.WriteError("Call.js -> startCall", e);
         }
@@ -281,13 +286,15 @@ export default class Video extends Component {
 
     pptUp() {
         try {
-            mirs2.play((success) => { });
-            if (this.state.leftBtn == require('../../../img/speaker_on1.png')) {
-                this.setState({ leftBtn: require('../../../img/speaker_off.png') });
-                InCallManager.setSpeakerphoneOn(true);
-            } else {
-                this.setState({ leftBtn: require('../../../img/speaker_on1.png') });
-                InCallManager.setSpeakerphoneOn(false);
+            if (liveSrv._isInCall == true) {
+                mirs2.play((success) => { });
+                if (this.state.leftBtn == require('../../../img/speaker_on1.png')) {
+                    this.setState({ leftBtn: require('../../../img/speaker_off.png') });
+                    InCallManager.setSpeakerphoneOn(true);
+                } else {
+                    this.setState({ leftBtn: require('../../../img/speaker_on1.png') });
+                    InCallManager.setSpeakerphoneOn(false);
+                }
             }
 
         } catch (e) {
@@ -301,24 +308,20 @@ export default class Video extends Component {
                 <View style={[generalStyle.styles.container, { backgroundColor: generalStyle._darkColor }]}>
                     <View style={generalStyle.styles.appbar}>
                         <Text style={generalStyle.styles.titleHeader}>
-                            Voice Call With {this.props.userName}
+                            Video Call With {this.props.userName}
                         </Text>
                     </View>
                     <View style={styles.callerImageContainer}>
+                        {/*<RTCView streamURL={this.state.selfViewSrc} style={styles.remoteView} />*/}
+                        <RTCView streamURL={this.state.selfViewSrc} style={styles.selfView} />
+                        {
+                            liveSrv.mapHash(this.state.remoteList, function (remote, index) {
+                                return <RTCView key={index} streamURL={remote} style={styles.remoteView} />
+                            })
+                        }
 
-                        {renderIf(this.state.userPicture)(
-                            <FitImage
-                                indicator
-                                originalWidth={400}
-                                originalHeight={400}
-                                source={{ uri: this.state.userPicture }}
-                                />
-                        )}
-                        {renderIf(!this.state.userPicture)(
-                            <Image style={{ resizeMode: 'cover', width: null }} source={require('../../../img/user.jpg')} />
-                        )}
+                        
                     </View>
-                    <Image style={{ resizeMode: 'stretch', width: null, flex: 1, top: 0, right: 0, bottom: 0, left: 0, zIndex: 2 }} source={require('../../../img/callBackground.png')} />
                     <View style={styles.statusPanel}>
                         <Text style={styles.welcome}>
                             {this.state.info}
@@ -331,23 +334,15 @@ export default class Video extends Component {
                                     style={{ width: 200, height: 40, borderColor: 'gray', borderWidth: 1 }}
                                     onChangeText={(text) => this.setState({ roomID: text })}
                                     value={this.state.roomID}
-                                    />
+                                />
                                 <TouchableHighlight
                                     onPress={this._press}>
                                     <Text>Enter room</Text>
                                 </TouchableHighlight>
                             </View>) : null
                         }
-                        <RTCView streamURL={this.state.selfViewSrc} style={styles.selfView} />
-                        {
-                            liveSrv.mapHash(this.state.remoteList, function (remote, index) {
-                                return <RTCView key={index} streamURL={remote} style={styles.remoteView} />
-                            })
-                        }
+                        
                     </View>
-
-
-
                     <View style={styles.clockPanel}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
                             <Text>{moment(this.state.currentTime).format('hh:mm:ss')}</Text>
@@ -375,11 +370,10 @@ export default class Video extends Component {
 var styles = StyleSheet.create({
     selfView: {
         position: 'absolute',
-        bottom: 0,
+        top: 0,
         right: 0,
         width: 100,
-        height: 75
-
+        height: 100
     },
     remoteView: {
         flex: 1

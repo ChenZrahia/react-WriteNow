@@ -296,10 +296,6 @@ export default class Chats extends Component {
         this.setState({ dataSource: this.ds.cloneWithRows(this.myChats) });
     }
 renderEncryptedLastMessage(rowData){
-    console.log("renderEncryptedLastMessage");
-    console.log(rowData);
-    console.log(rowData.lastMessageEncrypted);
-    
     if(rowData.lastMessageEncrypted)
     return(
             <Text>

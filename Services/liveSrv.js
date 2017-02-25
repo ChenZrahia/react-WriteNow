@@ -11,6 +11,7 @@ export var socket = null;
 export var _convId = null;
 export var _isInCall = false; //האם המשתמש בשיחה ברגע זה
 
+var _pc = null;
 var ErrorHandler = require('../ErrorHandler');
 var serverSrv = require('./serverSrv');
 
@@ -39,14 +40,17 @@ export function makeCall(callback) {
     }
 }
 
-export function Connect(convId, hungUpCallback, IsIncomingCall, isVideo) {
+export function Connect(convId, hungUpCallback, IsIncomingCall, isVideo, isPTT) {
     try {
         if (convId) {
             _convId = convId;
         }
+        if(_isInCall == true){
+            return;
+        }
         _isInCall = true;
         //socket.disconnect();
-        socket = io.connect('https://server-sagi-uziel.c9users.io:8081', { transports: ['websocket'], query: { uid: serverSrv._uid } });
+        socket = io.connect('https://server-sagi-uziel.c9users.io:8081', { transports: ['websocket'], query: { uid: serverSrv._uid, convId: _convId } }); 
         if (hungUpCallback) {
             socket.on('hungUp', hungUpCallback);
         }
@@ -59,8 +63,15 @@ export function Connect(convId, hungUpCallback, IsIncomingCall, isVideo) {
 
         socket.on('connect', (data) => {
             if (convId && !IsIncomingCall) {
-                socket.emit('makeCall', () => { console.log('make a call'); }, convId);
+                var callType = 'voice';
+                if (isVideo == true) {
+                    callType = 'video';
+                } else if (isPTT == true){
+                    callType = 'ptt';
+                }
+                socket.emit('makeCall', () => { console.log('make a call'); }, convId, callType);
             }
+            
             getLocalStream(isVideo, true, (stream) => {
                 localStream = stream;
                 Event.trigger('container_setState', { selfViewSrc: stream.toURL() });
@@ -78,7 +89,11 @@ export function hungUp() {
     try {
         if (socket) {
             socket.emit('hungUp');
+            socket.close();
             socket.disconnect();
+            if (_pc != null) {
+                _pc.close();
+            }
         } else {
             console.log('socket is null or undefined! ----');
         }
@@ -100,6 +115,7 @@ export function getLocalStream(isVideo, isFront, callback) {
                 videoSourceId = sourceInfo.id;
             }
         }
+        console.log(isVideo, 'isVideo');
         getUserMedia({
             audio: true,
             video: isVideo
@@ -114,7 +130,7 @@ export function join(roomID) {
         console.log('join', socketIds);
         for (const i in socketIds) {
             const socketId = socketIds[i];
-            createPC(socketId, true);
+            _pc = createPC(socketId, true);
         }
     });
 }
@@ -157,7 +173,7 @@ function createPC(socketId, isOffer) {
     };
 
     pc.onaddstream = function (event) {
-        Event.trigger('container_setState', { info: 'One peer join!' });
+        Event.trigger('container_setState', { info: 'One peer join!', statusPtt: 'green' });
         Event.trigger('add_remoteList', socketId, event);
     };
     pc.onremovestream = function (event) {
@@ -183,8 +199,8 @@ function createPC(socketId, isOffer) {
         };
 
         dataChannel.onclose = function () {
+            console.log('OnClose!');
         };
-
         pc.textDataChannel = dataChannel;
     }
     return pc;
@@ -198,7 +214,7 @@ function exchange(data) {
     } else {
         pc = createPC(fromId, false);
     }
-
+    _pc = pc;
     if (data.sdp) {
         pc.setRemoteDescription(new RTCSessionDescription(data.sdp), function () {
             if (pc.remoteDescription.type == "offer")
@@ -220,9 +236,16 @@ function leave(socketId) {
     delete pcPeers[socketId];
 
     Event.trigger('delete_remoteList', socketId);
-    Event.trigger('container_setState', { info: 'One peer leave!' });
+    Event.trigger('container_setState', { info: 'One peer leave!', statusPtt: 'red' });
     if (!pcPeers.length) {
         Event.trigger('hungUp');
+    }
+    if(socket){
+        socket.close();
+        socket.disconnect();
+    }
+    if (_pc != null) {
+        _pc.close();
     }
     _isInCall = false;
 }

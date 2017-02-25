@@ -23,7 +23,7 @@ import com.facebook.react.shell.MainReactPackage;
 //import com.encryptionutil.EncryptionUtilPackage;
 import java.util.Arrays;
 import java.util.List;
-
+import com.facebook.react.modules.i18nmanager.I18nUtil;
 import org.pgsqlite.SQLitePluginPackage; //added by sagi uziel 1.10.16
 import com.rt2zz.reactnativecontacts.ReactNativeContacts;
 import android.content.Intent;
@@ -63,6 +63,16 @@ public class MainApplication extends Application implements ReactApplication {
             //new EncryptionUtilPackage()
             // new ReactNativePushNotificationPackage(),
             //
+
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        // FORCE LTR
+        I18nUtil sharedI18nUtilInstance = I18nUtil.getInstance();
+        sharedI18nUtilInstance.allowRTL(getApplicationContext(), false);
+    }
 
   @Override
   public ReactNativeHost getReactNativeHost() {

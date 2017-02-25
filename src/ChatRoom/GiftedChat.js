@@ -552,6 +552,7 @@ setImageVisible(visible) {
 }
 
 newList() {
+  Actions.PTT();
   console.log('new list is working well');
   this.setState({ showMenu: !this.state.showMenu });
 }
@@ -921,7 +922,7 @@ encryptMessage() {
 }
 
 VedioCallFriend() {
-  liveSrv.Connect(this.props.convId);
+  liveSrv.Connect(this.props.convId, null, false, true, false);
   Actions.Video({ userName: this.props.userName, userPicture: this.props.userPicture, convId: this.props.convId });
   setTimeout(() => {
     Event.trigger('getVideoCall', false);
@@ -938,13 +939,17 @@ CallFriend() {
   this.setState({ showMenu: !this.state.showMenu });
 }
 
-settings() {
-  console.log('settings is working well');
+walkieTalkie() {
+  liveSrv.Connect(this.props.convId, null, false, false, true);
+  Actions.PTT({ userName: this.props.userName, userPicture: this.props.userPicture, convId: this.props.convId });
+  setTimeout(() => {
+    Event.trigger('getPttCall', false);
+  }, 100);
   this.setState({ showMenu: !this.state.showMenu });
 }
 
-walkieTalkie() {
-  console.log('walkieTalkie is working well');
+settings() {
+  console.log('settings is working well');
   this.setState({ showMenu: !this.state.showMenu });
 }
 
@@ -1055,7 +1060,7 @@ render() {
                     this.newList();
                   } }>
                     <Text style={{ margin: 7, left: 6 }}>
-                      New List
+                      Test
          </Text>
                   </TouchableOpacity>
                   <TouchableOpacity onPress={() => {

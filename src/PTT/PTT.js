@@ -13,7 +13,7 @@ import {
 import io from 'socket.io-client/dist/socket.io';
 var generalStyle = require('../../styles/generalStyle');
 
-const socket = io.connect('https://server-sagi-uziel.c9users.io:8081', {transports: ['websocket']});
+const socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {transports: ['websocket']}); //8081
 
 import {
   RTCPeerConnection,

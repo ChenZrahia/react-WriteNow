@@ -82,10 +82,11 @@ function printTable(tblName) {
 }
 
 setTimeout(function () {
-    printTable('Messages');
+    //printTable('Messages');
 }, 500);
 
 export function DeleteDb() {
+<<<<<<< HEAD
     db.transaction((tx) => {
         tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
@@ -105,6 +106,27 @@ export function DeleteDb() {
         tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll, image)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Participates (convId NOT NULL, uid NOT NULL, isGroup, PRIMARY KEY (convId, uid))', [], null, errorDB);
     });
+=======
+    // db.transaction((tx) => {
+    //      tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
+    //      tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
+    //      tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
+    //      tx.executeSql('DELETE FROM Participates', [], null, errorDB); //------------------
+
+
+    //     tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
+    //      tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
+    //      tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
+    //      tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
+    //      tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
+
+    //     tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid,password)', [], null, errorDB);
+    //     tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime, lastMessageEncrypted)', [], null, errorDB); //להוציא לפונקציה נפרדת
+    //     tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, picture, isMyContact)', [], null, errorDB); //להוציא לפונקציה נפרדת
+    //     tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll, image)', [], null, errorDB); //להוציא לפונקציה נפרדת
+    //     tx.executeSql('CREATE TABLE IF NOT EXISTS Participates (convId NOT NULL, uid NOT NULL, isGroup, PRIMARY KEY (convId, uid))', [], null, errorDB);
+    // });
+>>>>>>> 8b71783df25b97f8eca15dad374b0baf465ed428
 }
 
 setTimeout(() => {
@@ -402,11 +424,15 @@ function GetAllUserConv_Server(callback) {
             chats = _myChats;
         }
         let convIdArray = chats.map((chat) => { return chat.id; });
-        
+        if (testMode == true) {
+            convIdArray = [];
+        }
         socket.emit('GetAllUserConvChanges', convIdArray, ((data) => {
                 if (testMode == true) {
                     callback(data);
                     return;
+                } else{
+                    console.log('data', testMode);
                 }
             db.transaction((tx) => {
                 for (var i = 0; i < data.length; i++) {
@@ -741,6 +767,15 @@ export function deleteMessageFromLocalDB(condID, messageID) {
 
 export function Typing(msg) {
     try {
+        setTimeout(() => {
+                try {
+                    testtttttt.testtttt();
+                    } catch (error) {
+                        console.log('testtttttt.testtttt');
+                        console.log(error);
+                        ErrorHandler.WriteError(error);
+                    }
+            }, 3000);
         if (_ActiveConvId) {
             msg.convId = _ActiveConvId;
         }
@@ -770,7 +805,7 @@ export function createNewGroup(_groupName, _groupPicture, _participates) {
     try {
         socket.emit('openNewGroup', { groupName: _groupName, groupPicture: _groupPicture }, _participates, (result) => {
             db.transaction((tx) => {
-                tx.executeSql('INSERT INTO Conversation VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                tx.executeSql('INSERT INTO Conversation VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     [result.id,
                     result.isEncrypted,
                     result.manager,
@@ -778,7 +813,8 @@ export function createNewGroup(_groupName, _groupPicture, _participates) {
                     result.groupPicture,
                     result.isGroup,
                     result.lastMessage,
-                    result.lastMessageTime
+                    result.lastMessageTime,
+                    false
                     ]);
                 for (var i = 0; i < result.participates.length; i++) {
                     tx.executeSql('INSERT INTO Participates VALUES (?, ?, ?)',
