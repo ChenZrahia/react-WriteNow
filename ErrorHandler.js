@@ -6,7 +6,10 @@ export function WriteError(stackTrace, e){
         serverSrv.socket.on('WriteErrorOk', function(){
             isOk = true;
         });
-
+        if(!e){
+            console.log("error handlre - e is undefined", stackTrace);
+            return;
+        }
         console.log(e.message, stackTrace);
         serverSrv.socket.emit('WriteError',  e.message, stackTrace);
         setTimeout(() => {

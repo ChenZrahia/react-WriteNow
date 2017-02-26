@@ -12,7 +12,7 @@ export function on(_eventName, _func) {
             function: _func
         });
     } catch (error) {
-        ErrorHandler.WriteError('Events.js => on');
+        ErrorHandler.WriteError(error,'Events.js => on');
     }
 }
 
@@ -24,7 +24,7 @@ export function trigger(_eventName, ..._args) {
             }
         }
     } catch (error) {
-        ErrorHandler.WriteError('Events.js => trigger');
+        ErrorHandler.WriteError(error,'Events.js => trigger');
     }
 }
 
@@ -32,6 +32,6 @@ export function removeAllListeners(_eventName) {
     try {
         listeners[_eventName] = [];
     } catch (error) {
-        ErrorHandler.WriteError('Events.js => removeAllListeners');
+        ErrorHandler.WriteError(error,'Events.js => removeAllListeners');
     }
 }

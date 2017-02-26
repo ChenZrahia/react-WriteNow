@@ -738,6 +738,14 @@ export function deleteMessageFromLocalDB(condID, messageID) {
         db.transaction((tx) => {
             tx.executeSql('DELETE FROM Messages WHERE id = ?', [messageID], (tx, rs) => { });
         });
+        socket.emit('deleteMessage',messageID,condID);
+        socket.removeAllListeners("deleteFriendMessage");
+        socket.on('deleteFriendMessage', (msg) => {
+            console.log(msg);
+            console.log("trigger");
+            Event.trigger("deleteFriendMessageUI",msg);
+        });
+        
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => deleteMessageFromLocalDB', error);
     }
@@ -745,15 +753,15 @@ export function deleteMessageFromLocalDB(condID, messageID) {
 
 export function Typing(msg) {
     try {
-        setTimeout(() => {
-                try {
-                    testtttttt.testtttt();
-                    } catch (error) {
-                        console.log('testtttttt.testtttt');
-                        console.log(error);
-                        ErrorHandler.WriteError(error);
-                    }
-            }, 3000);
+        // setTimeout(() => {
+        //         try {
+        //              testtttttt.testtttt();
+        //             } catch (error) {
+        //                 console.log('testtttttt.testtttt');
+        //                 console.log(error);
+        //                 ErrorHandler.WriteError(error);
+        //             }
+        //     }, 3000);
         if (_ActiveConvId) {
             msg.convId = _ActiveConvId;
         }

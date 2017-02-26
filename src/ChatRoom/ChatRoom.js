@@ -50,6 +50,7 @@ export default class ChatRoom extends Component {
             this.showImagePicker = this.showImagePicker.bind(this);
             this.sendImageMessage = this.sendImageMessage.bind(this);
             this.LoadNewChat = this.LoadNewChat.bind(this);
+            this.deleteFriendMessageUI = this.deleteFriendMessageUI.bind(this);
             this.messages = [];
             this.indexOnlineMessages = [];
             this.onlineMessages = [];
@@ -67,6 +68,8 @@ export default class ChatRoom extends Component {
             Event.removeAllListeners('imojiType');
             Event.removeAllListeners('encryptedMessage');
             Event.removeAllListeners('deleteMessage');
+            Event.removeAllListeners('deleteFriendMessageUI');
+            Event.on('deleteFriendMessageUI', this.deleteFriendMessageUI);
             Event.on('deleteMessage', this.deleteMessage);
             Event.on('showImagePicker', this.showImagePicker);
             Event.on('showSignature', this.showSignature);
@@ -146,12 +149,40 @@ export default class ChatRoom extends Component {
     }
 
 deleteMessage(text,id){
-     this.setState({
+    try{
+            this.setState({
     messages: this.state.messages.filter((x) => x.id !== id) //delete message from the UI
   });
   serverSrv.deleteMessageFromLocalDB(this.convId,id);
+
+    }catch(error){
+        ErrorHandler.WriteError('ChatRoom.js => deleteMessage', error);
+    }
 }
 
+deleteFriendMessageUI(mid){
+    try{
+    console.log("try to clear all friends message from UI");
+    console.log(mid);
+    // console.log(messages);
+     this.setState({
+    messages: this.state.messages.filter((x) =>{ 
+        if(x.id !== mid){
+            console.log(x.id,mid);
+             return true;
+        }
+        else {
+            console.log("false");
+            return false;
+        
+    }
+    }) //delete message from the UI
+  });
+  //serverSrv.deleteFriendMessage(this.convId,id);
+ }catch(error){
+        ErrorHandler.WriteError('ChatRoom.js => deleteFriendMessageUI', error);
+    }
+}
 
     
     guid() {
