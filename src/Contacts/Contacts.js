@@ -71,6 +71,14 @@ export default class Contacts extends Component {
             if (!result) {
                 result = [];
             }
+            result = result.filter((user) => {
+                if (user.id == serverSrv._uid) {
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            });
             setTimeout(() => {
                 this.setState({
                     dataSource: this.ds.cloneWithRows(result)
@@ -135,7 +143,7 @@ export default class Contacts extends Component {
                         inputStyle={{ color: '#f50057', alignSelf: 'stretch' }}
                         value={this.state.filter}
                         onChange={this.onFilterChange.bind(this)}
-                        />
+                    />
                     <SGListView style={{ paddingTop: 5, flex: 1 }}
                         enableEmptySections={true}
                         dataSource={this.state.dataSource}
@@ -145,7 +153,7 @@ export default class Contacts extends Component {
                         scrollRenderAheadDistance={50}
                         pageSize={30}
                         renderRow={this.renderRow()}
-                        />
+                    />
                     {this.openImageModal(this.imgSelected)}
                 </View>
             );
@@ -165,12 +173,12 @@ export default class Contacts extends Component {
                             rowData.groupName = rowData.publicInfo.fullName;
                             rowData.groupPicture = rowData.publicInfo.picture;
                             Event.trigger('LoadNewChat', null, true, rowData.id, rowData.phoneNumber, rowData.publicInfo.fullName);
-                        } }>
+                        }}>
                             <View style={generalStyle.styles.row}>
                                 <TouchableOpacity onPress={() => {
                                     this.imgSelected = rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')
                                     this.setImageVisible(true);
-                                } }>
+                                }}>
                                     <View style={generalStyle.styles.viewImg}>
                                         <Image style={generalStyle.styles.thumb} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
                                     </View>
@@ -198,11 +206,11 @@ export default class Contacts extends Component {
                 <Modal
                     transparent={true}
                     visible={this.state.imageVisible}
-                    onRequestClose={() => { console.log('image closed') } }
-                    >
+                    onRequestClose={() => { console.log('image closed') }}
+                >
                     <TouchableOpacity style={{ flex: 1 }} onPress={() => {
                         this.setImageVisible(!this.state.imageVisible)
-                    } }>
+                    }}>
                         <View style={generalStyle.styles.imageModal}>
                             <Image style={generalStyle.styles.imageInsideModal} source={image} />
                         </View>

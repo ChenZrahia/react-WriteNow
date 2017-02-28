@@ -11,6 +11,7 @@ export var socket = null;
 export var _convId = null;
 export var _isInCall = false; //האם המשתמש בשיחה ברגע זה
 
+var _pc = null;
 var ErrorHandler = require('../ErrorHandler');
 var serverSrv = require('./serverSrv');
 
@@ -44,9 +45,13 @@ export function Connect(convId, hungUpCallback, IsIncomingCall, isVideo) {
         if (convId) {
             _convId = convId;
         }
+        if(_isInCall == true){
+            return;
+        }
         _isInCall = true;
         //socket.disconnect();
-        socket = io.connect('https://server-sagi-uziel.c9users.io:8081', { transports: ['websocket'], query: { uid: serverSrv._uid } });
+        console.log('function Connect 1111');
+        socket = io.connect('https://server-sagi-uziel.c9users.io:8081', { transports: ['websocket'], query: { uid: serverSrv._uid } }); 
         if (hungUpCallback) {
             socket.on('hungUp', hungUpCallback);
         }
@@ -59,8 +64,13 @@ export function Connect(convId, hungUpCallback, IsIncomingCall, isVideo) {
 
         socket.on('connect', (data) => {
             if (convId && !IsIncomingCall) {
-                socket.emit('makeCall', () => { console.log('make a call'); }, convId);
+                var callType = 'voice';
+                if (isVideo == true) {
+                    callType = 'video';
+                } 
+                socket.emit('makeCall', () => { console.log('make a call'); }, convId, callType);
             }
+            
             getLocalStream(isVideo, true, (stream) => {
                 localStream = stream;
                 Event.trigger('container_setState', { selfViewSrc: stream.toURL() });
@@ -78,7 +88,11 @@ export function hungUp() {
     try {
         if (socket) {
             socket.emit('hungUp');
+            socket.close();
             socket.disconnect();
+            if (_pc != null) {
+                _pc.close();
+            }
         } else {
             console.log('socket is null or undefined! ----');
         }
@@ -100,6 +114,7 @@ export function getLocalStream(isVideo, isFront, callback) {
                 videoSourceId = sourceInfo.id;
             }
         }
+        console.log(isVideo, 'isVideo');
         getUserMedia({
             audio: true,
             video: isVideo
@@ -114,7 +129,7 @@ export function join(roomID) {
         console.log('join', socketIds);
         for (const i in socketIds) {
             const socketId = socketIds[i];
-            createPC(socketId, true);
+            _pc = createPC(socketId, true);
         }
     });
 }
@@ -183,8 +198,8 @@ function createPC(socketId, isOffer) {
         };
 
         dataChannel.onclose = function () {
+            console.log('OnClose!');
         };
-
         pc.textDataChannel = dataChannel;
     }
     return pc;
@@ -198,7 +213,7 @@ function exchange(data) {
     } else {
         pc = createPC(fromId, false);
     }
-
+    _pc = pc;
     if (data.sdp) {
         pc.setRemoteDescription(new RTCSessionDescription(data.sdp), function () {
             if (pc.remoteDescription.type == "offer")
@@ -223,6 +238,13 @@ function leave(socketId) {
     Event.trigger('container_setState', { info: 'One peer leave!' });
     if (!pcPeers.length) {
         Event.trigger('hungUp');
+    }
+    if(socket){
+        socket.close();
+        socket.disconnect();
+    }
+    if (_pc != null) {
+        _pc.close();
     }
     _isInCall = false;
 }

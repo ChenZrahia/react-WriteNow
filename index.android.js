@@ -119,7 +119,23 @@ export default class WriteNow extends Component {
                     setTimeout(() => {
                         Event.trigger('getCall', true);
                     }, 100);
-                } else {
+                } else if (notifData.isVideoCall == 'true') {
+                    serverSrv._isCallMode = true;
+                    console.log('notifData 222');
+                    Actions.Video(notifData);
+                    setTimeout(() => {
+                        Event.trigger('getVideoCall', true);
+                    }, 100);
+                } else if (notifData.isPttCall == 'true') {
+                    serverSrv._isCallMode = true;
+                    console.log('notifData 333');
+                    Actions.Call(notifData);
+                    setTimeout(() => {
+                        Event.trigger('getCall', true);
+                    }, 100);
+                }                
+                else {
+                    console.log(notifData);
                     Event.trigger('lastMessage', notifData.message, notifData.message_time, notifData.convId, true, notifData.isEncrypted == 'true');
                 }
             }
@@ -135,7 +151,31 @@ export default class WriteNow extends Component {
                     serverSrv._isCallMode = false;
                     console.log('notifData 2222');
                     if (liveSrv._isInCall == true) {
-                        liveSrv.socket.emit('unavailableCall'); //לממש
+                        liveSrv.socket.emit('unavailableCall'); //TODO: לממש
+                        console.log('unavailableCall');
+                    } else {
+                        Actions.Call(notifData);
+                        setTimeout(() => {
+                            Event.trigger('getCall', true);
+                        }, 100);
+                    }
+                } else if (notifData.isVideoCall == 'true') {
+                    serverSrv._isCallMode = false;
+                    console.log('notifData 2222');
+                    if (liveSrv._isInCall == true) {
+                        liveSrv.socket.emit('unavailableCall'); //TODO: לממש
+                        console.log('unavailableCall');
+                    } else {
+                        Actions.Video(notifData);
+                        setTimeout(() => {
+                            Event.trigger('getVideoCall', true);
+                        }, 100);
+                    }
+                } else if (notifData.isPttCall == 'true') {
+                    serverSrv._isCallMode = false;
+                    console.log('notifData 2222');
+                    if (liveSrv._isInCall == true) {
+                        liveSrv.socket.emit('unavailableCall'); //TODO: לממש
                         console.log('unavailableCall');
                     } else {
                         Actions.Call(notifData);
@@ -156,7 +196,7 @@ export default class WriteNow extends Component {
                     }
                 }
             } else {
-                if (notif.isVoiceCall != 'true') {
+                if (notif.isVoiceCall != 'true' && notif.isVideoCall != 'true' && notif.isPttCall != 'true') {
                     if (newMsg_ring) {
                         newMsg_ring.play((success) => { });
                     }
@@ -217,6 +257,7 @@ export default class WriteNow extends Component {
         // setTimeout(() => {
         //     ErrorHandler.WriteError({message: 'india'}, 'india');
         // }, 2000);
+        
         this.loadContacts();
         try {
             serverSrv.GetAllMyFriends((result) => {

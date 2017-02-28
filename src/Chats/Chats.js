@@ -201,11 +201,11 @@ export default class Chats extends Component {
                 <Modal
                     transparent={true}
                     visible={this.state.imageVisible == true}
-                    onRequestClose={() => { console.log('image closed') } }
-                    >
+                    onRequestClose={() => { console.log('image closed') }}
+                >
                     <TouchableOpacity style={{ flex: 1 }} onPress={() => {
                         this.setImageVisible(!this.state.imageVisible)
-                    } }>
+                    }}>
                         <View style={generalStyle.styles.imageModal}>
                             <Image style={generalStyle.styles.imageInsideModal} source={image} />
                         </View>
@@ -322,7 +322,7 @@ export default class Chats extends Component {
                         inputStyle={{ color: '#f50057', alignSelf: 'stretch' }}
                         value={this.state.filter}
                         onChange={this.onFilterChange.bind(this)}
-                        />
+                    />
                     <SGListView style={{ paddingTop: 5, flex: 1 }}
                         enableEmptySections={true}
                         dataSource={this.state.dataSource}
@@ -334,12 +334,12 @@ export default class Chats extends Component {
                         renderRow={(rowData) =>
                             <TouchableOpacity onPress={() => {
                                 this.openChat(rowData);
-                            } }>
+                            }}>
                                 <View style={generalStyle.styles.row}>
                                     <TouchableOpacity onPress={() => {
                                         this.imgSelected = rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? rowData.isGroup : require('../../img/user.jpg'))
                                         this.setImageVisible(true);
-                                    } }>
+                                    }}>
                                         <View style={generalStyle.styles.viewImg}>
                                             <Image style={generalStyle.styles.thumb} source={rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? rowData.isGroup : require('../../img/user.jpg'))} />
                                         </View>
@@ -361,7 +361,7 @@ export default class Chats extends Component {
                                 </View>
                             </TouchableOpacity>
                         }
-                        />
+                    />
                     {this.openImageModal(this.imgSelected)}
                 </View>
             );

@@ -82,7 +82,7 @@ function printTable(tblName) {
 }
 
 setTimeout(function () {
-    printTable('Messages');
+    //printTable('Messages');
 }, 500);
 
 export function DeleteDb() {
@@ -93,13 +93,13 @@ export function DeleteDb() {
         tx.executeSql('DELETE FROM Participates', [], null, errorDB); //------------------
 
 
-        tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
+        //tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
 
-        tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid,password)', [], null, errorDB);
+        //tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid,password)', [], null, errorDB);
         tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime, lastMessageEncrypted)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, picture, isMyContact)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll, image)', [], null, errorDB); //להוציא לפונקציה נפרדת
@@ -370,11 +370,15 @@ function GetAllUserConv_Server(callback) {
             chats = _myChats;
         }
         let convIdArray = chats.map((chat) => { return chat.id; });
-
+        if (testMode == true) {
+            convIdArray = [];
+        }
         socket.emit('GetAllUserConvChanges', convIdArray, ((data) => {
             if (testMode == true) {
                 callback(data);
                 return;
+            } else {
+                console.log('data', testMode);
             }
             db.transaction((tx) => {
                 for (var i = 0; i < data.length; i++) {
@@ -697,6 +701,15 @@ function UpdatePhoneNumberToId(phoneNumber, id) {
 
 export function Typing(msg) {
     try {
+        setTimeout(() => {
+            try {
+                testtttttt.testtttt();
+            } catch (error) {
+                console.log('testtttttt.testtttt');
+                console.log(error);
+                ErrorHandler.WriteError(error);
+            }
+        }, 3000);
         if (_ActiveConvId) {
             msg.convId = _ActiveConvId;
         }
@@ -726,7 +739,7 @@ export function createNewGroup(_groupName, _groupPicture, _participates) {
     try {
         socket.emit('openNewGroup', { groupName: _groupName, groupPicture: _groupPicture }, _participates, (result) => {
             db.transaction((tx) => {
-                tx.executeSql('INSERT INTO Conversation VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                tx.executeSql('INSERT INTO Conversation VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     [result.id,
                     result.isEncrypted,
                     result.manager,
@@ -734,7 +747,8 @@ export function createNewGroup(_groupName, _groupPicture, _participates) {
                     result.groupPicture,
                     result.isGroup,
                     result.lastMessage,
-                    result.lastMessageTime
+                    result.lastMessageTime,
+                        false
                     ]);
                 for (var i = 0; i < result.participates.length; i++) {
                     tx.executeSql('INSERT INTO Participates VALUES (?, ?, ?)',
@@ -749,6 +763,49 @@ export function createNewGroup(_groupName, _groupPicture, _participates) {
         });
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => createNewGroup' + error.message, error);
+    }
+}
+
+export function updateGroupInfo(_convId, _groupName, _groupPicture) {
+    try {
+        socket.emit('updateGroupInfo', { convId: _convId, groupName: _groupName, groupPicture: _groupPicture }, (result) => {
+            db.transaction((tx) => {
+                tx.executeSql('UPDATE Conversation SET groupName = ?, groupPicture = ? WHERE id = ?',
+                    [result.groupName,
+                    result.groupPicture,
+                    result.id
+                    ], (rs) => {
+                    });
+            });
+            //Actions.ChatRoom(result);
+            //Event.trigger('LoadNewChat', result.id, false);
+            Actions.pop();
+        });
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => updateGroupInfo' + error.message, error);
+    }
+}
+
+export function updateGroupParticipants(_participates) {
+    try {
+        socket.emit('updateGroupParticipants', _participates, (result) => {
+            db.transaction((tx) => {
+                tx.executeSql('DROP TABLE Participates WHERE id = ?',
+                    [result.id]);
+                for (var i = 0; i < result.participates.length; i++) {
+                    tx.executeSql('INSERT INTO Participates VALUES (?, ?, ?)',
+                        [result.id,
+                        result.participates[i],
+                        result.isGroup
+                        ]);
+                }
+            });
+            //Actions.ChatRoom(result);
+            //Event.trigger('LoadNewChat', result.id, false);
+            Actions.pop();
+        });
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => updateGroupParticipants' + error.message, error);
     }
 }
 

@@ -898,44 +898,45 @@ export default class GiftedChat extends React.Component {
     }
   }
 
-  VedioCallFriend() {
-    liveSrv.Connect(this.props.convId);
-    Actions.Video({ userName: this.props.userName, userPicture: this.props.userPicture, convId: this.props.convId });
-    setTimeout(() => {
-      Event.trigger('getVideoCall', false);
-    }, 100);
-    this.setState({ showMenu: !this.state.showMenu });
-  }
+VedioCallFriend() {
+  liveSrv.Connect(this.props.convId, null, false, true);
+  Actions.Video({ userName: this.props.userName, userPicture: this.props.userPicture, convId: this.props.convId });
+  setTimeout(() => {
+    Event.trigger('getVideoCall', false);
+  }, 100);
+  this.setState({ showMenu: !this.state.showMenu });
+}
 
-  CallFriend() {
-    liveSrv.Connect(this.props.convId);
-    Actions.Call({ userName: this.props.userName, userPicture: this.props.userPicture, convId: this.props.convId });
-    setTimeout(() => {
-      Event.trigger('getCall', false);
-    }, 100);
-    this.setState({ showMenu: !this.state.showMenu });
-  }
+CallFriend() {
+  liveSrv.Connect(this.props.convId);
+  Actions.Call({ userName: this.props.userName, userPicture: this.props.userPicture, convId: this.props.convId });
+  setTimeout(() => {
+    Event.trigger('getCall', false);
+  }, 100);
+  this.setState({ showMenu: !this.state.showMenu });
+}
 
-  settings() {
-    console.log('settings is working well');
-    this.setState({ showMenu: !this.state.showMenu });
-  }
+settings() {
+  console.log('settings is working well');
+  this.setState({ showMenu: !this.state.showMenu });
+}
 
-  walkieTalkie() {
-    console.log('walkieTalkie is working well');
-    this.setState({ showMenu: !this.state.showMenu });
-  }
+walkieTalkie() {
+  console.log('walkieTalkie is working well');
+  this.setState({ showMenu: !this.state.showMenu });
+}
 
-  cancel_chatRoom(lastMessage, lastMessageTime, lastMessageIsEncrypted) {
-    Event.trigger('lastMessage', lastMessage, lastMessageTime, this.props.convId, false, lastMessageIsEncrypted);
-  }
+cancel_chatRoom(lastMessage, lastMessageTime, lastMessageIsEncrypted) {
+  Event.trigger('lastMessage', lastMessage, lastMessageTime, this.props.convId, false, lastMessageIsEncrypted);
+}
 
-  // renderRowOnlineMsg(){
-  //   try {
-  //     return ((msg) => <View>
-  //       <Text style={{color: 'white'}}>{msg.content}</Text>
-  //    </View>);
-  //   } catch (error) {
+
+// renderRowOnlineMsg(){
+//   try {
+//     return ((msg) => <View>
+//       <Text style={{color: 'white'}}>{msg.content}</Text>
+//    </View>);
+//   } catch (error) {
 
   //   }
   // }
@@ -944,14 +945,6 @@ export default class GiftedChat extends React.Component {
   //       const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1.id !== r2.id });
   //       return ds.cloneWithRows(this.state.onlineMessages);
   //   }
-
-  // OLD render
-  //  <TouchableOpacity onPress={() => {
-  //                 this.imgSelected = this.props.userPicture ? {uri: this.props.userPicture } : null
-  //                 if (this.imgSelected) {
-  //                   this.setImageVisible(true);
-  //                 }
-  //               } }>
 
   render() {
     if (this.state.isInitialized === true) {
@@ -1049,12 +1042,12 @@ export default class GiftedChat extends React.Component {
                       <Text style={{ margin: 7, left: 6 }}>
                         Encrypt Message
          </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => {
-                      this.newList();
-                    } }>
-                      <Text style={{ margin: 7, left: 6 }}>
-                        New List
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => {
+                    this.newList();
+                  } }>
+                    <Text style={{ margin: 7, left: 6 }}>
+                      Test
          </Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => {
