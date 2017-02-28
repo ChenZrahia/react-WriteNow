@@ -269,8 +269,6 @@ export default class WriteNow extends Component {
                     />
                 <InitRout />
             </View>
-
-
         );
     }
 }
