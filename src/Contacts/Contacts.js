@@ -71,12 +71,19 @@ export default class Contacts extends Component {
             if (!result) {
                 result = [];
             }
+            result = result.filter((user) => {
+                if (user.id == serverSrv._uid) {
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            });
             setTimeout(() => {
                 this.setState({
                     dataSource: this.ds.cloneWithRows(result)
                 })
             }, 20);
-            this.myFriends = result;
         } catch (e) {
             ErrorHandler.WriteError("Contacts.js => UpdateMyFriends", e);
         }
@@ -93,24 +100,25 @@ export default class Contacts extends Component {
     onFilterChange(event) {
         try {
             this.setState({
-                filter: event.nativeEvent.text
+                filter: event.nativeEvent.text,
+                dataSource: this.getDataSource(event.nativeEvent.text)
             });
         } catch (e) {
             ErrorHandler.WriteError("Contacts.js => onFilterChange", e);
         }
     }
 
-    getDataSource() {
+    getDataSource(filterText) {
         try {
             //if filter is empty - return original data source
-            if (!this.state.filter && this.state.dataSource.cloneWithRows) {
+            if (!filterText && this.state.dataSource.cloneWithRows) {
                 return this.state.dataSource.cloneWithRows(this.myFriends);
             }
             //create filtered datasource
             let filteredContacts = this.myFriends;
             filteredContacts = this.myFriends.filter((user) => {
                 // return user.publicInfo.fullName.toLowerCase().includes(this.state.filter.toLowerCase());
-                return ((user.publicInfo.fullName.toLowerCase().includes(this.state.filter.toLowerCase())) || (user.phoneNumber ? user.phoneNumber.includes(this.state.filter) : false));
+                return ((user.publicInfo.fullName.toLowerCase().includes(filterText.toLowerCase())) || (user.phoneNumber ? user.phoneNumber.includes(filterText) : false));
             });
             if (this.state.dataSource.cloneWithRows) {
                 return this.state.dataSource.cloneWithRows(filteredContacts);
@@ -135,17 +143,17 @@ export default class Contacts extends Component {
                         inputStyle={{ color: '#f50057', alignSelf: 'stretch' }}
                         value={this.state.filter}
                         onChange={this.onFilterChange.bind(this)}
-                        />
+                    />
                     <SGListView style={{ paddingTop: 5, flex: 1 }}
                         enableEmptySections={true}
-                        dataSource={this.getDataSource()}
+                        dataSource={this.state.dataSource}
                         initialListSize={30}
                         stickyHeaderIndices={[]}
                         onEndReachedThreshold={1}
                         scrollRenderAheadDistance={50}
                         pageSize={30}
                         renderRow={this.renderRow()}
-                        />
+                    />
                     {this.openImageModal(this.imgSelected)}
                 </View>
             );
@@ -153,8 +161,6 @@ export default class Contacts extends Component {
             ErrorHandler.WriteError("Contacts.js => render", e);
         }
     }
-
-
 
     renderRow() {
         try {
@@ -167,12 +173,12 @@ export default class Contacts extends Component {
                             rowData.groupName = rowData.publicInfo.fullName;
                             rowData.groupPicture = rowData.publicInfo.picture;
                             Event.trigger('LoadNewChat', null, true, rowData.id, rowData.phoneNumber, rowData.publicInfo.fullName);
-                        } }>
+                        }}>
                             <View style={generalStyle.styles.row}>
-                              <TouchableOpacity onPress={() => {
+                                <TouchableOpacity onPress={() => {
                                     this.imgSelected = rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')
                                     this.setImageVisible(true);
-                                } }>
+                                }}>
                                     <View style={generalStyle.styles.viewImg}>
                                         <Image style={generalStyle.styles.thumb} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
                                     </View>
@@ -200,11 +206,11 @@ export default class Contacts extends Component {
                 <Modal
                     transparent={true}
                     visible={this.state.imageVisible}
-                    onRequestClose={() => { console.log('image closed') } }
-                    >
+                    onRequestClose={() => { console.log('image closed') }}
+                >
                     <TouchableOpacity style={{ flex: 1 }} onPress={() => {
                         this.setImageVisible(!this.state.imageVisible)
-                    } }>
+                    }}>
                         <View style={generalStyle.styles.imageModal}>
                             <Image style={generalStyle.styles.imageInsideModal} source={image} />
                         </View>

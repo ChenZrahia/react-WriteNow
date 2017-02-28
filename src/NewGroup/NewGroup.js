@@ -26,19 +26,27 @@ var Event = require('../../Services/Events');
 var ErrorHandler = require('../../ErrorHandler');
 
 export default class NewGroup extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         try {
             dismissKeyboard();
             this.isGetMyContacts = false;
             this.isGetMyFriends = false;
+            this.isNewGroup = true;
             this.phnesNumbers = [];
             this.myFriends = [];
-            this.myContacts = [];
             this.GroupContacts = [];
             this.groupMembersCounter = 0;
             this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
             this.ds2 = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+            //GroupContacts = this.props.groupSorce._dataBlob.s1;
+            if (this.props.groupSorce) {
+                this.isNewGroup = false;
+            }
+            if (!this.isNewGroup) {
+                this.GroupContacts = this.props.groupSorce._dataBlob.s1;
+                this.groupMembersCounter = this.GroupContacts.length;
+            }
             this.state = {
                 dataSource: this.ds,
                 filter: '',
@@ -77,9 +85,30 @@ export default class NewGroup extends Component {
             if (!result) {
                 result = [];
             }
-            result.map((user) => {
-                user.isHidden = false;
+            // result.map((user) => {
+            //     user.isHidden = false;
+            // });
+            result = result.filter((user) => {
+                if (user.id == serverSrv._uid) {
+                    return false;
+                }
+                else {
+                    return true;
+                }
             });
+            if (!this.isNewGroup) {
+                this.GroupContactsIds = this.GroupContacts.map((user) => {
+                    return user.id;
+                });
+                result.map((user) => {
+                    if (this.GroupContactsIds.indexOf(user.id) >= 0) {
+                        user.isHidden = true;
+                    }
+                    else{
+                        user.isHidden = false;
+                    }
+                });
+            }
             setTimeout(() => {
                 this.setState({
                     dataSource: this.ds.cloneWithRows(result)
@@ -102,16 +131,16 @@ export default class NewGroup extends Component {
         }
     }
 
-    getDataSource() {
+    getDataSource(fiterText) {
         try {
             //if filter is empty - return original data source
-            if (!this.state.filter && this.state.dataSource.cloneWithRows) {
+            if (!fiterText && this.state.dataSource.cloneWithRows) {
                 return this.state.dataSource.cloneWithRows(this.myFriends);
             }
             //create filtered datasource
             let filteredContacts = this.myFriends;
             filteredContacts = this.myFriends.filter((user) => {
-                return ((user.publicInfo.fullName.toLowerCase().includes(this.state.filter.toLowerCase())) || (user.phoneNumber ? user.phoneNumber.includes(this.state.filter) : false));
+                return ((user.publicInfo.fullName.toLowerCase().includes(fiterText.toLowerCase())) || (user.phoneNumber ? user.phoneNumber.includes(fiterText) : false));
             });
             if (this.state.dataSource.cloneWithRows) {
                 return this.state.dataSource.cloneWithRows(filteredContacts);
@@ -129,20 +158,28 @@ export default class NewGroup extends Component {
                     <View style={generalStyle.styles.appbar}>
                         <TouchableOpacity onPress={() => {
                             Actions.pop();
-                        } }>
+                        }}>
                             <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
                         </TouchableOpacity>
                         <View style={{ flex: 1, justifyContent: 'flex-start', flexDirection: 'column', alignSelf: 'center' }}>
                             <Text style={styles.titleHeader}>
-                                New Group
+                                Add Participants
                         </Text>
                             <Text style={{ fontSize: 10, color: 'white' }}>
-                                {this.groupMembersCounter} members
+                                {this.groupMembersCounter} participants
                         </Text>
                         </View>
                         <TouchableOpacity onPress={() => {
-                            Actions.NewGroupInfo(this.GroupContacts);
-                        } }>
+                            if (this.isNewGroup) {
+                                Actions.NewGroupInfo(this.GroupContacts);
+                            }
+                            else {
+                                var participantsArray = this.GroupContacts.map((user) => {
+                                    return user.id;
+                                });
+                                serverSrv.updateGroup(this.props.groupName, this.props.groupPicture.uri, participantsArray);
+                            }
+                        }}>
                             <Icon name="md-send" size={30} style={{ height: 40, padding: 5, color: 'white' }} />
                         </TouchableOpacity>
                     </View>
@@ -157,7 +194,7 @@ export default class NewGroup extends Component {
                             inputStyle={{ color: '#f50057', alignSelf: 'stretch' }}
                             value={this.state.filter}
                             onChange={this.onFilterChange.bind(this)}
-                            />
+                        />
                         <SGListView style={{ paddingTop: 5, flex: 1 }}
                             enableEmptySections={true}
                             dataSource={this.state.dataSource}
@@ -167,7 +204,7 @@ export default class NewGroup extends Component {
                             scrollRenderAheadDistance={20}
                             pageSize={20}
                             renderRow={this.renderRow()}
-                            />
+                        />
                     </View>
                     <View style={styles.groupBar}>
                         <SGListView style={{ padding: 5, flex: 1, flexDirection: 'row' }}
@@ -180,7 +217,7 @@ export default class NewGroup extends Component {
                             pageSize={20}
                             horizontal={true}
                             renderRow={this.renderGroup()}
-                            />
+                        />
                     </View>
                 </View>
             );
@@ -211,7 +248,7 @@ export default class NewGroup extends Component {
                                     groupSource: this.ds2.cloneWithRows(this.GroupContacts),
                                     dataSource: this.ds.cloneWithRows(this.myFriends)
                                 });
-                            } }>
+                            }}>
                                 <View style={generalStyle.styles.row}>
                                     <View style={generalStyle.styles.viewImg}>
                                         <Image style={generalStyle.styles.thumb} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
@@ -239,14 +276,21 @@ export default class NewGroup extends Component {
             return (
                 (rowData) =>
                     <TouchableOpacity onPress={() => {
-                        this.GroupContacts.splice(this.GroupContacts.indexOf(rowData), 1);
-                        this.groupMembersCounter--;
-                        rowData.isHidden = false;
-                        this.setState({
-                            groupSource: this.ds2.cloneWithRows(this.GroupContacts),
-                            datasource: this.ds.cloneWithRows(this.myFriends)
-                        });
-                    } }>
+                        if (rowData.id != serverSrv._uid) {
+                            this.GroupContacts.splice(this.GroupContacts.indexOf(rowData), 1);
+                            this.groupMembersCounter--;
+                            rowData.isHidden = false;
+                            this.myFriends.map((user) => {
+                                if (user.id == rowData.id) {
+                                    user.isHidden = false;
+                                }
+                            });
+                            this.setState({
+                                groupSource: this.ds2.cloneWithRows(this.GroupContacts),
+                                datasource: this.ds.cloneWithRows(this.myFriends)
+                            });
+                        }
+                    }}>
                         <View style={{ paddingBottom: 5, paddingLeft: 5, paddingRight: 5, alignItems: 'center' }}>
                             <Image style={styles.groupMemberPic} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
                             <Text style={styles.groupMemberName}>

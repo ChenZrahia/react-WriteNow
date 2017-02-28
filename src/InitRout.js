@@ -11,6 +11,7 @@ import PTT from './LiveChat/PTT/PTT'
 import Signature from './ChatRoom/Signature/Signature'
 import NewGroup from './NewGroup/NewGroup'
 import NewGroupInfo from './NewGroup/NewGroupInfo'
+import GroupProfile from './NewGroup/GroupProfile'
 import { Actions, Scene, Router } from 'react-native-router-flux';
 
 var serverSrv = require('../Services/serverSrv');
@@ -28,6 +29,7 @@ const scenes = Actions.create(
         <Scene key="Signature" component={Signature} title="Signature" />
         <Scene key="NewGroup" component={NewGroup} title="NewGroup" />
         <Scene key="NewGroupInfo" component={NewGroupInfo} title="NewGroupInfo" />
+        <Scene key="GroupProfile" component={GroupProfile} title="GroupProfile" />
     </Scene>
 );
 

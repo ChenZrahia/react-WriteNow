@@ -19,6 +19,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import ImageResizer from 'react-native-image-resizer';
 import SGListView from 'react-native-sglistview';
 import Icon from 'react-native-vector-icons/Ionicons';
+import renderIf from '../../plugins/renderIf';
 
 var Event = require('../../Services/Events');
 var Platform = require('react-native').Platform;
@@ -39,12 +40,27 @@ var options = {
 export default class NewGroupInfo extends Component {
     constructor(props) {
         super(props);
+        this.isNewGroup = true;
         this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-        this.state = {
-            groupName: "",
-            groupAvatar: require('../../img/group-img.jpg'),
-            groupSource: this.ds.cloneWithRows(this.props.data)
+        if (this.props.groupName) {
+            this.isNewGroup = false;
         }
+        if (this.isNewGroup) {
+            this.state = {
+                groupName: "",
+                groupAvatar: require('../../img/group-img.jpg'),
+                groupSource: this.ds.cloneWithRows(this.props.data)
+            }
+        }
+        else {
+            this.state = {
+                groupName: this.props.groupName,
+                groupAvatar: { uri: this.props.groupPicture },
+                groupSource: this.ds.cloneWithRows(this.props.data)
+            }
+        }
+        console.log('convid');
+        console.log(this.props.convId);
     }
 
     showImagePicker = () => {
@@ -103,9 +119,16 @@ export default class NewGroupInfo extends Component {
                                 justifyContent: 'space-between',
                             }}>
 
-                                <Text style={styles.Welcome}>
-                                    Group Information
+                                {renderIf(this.isNewGroup)(
+                                    <Text style={styles.Welcome}>
+                                        Group Information
                                 </Text>
+                                )}
+                                {renderIf(!this.isNewGroup)(
+                                    <Text style={styles.Welcome}>
+                                        Update Group Information
+                                </Text>
+                                )}
                                 <TouchableOpacity onPress={this.showImagePicker} >
                                     <View style={styles.viewImg}>
                                         <Image style={styles.UserImage} source={this.state.groupAvatar} />
@@ -115,45 +138,74 @@ export default class NewGroupInfo extends Component {
                         </Image>
                     </View>
                     <View style={{ flex: 1 }}>
-                        <Fumi
-                            label={'Group Name'}
-                            iconClass={FontAwesomeIcon}
-                            iconName={'users'}
-                            iconColor={'#f50057'}
-                            style={styles.input}
-                            autoCapitalize="words"
-                            onChangeText={(val) => this.setState({ groupName: val })}
+                        {renderIf(this.isNewGroup)(
+                            <Fumi
+                                label={'Group Name'}
+                                iconClass={FontAwesomeIcon}
+                                iconName={'users'}
+                                iconColor={'#f50057'}
+                                style={styles.input}
+                                autoCapitalize="words"
+                                onChangeText={(val) => this.setState({ groupName: val })}
                             />
-                        <View style={styles.groupBar}>
-                            <SGListView style={{ padding: 5, flex: 1, flexDirection: 'row' }}
-                                enableEmptySections={true}
-                                dataSource={this.state.groupSource}
-                                initialListSize={1}
-                                stickyHeaderIndices={[]}
-                                onEndReachedThreshold={1}
-                                scrollRenderAheadDistance={20}
-                                pageSize={20}
-                                horizontal={true}
-                                renderRow={this.renderGroup()}
+                        )}
+                        {renderIf(!this.isNewGroup)(
+                            <Fumi
+                                label={this.state.groupName}
+                                iconClass={FontAwesomeIcon}
+                                iconName={'users'}
+                                iconColor={'#f50057'}
+                                style={styles.input}
+                                autoCapitalize="words"
+                                onChangeText={(val) => this.setState({ groupName: val })}
+                            />
+                        )}
+                        {renderIf(this.isNewGroup)(
+                            <View style={styles.groupBar}>
+                                <SGListView style={{ padding: 5, flex: 1, flexDirection: 'row' }}
+                                    enableEmptySections={true}
+                                    dataSource={this.state.groupSource}
+                                    initialListSize={1}
+                                    stickyHeaderIndices={[]}
+                                    onEndReachedThreshold={1}
+                                    scrollRenderAheadDistance={20}
+                                    pageSize={20}
+                                    horizontal={true}
+                                    renderRow={this.renderGroup()}
                                 />
-                        </View>
-
-                        <TouchableOpacity disabled={disabled} style={styles.button} underlayColor='#ededed' onPress={() => {
-                            var participateArray = this.props.data.map((user) => {
-                                return user.id;
-                            });
-                            serverSrv.createNewGroup(this.state.groupName, this.state.groupAvatar.uri, participateArray);
-                            Actions.Tabs({ type: 'reset' });
-                        } }>
-                            <View>
-                                <Text style={styles.buttonText}>Create Group</Text>
                             </View>
-                        </TouchableOpacity>
+                        )}
+                        {renderIf(this.isNewGroup)(
+                            <TouchableOpacity disabled={disabled} style={styles.button} underlayColor='#ededed' onPress={() => {
+                                var participateArray = this.props.data.map((user) => {
+                                    return user.id;
+                                });
+                                serverSrv.createNewGroup(this.state.groupName, this.state.groupAvatar.uri, participateArray);
+                                Actions.Tabs({ type: 'reset' });
+                            }}>
+                                <View>
+                                    <Text style={styles.buttonText}>Create Group</Text>
+                                </View>
+                            </TouchableOpacity>
+                        )}
+                        {renderIf(!this.isNewGroup)(
+                            <TouchableOpacity disabled={disabled} style={[styles.button, styles.button2]} underlayColor='#ededed' onPress={() => {
+                                var participantsArray = this.props.data.map((user) => {
+                                    return user.id;
+                                });
+                                serverSrv.updateGroupInfo(this.state.groupName, this.state.groupAvatar.uri);
+                                Actions.pop();
+                            }}>
+                                <View>
+                                    <Text style={styles.buttonText}>Update Group</Text>
+                                </View>
+                            </TouchableOpacity>
+                        )}
                     </View>
                     <View style={{ alignSelf: 'flex-start' }}>
                         <TouchableOpacity onPress={() => {
                             Actions.pop();
-                        } }>
+                        }}>
                             <View style={{ height: 35, width: 35, borderRadius: 20, backgroundColor: '#f50057', margin: 10 }}>
                                 <Icon name="md-arrow-back" size={30} color="white" style={{ paddingTop: 3, alignSelf: 'center' }} />
                             </View>
@@ -230,7 +282,10 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginLeft: 10,
         justifyContent: 'center',
-        alignSelf: 'center',
+        alignSelf: 'center'
+    },
+    button2: {
+        marginTop: 20
     },
     buttonText: {
         fontSize: 18,
