@@ -122,12 +122,14 @@ export default class Call extends Component {
             if (this.props.convId) {
                 serverSrv.GetConvData_ByConvId(this.props.convId, (convData) => {
                     //if convData is null or user not exist in local DB  -------- להשלים בדיקה
-                    ImageResizer.createResizedImage(convData.groupPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {
-                        this.setState({ userPicture: resizedImageUri });
-                    }).catch((err) => {
-                        console.log(err);
-                        ErrorHandler.WriteError('Call.js => render => ImageResizer', err);
-                    });
+                    if (convData.groupPicture) {
+                        ImageResizer.createResizedImage(convData.groupPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {
+                            this.setState({ userPicture: resizedImageUri });
+                        }).catch((err) => {
+                            console.log(err);
+                            ErrorHandler.WriteError('Call.js => render => ImageResizer', err);
+                        });
+                    }
                 });
             } else if (this.props.userPicture) {
                 ImageResizer.createResizedImage(this.props.userPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {

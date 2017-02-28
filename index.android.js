@@ -114,28 +114,24 @@ export default class WriteNow extends Component {
                 var notifData = JSON.parse(notif.data);
                 if (notifData.isVoiceCall == 'true') {
                     serverSrv._isCallMode = true;
-                    console.log('notifData 111');
                     Actions.Call(notifData);
                     setTimeout(() => {
                         Event.trigger('getCall', true);
                     }, 100);
                 } else if (notifData.isVideoCall == 'true') {
                     serverSrv._isCallMode = true;
-                    console.log('notifData 222');
                     Actions.Video(notifData);
                     setTimeout(() => {
                         Event.trigger('getVideoCall', true);
                     }, 100);
                 } else if (notifData.isPttCall == 'true') {
                     serverSrv._isCallMode = true;
-                    console.log('notifData 333');
-                    Actions.Call(notifData);
+                    Actions.PTT(notifData);
                     setTimeout(() => {
-                        Event.trigger('getCall', true);
+                        Event.trigger('getPttCall', true);
                     }, 100);
                 }                
                 else {
-                    console.log(notifData);
                     Event.trigger('lastMessage', notifData.message, notifData.message_time, notifData.convId, true, notifData.isEncrypted == 'true');
                 }
             }
@@ -149,10 +145,8 @@ export default class WriteNow extends Component {
                 var notifData = JSON.parse(notif.data);
                 if (notifData.isVoiceCall == 'true') {
                     serverSrv._isCallMode = false;
-                    console.log('notifData 2222');
                     if (liveSrv._isInCall == true) {
                         liveSrv.socket.emit('unavailableCall'); //TODO: לממש
-                        console.log('unavailableCall');
                     } else {
                         Actions.Call(notifData);
                         setTimeout(() => {
@@ -161,10 +155,8 @@ export default class WriteNow extends Component {
                     }
                 } else if (notifData.isVideoCall == 'true') {
                     serverSrv._isCallMode = false;
-                    console.log('notifData 2222');
                     if (liveSrv._isInCall == true) {
                         liveSrv.socket.emit('unavailableCall'); //TODO: לממש
-                        console.log('unavailableCall');
                     } else {
                         Actions.Video(notifData);
                         setTimeout(() => {
@@ -173,22 +165,18 @@ export default class WriteNow extends Component {
                     }
                 } else if (notifData.isPttCall == 'true') {
                     serverSrv._isCallMode = false;
-                    console.log('notifData 2222');
                     if (liveSrv._isInCall == true) {
                         liveSrv.socket.emit('unavailableCall'); //TODO: לממש
-                        console.log('unavailableCall');
                     } else {
-                        Actions.Call(notifData);
+                        Actions.PTT(notifData);
                         setTimeout(() => {
-                            Event.trigger('getCall', true);
+                            Event.trigger('getPttCall', true);
                         }, 100);
                     }
                 } else {
                     if (newMsg_ring) {
                         newMsg_ring.play((success) => { });
                     }
-                    console.log("notifData");
-                    console.log(notifData);
                     if (notifData && notifData.message) {
                         Event.trigger('lastMessage', notifData.message, notifData.message_time, notifData.convId, true, notifData.isEncrypted == 'true');
                     } else if (notifData && notifData.lastMessage) {
@@ -200,8 +188,6 @@ export default class WriteNow extends Component {
                     if (newMsg_ring) {
                         newMsg_ring.play((success) => { });
                     }
-                    console.log("notif");
-                    console.log(notif);
                     Event.trigger('lastMessage', notif.message, notif.message_time, notif.convId, true, notif.isEncrypted == 'true');
                 }
             }
