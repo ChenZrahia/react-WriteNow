@@ -56,11 +56,9 @@ export default class NewGroupInfo extends Component {
             this.state = {
                 groupName: this.props.groupName,
                 groupAvatar: { uri: this.props.groupPicture },
-                groupSource: this.ds.cloneWithRows(this.props.data)
+                groupSource: this.ds.cloneWithRows(this.props.groupSource)
             }
         }
-        console.log('convid');
-        console.log(this.props.convId);
     }
 
     showImagePicker = () => {
@@ -118,10 +116,9 @@ export default class NewGroupInfo extends Component {
                                 flexDirection: 'column',
                                 justifyContent: 'space-between',
                             }}>
-
                                 {renderIf(this.isNewGroup)(
                                     <Text style={styles.Welcome}>
-                                        Group Information
+                                        New Group Information
                                 </Text>
                                 )}
                                 {renderIf(!this.isNewGroup)(
@@ -190,11 +187,8 @@ export default class NewGroupInfo extends Component {
                         )}
                         {renderIf(!this.isNewGroup)(
                             <TouchableOpacity disabled={disabled} style={[styles.button, styles.button2]} underlayColor='#ededed' onPress={() => {
-                                var participantsArray = this.props.data.map((user) => {
-                                    return user.id;
-                                });
-                                serverSrv.updateGroupInfo(this.state.groupName, this.state.groupAvatar.uri);
-                                Actions.pop();
+                                serverSrv.updateGroupInfo(this.props.convId, this.state.groupName, this.state.groupAvatar.uri);
+                                Actions.Tabs({ type: 'reset' });
                             }}>
                                 <View>
                                     <Text style={styles.buttonText}>Update Group</Text>

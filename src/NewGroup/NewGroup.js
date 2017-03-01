@@ -85,9 +85,6 @@ export default class NewGroup extends Component {
             if (!result) {
                 result = [];
             }
-            // result.map((user) => {
-            //     user.isHidden = false;
-            // });
             result = result.filter((user) => {
                 if (user.id == serverSrv._uid) {
                     return false;
@@ -104,7 +101,7 @@ export default class NewGroup extends Component {
                     if (this.GroupContactsIds.indexOf(user.id) >= 0) {
                         user.isHidden = true;
                     }
-                    else{
+                    else {
                         user.isHidden = false;
                     }
                 });
@@ -241,7 +238,6 @@ export default class NewGroup extends Component {
                                         if (user.id == rowData.id) {
                                             user.isHidden = true;
                                         }
-                                        return user;
                                     });
                                 }
                                 this.setState({
@@ -286,7 +282,7 @@ export default class NewGroup extends Component {
                                 }
                             });
                             this.setState({
-                                groupSource: this.ds2.cloneWithRows(this.GroupContacts),
+                                groupSource: this.ds.cloneWithRows(this.GroupContacts),
                                 datasource: this.ds.cloneWithRows(this.myFriends)
                             });
                         }

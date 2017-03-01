@@ -777,18 +777,17 @@ export function updateGroupInfo(_convId, _groupName, _groupPicture) {
                     ], (rs) => {
                     });
             });
-            //Actions.ChatRoom(result);
-            //Event.trigger('LoadNewChat', result.id, false);
-            Actions.pop();
+            Actions.ChatRoom(result);
+            Event.trigger('LoadNewChat', result.id, false);
         });
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => updateGroupInfo' + error.message, error);
     }
 }
 
-export function updateGroupParticipants(_participates) {
+export function updateGroupParticipants(_convId, _participates) {
     try {
-        socket.emit('updateGroupParticipants', _participates, (result) => {
+        socket.emit('updateGroupParticipants', { convId: _convId }, _participates, (result) => {
             db.transaction((tx) => {
                 tx.executeSql('DROP TABLE Participates WHERE id = ?',
                     [result.id]);
@@ -800,9 +799,8 @@ export function updateGroupParticipants(_participates) {
                         ]);
                 }
             });
-            //Actions.ChatRoom(result);
-            //Event.trigger('LoadNewChat', result.id, false);
-            Actions.pop();
+            Actions.ChatRoom(result);
+            Event.trigger('LoadNewChat', result.id, false);
         });
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => updateGroupParticipants' + error.message, error);

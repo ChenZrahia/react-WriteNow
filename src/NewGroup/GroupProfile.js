@@ -51,8 +51,6 @@ export default class GroupProfile extends Component {
                 managerSource: this.ds.cloneWithRows(result)
             });
         });
-        console.log('convid1');
-        console.log(this.props.convId);
     }
 
     renderTextParticipate(rowData) {
@@ -142,12 +140,12 @@ export default class GroupProfile extends Component {
                             {renderIf(this.groupManagers.indexOf(serverSrv._uid) >= 0)(
                                 <View style={{ alignItems: 'flex-end', flexDirection: 'row' }}>
                                     <TouchableOpacity onPress={() => {
-                                        Actions.NewGroup({ groupPicture: this.props.userPicture, groupName: this.props.userName, groupSorce: this.state.dataSource });
+                                        Actions.NewGroup({ convId: this.props.convId, groupPicture: this.props.userPicture, groupName: this.props.userName, groupSource: this.state.dataSource });
                                     }}>
                                         <Icon name="ios-person-add" size={25} color="white" style={{ paddingRight: 10 }} />
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => {
-                                        Actions.NewGroupInfo({ groupPicture: this.props.userPicture, groupName: this.props.userName, groupSorce: this.state.dataSource });
+                                        Actions.NewGroupInfo({ convId: this.props.convId, groupPicture: this.props.userPicture, groupName: this.props.userName, groupSource: this.state.dataSource });
                                     }}>
                                         <Icon name="ios-create" size={25} color="white" />
                                     </TouchableOpacity>
@@ -155,7 +153,7 @@ export default class GroupProfile extends Component {
                             )}
                             {renderIf(this.groupManagers.indexOf(serverSrv._uid) < 0)(
                                 <TouchableOpacity onPress={() => {
-                                    Actions.NewGroupInfo({ groupPicture: this.props.userPicture, groupName: this.props.userName });
+                                    Actions.NewGroupInfo({ convId: this.props.convId, groupPicture: this.props.userPicture, groupName: this.props.userName, groupSource: this.state.dataSource });
                                 }}>
                                     <Icon name="ios-create" size={25} color="white" style={{ alignItems: 'flex-end' }} />
                                 </TouchableOpacity>
