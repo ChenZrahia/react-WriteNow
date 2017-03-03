@@ -959,6 +959,7 @@ cancel_chatRoom(lastMessage, lastMessageTime, lastMessageIsEncrypted) {
               if (this.props.messages && this.props.messages.length > 0) {
                 this.cancel_chatRoom(this.props.messages[0].text, this.props.messages[0].sendTime);
               }
+              serverSrv.exitChat(serverSrv._convId);
               Actions.pop();
             } }>
               <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />

@@ -141,6 +141,7 @@ export default class WriteNow extends Component {
             serverSrv.login(token);
         });
         this.notificationUnsubscribe = FCM.on('notification', (notif) => {   //application alrady open
+            console.log('## ', notif);
             if (notif && notif.data) {
                 var notifData = JSON.parse(notif.data);
                 if (notifData.isVoiceCall == 'true') {
@@ -174,9 +175,9 @@ export default class WriteNow extends Component {
                         }, 100);
                     }
                 } else {
-                    if (newMsg_ring) {
+                    if (newMsg_ring && serverSrv._convId != notifData.convId) {
                         newMsg_ring.play((success) => { });
-                    }
+                    } 
                     if (notifData && notifData.message) {
                         Event.trigger('lastMessage', notifData.message, notifData.message_time, notifData.convId, true, notifData.isEncrypted == 'true');
                     } else if (notifData && notifData.lastMessage) {
@@ -185,7 +186,7 @@ export default class WriteNow extends Component {
                 }
             } else {
                 if (notif.isVoiceCall != 'true' && notif.isVideoCall != 'true' && notif.isPttCall != 'true') {
-                    if (newMsg_ring) {
+                    if (newMsg_ring && serverSrv._convId != notif.convId) {
                         newMsg_ring.play((success) => { });
                     }
                     Event.trigger('lastMessage', notif.message, notif.message_time, notif.convId, true, notif.isEncrypted == 'true');

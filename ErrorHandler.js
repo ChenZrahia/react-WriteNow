@@ -6,15 +6,20 @@ export function WriteError(stackTrace, e){
         serverSrv.socket.on('WriteErrorOk', function(){
             isOk = true;
         });
+        if(!e){
+            console.log("error handlre - e is undefined", stackTrace);
+            return;
+        }
 
-        console.log(e.message, stackTrace);
-        serverSrv.socket.emit('WriteError',  e.message, stackTrace);
+        var msg = e.message || e;
+        console.log(msg, stackTrace);
+        serverSrv.socket.emit('WriteError',  msg, stackTrace);
         setTimeout(() => {
             if(isOk == false){
                 // try{
                 // window.db.transaction(function (tx) {
                 //     tx.executeSql('CREATE TABLE IF NOT EXISTS Errors (message, stackTrace, timeOfError)');
-                //     tx.executeSql('INSERT INTO Errors VALUES (?,?,?)', [e.message, stackTrace, new Date()]);
+                //     tx.executeSql('INSERT INTO Errors VALUES (?,?,?)', [msg, stackTrace, new Date()]);
                 // }, function (error) {
                 // }, function () {
                 // });
