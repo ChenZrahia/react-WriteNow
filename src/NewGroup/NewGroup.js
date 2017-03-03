@@ -241,7 +241,6 @@ export default class NewGroup extends Component {
                                         if (user.id == rowData.id) {
                                             user.isHidden = true;
                                         }
-                                        return user;
                                     });
                                 }
                                 this.setState({
