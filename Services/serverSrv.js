@@ -732,13 +732,13 @@ function UpdatePhoneNumberToId(phoneNumber, id) {
 }
 
 
-export function deleteMessageFromLocalDB(condID, messageID) {
+export function deleteMessageFromLocalDB(convID, messageID) {
     try {
         console.log(messageID);
         db.transaction((tx) => {
             tx.executeSql('DELETE FROM Messages WHERE id = ?', [messageID], (tx, rs) => { });
         });
-        socket.emit('deleteMessage',messageID,condID);
+        socket.emit('deleteMessage',messageID,convID);
         socket.removeAllListeners("deleteFriendMessage");
         socket.on('deleteFriendMessage', (msg) => {
             console.log(msg);
