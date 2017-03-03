@@ -39,12 +39,11 @@ export default class NewGroup extends Component {
             this.groupMembersCounter = 0;
             this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
             this.ds2 = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-            //GroupContacts = this.props.groupSorce._dataBlob.s1;
-            if (this.props.groupSorce) {
+            if (this.props.groupSource) {
                 this.isNewGroup = false;
             }
             if (!this.isNewGroup) {
-                this.GroupContacts = this.props.groupSorce._dataBlob.s1;
+                this.GroupContacts = this.props.groupSource._dataBlob.s1;
                 this.groupMembersCounter = this.GroupContacts.length;
             }
             this.state = {
@@ -282,7 +281,7 @@ export default class NewGroup extends Component {
                                 }
                             });
                             this.setState({
-                                groupSource: this.ds.cloneWithRows(this.GroupContacts),
+                                groupSource: this.ds2.cloneWithRows(this.GroupContacts),
                                 datasource: this.ds.cloneWithRows(this.myFriends)
                             });
                         }
