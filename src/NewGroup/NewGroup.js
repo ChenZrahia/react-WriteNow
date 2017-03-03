@@ -173,7 +173,8 @@ export default class NewGroup extends Component {
                                 var participantsArray = this.GroupContacts.map((user) => {
                                     return user.id;
                                 });
-                                serverSrv.updateGroup(this.props.groupName, this.props.groupPicture.uri, participantsArray);
+                                serverSrv.updateGroupParticipants(this.props.convId, participantsArray);
+                                Actions.Tabs({ type: 'reset' });
                             }
                         }}>
                             <Icon name="md-send" size={30} style={{ height: 40, padding: 5, color: 'white' }} />

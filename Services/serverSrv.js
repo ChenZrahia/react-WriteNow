@@ -787,9 +787,9 @@ export function updateGroupInfo(_convId, _groupName, _groupPicture) {
 
 export function updateGroupParticipants(_convId, _participates) {
     try {
-        socket.emit('updateGroupParticipants', { convId: _convId }, _participates, (result) => {
+        socket.emit('updateGroupParticipants',  _convId , _participates, (result) => {
             db.transaction((tx) => {
-                tx.executeSql('DROP TABLE Participates WHERE id = ?',
+                tx.executeSql('DELETE FROM Participates WHERE convId = ?',
                     [result.id]);
                 for (var i = 0; i < result.participates.length; i++) {
                     tx.executeSql('INSERT INTO Participates VALUES (?, ?, ?)',
