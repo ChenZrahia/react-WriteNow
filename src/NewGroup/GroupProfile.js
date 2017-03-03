@@ -140,12 +140,22 @@ export default class GroupProfile extends Component {
                             {renderIf(this.groupManagers.indexOf(serverSrv._uid) >= 0)(
                                 <View style={{ alignItems: 'flex-end', flexDirection: 'row' }}>
                                     <TouchableOpacity onPress={() => {
-                                        Actions.NewGroup({ convId: this.props.convId, groupPicture: this.props.userPicture, groupName: this.props.userName, groupSource: this.state.dataSource });
+                                        Actions.NewGroup({
+                                            convId: this.props.convId,
+                                            groupPicture: this.props.userPicture,
+                                            groupName: this.props.userName,
+                                            groupSource: this.state.dataSource
+                                        });
                                     }}>
                                         <Icon name="ios-person-add" size={25} color="white" style={{ paddingRight: 10 }} />
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => {
-                                        Actions.NewGroupInfo({ convId: this.props.convId, groupPicture: this.props.userPicture, groupName: this.props.userName, groupSource: this.state.dataSource });
+                                        Actions.NewGroupInfo({
+                                            convId: this.props.convId,
+                                            groupPicture: this.props.userPicture,
+                                            groupName: this.props.userName,
+                                            groupSource: this.state.dataSource
+                                        });
                                     }}>
                                         <Icon name="ios-create" size={25} color="white" />
                                     </TouchableOpacity>

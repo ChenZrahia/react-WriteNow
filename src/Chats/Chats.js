@@ -38,6 +38,7 @@ export default class Chats extends Component {
                 filter: ''
             };
             this.UpdateChatsList = this.UpdateChatsList.bind(this);
+            this.UpdateChatInfo = this.UpdateChatInfo.bind(this);
             this.NewChat = this.NewChat.bind(this);
             this.UpdatelastMessage = this.UpdatelastMessage.bind(this);
         } catch (e) {
@@ -55,8 +56,7 @@ export default class Chats extends Component {
                     try {
                         this.setState({
                             dataSource: ds.cloneWithRows(result)
-                        })
-
+                        });
                     } catch (e) {
                         ErrorHandler.WriteError("Chats.js -> UpdateChatsList -> setState", e);
                     }
@@ -69,6 +69,25 @@ export default class Chats extends Component {
             }, isUpdate);
         } catch (e) {
             ErrorHandler.WriteError("Chats.js -> UpdateChatsList", e);
+        }
+    }
+
+    UpdateChatInfo(groupInfo) {
+        try {
+            console.log('updating chat');
+            console.log(groupInfo.convId);
+            console.log(groupInfo.groupName);
+            this.myChats.map((chat) => {
+                if (chat.convId = groupInfo.convId) {
+                    chat.groupName = groupInfo.groupName;
+                    chat.groupPicture = groupInfo.groupPicture;
+                }
+            });
+            this.setState({
+                dataSource: this.ds.cloneWithRows(this.myChats)
+            });
+        } catch (e) {
+            ErrorHandler.WriteError("Chats.js -> UpdateChatInfo", e);
         }
     }
 
@@ -93,6 +112,8 @@ export default class Chats extends Component {
             Event.on('NewChat', this.NewChat);
             Event.removeAllListeners('lastMessage');
             Event.on('lastMessage', this.UpdatelastMessage);
+            Event.removeAllListeners('UpdateChatInfo');
+            Event.on('UpdateChatInfo', this.UpdateChatInfo);
             setTimeout(this.UpdateChatsList, 100);
         } catch (e) {
             ErrorHandler.WriteError("Chats.js -> componentDidMount", e);
