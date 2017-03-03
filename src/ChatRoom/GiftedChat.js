@@ -968,7 +968,7 @@ cancel_chatRoom(lastMessage, lastMessageTime, lastMessageIsEncrypted) {
                 Actions.GroupProfile(this.props);
               }
               else {
-                Actions.ContactProfile(this.props);
+                Actions.GroupProfile(this.props);
               }
             } }>
               <View style={generalStyles.styles.viewImg}>
@@ -980,7 +980,7 @@ cancel_chatRoom(lastMessage, lastMessageTime, lastMessageIsEncrypted) {
                 Actions.GroupProfile(this.props);
               }
               else {
-                Actions.ContactProfile(this.props);
+                Actions.GroupProfile(this.props);
               }
             } }>
               <Text style={generalStyles.styles.titleHeader}>
