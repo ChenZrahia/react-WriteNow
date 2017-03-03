@@ -187,14 +187,13 @@ export default class NewGroupInfo extends Component {
                         )}
                         {renderIf(!this.isNewGroup)(
                             <TouchableOpacity disabled={disabled} style={[styles.button, styles.button2]} underlayColor='#ededed' onPress={() => {
+                                Actions.Tabs({ type: 'reset' });
                                 serverSrv.updateGroupInfo(this.props.convId, this.state.groupName, this.state.groupAvatar.uri);
-                                //trigger
                                 Event.trigger('UpdateChatInfo', {
                                     convId: this.props.convId,
                                     groupName: this.state.groupName,
                                     groupPictrue: this.state.groupAvatar
                                 });
-                                Actions.Tabs({ type: 'reset' });
                             }}>
                                 <View>
                                     <Text style={styles.buttonText}>Update Group</Text>

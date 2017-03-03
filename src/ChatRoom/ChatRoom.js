@@ -89,12 +89,12 @@ export default class ChatRoom extends Component {
             this.onlineMessages = [];
             this.convId = null;
             this._messageId = this.guid();
-            this.setState({
-                messages: [],
-                imageVisible: false,
-                text: ''
-            });
             setTimeout(() => {
+                this.setState({
+                    messages: [],
+                    imageVisible: false,
+                    text: ''
+                });
                 if (this.props.publicInfo) {
                     this.setState({
                         groupName: this.props.publicInfo.fullName,

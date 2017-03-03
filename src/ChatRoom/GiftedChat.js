@@ -990,18 +990,18 @@ cancel_chatRoom(lastMessage, lastMessageTime, lastMessageIsEncrypted) {
             <TouchableOpacity style={{ margin: 7 }} onPress={() => {
               Event.trigger('showImagePicker');
             } }>
-              <IconMat name="photo-camera" size={25} color="rgb(177,100,255)" />
+              <IconMat name="photo-camera" size={25} color="white" />
             </TouchableOpacity>
 
             <TouchableOpacity style={{ margin: 7 }} onPress={() => {
               Event.trigger('showSignature');
             } }>
-              <IconMat name="brush" size={25} color="rgb(177,100,255)" />
+              <IconMat name="brush" size={25} color="white" />
             </TouchableOpacity>
             <TouchableOpacity style={{ margin: 7 }} onPress={() => {
               this.menuOption();
             } }>
-              <IconMat name="more-vert" size={25} color="rgb(177,100,255)" />
+              <IconMat name="more-vert" size={25} color="white" />
             </TouchableOpacity>
 
             {renderIf(this.state.showMenu)(
@@ -1020,49 +1020,48 @@ cancel_chatRoom(lastMessage, lastMessageTime, lastMessageIsEncrypted) {
                     position: 'absolute',
                     top: 35,
                     right: 25,
+                    elevation: 6,
                   }}
                     >
                     <TouchableOpacity onPress={() => {
                       this.CallFriend();
                     } }>
-                      <Text style={{ margin: 7, marginTop: 7, left: 6 }}>
-                        Voice Call
-         </Text>
+                    <View style={{ margin: 7, left: 6 ,alignItems:'center', flexDirection:'row' }}>
+                        <IconMat name="call" size={20} color="black" /> 
+                        <Text> Voice Call</Text>
+                    </View>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => {
                       this.VedioCallFriend();
                     } }>
-                      <Text style={{ margin: 7, marginTop: 7, left: 6 }}>
-                        Video Call
-         </Text>
+                    <View style={{ margin: 7, left: 6 ,alignItems:'center', flexDirection:'row' }}>
+                        <IconMat name="videocam" size={20} color="black" /> 
+                        <Text> Video Call</Text>
+                    </View>
+                    </TouchableOpacity>                                    
+                    <TouchableOpacity onPress={() => {
+                      this.walkieTalkie();
+                    } }>
+                    <View style={{ margin: 7, left: 6 ,alignItems:'center', flexDirection:'row' }}>
+                        <IconMat name="speaker-phone" size={20} color="black" /> 
+                        <Text> Walkie-Talkie</Text>
+                    </View>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => {
                       this.encryptMessage();
                     } }>
-                      <Text style={{ margin: 7, left: 6 }}>
-                        Encrypt Message
-         </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => {
-                    this.newList();
-                  } }>
-                    <Text style={{ margin: 7, left: 6 }}>
-                      Test
-         </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => {
-                      this.walkieTalkie();
-                    } }>
-                      <Text style={{ margin: 7, left: 6 }}>
-                        Walkie-Talkie
-         </Text>
-                    </TouchableOpacity>
+                    <View style={{ margin: 7, left: 6 ,alignItems:'center', flexDirection:'row' }}>
+                        <IconMat name="lock" size={20} color="black" /> 
+                        <Text> Encrypt Message</Text>
+                    </View>
+                  </TouchableOpacity> 
                     <TouchableOpacity onPress={() => {
                       this.settings();
                     } }>
-                      <Text style={{ margin: 7, left: 6 }}>
-                        Settings
-         </Text>
+                    <View style={{ margin: 7, left: 6 ,alignItems:'center', flexDirection:'row' }}>
+                        <IconMat name="settings" size={20} color="black" /> 
+                        <Text> Settings</Text>
+                    </View>
                     </TouchableOpacity>
                   </View>
                 </TouchableOpacity>

@@ -646,7 +646,7 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
                                 _myFriendsJson[Fid]._id = Fid;
                                 if (_myChats.filter((chat) => { return chat.id == result.id; }).length == 0) { //if the chat not axist
                                     db.transaction((tx2) => {
-                                        tx2.executeSql('INSERT OR REPLACE into Conversation values(?,?,?,?,?,?,?,?)', [result.id.toString(), false, result.manager, _myFriendsJson[Fid].publicInfo.fullName, _myFriendsJson[Fid].publicInfo.picture, false]);
+                                        tx2.executeSql('INSERT OR REPLACE into Conversation values(?,?,?,?,?,?,?,?,?)', [result.id.toString(), false, result.manager, _myFriendsJson[Fid].publicInfo.fullName, _myFriendsJson[Fid].publicInfo.picture, result.lastMessageEncrypted, false/*TODO: check if true or false!*/]);
                                         tx2.executeSql('INSERT OR REPLACE into Participates values(?,?,?)', [result.id.toString(), Fid.toString(), false]);
                                         tx2.executeSql('UPDATE Friends set id = ? WHERE phoneNumber = ?', [Fid.toString(), phoneNumber.toString()]);
                                         Event.trigger('NewChat', {
@@ -775,10 +775,10 @@ export function updateGroupInfo(_convId, _groupName, _groupPicture) {
                     result.groupPicture,
                     result.id
                     ], (rs) => {
+                        Event.trigger('LoadNewChat', result.id, false);
                     });
             });
             Actions.ChatRoom(result);
-            Event.trigger('LoadNewChat', result.id, false);
         });
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => updateGroupInfo' + error.message, error);
@@ -814,12 +814,13 @@ export function getConvParticipates(_convId, callback) {
                 var uidArr = '(';
                 for (var i = 0; i < rsP.rows.length; i++) {
                     if (i == (rsP.rows.length - 1)) {
-                        uidArr += ('"' + rsP.rows.item(i).uid + '"' + ')');
+                        uidArr += ('"' + rsP.rows.item(i).uid + '"');
                     }
                     else {
                         uidArr += ('"' + rsP.rows.item(i).uid + '"' + ',');
                     }
                 }
+                uidArr += ')';
                 var selectStr = 'SELECT * FROM Friends WHERE id IN ' + uidArr + ' ORDER BY fullName';
                 tx.executeSql(selectStr, [], (tx, rs) => {
                     var convParticipates = [];

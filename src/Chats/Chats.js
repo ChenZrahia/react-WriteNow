@@ -74,18 +74,16 @@ export default class Chats extends Component {
 
     UpdateChatInfo(groupInfo) {
         try {
-            console.log('updating chat');
-            console.log(groupInfo.convId);
-            console.log(groupInfo.groupName);
             this.myChats.map((chat) => {
-                if (chat.convId = groupInfo.convId) {
+                if (chat.id == groupInfo.convId) {
                     chat.groupName = groupInfo.groupName;
-                    chat.groupPicture = groupInfo.groupPicture;
+                    chat.groupPicture = groupInfo.groupAvatar;
                 }
             });
             this.setState({
                 dataSource: this.ds.cloneWithRows(this.myChats)
             });
+            
         } catch (e) {
             ErrorHandler.WriteError("Chats.js -> UpdateChatInfo", e);
         }

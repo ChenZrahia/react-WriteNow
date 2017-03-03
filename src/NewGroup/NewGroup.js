@@ -39,11 +39,12 @@ export default class NewGroup extends Component {
             this.groupMembersCounter = 0;
             this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
             this.ds2 = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-            if (this.props.groupSource) {
+            //GroupContacts = this.props.groupSorce._dataBlob.s1;
+            if (this.props.groupSorce) {
                 this.isNewGroup = false;
             }
             if (!this.isNewGroup) {
-                this.GroupContacts = this.props.groupSource._dataBlob.s1;
+                this.GroupContacts = this.props.groupSorce._dataBlob.s1;
                 this.groupMembersCounter = this.GroupContacts.length;
             }
             this.state = {
@@ -84,6 +85,9 @@ export default class NewGroup extends Component {
             if (!result) {
                 result = [];
             }
+            // result.map((user) => {
+            //     user.isHidden = false;
+            // });
             result = result.filter((user) => {
                 if (user.id == serverSrv._uid) {
                     return false;
@@ -100,7 +104,7 @@ export default class NewGroup extends Component {
                     if (this.GroupContactsIds.indexOf(user.id) >= 0) {
                         user.isHidden = true;
                     }
-                    else {
+                    else{
                         user.isHidden = false;
                     }
                 });
@@ -173,8 +177,7 @@ export default class NewGroup extends Component {
                                 var participantsArray = this.GroupContacts.map((user) => {
                                     return user.id;
                                 });
-                                serverSrv.updateGroupParticipants(this.props.convId, participantsArray);
-                                Actions.Tabs({ type: 'reset' });
+                                serverSrv.updateGroup(this.props.groupName, this.props.groupPicture.uri, participantsArray);
                             }
                         }}>
                             <Icon name="md-send" size={30} style={{ height: 40, padding: 5, color: 'white' }} />
@@ -240,6 +243,7 @@ export default class NewGroup extends Component {
                                         }
                                     });
                                 }
+                                
                                 this.setState({
                                     groupSource: this.ds2.cloneWithRows(this.GroupContacts),
                                     dataSource: this.ds.cloneWithRows(this.myFriends)
