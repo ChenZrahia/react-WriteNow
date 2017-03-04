@@ -21,8 +21,6 @@ export function trigger(_eventName, ..._args) {
         if (listeners && listeners[_eventName]) {
             for (var i = 0; i < listeners[_eventName].length; i++) {
                 try {
-                    console.log('i -> ### ' , i);
-                    console.log('listeners.function -> ### ' , listeners[_eventName][i].function);
                     if (listeners[_eventName][i].function) {
                         listeners[_eventName][i].function(..._args);
                     }

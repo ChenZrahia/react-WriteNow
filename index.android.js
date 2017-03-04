@@ -36,73 +36,6 @@ setTimeout(() => {
     newMsg_ring = new Sound('new_msg.mp3', Sound.MAIN_BUNDLE, (error) => { });
 }, 500);
 
-//import ReactNativeRSAUtil from 'react-native-rsa-util';
-
-// var openpgp = require('react-native-openpgp');
-
-
-
-
-
-// try {
-
-//     var options = {
-//         userIds: [{ name: 'Jon Smith', email: 'jon@example.com' }], // multiple user IDs 
-//         numBits: 512,                                            // RSA key size 
-//         passphrase: 'my-secret-password'         // protects the private key 
-//     };
-
-//     openpgp.generateKey(options).then((key) => {
-//         var privkey = key.privateKeyArmored; // '-----BEGIN PGP PRIVATE KEY BLOCK ... ' 
-//         var pubkey = key.publicKeyArmored;   // '-----BEGIN PGP PUBLIC KEY BLOCK ... ' 
-
-//         var pub = openpgp.readArmoredKey(pubkey);
-//         var priv = openpgp.readArmoredKey(privkey);
-
-//         // decrypt the private key with password
-//         var success = priv.keys[0].decrypt('my-secret-password');
-
-//         var options = {
-//             data: 'Hello, World!',
-//             publicKeys: pub.keys,
-//             privateKeys: priv.keys // for signing (optional)
-//         };
-
-//         openpgp.encrypt(options).then((ciphertext) => {
-//             console.log(ciphertext.data);
-//             console.log(ciphertext);
-//           // encrypted = ciphertext.message.packets.write(); // get raw encrypted packets as Uint8Array 
-
-//             options2 = {
-//                 message: openpgp.readBinaryMessage(ciphertext),             // parse encrypted bytes 
-//                 publicKeys: pub.keys,     // for verification (optional) 
-//                 privateKey: priv.keys, // for decryption 
-//                 format: 'binary'                                      // output as Uint8Array 
-//             };
-
-//             openpgp.decrypt(options2).then((plaintext) => {
-//                 console.log('OK');
-//                 return plaintext.data // Uint8Array([0x01, 0x01, 0x01]) 
-//             }, (error) => {
-//                 console.log(error);
-//                 console.log('3');
-//             });
-
-//         }, (error) => {
-//             console.log(error);
-//             console.log('1');
-//         });
-//     }, (error) => {
-//         console.log('2');
-//     });
-
-
-// } catch (error) {
-//     console.log(error);
-//     console.log('error catch');
-// }
-
-
 export default class WriteNow extends Component {
     constructor(a, b, c, d, e, f) {
         super();
@@ -261,8 +194,6 @@ export default class WriteNow extends Component {
 
     render() {
         return (
-
-
             <View style={styles.container}>
                 <StatusBar
                     backgroundColor="#820cf7"

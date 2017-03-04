@@ -94,9 +94,7 @@ export function hungUp() {
             if (_pc != null) {
                 _pc.close();
             }
-        } else {
-            console.log('socket is null or undefined! ----');
-        }
+        } 
         _isInCall = false;
     } catch (error) {
         ErrorHandler.WriteError('liveSrv.js => hungUp', error);
@@ -115,7 +113,6 @@ export function getLocalStream(isVideo, isFront, callback) {
                 videoSourceId = sourceInfo.id;
             }
         }
-        console.log(isVideo, 'isVideo');
         getUserMedia({
             audio: true,
             video: isVideo
@@ -127,7 +124,6 @@ export function getLocalStream(isVideo, isFront, callback) {
 
 export function join(roomID) {
     socket.emit('join', roomID, function (socketIds) {
-        console.log('join', socketIds);
         for (const i in socketIds) {
             const socketId = socketIds[i];
             _pc = createPC(socketId, true);

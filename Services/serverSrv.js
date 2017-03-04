@@ -75,13 +75,6 @@ export var _convId = null;
 
 function printTable(tblName) {
     db.transaction((tx) => {
-        // tx.executeSql('SELECT * FROM UserInfo', [], (tx, rs) => {
-        //     console.log('---------------------------------------');
-        //     for (var i = 0; i < rs.rows.length; i++) {
-        //         console.log(rs.rows.item(i));
-        //     }
-        //     console.log('---------------------------------------');
-        // }, errorDB);
         tx.executeSql('SELECT * FROM ' + tblName, [], (tx, rs) => {
             console.log('---------------------------------------');
             for (var i = 0; i < rs.rows.length; i++) {
@@ -389,9 +382,7 @@ function GetAllUserConv_Server(callback) {
             if (testMode == true) {
                 callback(data);
                 return;
-            } else {
-                console.log('data', testMode);
-            }
+            } 
             db.transaction((tx) => {
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].deletedConv == true && data[i].id) {
@@ -490,13 +481,7 @@ export function GetConv(callback, convId, isUpdate) {
                             lastTypingTime: rs.rows.item(i).lastTypingTime,
                             isSeenByAll: rs.rows.item(i).isSeenByAll,
                             user: _user
-                            //_myFriendsJson[rs.rows.item(i).msgFrom] ? { _id: _myFriendsJson[rs.rows.item(i).id], name: _myFriendsJson[rs.rows.item(i).publicInfo.fullName } , { name: 'ERROR' }
-                            //user: _myFriendsJson[rs.rows.item(i).msgFrom] ? _myFriendsJson[rs.rows.item(i).msgFrom] : { name: 'ERROR' } //myUser
                         };
-                        if (chat.user.name == "ERROR") {
-                            console.log(rs.rows.item(i).msgFrom);
-                            console.log('_myFriendsJson[k].id');
-                        }
                         myChatsJson[rs.rows.item(i).id] = chat;
                         result.push(chat);
                     }
@@ -731,22 +716,7 @@ export function Typing(msg) {
             msg.convId = _ActiveConvId;
         }
         msg.from = _uid;
-        // if(msg.isEncrypted == true){
-        //     msg.content = 'הודעה מוצפנת';
-
-        // }
         socket.emit('typing', msg);
-        // console.log('1 - typing');
-        // socket.emit('typing', {
-        //         mid: msg.mid,
-        //         id: msg.id,
-        //         _id: msg._id,
-        //         convId: msg.convId,
-        //         isEncrypted: false,
-        //         lastTypingTime: msg.lastTypingTime,
-        //         from: msg.from,
-        //         content: msg.content
-        //     });
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => Typing' + error.message, error);
     }
@@ -935,10 +905,8 @@ export function saveNewMessage(msg, saveLocal) {
             }
         }
 
-        console.log('saveLocal', saveLocal);
         if (saveLocal != false) {
             db.transaction((tx) => {
-                console.log('msg.id', msg.id);
                 if (msg.content && msg.content.length > 0) {
                     tx.executeSql('INSERT OR REPLACE INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                         [msg.id,
@@ -1019,6 +987,18 @@ export function GetConvData_ByConvId(convId, callback) {
         }, (error) => {
             ErrorHandler.WriteError('serverSrv.js => GetConvData_ByConvId => transaction', error);
         });
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => GetConvData_ByConvId', error);
+    }
+}
+
+export function GetLiveChats(callback) {
+    try {
+        if (callback) {
+            socket.emit('GetLiveChats', (data) => {
+                callback(data);
+            });
+        }        
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => GetConvData_ByConvId', error);
     }
