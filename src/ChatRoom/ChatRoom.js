@@ -83,7 +83,6 @@ export default class ChatRoom extends Component {
             });
             this.LoadNewChat(this.props.id, this.props.isContact, this.props.id, this.props.phoneNumber, this.props.fullName);
             Event.on('LoadNewChat', this.LoadNewChat);
-
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => componentDidMount', e);
         }
@@ -96,21 +95,22 @@ export default class ChatRoom extends Component {
             this.onlineMessages = [];
             this.convId = null;
             this._messageId = this.guid();
-            this.setState({
-                messages: [],
-                imageVisible: false,
-                text: ''
-            });
             setTimeout(() => {
+                this.setState({
+                    messages: [],
+                    imageVisible: false,
+                    text: ''
+                });
                 if (this.props.publicInfo) {
-                    this.setState({ groupName: this.props.publicInfo.fullName });
+                    this.setState({
+                        groupName: this.props.publicInfo.fullName,
+                        groupPicture: this.props.publicInfo.picture
+                    });
                 } else {
-                    this.setState({ groupName: this.props.groupName });
-                }
-                if (this.props.publicInfo) {
-                    this.setState({ groupPicture: this.props.publicInfo.picture });
-                } else {
-                    this.setState({ groupPicture: this.props.groupPicture });
+                    this.setState({
+                        groupName: this.props.groupName,
+                        groupPicture: this.props.groupPicture
+                    });
                 }
             }, 100);
 
@@ -241,11 +241,13 @@ deleteFriendMessageUI(mid){
                     }
                     var img = response.data;
                     var img2 = source;
-                    console.log(response.uri);
                     ImageResizer.createResizedImage(response.uri, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
                         NativeModules.RNImageToBase64.getBase64String(resizedImageUri, (err, base64) => {
                             //this.sendImageMessage('data:image/jpeg;base64,' + base64);
-                            this.setState({ imgToMsg: ('data:image/jpeg;base64,' + base64), pathOfImage: resizedImageUri });
+                            this.setState({
+                                imgToMsg: ('data:image/jpeg;base64,' + base64),
+                                pathOfImage: resizedImageUri
+                            });
                             this.setImageVisible(true);
                             //error check
                         })

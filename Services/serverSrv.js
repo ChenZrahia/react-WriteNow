@@ -99,6 +99,7 @@ export function DeleteDb() {
         tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
 
+
         tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid,password)', [], null, errorDB);
         tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime, lastMessageEncrypted)', [], null, errorDB); //להוציא לפונקציה נפרדת
         tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, picture, isMyContact)', [], null, errorDB); //להוציא לפונקציה נפרדת
@@ -116,38 +117,6 @@ setTimeout(() => {
         tx.executeSql('CREATE TABLE IF NOT EXISTS Participates (convId NOT NULL, uid NOT NULL, isGroup, PRIMARY KEY (convId, uid))', [], null, errorDB);
     });
 }, 100);
-
-//Users
-//   function setImageVisible(visible) {
-//         try {
-//             this.setState({ imageVisible: visible });
-//         } catch (e) {
-//             ErrorHandler.WriteError('MessageImage.js => setImageVisible', e);
-//         }
-//     }
-// export function openImageModal(image) {
-//         try {
-//             return (
-//                 <Modal
-//                     transparent={true}
-//                     visible={this.state.imageVisible == true}
-//                     onRequestClose={() => { console.log('image closed') } }
-//                     >
-//                     <TouchableOpacity style={{ flex: 1 }} onPress={() => {
-//                         this.setImageVisible(!this.state.imageVisible)
-//                     } }>
-//                         <View style={generalStyles.styles.imageModal}>
-//                             <Image style={generalStyles.styles.imageInsideModal} source={{uri: image}} />
-//                         </View>
-//                     </TouchableOpacity>
-//                 </Modal>
-//             );
-//         } catch (e) {
-//             ErrorHandler.WriteError('serverSrv.js => openImageModal', e);
-//         }
-
-
-//     }
 
 export function GetAllMyFriends(callback, isUpdate) {
     try {
@@ -339,9 +308,9 @@ var testMode = false;
 export function GetAllUserConv(callback, isUpdate) {
     try {
         if (testMode == true) {
-            GetAllUserConv_Server(callback); 
+            GetAllUserConv_Server(callback);
             return;
-        } 
+        }
         if (isUpdate == true) {
             _isFirstTime_Chats = true;
         }
@@ -406,18 +375,18 @@ function GetAllUserConv_Server(callback) {
             convIdArray = [];
         }
         socket.emit('GetAllUserConvChanges', convIdArray, ((data) => {
-                if (testMode == true) {
-                    callback(data);
-                    return;
-                } else{
-                    console.log('data', testMode);
-                }
+            if (testMode == true) {
+                callback(data);
+                return;
+            } else {
+                console.log('data', testMode);
+            }
             db.transaction((tx) => {
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].deletedConv == true && data[i].id) {
                         tx.executeSql('DELETE FROM Conversation WHERE id=?', [data[i].id]);
                     } else if (data[i].isExist == true) {
-                        
+
                         tx.executeSql(' UPDATE Conversation ' +
                             ' set isEncrypted = ?, ' +
                             ' manager = ?, ' +
@@ -588,12 +557,12 @@ function GetConv_server(convId, callback) {
         }
         socket.emit('enterChat', convId);
         socket.emit('GetConvChangesById', convId, lastMessageTime, ((data) => {
-            var result = data.participates.filter((user)=>{ return user.id != _uid;});
-          
+            var result = data.participates.filter((user) => { return user.id != _uid; });
+
             if (result.length > 0) {
-                 _myFriendPublicKey = result[0].pkey
+                _myFriendPublicKey = result[0].pkey
             }
-       
+
             if (!_myConvs[convId] || !_myConvs[convId].participates) {
                 _myConvs[convId] = { participates: [] };
             }
@@ -678,7 +647,7 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
                                 _myFriendsJson[Fid]._id = Fid;
                                 if (_myChats.filter((chat) => { return chat.id == result.id; }).length == 0) { //if the chat not axist
                                     db.transaction((tx2) => {
-                                        tx2.executeSql('INSERT OR REPLACE into Conversation values(?,?,?,?,?,?,?,?)', [result.id.toString(), false, result.manager, _myFriendsJson[Fid].publicInfo.fullName, _myFriendsJson[Fid].publicInfo.picture, false]);
+                                        tx2.executeSql('INSERT OR REPLACE into Conversation values(?,?,?,?,?,?,?,?,?)', [result.id.toString(), false, result.manager, _myFriendsJson[Fid].publicInfo.fullName, _myFriendsJson[Fid].publicInfo.picture, result.lastMessageEncrypted, false/*TODO: check if true or false!*/]);
                                         tx2.executeSql('INSERT OR REPLACE into Participates values(?,?,?)', [result.id.toString(), Fid.toString(), false]);
                                         tx2.executeSql('UPDATE Friends set id = ? WHERE phoneNumber = ?', [Fid.toString(), phoneNumber.toString()]);
                                         Event.trigger('NewChat', {
@@ -762,6 +731,7 @@ export function Typing(msg) {
         //                 ErrorHandler.WriteError(error);
         //             }
         //     }, 3000);
+
         if (_ActiveConvId) {
             msg.convId = _ActiveConvId;
         }
@@ -800,7 +770,7 @@ export function createNewGroup(_groupName, _groupPicture, _participates) {
                     result.isGroup,
                     result.lastMessage,
                     result.lastMessageTime,
-                    false
+                        false
                     ]);
                 for (var i = 0; i < result.participates.length; i++) {
                     tx.executeSql('INSERT INTO Participates VALUES (?, ?, ?)',
@@ -811,11 +781,107 @@ export function createNewGroup(_groupName, _groupPicture, _participates) {
                 }
             });
             Actions.ChatRoom(result);
-            //this.UpdatelastMessage(null, null , result.id, false)
             Event.trigger('LoadNewChat', result.id, false);
         });
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => createNewGroup' + error.message, error);
+    }
+}
+
+export function updateGroupInfo(_convId, _groupName, _groupPicture) {
+    try {
+        socket.emit('updateGroupInfo', { convId: _convId, groupName: _groupName, groupPicture: _groupPicture }, (result) => {
+            db.transaction((tx) => {
+                tx.executeSql('UPDATE Conversation SET groupName = ?, groupPicture = ? WHERE id = ?',
+                    [result.groupName,
+                    result.groupPicture,
+                    result.id
+                    ], (rs) => {
+                        Event.trigger('LoadNewChat', result.id, false);
+                    });
+            });
+            Actions.ChatRoom(result);
+        });
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => updateGroupInfo' + error.message, error);
+    }
+}
+
+export function updateGroupParticipants(_convId, _participates) {
+    try {
+        socket.emit('updateGroupParticipants',  _convId , _participates, (result) => {
+            db.transaction((tx) => {
+                tx.executeSql('DELETE FROM Participates WHERE convId = ?',
+                    [result.id]);
+                for (var i = 0; i < result.participates.length; i++) {
+                    tx.executeSql('INSERT INTO Participates VALUES (?, ?, ?)',
+                        [result.id,
+                        result.participates[i],
+                        result.isGroup
+                        ]);
+                }
+            });
+            Actions.ChatRoom(result);
+            Event.trigger('LoadNewChat', result.id, false);
+        });
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => updateGroupParticipants' + error.message, error);
+    }
+}
+
+export function getConvParticipates(_convId, callback) {
+    try {
+        db.transaction((tx) => {
+            tx.executeSql('SELECT uid FROM Participates WHERE convId=?', [_convId], (tx, rsP) => {
+                var uidArr = '(';
+                for (var i = 0; i < rsP.rows.length; i++) {
+                    if (i == (rsP.rows.length - 1)) {
+                        uidArr += ('"' + rsP.rows.item(i).uid + '"');
+                    }
+                    else {
+                        uidArr += ('"' + rsP.rows.item(i).uid + '"' + ',');
+                    }
+                }
+                uidArr += ')';
+                var selectStr = 'SELECT * FROM Friends WHERE id IN ' + uidArr + ' ORDER BY fullName';
+                tx.executeSql(selectStr, [], (tx, rs) => {
+                    var convParticipates = [];
+                    for (var i = 0; i < rs.rows.length; i++) {
+                        if (convParticipates.indexOf(rs.rows.item(i).id) === -1) {
+                            convParticipates.push({
+                                id: rs.rows.item(i).id,
+                                phoneNumber: rs.rows.item(i).phoneNumber,
+                                ModifyDate: rs.rows.item(i).ModifyDate,
+                                ModifyPicDate: rs.rows.item(i).ModifyPicDate,
+                                publicInfo: {
+                                    fullName: rs.rows.item(i).fullName,
+                                    picture: rs.rows.item(i).picture
+                                }
+                            });
+                        }
+                    }
+                    callback(convParticipates)
+                });
+            });
+        });
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => getConvParticipates' + error.message, error);
+    }
+}
+
+export function getGroupManagers(_convId, callback) {
+    try {
+        db.transaction((tx) => {
+            tx.executeSql('SELECT manager FROM Conversation WHERE id=?', [_convId], (tx, rs) => {
+                var groupManagers = [];
+                for (var i = 0; i < rs.rows.length; i++) {
+                    groupManagers.push(rs.rows.item(i).manager);
+                }
+                callback(groupManagers)
+            });
+        });
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => getConvParticipates' + error.message, error);
     }
 }
 
@@ -867,7 +933,6 @@ export function saveNewMessage(msg, saveLocal) {
                     msg.isSeenByAll,
                         pathOrImage
                     ]);
-
                 tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ?, lastMessageEncrypted = ? WHERE id = ? AND lastMessageTime < ?',
                     [msg.content,
                     moment(msg.sendTime).toISOString(),

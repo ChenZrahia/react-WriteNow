@@ -116,7 +116,8 @@ export default class Tabs extends Component {
                         <TouchableOpacity style={{ margin: 7 }} onPress={() => {
                             this.menuOption();
                         } }>
-                            <IconMat name="more-vert" size={25} color="rgb(177,100,255)" />
+                            <IconMat name="more-vert" size={25} color="white" />                           
+
                         </TouchableOpacity>
 
                         {renderIf(this.state.showMenu)(
@@ -136,19 +137,29 @@ export default class Tabs extends Component {
                                         position: 'absolute',
                                         top: 35,
                                         right: 25,
+                                        elevation: 6,
                                     }}>
                                         <TouchableOpacity onPress={() => {
                                             this.showNewGroup();
                                         } }>
-                                            <Text style={{ margin: 7, left: 6 }}>New Group</Text>
+                                        <View style={{ margin: 7, left: 6 ,alignItems:'center', flexDirection:'row' }}>
+                                            <IconMat name="people" size={20} color="black" /> 
+                                            <Text> New Group</Text>
+                                        </View>   
                                         </TouchableOpacity>
                                         <TouchableOpacity onPress={() => {
                                         } }>
-                                            <Text style={{ margin: 7, left: 6 }}>New List</Text>
+                                        <View style={{ margin: 7, left: 6 ,alignItems:'center', flexDirection:'row' }}>
+                                            <IconMat name="list" size={20} color="black" /> 
+                                            <Text> New List</Text>
+                                        </View>
                                         </TouchableOpacity>
                                         <TouchableOpacity onPress={() => {
                                         } }>
-                                            <Text style={{ margin: 7, left: 6 }}>Settings</Text>
+                                        <View style={{ margin: 7, left: 6 ,alignItems:'center', flexDirection:'row' }}>
+                                            <IconMat name="settings" size={20} color="black" /> 
+                                            <Text> Settings</Text>
+                                        </View>
                                         </TouchableOpacity>
                                     </View>
                                 </TouchableOpacity>

@@ -23,6 +23,10 @@ export const styles = StyleSheet.create({
         fontSize: 18,
         color: 'white',
     },
+    titleHeaderContainer: {
+        flex: 1,
+        marginTop: 5
+    },
     statusbar: {
         backgroundColor: '#820cf7',
         height: 24,
