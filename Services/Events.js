@@ -18,9 +18,16 @@ export function on(_eventName, _func) {
 
 export function trigger(_eventName, ..._args) {
     try {
-        if (listeners[_eventName]) {
+        if (listeners && listeners[_eventName]) {
             for (var i = 0; i < listeners[_eventName].length; i++) {
-                listeners[_eventName][i].function(..._args);
+                try {
+                    if (listeners[_eventName][i].function) {
+                        listeners[_eventName][i].function(..._args);
+                    }
+                } catch (error) {
+                    console.log('trigger -> ### ' , error);
+                    console.log('_eventName -> ### ' , _eventName);
+                }
             }
         }
     } catch (error) {

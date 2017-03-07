@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import IconMat from 'react-native-vector-icons/MaterialIcons';
-
+import moment from 'moment';
 var dismissKeyboard = require('dismissKeyboard');
 var Event = require('../../Services/Events');
 var serverSrv = require('../../Services/serverSrv');
@@ -29,9 +29,9 @@ export default class LiveChat extends Component {
         super();
         try {
             dismissKeyboard();
-            const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+            this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         this.state = {
-            dataSource: ds.cloneWithRows([{id: 1, groupName: 'groupName', callType: 1},{id: 2, groupName: 'groupName', callType: 2}, {id: 3, groupName: 'groupName', callType: 3}]) 
+            dataSource: this.ds.cloneWithRows([]) 
         };
         } catch (e) {
             ErrorHandler.WriteError("LiveChat.js -> constructor", e);
@@ -40,7 +40,11 @@ export default class LiveChat extends Component {
 
     componentDidMount() {
         try {
-           
+           serverSrv.GetLiveChats((data) => {
+                this.setState({
+                    dataSource: this.ds.cloneWithRows(data) 
+                });
+           });
         } catch (e) {
             ErrorHandler.WriteError("LiveChat.js -> componentDidMount", e);
         }
@@ -75,7 +79,14 @@ export default class LiveChat extends Component {
             return (<IconMat name="videocam" size={25} color="#57129c" />);
         } else if (type == callType.ppt) {
           return (<IconMat name="record-voice-over" size={25} color="#57129c" />);
+        } 
+    }
+
+    renderIconIsIncommingCall(callerId) {
+        if (callerId == serverSrv._uid) {
+            return (<IconMat name="call-made" size={20} color="#00ff1f" />);
         } else {
+            return (<IconMat name="call-received" size={20} color="red" />);
         }
     }
 
@@ -88,7 +99,8 @@ export default class LiveChat extends Component {
                         dataSource={this.state.dataSource}
                         renderRow={(rowData) =>
                             <TouchableOpacity onPress={() => {
-                                Actions.Call();
+                                //Actions.Call();
+                                console.log(rowData.Conversation.groupName);
                             } }>
                                 <View style={generalStyle.styles.row}>
                                     <TouchableOpacity onPress={() => {
@@ -96,26 +108,30 @@ export default class LiveChat extends Component {
                                         this.setImageVisible(true);
                                     } }>
                                         <View style={generalStyle.styles.viewImg}>
-                                            <Image style={generalStyle.styles.thumb} source={rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? rowData.isGroup : require('../../img/user.jpg'))} />
+                                            <Image style={generalStyle.styles.thumb} source={serverSrv._myFriendsJson[rowData.receiverId] && serverSrv._myFriendsJson[rowData.receiverId].publicInfo.picture
+                                             ? serverSrv._myFriendsJson[rowData.receiverId].publicInfo.picture : require('../../img/user.jpg')} />
                                         </View>
                                     </TouchableOpacity>
                                     <View style={{ flexDirection: 'column', flex: 1, marginRight: 7 }}>
                                         <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
-                                            <Text style={generalStyle.styles.textName}>
-                                                {rowData.groupName}
-                                            </Text>
+                                            <Text>{this.renderIconIsIncommingCall(rowData.callerId)}
+                                                <Text style={generalStyle.styles.textName}>
+                                                    {rowData.Conversation.groupName}
+                                                </Text>
+                                            </Text>                                            
                                             <Text style={generalStyle.styles.textDate}>
-                                                {this.getDateFormated(rowData.lastMessageTime)}
+                                                (00:00:00)
                                             </Text>
                                         </View>
                                         <Text style={generalStyle.styles.textStatus}>
-                                            {rowData.lastMessage}
+                                            {moment(rowData.callDateTime).calendar() }
                                         </Text>
                                     </View>
                                     <View style={generalStyle.styles.iconContainer}>
                                         <Text>
                                             {this.renderIconType(rowData.callType)}
                                         </Text>
+                                        
                                     </View>
                                 </View>
                             </TouchableOpacity>

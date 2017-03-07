@@ -18,6 +18,7 @@ var Event = require('./Events');
 var SignUp = require('../src/SignUp/SignUp');
 var moment = require('moment');
 var RSAKey = require('react-native-rsa');
+var Sound = require('react-native-sound');
 
 //--------for dev mode only-----------//
 var encryptedUid = 'UIP5n4v1jj24a+dHq6L/QqLwDFtPnSoebPzUe5+DWKOQ+rj5boKTAI6goMgySXHDj4BRMOa16wNV743D3/5WfRlXPrizY6nvi3XEmg/oPQvmNLlchDDjqZpQW8nfAS3IH9jZwDqFjxMKVkMau1SOLJxMroz7hTKVH7gOCGLHzik=';
@@ -33,6 +34,16 @@ export var socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {});
 var ErrorHandler = require('../ErrorHandler');
 var SQLite = require('react-native-sqlite-storage')
 
+var newMsg_ring = null;
+var msgReceived = null;
+var msgSended = null;
+var startTyping = null;
+setTimeout(() => {
+    newMsg_ring = new Sound('new_msg.mp3', Sound.MAIN_BUNDLE, (error) => { });
+    msgReceived = new Sound('bubble.mp3', Sound.MAIN_BUNDLE, (error) => { });
+    msgSended = new Sound('type.mp3', Sound.MAIN_BUNDLE, (error) => { });
+    startTyping = new Sound('start_type.mp3', Sound.MAIN_BUNDLE, (error) => { });
+}, 500);
 
 /*var CryptoJS = require("crypto-js");
 var SHA256 = require("crypto-js/sha256");*/
@@ -60,6 +71,7 @@ export var _hashPassword = null;
 export var _token = '';
 export var _privateKey = '';
 export var _isCallMode = false;
+export var _convId = null;
 
 function printTable(tblName) {
     db.transaction((tx) => {
@@ -74,6 +86,7 @@ function printTable(tblName) {
             console.log('---------------------------------------');
             for (var i = 0; i < rs.rows.length; i++) {
                 console.log(rs.rows.item(i));
+
             }
             console.log('---------------------------------------');
         }, errorDB);
@@ -378,9 +391,7 @@ function GetAllUserConv_Server(callback) {
             if (testMode == true) {
                 callback(data);
                 return;
-            } else {
-                console.log('data', testMode);
-            }
+            } 
             db.transaction((tx) => {
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].deletedConv == true && data[i].id) {
@@ -479,13 +490,7 @@ export function GetConv(callback, convId, isUpdate) {
                             lastTypingTime: rs.rows.item(i).lastTypingTime,
                             isSeenByAll: rs.rows.item(i).isSeenByAll,
                             user: _user
-                            //_myFriendsJson[rs.rows.item(i).msgFrom] ? { _id: _myFriendsJson[rs.rows.item(i).id], name: _myFriendsJson[rs.rows.item(i).publicInfo.fullName } , { name: 'ERROR' }
-                            //user: _myFriendsJson[rs.rows.item(i).msgFrom] ? _myFriendsJson[rs.rows.item(i).msgFrom] : { name: 'ERROR' } //myUser
                         };
-                        if (chat.user.name == "ERROR") {
-                            console.log(rs.rows.item(i).msgFrom);
-                            console.log('_myFriendsJson[k].id');
-                        }
                         myChatsJson[rs.rows.item(i).id] = chat;
                         result.push(chat);
                     }
@@ -525,26 +530,39 @@ function InsertNewContact(tx, user) {
         if (user.imgPath) {
             imgOrPath = user.imgPath;
         }
-        tx.executeSql('INSERT INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [user.id,
-            user.convId,
-            user.isEncrypted,
-            user.from,
-            user.content,
-            user.sendTime,
-            user.lastTypingTime,
-            user.isSeenByAll,
-                imgOrPath
-            ]);
-        tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ?, lastMessageEncrypted = ? WHERE id = ? AND lastMessageTime < ?',
-            [user.content,
-            user.sendTime,
-            user.convId,
-            user.sendTime,
-            user.lastMessageEncrypted
-            ]);
+        if (user.content && user.content.length > 0) {
+            tx.executeSql('INSERT OR REPLACE INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [user.id,
+                    user.convId,
+                    user.isEncrypted,
+                    user.from,
+                    user.content,
+                    user.sendTime,
+                    user.lastTypingTime,
+                    user.isSeenByAll,
+                    imgOrPath
+                    ]);
+
+            tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ?, lastMessageEncrypted = ? WHERE id = ? AND lastMessageTime < ?',
+                [user.content,
+                user.sendTime,
+                user.convId,
+                user.sendTime,
+                user.lastMessageEncrypted
+                ]);
+        }
+        
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => InsertNewContact', error);
+    }
+}
+
+export function exitChat(convId){
+    try {
+        _convId = null;
+        socket.emit('exitChat', convId);
+    } catch (error) {
+        ErrorHandler.WriteError('exitChat', error);
     }
 }
 
@@ -555,6 +573,7 @@ function GetConv_server(convId, callback) {
         if (_myConvs && _myConvs[convId]) {
             lastMessageTime = _myConvs[convId].lastMessageTime; //last message time
         }
+        _convId = convId;
         socket.emit('enterChat', convId);
         socket.emit('GetConvChangesById', convId, lastMessageTime, ((data) => {
             var result = data.participates.filter((user) => { return user.id != _uid; });
@@ -700,6 +719,16 @@ function UpdatePhoneNumberToId(phoneNumber, id) {
     }
 }
 
+export function deleteMessageFromLocalDBFriend(convID, messageID){
+     try {
+        console.log(messageID);
+        db.transaction((tx) => {
+            tx.executeSql('DELETE FROM Messages WHERE id = ?', [messageID], (tx, rs) => { });
+        });
+          } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => deleteMessageFromLocalDBFriend', error);
+    }
+}
 
 export function deleteMessageFromLocalDB(convID, messageID) {
     try {
@@ -722,36 +751,12 @@ export function deleteMessageFromLocalDB(convID, messageID) {
 
 export function Typing(msg) {
     try {
-        // setTimeout(() => {
-        //         try {
-        //              testtttttt.testtttt();
-        //             } catch (error) {
-        //                 console.log('testtttttt.testtttt');
-        //                 console.log(error);
-        //                 ErrorHandler.WriteError(error);
-        //             }
-        //     }, 3000);
 
         if (_ActiveConvId) {
             msg.convId = _ActiveConvId;
         }
         msg.from = _uid;
-        // if(msg.isEncrypted == true){
-        //     msg.content = 'הודעה מוצפנת';
-
-        // }
         socket.emit('typing', msg);
-        // console.log('1 - typing');
-        // socket.emit('typing', {
-        //         mid: msg.mid,
-        //         id: msg.id,
-        //         _id: msg._id,
-        //         convId: msg.convId,
-        //         isEncrypted: false,
-        //         lastTypingTime: msg.lastTypingTime,
-        //         from: msg.from,
-        //         content: msg.content
-        //     });
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => Typing' + error.message, error);
     }
@@ -885,23 +890,33 @@ export function getGroupManagers(_convId, callback) {
     }
 }
 
+var isPlayed = false;
 export function onServerTyping(callback) {
     try {
         _isFirstTime_Conv = true;
         socket.removeAllListeners("typing");
         socket.on('typing', (msg) => {
+            if (isPlayed == false && startTyping && msg.from != _uid && this._convId == msg.convId) {
+                isPlayed = true;
+                startTyping.play();
+            }
+            if (msg.content.length == 0 && msg.from != _uid) {
+                isPlayed = false;
+            }
             Event.trigger('serverTyping', msg);
             callback(msg);
             if (msg.sendTime && msg.from != _uid) {
                 if (msg.image) {
                     ImageResizer.createResizedImage(msg.image, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
                         msg.imgPath = resizedImageUri;
+                        isPlayed = false;
                         this.saveNewMessage(msg);
                     }).catch((err) => {
                         ErrorHandler.WriteError('serverSrv.js => onServerTyping => ImageResizer', err);
                     });
 
                 } else {
+                    isPlayed = false;
                     this.saveNewMessage(msg);
                 }
             }
@@ -920,19 +935,30 @@ export function saveNewMessage(msg, saveLocal) {
         if (msg.imgPath) {
             pathOrImage = msg.imgPath;
         }
+        if (msg.from == _uid) {
+            if (msgSended && this._convId == msg.convId) {
+                msgSended.play((success) => { });
+            } 
+        } else {
+            if (msgReceived && this._convId == msg.convId) {
+                msgReceived.play((success) => { });
+            }
+        }
+
         if (saveLocal != false) {
             db.transaction((tx) => {
-                tx.executeSql('INSERT INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    [msg.id,
-                    msg.convId,
-                    msg.isEncrypted,
-                    msg.from,
-                    msg.content,
-                    moment(msg.sendTime).toISOString(),
-                    msg.lastTypingTime,
-                    msg.isSeenByAll,
-                        pathOrImage
-                    ]);
+                if (msg.content && msg.content.length > 0) {
+                    tx.executeSql('INSERT OR REPLACE INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                        [msg.id,
+                        msg.convId,
+                        msg.isEncrypted,
+                        msg.from,
+                        msg.content,
+                        moment(msg.sendTime).toISOString(),
+                        msg.lastTypingTime,
+                        msg.isSeenByAll,
+                            pathOrImage
+                        ]);
                 tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ?, lastMessageEncrypted = ? WHERE id = ? AND lastMessageTime < ?',
                     [msg.content,
                     moment(msg.sendTime).toISOString(),
@@ -941,6 +967,7 @@ export function saveNewMessage(msg, saveLocal) {
                     msg.isEncrypted
                     ], (rs) => {
                     });
+                }                 
             });
         }
         if (saveLocal != true && msg.from == _uid) {
@@ -1000,6 +1027,18 @@ export function GetConvData_ByConvId(convId, callback) {
         }, (error) => {
             ErrorHandler.WriteError('serverSrv.js => GetConvData_ByConvId => transaction', error);
         });
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => GetConvData_ByConvId', error);
+    }
+}
+
+export function GetLiveChats(callback) {
+    try {
+        if (callback) {
+            socket.emit('GetLiveChats', (data) => {
+                callback(data);
+            });
+        }        
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => GetConvData_ByConvId', error);
     }

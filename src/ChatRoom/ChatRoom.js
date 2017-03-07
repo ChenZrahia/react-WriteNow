@@ -77,6 +77,7 @@ export default class ChatRoom extends Component {
             Event.on('imojiType', this.onType);
             Event.on('encryptedMessage', this.onSend);
             BackAndroid.addEventListener('hardwareBackPress', () => {
+                serverSrv.exitChat(this.convId);
                 if (this.convId && this.messages.length > 0 && this.messages[0].text && this.messages[0].text.length > 0 && this.messages[0].sendTime) {
                     Event.trigger('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false, this.messages[0].isEncrypted);
                 }
@@ -165,19 +166,23 @@ deleteFriendMessageUI(mid){
     console.log("try to clear all friends message from UI");
     console.log(mid);
     // console.log(messages);
-     this.setState({
-    messages: this.state.messages.filter((x) =>{ 
-        if(x.id !== mid){
-            console.log(x.id,mid);
-             return true;
-        }
-        else {
-            console.log("false");
-            return false;
+     var result = this.state.messages.filter((x) => x.id !== mid);
+    //  ((x) =>{ 
+    //     if(x.id !== mid){
+    //         console.log("only the right message show..");
+    //         console.log(x.id,mid);
+    //          return true;
+    //     }
+    //     else {
+    //         console.log("false");
+    //         return false;
         
-    }
-    }) //delete message from the UI
+    // }
+    // }) //delete message from the UI
+     this.setState({
+    messages: result
   });
+  serverSrv.deleteMessageFromLocalDBFriend(this.convId,mid);
   //serverSrv.deleteFriendMessage(this.convId,id);
  }catch(error){
         ErrorHandler.WriteError('ChatRoom.js => deleteFriendMessageUI', error);
