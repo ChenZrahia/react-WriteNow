@@ -11,6 +11,7 @@ export function WriteError(stackTrace, e){
             return;
         }
 
+
         var msg = e.message || e;
         console.log(msg, stackTrace);
         serverSrv.socket.emit('WriteError',  msg, stackTrace);

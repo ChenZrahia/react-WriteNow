@@ -46,9 +46,11 @@ export default class ChatRoom extends Component {
             this.onType = this.onType.bind(this);
             this.guid = this.guid.bind(this);
             this.onFriendType = this.onFriendType.bind(this);
+            this.deleteMessage = this.deleteMessage.bind(this);
             this.showImagePicker = this.showImagePicker.bind(this);
             this.sendImageMessage = this.sendImageMessage.bind(this);
             this.LoadNewChat = this.LoadNewChat.bind(this);
+            this.deleteFriendMessageUI = this.deleteFriendMessageUI.bind(this);
             this.messages = [];
             this.indexOnlineMessages = [];
             this.onlineMessages = [];
@@ -65,6 +67,10 @@ export default class ChatRoom extends Component {
             Event.removeAllListeners('sendSegnature');
             Event.removeAllListeners('imojiType');
             Event.removeAllListeners('encryptedMessage');
+            Event.removeAllListeners('deleteMessage');
+            Event.removeAllListeners('deleteFriendMessageUI');
+            Event.on('deleteFriendMessageUI', this.deleteFriendMessageUI);
+            Event.on('deleteMessage', this.deleteMessage);
             Event.on('showImagePicker', this.showImagePicker);
             Event.on('showSignature', this.showSignature);
             Event.on('sendSegnature', this.sendImageMessage);
@@ -118,6 +124,8 @@ export default class ChatRoom extends Component {
                     data = [];
                 }
                 this.messages = data;
+                // console.log("***LoadNewChat****");
+                // console.log(this.messages);
                 this.convId = convId;
                 this.setState({
                     messages: GiftedChat.append(this.messages, this.onlineMessages),
@@ -141,6 +149,47 @@ export default class ChatRoom extends Component {
         }
     }
 
+deleteMessage(text,id){
+    try{
+            this.setState({
+    messages: this.state.messages.filter((x) => x.id !== id) //delete message from the UI
+  });
+  serverSrv.deleteMessageFromLocalDB(this.convId,id);
+
+    }catch(error){
+        ErrorHandler.WriteError('ChatRoom.js => deleteMessage', error);
+    }
+}
+
+deleteFriendMessageUI(mid){
+    try{
+    console.log("try to clear all friends message from UI");
+    console.log(mid);
+    // console.log(messages);
+     var result = this.state.messages.filter((x) => x.id !== mid);
+    //  ((x) =>{ 
+    //     if(x.id !== mid){
+    //         console.log("only the right message show..");
+    //         console.log(x.id,mid);
+    //          return true;
+    //     }
+    //     else {
+    //         console.log("false");
+    //         return false;
+        
+    // }
+    // }) //delete message from the UI
+     this.setState({
+    messages: result
+  });
+  serverSrv.deleteMessageFromLocalDBFriend(this.convId,mid);
+  //serverSrv.deleteFriendMessage(this.convId,id);
+ }catch(error){
+        ErrorHandler.WriteError('ChatRoom.js => deleteFriendMessageUI', error);
+    }
+}
+
+    
     guid() {
         try {
             function s4() {

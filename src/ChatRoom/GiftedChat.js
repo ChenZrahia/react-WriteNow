@@ -99,6 +99,7 @@ export default class GiftedChat extends React.Component {
       mid: "",
       encryptedPassword: '',
       decryptedsecureTextEntry: true,
+      placeholderTextColor: '#b2b2b2',
     };
 
     this.decryptedMessage = this.decryptedMessage.bind(this);
@@ -649,6 +650,7 @@ export default class GiftedChat extends React.Component {
             placeHolderDecrypted: '',
             headerTextDecrypted: "Message Decrypted Successfully",
             encryptedPassword: '',
+            
           });
         });
       }
@@ -717,12 +719,12 @@ export default class GiftedChat extends React.Component {
                   editable={this.state.decryptedsecureTextEntry}
                   autoCorrect={true}
                   placeholder={this.state.placeHolderDecrypted}
-                  placeholderTextColor='#b2b2b2'
+                  placeholderTextColor={this.state.placeholderTextColor}
                   multiline={this.state.multiline}
                   onChangeText={(DecryptedMessageText) => {
                     this.setState({ DecryptedMessageText });
                   } }
-                  style={[styles.textInput, { textAlign: 'left', textAlignVertical: 'top' }, { height: Math.max(35, this.state.height) }]}
+                  style={[styles.textInput, { textAlign: 'left', textAlignVertical: 'top',color:'black' }, { height: Math.max(35, this.state.height) }]}
                   value={this.state.DecryptedMessageText}
                   enablesReturnKeyAutomatically={true}
                   underlineColorAndroid="transparent"
