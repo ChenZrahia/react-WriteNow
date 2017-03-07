@@ -34,18 +34,12 @@ var _IsIncomingCall = false;
 var mirs1 = new Sound('mirs1.mp3', Sound.MAIN_BUNDLE, (error) => {
     if (error) {
         console.log('failed to load the sound', error);
-    } else { // loaded successfully 
-        console.log('duration in seconds: ' + mirs1.getDuration() +
-            'number of channels: ' + mirs1.getNumberOfChannels());
     }
 });
 
 var mirs2 = new Sound('mirs2.mp3', Sound.MAIN_BUNDLE, (error) => {
     if (error) {
         console.log('failed to load the sound', error);
-    } else { // loaded successfully 
-        console.log('duration in seconds: ' + mirs2.getDuration() +
-            'number of channels: ' + mirs2.getNumberOfChannels());
     }
 });
 
