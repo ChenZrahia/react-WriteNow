@@ -725,6 +725,8 @@ export function deleteMessageFromLocalDBFriend(convID, messageID){
         db.transaction((tx) => {
             tx.executeSql('DELETE FROM Messages WHERE id = ?', [messageID], (tx, rs) => { });
         });
+
+        myChatsJson[messageID] = null;
           } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => deleteMessageFromLocalDBFriend', error);
     }
@@ -743,6 +745,7 @@ export function deleteMessageFromLocalDB(convID, messageID) {
             console.log("trigger");
             Event.trigger("deleteFriendMessageUI",msg);
         });
+        myChatsJson[messageID] = null;
         
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => deleteMessageFromLocalDB', error);
