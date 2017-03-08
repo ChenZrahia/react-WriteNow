@@ -151,8 +151,8 @@ export default class ChatRoom extends Component {
 
 deleteMessage(text,id){
     try{
-            this.setState({
-    messages: this.state.messages.filter((x) => x.id !== id) //delete message from the UI
+    this.setState({
+         messages: this.state.messages.filter((x) => x.id !== id) //delete message from the UI
   });
   serverSrv.deleteMessageFromLocalDB(this.convId,id);
 
