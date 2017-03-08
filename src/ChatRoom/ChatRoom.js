@@ -271,7 +271,7 @@ deleteFriendMessageUI(mid){
         try {
             this.setState({ imageVisible: visible });
         } catch (e) {
-            ErrorHandler.WriteError('GiftedChat.js => setImageVisible', e);
+            ErrorHandler.WriteError('ChatRoom.js => setImageVisible', e);
         }
     }
 
@@ -511,6 +511,7 @@ deleteFriendMessageUI(mid){
                     messages={this.state.messages}
                     onSend={this.onSend}
                     onType={this.onType}
+                    isGroup={this.props.isGroup}
                     user={{
                         _id: serverSrv._uid,
                     }}

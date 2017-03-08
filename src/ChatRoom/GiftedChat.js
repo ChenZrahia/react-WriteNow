@@ -971,7 +971,7 @@ export default class GiftedChat extends React.Component {
                 Actions.GroupProfile(this.props);
               }
               else {
-                Actions.GroupProfile(this.props);
+                Actions.ContactProfile(this.props);
               }
             }}>
               <View style={generalStyles.styles.viewImg}>
@@ -979,14 +979,11 @@ export default class GiftedChat extends React.Component {
               </View>
             </TouchableOpacity>
             <TouchableOpacity style={generalStyles.styles.titleHeaderContainer} onPress={() => {
-              console.log('is Group222');
-              console.log(this.props.user);
-              console.log(Object.keys(this.props))
               if (this.props.isGroup) {
                 Actions.GroupProfile(this.props);
               }
               else {
-                Actions.GroupProfile(this.props);
+                Actions.ContactProfile(this.props);
               }
             }}>
               <Text style={generalStyles.styles.titleHeader}>

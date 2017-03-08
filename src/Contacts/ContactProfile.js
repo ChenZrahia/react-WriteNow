@@ -69,11 +69,13 @@ export default class ContactProfile extends Component {
                             <TouchableOpacity onPress={() => {
                                 Actions.pop();
                             }}>
-                                <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
+                                <Icon name="ios-arrow-back" color="white" size={25} style={{ alignSelf: 'flex-start', paddingLeft: 3, paddingRight: 8, paddingTop: 5 }} />
                             </TouchableOpacity>
-                            <Text style={{ color: 'white', fontSize: 25 }}>
+                            <View style={{flex: 1}}>
+                            <Text style={{ alignSelf: 'center', paddingRight: 20, color: 'white', fontSize: 25 }}>
                                 {this.props.userName}
                             </Text>
+                            </View>
                         </View>
                         <TouchableOpacity on Press={() => {
                             this.setImageVisible(true);
@@ -122,7 +124,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#9933FF',
         margin: 5,
         padding: 10,
-        alignItems: 'center',
         justifyContent: 'space-between'
     },
     managerTag: {
