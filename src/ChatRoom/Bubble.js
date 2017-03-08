@@ -13,6 +13,7 @@ import {
 var generalStyles = require('../../styles/generalStyle');
 
 var Event = require('../../Services/Events');
+var serverSrv = require('../../Services/serverSrv');
 
 import MessageText from './MessageText';
 import MessageImage from './MessageImage';
@@ -29,13 +30,13 @@ export default class Bubble extends React.Component {
     } catch (e) {
       ErrorHandler.WriteError('Bubble.js => constructor', e);
     }
-  
+
     this.renderMessageText = this.renderMessageText.bind(this);
     this.renderMessageEncrypted = this.renderMessageEncrypted.bind(this);
-    
-   ;
+
+    ;
   }
-  
+
 
   handleBubbleToNext() {
     try {
@@ -58,14 +59,14 @@ export default class Bubble extends React.Component {
       ErrorHandler.WriteError('Bubble.js => handleBubbleToPrevious', e);
     }
   }
-greenLock(){
-  return(
-     <Image
-                    style={{ width: 40, height: 40, padding: 5 }}
-                    source={{ uri: 'https://thebuntlist.files.wordpress.com/2016/05/ratelockgraphic.png' }}
-                    />
-  );
-}
+  greenLock() {
+    return (
+      <Image
+        style={{ width: 40, height: 40, padding: 5 }}
+        source={{ uri: 'https://thebuntlist.files.wordpress.com/2016/05/ratelockgraphic.png' }}
+        />
+    );
+  }
 
 
   renderMessageEncrypted() {
@@ -73,25 +74,25 @@ greenLock(){
       //this.props.messages[0].text = "Encrypted Message";
       if (this.props.currentMessage.isEncrypted == 1) {
         const {containerStyle, wrapperStyle, ...messageEncrypedProps} = this.props;
-       return (
-         
+        return (
+
           <View >
-           <TouchableOpacity onPress={() => {
-             Event.trigger('decryptedMessage',this.props.currentMessage.text,this.props.currentMessage._id);
+            <TouchableOpacity onPress={() => {
+              Event.trigger('decryptedMessage', this.props.currentMessage.text, this.props.currentMessage._id);
             } }>
-         
-            <View style={{ flexDirection: 'row'}}>
-           <Image
-                    style={{ width: 35, height: 35, padding: 5 ,marginTop: 8,marginLeft: 8}}
-                    source={require('../../img/lock.png')}
-          />
-          <Text style={{fontSize: 16,lineHeight: 20,marginTop: 16, marginBottom: 5,marginLeft: 5,marginRight: 5,color: 'black',fontWeight: 'bold'}}>
-              Encrypted Message
+
+              <View style={{ flexDirection: 'row' }}>
+                <Image
+                  style={{ width: 35, height: 35, padding: 5, marginTop: 8, marginLeft: 8 }}
+                  source={require('../../img/lock.png')}
+                  />
+                <Text style={{ fontSize: 16, lineHeight: 20, marginTop: 16, marginBottom: 5, marginLeft: 5, marginRight: 5, color: 'black', fontWeight: 'bold' }}>
+                  Encrypted Message
               </Text>
+              </View>
+            </TouchableOpacity>
           </View>
-          </TouchableOpacity>
-       </View>
-           
+
         );
       }
       return null;
@@ -100,11 +101,11 @@ greenLock(){
     }
   }
   renderMessageText() {
-    try {  
-      if(this.props.currentMessage.isEncrypted == 1){
-         
-           this.renderMessageEncrypted();
-            return;
+    try {
+      if (this.props.currentMessage.isEncrypted == 1) {
+
+        this.renderMessageEncrypted();
+        return;
       }
       if (this.props.currentMessage.text) {
         const {containerStyle, wrapperStyle, ...messageTextProps} = this.props;
@@ -112,8 +113,8 @@ greenLock(){
           return this.props.renderMessageText(messageTextProps);
         }
         return <MessageText {...messageTextProps} />;
-       }
-      
+      }
+
       return null;
     } catch (e) {
       ErrorHandler.WriteError('Bubble.js => renderMessageText', e);
@@ -162,15 +163,14 @@ greenLock(){
       ErrorHandler.WriteError('Bubble.js => renderCustomView', e);
     }
   }
-deleteMessage()
-{
-  try{
-  console.log("*********************deleteMessage***************************deleteMessage");
-  Event.trigger('deleteMessage',this.props.currentMessage.text,this.props.currentMessage._id);
-  }catch(e){
-     ErrorHandler.WriteError('Bubble.js => deleteMessage', e);
-  };
-}
+  deleteMessage() {
+    try {
+      console.log("*********************deleteMessage***************************deleteMessage");
+      Event.trigger('deleteMessage', this.props.currentMessage.text, this.props.currentMessage._id);
+    } catch (e) {
+      ErrorHandler.WriteError('Bubble.js => deleteMessage', e);
+    };
+  }
 
 
   onLongPress() {
@@ -179,26 +179,50 @@ deleteMessage()
         this.props.onLongPress(this.context);
       } else {
         if (this.props.currentMessage.text) {
-          const options = [
-            'Copy Text',
-            'Delete Message',
-            'Cancel',
-          ];
-          const cancelButtonIndex = options.length - 1;
-          this.context.actionSheet().showActionSheetWithOptions({
-            options,
-            cancelButtonIndex,
-          },
-            (buttonIndex) => {
-              switch (buttonIndex) {
-                case 0:
-                  Clipboard.setString(this.props.currentMessage.text);
-                  break;
-                case 1:
-                  this.deleteMessage();
-                  break;
-              }
-            });
+          console.log(this.props.currentMessage.from);
+          console.log(serverSrv._uid);
+          if (this.props.currentMessage.from == serverSrv._uid) {
+            const options = [
+              'Copy Text',
+              'Delete Message',
+              'Cancel',
+            ];
+            const cancelButtonIndex = options.length - 1;
+            this.context.actionSheet().showActionSheetWithOptions({
+              options,
+              cancelButtonIndex,
+            },
+              (buttonIndex) => {
+                switch (buttonIndex) {
+                  case 0:
+                    Clipboard.setString(this.props.currentMessage.text);
+                    break;
+                  case 1:
+                    this.deleteMessage();
+                    break;
+                }
+              });
+
+          }
+          else {
+            const options = [
+              'Copy Text',
+              'Cancel',
+            ];
+            const cancelButtonIndex = options.length - 1;
+            this.context.actionSheet().showActionSheetWithOptions({
+              options,
+              cancelButtonIndex,
+            },
+              (buttonIndex) => {
+                switch (buttonIndex) {
+                  case 0:
+                    Clipboard.setString(this.props.currentMessage.text);
+                    break;
+                }
+              });
+
+          }
         }
       }
     } catch (e) {
