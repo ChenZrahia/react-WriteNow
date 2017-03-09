@@ -192,7 +192,7 @@ export default class NewGroupInfo extends Component {
                                 Event.trigger('UpdateChatInfo', {
                                     convId: this.props.convId,
                                     groupName: this.state.groupName,
-                                    groupPictrue: this.state.groupAvatar
+                                    groupPicture: this.state.groupAvatar.uri
                                 });
                             }}>
                                 <View>

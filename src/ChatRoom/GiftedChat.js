@@ -393,7 +393,7 @@ export default class GiftedChat extends React.Component {
           messages={this.getMessages()}
 
           ref={component => this._messageContainerRef = component}
-          />
+        />
         {this.renderChatFooter()}
       </AnimatedView>
     );
@@ -488,7 +488,7 @@ export default class GiftedChat extends React.Component {
         changeText={this.changeText}
         textInput={this.state.text}
         {...inputToolbarProps}
-        />
+      />
     );
   }
 
@@ -650,7 +650,7 @@ export default class GiftedChat extends React.Component {
             placeHolderDecrypted: '',
             headerTextDecrypted: "Message Decrypted Successfully",
             encryptedPassword: '',
-            
+
           });
         });
       }
@@ -704,8 +704,8 @@ export default class GiftedChat extends React.Component {
         <Modal
           transparent={true}
           visible={this.state.decryptedMessageVisible}
-          onRequestClose={() => { console.log('decryptedMessage modal closed') } }
-          >
+          onRequestClose={() => { console.log('decryptedMessage modal closed') }}
+        >
           <View style={generalStyles.styles.imageModal}>
             <View style={{ flex: 1 }}>
             </View>
@@ -723,23 +723,23 @@ export default class GiftedChat extends React.Component {
                   multiline={this.state.multiline}
                   onChangeText={(DecryptedMessageText) => {
                     this.setState({ DecryptedMessageText });
-                  } }
-                  style={[styles.textInput, { textAlign: 'left', textAlignVertical: 'top',color:'black' }, { height: Math.max(35, this.state.height) }]}
+                  }}
+                  style={[styles.textInput, { textAlign: 'left', textAlignVertical: 'top', color: 'black' }, { height: Math.max(35, this.state.height) }]}
                   value={this.state.DecryptedMessageText}
                   enablesReturnKeyAutomatically={true}
                   underlineColorAndroid="transparent"
-                  />
+                />
               </View>
               <View style={{ flexDirection: "row", flex: 0.5 }}>
                 <TouchableOpacity style={styles.buttonStyle}
-                  onPress={() => { this.tryToDecrypt(this.state.DecryptedMessageText) } } >
+                  onPress={() => { this.tryToDecrypt(this.state.DecryptedMessageText) }} >
                   <Text style={{ color: 'white' }}>Decrypt</Text>
                 </TouchableOpacity>
                 <View style={{ flex: 0.6, justifyContent: "center", alignItems: "center" }}>
                   <Image
                     style={{ width: 40, height: 40, padding: 2 }}
                     source={{ uri: 'https://cdn4.iconfinder.com/data/icons/social-productivity-line-art-4/128/security-shield-lock-512.png' }}
-                    />
+                  />
                 </View>
                 <TouchableOpacity style={styles.buttonStyle}
                   onPress={() =>
@@ -807,11 +807,11 @@ export default class GiftedChat extends React.Component {
         <Modal
           transparent={true}
           visible={this.state.imageVisible}
-          onRequestClose={() => { console.log('image closed') } }
-          >
+          onRequestClose={() => { console.log('image closed') }}
+        >
           <TouchableOpacity style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
             this.setImageVisible(!this.state.imageVisible)
-          } }>
+          }}>
             <View style={generalStyles.styles.imageModal}>
               <Image style={generalStyles.styles.imageInsideModal} source={image} />
             </View>
@@ -829,8 +829,8 @@ export default class GiftedChat extends React.Component {
         <Modal
           transparent={true}
           visible={this.state.encryptedVisible}
-          onRequestClose={() => { console.log('encrypted message modal closed') } }
-          >
+          onRequestClose={() => { console.log('encrypted message modal closed') }}
+        >
           <View style={generalStyles.styles.imageModal}>
             <View style={{ flex: 1, minHeight: 50 }}>
             </View>
@@ -847,12 +847,12 @@ export default class GiftedChat extends React.Component {
                   multiline={this.state.multiline}
                   onChangeText={(encryptedMessageText) => {
                     this.setState({ encryptedMessageText });
-                  } }
+                  }}
                   style={[styles.textInput, { textAlign: 'left', textAlignVertical: 'top' }, { height: Math.max(35, this.state.height) }]}
                   value={this.state.encryptedMessageText}
                   enablesReturnKeyAutomatically={true}
                   underlineColorAndroid="transparent"
-                  />
+                />
               </View>
               <View style={{ flexDirection: "row", flex: 0.5 }}>
                 <TouchableOpacity style={styles.buttonStyle}
@@ -863,17 +863,17 @@ export default class GiftedChat extends React.Component {
                     else {
                       this.encryptedMessageFunc(this.state.encryptedPassword);
                     }
-                  } } >
+                  }} >
                   <Text style={{ color: 'white' }}>Send</Text>
                 </TouchableOpacity>
                 <View style={{ flex: 0.6, justifyContent: "center", alignItems: "center" }}>
                   <Image
                     style={{ width: 40, height: 40, padding: 2 }}
                     source={{ uri: 'https://cdn4.iconfinder.com/data/icons/social-productivity-line-art-4/128/security-shield-lock-512.png' }}
-                    />
+                  />
                 </View>
                 <TouchableOpacity style={styles.buttonStyle}
-                  onPress={() => { this.setEncryptedVisible(!this.state.encryptedVisible) } } >
+                  onPress={() => { this.setEncryptedVisible(!this.state.encryptedVisible) }} >
                   <Text style={{ color: 'white' }}>Cancel</Text>
                 </TouchableOpacity>
               </View>
@@ -900,49 +900,49 @@ export default class GiftedChat extends React.Component {
     }
   }
 
-VedioCallFriend() {
-  liveSrv.Connect(this.props.convId, null, false, true, false);
-  Actions.Video({ userName: this.props.userName, userPicture: this.props.userPicture, convId: this.props.convId });
-  setTimeout(() => {
-    Event.trigger('getVideoCall', false);
-  }, 100);
-  this.setState({ showMenu: !this.state.showMenu });
-}
+  VedioCallFriend() {
+    liveSrv.Connect(this.props.convId, null, false, true, false);
+    Actions.Video({ userName: this.props.userName, userPicture: this.props.userPicture, convId: this.props.convId });
+    setTimeout(() => {
+      Event.trigger('getVideoCall', false);
+    }, 100);
+    this.setState({ showMenu: !this.state.showMenu });
+  }
 
-CallFriend() {
-  liveSrv.Connect(this.props.convId);
-  Actions.Call({ userName: this.props.userName, userPicture: this.props.userPicture, convId: this.props.convId });
-  setTimeout(() => {
-    Event.trigger('getCall', false);
-  }, 100);
-  this.setState({ showMenu: !this.state.showMenu });
-}
+  CallFriend() {
+    liveSrv.Connect(this.props.convId);
+    Actions.Call({ userName: this.props.userName, userPicture: this.props.userPicture, convId: this.props.convId });
+    setTimeout(() => {
+      Event.trigger('getCall', false);
+    }, 100);
+    this.setState({ showMenu: !this.state.showMenu });
+  }
 
-walkieTalkie() {
-  liveSrv.Connect(this.props.convId, null, false, false, true);
-  Actions.PTT({ userName: this.props.userName, userPicture: this.props.userPicture, convId: this.props.convId });
-  setTimeout(() => {
-    Event.trigger('getPttCall', false);
-  }, 100);
-  this.setState({ showMenu: !this.state.showMenu });
-}
+  walkieTalkie() {
+    liveSrv.Connect(this.props.convId, null, false, false, true);
+    Actions.PTT({ userName: this.props.userName, userPicture: this.props.userPicture, convId: this.props.convId });
+    setTimeout(() => {
+      Event.trigger('getPttCall', false);
+    }, 100);
+    this.setState({ showMenu: !this.state.showMenu });
+  }
 
-settings() {
-  console.log('settings is working well');
-  this.setState({ showMenu: !this.state.showMenu });
-}
+  settings() {
+    console.log('settings is working well');
+    this.setState({ showMenu: !this.state.showMenu });
+  }
 
-cancel_chatRoom(lastMessage, lastMessageTime, lastMessageIsEncrypted) {
-  Event.trigger('lastMessage', lastMessage, lastMessageTime, this.props.convId, false, lastMessageIsEncrypted);
-}
+  cancel_chatRoom(lastMessage, lastMessageTime, lastMessageIsEncrypted) {
+    Event.trigger('lastMessage', lastMessage, lastMessageTime, this.props.convId, false, lastMessageIsEncrypted);
+  }
 
 
-// renderRowOnlineMsg(){
-//   try {
-//     return ((msg) => <View>
-//       <Text style={{color: 'white'}}>{msg.content}</Text>
-//    </View>);
-//   } catch (error) {
+  // renderRowOnlineMsg(){
+  //   try {
+  //     return ((msg) => <View>
+  //       <Text style={{color: 'white'}}>{msg.content}</Text>
+  //    </View>);
+  //   } catch (error) {
 
   //   }
   // }
@@ -963,7 +963,7 @@ cancel_chatRoom(lastMessage, lastMessageTime, lastMessageIsEncrypted) {
               }
               serverSrv.exitChat(serverSrv._convId);
               Actions.pop();
-            } }>
+            }}>
               <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => {
@@ -971,9 +971,9 @@ cancel_chatRoom(lastMessage, lastMessageTime, lastMessageIsEncrypted) {
                 Actions.GroupProfile(this.props);
               }
               else {
-                Actions.GroupProfile(this.props);
+                Actions.ContactProfile(this.props);
               }
-            } }>
+            }}>
               <View style={generalStyles.styles.viewImg}>
                 <Image style={generalStyles.styles.thumb} source={this.props.userPicture ? { uri: this.props.userPicture } : require('../../img/user.jpg')} />
               </View>
@@ -983,39 +983,39 @@ cancel_chatRoom(lastMessage, lastMessageTime, lastMessageIsEncrypted) {
                 Actions.GroupProfile(this.props);
               }
               else {
-                Actions.GroupProfile(this.props);
+                Actions.ContactProfile(this.props);
               }
-            } }>
+            }}>
               <Text style={generalStyles.styles.titleHeader}>
                 {this.props.userName}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ margin: 7 }} onPress={() => {
               Event.trigger('showImagePicker');
-            } }>
+            }}>
               <IconMat name="photo-camera" size={25} color="white" />
             </TouchableOpacity>
 
             <TouchableOpacity style={{ margin: 7 }} onPress={() => {
               Event.trigger('showSignature');
-            } }>
+            }}>
               <IconMat name="brush" size={25} color="white" />
             </TouchableOpacity>
             <TouchableOpacity style={{ margin: 7 }} onPress={() => {
               this.menuOption();
-            } }>
+            }}>
               <IconMat name="more-vert" size={25} color="white" />
             </TouchableOpacity>
 
             {renderIf(this.state.showMenu)(
               <Modal
-                onRequestClose={() => { } }
+                onRequestClose={() => { }}
                 style={{ flex: 1 }}
                 transparent={true}
-                >
+              >
                 <TouchableOpacity style={{ flex: 1 }} onPress={() => {
                   this.setState({ showMenu: !this.state.showMenu })
-                } }>
+                }}>
                   <View style={{
                     width: 160,
                     height: 170,
@@ -1025,46 +1025,46 @@ cancel_chatRoom(lastMessage, lastMessageTime, lastMessageIsEncrypted) {
                     right: 25,
                     elevation: 6,
                   }}
-                    >
+                  >
                     <TouchableOpacity onPress={() => {
                       this.CallFriend();
-                    } }>
-                    <View style={{ margin: 7, left: 6 ,alignItems:'center', flexDirection:'row' }}>
-                        <IconMat name="call" size={20} color="black" /> 
+                    }}>
+                      <View style={{ margin: 7, left: 6, alignItems: 'center', flexDirection: 'row' }}>
+                        <IconMat name="call" size={20} color="black" />
                         <Text> Voice Call</Text>
-                    </View>
+                      </View>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => {
                       this.VedioCallFriend();
-                    } }>
-                    <View style={{ margin: 7, left: 6 ,alignItems:'center', flexDirection:'row' }}>
-                        <IconMat name="videocam" size={20} color="black" /> 
+                    }}>
+                      <View style={{ margin: 7, left: 6, alignItems: 'center', flexDirection: 'row' }}>
+                        <IconMat name="videocam" size={20} color="black" />
                         <Text> Video Call</Text>
-                    </View>
-                    </TouchableOpacity>                                    
+                      </View>
+                    </TouchableOpacity>
                     <TouchableOpacity onPress={() => {
                       this.walkieTalkie();
-                    } }>
-                    <View style={{ margin: 7, left: 6 ,alignItems:'center', flexDirection:'row' }}>
-                        <IconMat name="speaker-phone" size={20} color="black" /> 
+                    }}>
+                      <View style={{ margin: 7, left: 6, alignItems: 'center', flexDirection: 'row' }}>
+                        <IconMat name="speaker-phone" size={20} color="black" />
                         <Text> Walkie-Talkie</Text>
-                    </View>
+                      </View>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => {
                       this.encryptMessage();
-                    } }>
-                    <View style={{ margin: 7, left: 6 ,alignItems:'center', flexDirection:'row' }}>
-                        <IconMat name="lock" size={20} color="black" /> 
+                    }}>
+                      <View style={{ margin: 7, left: 6, alignItems: 'center', flexDirection: 'row' }}>
+                        <IconMat name="lock" size={20} color="black" />
                         <Text> Encrypt Message</Text>
-                    </View>
-                  </TouchableOpacity> 
+                      </View>
+                    </TouchableOpacity>
                     <TouchableOpacity onPress={() => {
                       this.settings();
-                    } }>
-                    <View style={{ margin: 7, left: 6 ,alignItems:'center', flexDirection:'row' }}>
-                        <IconMat name="settings" size={20} color="black" /> 
+                    }}>
+                      <View style={{ margin: 7, left: 6, alignItems: 'center', flexDirection: 'row' }}>
+                        <IconMat name="settings" size={20} color="black" />
                         <Text> Settings</Text>
-                    </View>
+                      </View>
                     </TouchableOpacity>
                   </View>
                 </TouchableOpacity>
@@ -1089,8 +1089,8 @@ cancel_chatRoom(lastMessage, lastMessageTime, lastMessageIsEncrypted) {
                 if (this.getIsFirstLayout() === true) {
                   this.setIsFirstLayout(false);
                 }
-              } }
-              >
+              }}
+            >
               {this.renderMessages()}
               {this.renderInputToolbar()}
 
@@ -1116,8 +1116,8 @@ cancel_chatRoom(lastMessage, lastMessageTime, lastMessageIsEncrypted) {
               messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight()),
             });
           });
-        } }
-        >
+        }}
+      >
         {this.renderLoading()}
       </View>
     );
