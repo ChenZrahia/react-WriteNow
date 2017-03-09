@@ -798,17 +798,18 @@ export function createNewGroup(_groupName, _groupPicture, _participates) {
 
 export function updateGroupInfo(_convId, _groupName, _groupPicture) {
     try {
+        db.transaction((tx) => {
+            tx.executeSql('UPDATE Conversation SET groupName = ?, groupPicture = ? WHERE id = ?',
+                [_groupName,
+                _groupPicture,
+                _convId
+                ], (rs) => {
+                    Actions.Tabs({ type: 'reset' });
+                });
+        });
         socket.emit('updateGroupInfo', { convId: _convId, groupName: _groupName, groupPicture: _groupPicture }, (result) => {
-            db.transaction((tx) => {
-                tx.executeSql('UPDATE Conversation SET groupName = ?, groupPicture = ? WHERE id = ?',
-                    [result.groupName,
-                    result.groupPicture,
-                    result.id
-                    ], (rs) => {
-                        Event.trigger('LoadNewChat', result.id, false);
-                    });
-            });
-            Actions.ChatRoom(result);
+                    Actions.ChatRoom(result);
+                    Event.trigger('LoadNewChat', result.id, false);
         });
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => updateGroupInfo' + error.message, error);
@@ -817,8 +818,7 @@ export function updateGroupInfo(_convId, _groupName, _groupPicture) {
 
 export function updateGroupParticipants(_convId, _participates) {
     try {
-        socket.emit('updateGroupParticipants',  _convId , _participates, (result) => {
-            db.transaction((tx) => {
+        db.transaction((tx) => {
                 tx.executeSql('DELETE FROM Participates WHERE convId = ?',
                     [result.id]);
                 for (var i = 0; i < result.participates.length; i++) {
@@ -831,7 +831,7 @@ export function updateGroupParticipants(_convId, _participates) {
             });
             Actions.ChatRoom(result);
             Event.trigger('LoadNewChat', result.id, false);
-        });
+        socket.emit('updateGroupParticipants',  _convId , _participates, (result) => {});
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => updateGroupParticipants' + error.message, error);
     }

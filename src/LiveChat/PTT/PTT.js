@@ -188,6 +188,7 @@ export default class Call extends Component {
 
     _press(event) {
         InCallManager.start({ media: 'audio' });
+        InCallManager.setKeepScreenOn(true);
         InCallManager.setMicrophoneMute(true);
         InCallManager.setSpeakerphoneOn(true);
         this.refs.roomID.blur();
@@ -240,6 +241,7 @@ export default class Call extends Component {
         try {
             liveSrv.Connect(this.props.convId, this.hungUp, _IsIncomingCall, false, true);
             liveSrv.socket.on('leave', () => {
+                InCallManager.setKeepScreenOn(false);
                 InCallManager.stop();
             });
                 liveSrv.socket.on('lineIsFree', () => {
@@ -305,10 +307,13 @@ export default class Call extends Component {
         try {
             mirs1.stop();
             liveSrv.hungUp();
+            InCallManager.setKeepScreenOn(false);
             InCallManager.stop();
             if (this.callInterval) {
                 clearInterval(this.callInterval);
             }
+            InCallManager.setMicrophoneMute(false);
+            InCallManager.setSpeakerphoneOn(true);
             if (this.state.roomID) {
                 serverSrv.exitChatCall(this.state.roomID);
             }
@@ -381,7 +386,7 @@ export default class Call extends Component {
                         )}
                         {renderIf(this.state.statusPtt == 'yellow')(
                             <Image style={{ resizeMode: 'contain', width: null, flex: 1, margin: 30 }} source={require('../../../img/glossy-yellow-button-hi.png')} />
-                        )}
+                        )}                         
                         {renderIf(this.state.statusPtt == 'green')(
                             <Image style={{ resizeMode: 'contain', width: null, flex: 1, margin: 30 }} source={require('../../../img/glossy-green-button-hi.png')} />
                         )}
@@ -419,13 +424,14 @@ export default class Call extends Component {
                     </View>
 
                     <TouchableOpacity onPressIn={this.talk} onPressOut={this.endTalk}  style={styles.pttPanel}>
-                         <View style={{ width: null, flex: 1 }}>
+                         <View style={{ width: null, flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingTop: 60}}>
                         </View>
                     </TouchableOpacity>
 
                     <View style={styles.mngPanel}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
                             <TouchableOpacity onPressIn={this.startCall} onPressOut={this.pptUp}>
+                         
                                 <Image style={{ height: 50, width: 50, marginRight: 30, marginLeft: 30, marginTop: 10 }} source={this.state.leftBtn} />
                             </TouchableOpacity>
                             <TouchableOpacity onPress={this.hungUp} >
