@@ -240,7 +240,6 @@ export default class NewGroup extends Component {
                                         }
                                     });
                                 }
-
                                 this.setState({
                                     groupSource: this.ds2.cloneWithRows(this.GroupContacts),
                                     dataSource: this.ds.cloneWithRows(this.myFriends)
@@ -280,6 +279,11 @@ export default class NewGroup extends Component {
                             this.myFriends.map((user) => {
                                 if (user.id == rowData.id) {
                                     user.isHidden = false;
+                                }
+                            });
+                            this.myFriends.map((user) => {
+                                if (user.id == rowData.id) {
+                                    console.log(user.isHidden);
                                 }
                             });
                             this.setState({
