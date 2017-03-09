@@ -64,19 +64,19 @@ export default class ContactProfile extends Component {
         try {
             return (
                 <View style={styles.container}>
-                    <ScrollView style={{ flex: 1, backgroundColor: '#e7e7e7' }}>
-                        <View style={styles.title}>
-                            <TouchableOpacity onPress={() => {
-                                Actions.pop();
-                            }}>
-                                <Icon name="ios-arrow-back" color="white" size={25} style={{ alignSelf: 'flex-start', paddingLeft: 3, paddingRight: 8, paddingTop: 5 }} />
-                            </TouchableOpacity>
-                            <View style={{flex: 1}}>
+                    <View style={styles.title}>
+                        <TouchableOpacity onPress={() => {
+                            Actions.pop();
+                        }}>
+                            <Icon name="ios-arrow-back" color="white" size={25} style={{ alignSelf: 'flex-start', paddingLeft: 3, paddingRight: 8, paddingTop: 5 }} />
+                        </TouchableOpacity>
+                        <View style={{ flex: 1 }}>
                             <Text style={{ alignSelf: 'center', paddingRight: 20, color: 'white', fontSize: 25 }}>
                                 {this.props.userName}
                             </Text>
-                            </View>
                         </View>
+                    </View>
+                    <ScrollView style={{ flex: 1, backgroundColor: '#e7e7e7' }}>
                         <TouchableOpacity on Press={() => {
                             this.setImageVisible(true);
                         }}>

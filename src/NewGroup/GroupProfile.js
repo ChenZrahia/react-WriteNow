@@ -127,48 +127,48 @@ export default class GroupProfile extends Component {
         try {
             return (
                 <View style={styles.container}>
-                    <ScrollView style={{ flex: 1, backgroundColor: '#e7e7e7' }}>
-                        <View style={styles.title}>
-                            <TouchableOpacity onPress={() => {
-                                Actions.pop();
-                            }}>
-                                <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
-                            </TouchableOpacity>
-                            <Text style={{ color: 'white', fontSize: 25 }}>
-                                {this.props.userName}
-                            </Text>
-                            {renderIf(this.groupManagers.indexOf(serverSrv._uid) >= 0)(
-                                <View style={{ alignItems: 'flex-end', flexDirection: 'row' }}>
-                                    <TouchableOpacity onPress={() => {
-                                        Actions.NewGroup({
-                                            convId: this.props.convId,
-                                            groupPicture: this.props.userPicture,
-                                            groupName: this.props.userName,
-                                            groupSource: this.state.dataSource
-                                        });
-                                    }}>
-                                        <Icon name="ios-person-add" size={25} color="white" style={{ paddingRight: 10 }} />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => {
-                                        Actions.NewGroupInfo({
-                                            convId: this.props.convId,
-                                            groupPicture: this.props.userPicture,
-                                            groupName: this.props.userName,
-                                            groupSource: this.state.dataSource
-                                        });
-                                    }}>
-                                        <Icon name="ios-create" size={25} color="white" />
-                                    </TouchableOpacity>
-                                </View>
-                            )}
-                            {renderIf(this.groupManagers.indexOf(serverSrv._uid) < 0)(
+                    <View style={styles.title}>
+                        <TouchableOpacity onPress={() => {
+                            Actions.pop();
+                        }}>
+                            <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
+                        </TouchableOpacity>
+                        <Text style={{ color: 'white', fontSize: 25 }}>
+                            {this.props.userName}
+                        </Text>
+                        {renderIf(this.groupManagers.indexOf(serverSrv._uid) >= 0)(
+                            <View style={{ alignItems: 'flex-end', flexDirection: 'row' }}>
                                 <TouchableOpacity onPress={() => {
-                                    Actions.NewGroupInfo({ convId: this.props.convId, groupPicture: this.props.userPicture, groupName: this.props.userName, groupSource: this.state.dataSource });
+                                    Actions.NewGroup({
+                                        convId: this.props.convId,
+                                        groupPicture: this.props.userPicture,
+                                        groupName: this.props.userName,
+                                        groupSource: this.state.dataSource
+                                    });
                                 }}>
-                                    <Icon name="ios-create" size={25} color="white" style={{ alignItems: 'flex-end' }} />
+                                    <Icon name="ios-person-add" size={25} color="white" style={{ paddingRight: 10 }} />
                                 </TouchableOpacity>
-                            )}
-                        </View>
+                                <TouchableOpacity onPress={() => {
+                                    Actions.NewGroupInfo({
+                                        convId: this.props.convId,
+                                        groupPicture: this.props.userPicture,
+                                        groupName: this.props.userName,
+                                        groupSource: this.state.dataSource
+                                    });
+                                }}>
+                                    <Icon name="ios-create" size={25} color="white" />
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                        {renderIf(this.groupManagers.indexOf(serverSrv._uid) < 0)(
+                            <TouchableOpacity onPress={() => {
+                                Actions.NewGroupInfo({ convId: this.props.convId, groupPicture: this.props.userPicture, groupName: this.props.userName, groupSource: this.state.dataSource });
+                            }}>
+                                <Icon name="ios-create" size={25} color="white" style={{ alignItems: 'flex-end' }} />
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                    <ScrollView style={{ flex: 1, backgroundColor: '#e7e7e7' }}>
                         <TouchableOpacity on Press={() => {
                             this.setImageVisible(true);
                         }}>
@@ -224,7 +224,6 @@ const styles = StyleSheet.create({
         flex: 1
     },
     title: {
-        flex: 1,
         flexDirection: 'row',
         backgroundColor: '#9933FF',
         margin: 5,
