@@ -30,6 +30,7 @@ import android.content.Intent;
 // import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage; 
 import com.rssignaturecapture.RSSignatureCapturePackage; 
 
+
 public class MainApplication extends Application implements ReactApplication {
 //private ReactNativePushNotificationPackage mReactNativePushNotificationPackage; // <------ Add Package Variable
   private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {

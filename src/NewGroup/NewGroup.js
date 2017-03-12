@@ -281,11 +281,6 @@ export default class NewGroup extends Component {
                                     user.isHidden = false;
                                 }
                             });
-                            this.myFriends.map((user) => {
-                                if (user.id == rowData.id) {
-                                    console.log(user.isHidden);
-                                }
-                            });
                             this.setState({
                                 groupSource: this.ds2.cloneWithRows(this.GroupContacts),
                                 datasource: this.ds.cloneWithRows(this.myFriends)
