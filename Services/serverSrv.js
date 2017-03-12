@@ -1097,6 +1097,13 @@ export function login(_token) {
                             ErrorHandler.WriteError('EnterPage constructor => AuthenticationOk', error);
                         }
                     });
+                    socket.removeAllListeners("deleteFriendMessage");
+                    socket.on('deleteFriendMessage', (msg) => {
+                        console.log(msg);
+                        console.log("trigger");
+                        Event.trigger("deleteFriendMessageUI",msg);
+                    });
+                    //myChatsJson[messageID] = null;deletedConv
                 }
                 else {
                     try {
