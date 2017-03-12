@@ -151,10 +151,12 @@ export default class ChatRoom extends Component {
 
 deleteMessage(text,id){
     try{
+        this.messages = this.messages.filter((x) => {x.id !== id});
     this.setState({
-         messages: this.state.messages.filter((x) => x.id !== id) //delete message from the UI
+         messages: this.messages //delete message from the UI
   });
   serverSrv.deleteMessageFromLocalDB(this.convId,id);
+   
 
     }catch(error){
         ErrorHandler.WriteError('ChatRoom.js => deleteMessage', error);
@@ -166,7 +168,7 @@ deleteFriendMessageUI(mid){
     console.log("try to clear all friends message from UI");
     console.log(mid);
     // console.log(messages);
-     var result = this.state.messages.filter((x) => x.id !== mid);
+    this.messages = this.messages.filter((x) => x.id !== mid);
     //  ((x) =>{ 
     //     if(x.id !== mid){
     //         console.log("only the right message show..");
@@ -180,7 +182,7 @@ deleteFriendMessageUI(mid){
     // }
     // }) //delete message from the UI
      this.setState({
-    messages: result
+    messages: this.messages
   });
   serverSrv.deleteMessageFromLocalDBFriend(this.convId,mid);
   //serverSrv.deleteFriendMessage(this.convId,id);
@@ -495,6 +497,7 @@ deleteFriendMessageUI(mid){
                     delete this.indexOnlineMessages[msg._id];
                 }
             }
+            
             this.setState({ messages: GiftedChat.append(this.messages, this.onlineMessages) });
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => onType', e);

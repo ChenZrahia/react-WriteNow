@@ -611,7 +611,7 @@ function GetConv_server(convId, callback) {
                     });
                 }
                 for (var i = 0; i < data.messages.length; i++) {
-                    if (data.messages[i].deletedConv == true && data.messages[i].id) {
+                    if (data.messages[i].isDeleted == true && data.messages[i].id) {
                         tx.executeSql('DELETE FROM Messages WHERE id=?', [data.messages[i].id]);
                     } else {
                         if (data.messages[i].image) {
@@ -739,12 +739,12 @@ export function deleteMessageFromLocalDB(convID, messageID) {
             tx.executeSql('DELETE FROM Messages WHERE id = ?', [messageID], (tx, rs) => { });
         });
         socket.emit('deleteMessage',messageID,convID);
-        socket.removeAllListeners("deleteFriendMessage");
-        socket.on('deleteFriendMessage', (msg) => {
-            console.log(msg);
-            console.log("trigger");
-            Event.trigger("deleteFriendMessageUI",msg);
-        });
+        // socket.removeAllListeners("deleteFriendMessage");
+        // socket.on('deleteFriendMessage', (msg) => {
+        //     console.log(msg);
+        //     console.log("trigger");
+        //     Event.trigger("deleteFriendMessageUI",msg);
+        // });
         myChatsJson[messageID] = null;
         
     } catch (error) {
@@ -1079,6 +1079,13 @@ export function login(_token) {
                             ErrorHandler.WriteError('EnterPage constructor => AuthenticationOk', error);
                         }
                     });
+                    socket.removeAllListeners("deleteFriendMessage");
+                    socket.on('deleteFriendMessage', (msg) => {
+                        console.log(msg);
+                        console.log("trigger");
+                        Event.trigger("deleteFriendMessageUI",msg);
+                    });
+                    //myChatsJson[messageID] = null;deletedConv
                 }
                 else {
                     try {
