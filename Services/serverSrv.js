@@ -391,7 +391,7 @@ function GetAllUserConv_Server(callback) {
             if (testMode == true) {
                 callback(data);
                 return;
-            } 
+            }
             db.transaction((tx) => {
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].deletedConv == true && data[i].id) {
@@ -532,16 +532,16 @@ function InsertNewContact(tx, user) {
         }
         if (user.content && user.content.length > 0) {
             tx.executeSql('INSERT OR REPLACE INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    [user.id,
-                    user.convId,
-                    user.isEncrypted,
-                    user.from,
-                    user.content,
-                    user.sendTime,
-                    user.lastTypingTime,
-                    user.isSeenByAll,
+                [user.id,
+                user.convId,
+                user.isEncrypted,
+                user.from,
+                user.content,
+                user.sendTime,
+                user.lastTypingTime,
+                user.isSeenByAll,
                     imgOrPath
-                    ]);
+                ]);
 
             tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ?, lastMessageEncrypted = ? WHERE id = ? AND lastMessageTime < ?',
                 [user.content,
@@ -551,13 +551,13 @@ function InsertNewContact(tx, user) {
                 user.lastMessageEncrypted
                 ]);
         }
-        
+
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => InsertNewContact', error);
     }
 }
 
-export function exitChat(convId){
+export function exitChat(convId) {
     try {
         _convId = null;
         socket.emit('exitChat', convId);
@@ -719,15 +719,15 @@ function UpdatePhoneNumberToId(phoneNumber, id) {
     }
 }
 
-export function deleteMessageFromLocalDBFriend(convID, messageID){
-     try {
+export function deleteMessageFromLocalDBFriend(convID, messageID) {
+    try {
         console.log(messageID);
         db.transaction((tx) => {
             tx.executeSql('DELETE FROM Messages WHERE id = ?', [messageID], (tx, rs) => { });
         });
 
         myChatsJson[messageID] = null;
-          } catch (error) {
+    } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => deleteMessageFromLocalDBFriend', error);
     }
 }
@@ -738,7 +738,7 @@ export function deleteMessageFromLocalDB(convID, messageID) {
         db.transaction((tx) => {
             tx.executeSql('DELETE FROM Messages WHERE id = ?', [messageID], (tx, rs) => { });
         });
-        socket.emit('deleteMessageServer',messageID,convID);
+        socket.emit('deleteMessageServer', messageID, convID);
         // socket.removeAllListeners("deleteFriendMessage");
         // socket.on('deleteFriendMessage', (msg) => {
         //     console.log(msg);
@@ -746,7 +746,7 @@ export function deleteMessageFromLocalDB(convID, messageID) {
         //     Event.trigger("deleteFriendMessageUI",msg);
         // });
         myChatsJson[messageID] = null;
-        
+
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => deleteMessageFromLocalDB', error);
     }
@@ -801,15 +801,15 @@ export function updateGroupInfo(_convId, _groupName, _groupPicture) {
         db.transaction((tx) => {
             tx.executeSql('UPDATE Conversation SET groupName = ?, groupPicture = ? WHERE id = ?',
                 [_groupName,
-                _groupPicture,
-                _convId
+                    _groupPicture,
+                    _convId
                 ], (rs) => {
                     Actions.Tabs({ type: 'reset' });
                 });
         });
         socket.emit('updateGroupInfo', { convId: _convId, groupName: _groupName, groupPicture: _groupPicture }, (result) => {
-                    Actions.ChatRoom(result);
-                    Event.trigger('LoadNewChat', result.id, false);
+            Actions.ChatRoom(result);
+            Event.trigger('LoadNewChat', result.id, false);
         });
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => updateGroupInfo' + error.message, error);
@@ -819,19 +819,19 @@ export function updateGroupInfo(_convId, _groupName, _groupPicture) {
 export function updateGroupParticipants(_convId, _participates) {
     try {
         db.transaction((tx) => {
-                tx.executeSql('DELETE FROM Participates WHERE convId = ?',
-                    [_convId]);
-                for (var i = 0; i < _participates.length; i++) {
-                    tx.executeSql('INSERT INTO Participates VALUES (?, ?, ?)',
-                        [_convId,
+            tx.executeSql('DELETE FROM Participates WHERE convId = ?',
+                [_convId]);
+            for (var i = 0; i < _participates.length; i++) {
+                tx.executeSql('INSERT INTO Participates VALUES (?, ?, ?)',
+                    [_convId,
                         _participates[i],
                         true
-                        ]);
-                }
-            });
-        socket.emit('updateGroupParticipants',  _convId , _participates, (result) => {
+                    ]);
+            }
+        });
+        socket.emit('updateGroupParticipants', _convId, _participates, (result) => {
             if (result == true) {
-                Actions.pop({popNum: 2});
+                Actions.pop({ popNum: 2 });
             }
         });
     } catch (error) {
@@ -943,7 +943,7 @@ export function saveNewMessage(msg, saveLocal) {
         if (msg.from == _uid) {
             if (msgSended && this._convId == msg.convId) {
                 msgSended.play((success) => { });
-            } 
+            }
         } else {
             if (msgReceived && this._convId == msg.convId) {
                 msgReceived.play((success) => { });
@@ -964,15 +964,15 @@ export function saveNewMessage(msg, saveLocal) {
                         msg.isSeenByAll,
                             pathOrImage
                         ]);
-                tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ?, lastMessageEncrypted = ? WHERE id = ? AND lastMessageTime < ?',
-                    [msg.content,
-                    moment(msg.sendTime).toISOString(),
-                    msg.convId,
-                    moment(msg.sendTime).toISOString(),
-                    msg.isEncrypted
-                    ], (rs) => {
-                    });
-                }                 
+                    tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ?, lastMessageEncrypted = ? WHERE id = ? AND lastMessageTime < ?',
+                        [msg.content,
+                        moment(msg.sendTime).toISOString(),
+                        msg.convId,
+                        moment(msg.sendTime).toISOString(),
+                        msg.isEncrypted
+                        ], (rs) => {
+                        });
+                }
             });
         }
         if (saveLocal != true && msg.from == _uid) {
@@ -1043,7 +1043,7 @@ export function GetLiveChats(callback) {
             socket.emit('GetLiveChats', (data) => {
                 callback(data);
             });
-        }        
+        }
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => GetConvData_ByConvId', error);
     }
@@ -1077,14 +1077,14 @@ export function login(_token) {
                     socket.on('deleteFriendMessage', (msg) => {
                         console.log(msg);
                         console.log("trigger");
-                        Event.trigger("deleteFriendMessageUI",msg);
+                        Event.trigger("deleteFriendMessageUI", msg);
                     });
 
-                    socket.on('connect', function(msg){
+                    socket.on('connect', function (msg) {
                         console.log("client connected to server");
                     });
 
-                    socket.on("disconnect", function(){
+                    socket.on("disconnect", function () {
                         console.log("client disconnected from server");
                     });
 
@@ -1102,7 +1102,7 @@ export function login(_token) {
                     socket.on('deleteFriendMessage', (msg) => {
                         // console.log(msg);
                         // console.log("trigger");
-                        Event.trigger("deleteFriendMessageUI",msg);
+                        Event.trigger("deleteFriendMessageUI", msg);
                         console.log('1111');
                     });
                     //myChatsJson[messageID] = null;deletedConv
