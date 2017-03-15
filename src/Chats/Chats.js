@@ -96,7 +96,6 @@ export default class Chats extends Component {
 
     NewChat(chat) {
         try {
-            console.log('UpdateChatInfo --------------');
             this.myChats.push(chat);
             this.setState({
                 dataSource: this.ds.cloneWithRows(this.myChats)
@@ -318,7 +317,6 @@ export default class Chats extends Component {
         } else {
             this.myChats = this.sortDates(this.myChats);
         }
-            console.log('UpdateChatInfo -------UpdatelastMessage-------');
         this.setState({ dataSource: this.ds.cloneWithRows(this.myChats) });
     }
 
