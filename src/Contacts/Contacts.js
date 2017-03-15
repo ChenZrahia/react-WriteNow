@@ -121,7 +121,7 @@ export default class Contacts extends Component {
                     return ((user.publicInfo.fullName.toLowerCase().includes(filterText.toLowerCase())) || (user.phoneNumber ? user.phoneNumber.includes(filterText) : false));
                 });
             } catch (e) {
-                ErrorHandler.WriteError("Contacts.js => getDataSource => filteredContacts", e);
+                ErrorHandler.WriteError("Contacts.js => getDataSource => filter", e);
             }
             return this.state.dataSource.cloneWithRows(filteredContacts);
         } catch (e) {

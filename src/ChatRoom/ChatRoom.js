@@ -149,49 +149,47 @@ export default class ChatRoom extends Component {
         }
     }
 
-deleteMessage(text,id){
-    try{
-        this.messages = this.messages.filter((x) => {x.id !== id});
-    this.setState({
-         messages: this.messages //delete message from the UI
-  });
-  serverSrv.deleteMessageFromLocalDB(this.convId,id);
-   
-
-    }catch(error){
-        ErrorHandler.WriteError('ChatRoom.js => deleteMessage', error);
+    deleteMessage(text, id) {
+        try {
+            this.messages = this.messages.filter((x) => { x.id !== id });
+            this.setState({
+                messages: this.messages //delete message from the UI
+            });
+            serverSrv.deleteMessageFromLocalDB(this.convId, id);
+        } catch (error) {
+            ErrorHandler.WriteError('ChatRoom.js => deleteMessage', error);
+        }
     }
-}
 
-deleteFriendMessageUI(mid){
-    try{
-    console.log("try to clear all friends message from UI");
-    console.log(mid);
-    // console.log(messages);
-    this.messages = this.messages.filter((x) => x.id !== mid);
-    //  ((x) =>{ 
-    //     if(x.id !== mid){
-    //         console.log("only the right message show..");
-    //         console.log(x.id,mid);
-    //          return true;
-    //     }
-    //     else {
-    //         console.log("false");
-    //         return false;
-        
-    // }
-    // }) //delete message from the UI
-     this.setState({
-    messages: this.messages
-  });
-  serverSrv.deleteMessageFromLocalDBFriend(this.convId,mid);
-  //serverSrv.deleteFriendMessage(this.convId,id);
- }catch(error){
-        ErrorHandler.WriteError('ChatRoom.js => deleteFriendMessageUI', error);
+    deleteFriendMessageUI(mid) {
+        try {
+            console.log("try to clear all friends message from UI");
+            console.log(mid);
+            // console.log(messages);
+            this.messages = this.messages.filter((x) => x.id !== mid);
+            //  ((x) =>{ 
+            //     if(x.id !== mid){
+            //         console.log("only the right message show..");
+            //         console.log(x.id,mid);
+            //          return true;
+            //     }
+            //     else {
+            //         console.log("false");
+            //         return false;
+
+            // }
+            // }) //delete message from the UI
+            this.setState({
+                messages: this.messages
+            });
+            serverSrv.deleteMessageFromLocalDBFriend(this.convId, mid);
+            //serverSrv.deleteFriendMessage(this.convId,id);
+        } catch (error) {
+            ErrorHandler.WriteError('ChatRoom.js => deleteFriendMessageUI', error);
+        }
     }
-}
 
-    
+
     guid() {
         try {
             function s4() {
@@ -283,30 +281,30 @@ deleteFriendMessageUI(mid){
                 <Modal
                     transparent={true}
                     visible={this.state.imageVisible}
-                    onRequestClose={() => { console.log('image closed') } }
-                    >
+                    onRequestClose={() => { console.log('image closed') }}
+                >
                     <View style={{ backgroundColor: 'rgba(0,0,0,0.7)', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                        <TouchableOpacity 
-                        style={{top: 15, marginLeft: 295, zIndex:5}}
-                        onPress={() => {
-                            this.setImageVisible(!this.state.imageVisible);
-                        } }>
+                        <TouchableOpacity
+                            style={{ top: 15, marginLeft: 295, zIndex: 5 }}
+                            onPress={() => {
+                                this.setImageVisible(!this.state.imageVisible);
+                            }}>
                             <View style={{ width: 30, height: 30, backgroundColor: 'gray', borderRadius: 15 }}>
                                 <Icon name="md-close" size={15} color="white" style={{ alignSelf: 'center', paddingTop: 7 }} />
                             </View>
                         </TouchableOpacity>
-                        <Image style={{ width: 300, height: 300, borderRadius: 0, borderWidth: 1, borderColor: 'gray' , zIndex:0}} source={{ uri: image }} />
+                        <Image style={{ width: 300, height: 300, borderRadius: 0, borderWidth: 1, borderColor: 'gray', zIndex: 0 }} source={{ uri: image }} />
                         <View style={{ width: 300, flexDirection: 'row', backgroundColor: 'white', borderColor: 'gray', borderWidth: 1 }}>
                             <TextInput
                                 style={{ flex: 1, height: 40, backgroundColor: 'white' }}
                                 placeholder="Type a message..."
                                 onChangeText={(text) => this.setState({ text })}
                                 value={this.state.text}
-                                />
+                            />
                             <TouchableOpacity onPress={() => {
                                 this.sendImageMessage(image, this.state.text);
                                 this.setImageVisible(!this.state.imageVisible);
-                            } }>
+                            }}>
                                 <Icon name="md-send" size={30} style={{ height: 40, padding: 5 }} />
                             </TouchableOpacity>
                         </View>
@@ -401,21 +399,21 @@ deleteFriendMessageUI(mid){
         }
     }
 
-    onSend(messages = [],saveLocal) {
+    onSend(messages = [], saveLocal) {
         try {
             if (this._messageId == null && !messages.mid) { //for encrypted message
                 this._messageId = this.guid();
             }
-            if(messages.isEncrypted == true){
-                this._messageId= messages.mid;
+            if (messages.isEncrypted == true) {
+                this._messageId = messages.mid;
                 messages._id = this._messageId;
                 messages.id = this._messageId;
                 messages.convId = this.convId;
                 messages.text = messages.content;
-                if(messages.from == serverSrv._uid){
+                if (messages.from == serverSrv._uid) {
                     messages.createdAt = Date.now();
                 }
-                else{
+                else {
                     messages.createdAt = messages.sendTime;
                 }
             }
@@ -431,14 +429,14 @@ deleteFriendMessageUI(mid){
                 } else {
                     msg.createdAt = moment(msg.sendTime).format();
                 }
-                if (msg._id.indexOf('temp-id') >= 0 || (msg.image && msg.from == serverSrv._uid) || (msg.isEncrypted == true && msg.from == serverSrv._uid )) {
+                if (msg._id.indexOf('temp-id') >= 0 || (msg.image && msg.from == serverSrv._uid) || (msg.isEncrypted == true && msg.from == serverSrv._uid)) {
                     msg._id = this._messageId;
                     msg.id = this._messageId;
                     msg.from = serverSrv._uid;
                     msg.createdAt = msg.sendTime;
                     msg.content = msg.text;
                     msg.convId = this.convId;
-                    serverSrv.saveNewMessage(msg,saveLocal);
+                    serverSrv.saveNewMessage(msg, saveLocal);
                     this._messageId = null;
                 }
 
@@ -448,7 +446,7 @@ deleteFriendMessageUI(mid){
                 }
                 if (saveLocal != false) {
                     this.messages.splice(0, 0, msg); //push
-                } 
+                }
                 this.onlineMessages = this.onlineMessages.filter((o_msg) => {
                     return o_msg.id != msg.id;
                 });
@@ -497,7 +495,7 @@ deleteFriendMessageUI(mid){
                     delete this.indexOnlineMessages[msg._id];
                 }
             }
-            
+
             this.setState({ messages: GiftedChat.append(this.messages, this.onlineMessages) });
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => onType', e);
@@ -518,7 +516,7 @@ deleteFriendMessageUI(mid){
                     user={{
                         _id: serverSrv._uid,
                     }}
-                    />
+                />
                 {this.openImageModal(this.state.imgToMsg, this.state.pathOfImage)}
             </View>
         );
