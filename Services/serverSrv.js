@@ -738,7 +738,7 @@ export function deleteMessageFromLocalDB(convID, messageID) {
         db.transaction((tx) => {
             tx.executeSql('DELETE FROM Messages WHERE id = ?', [messageID], (tx, rs) => { });
         });
-        socket.emit('deleteMessage',messageID,convID);
+        socket.emit('deleteMessageServer',messageID,convID);
         // socket.removeAllListeners("deleteFriendMessage");
         // socket.on('deleteFriendMessage', (msg) => {
         //     console.log(msg);
@@ -1098,10 +1098,12 @@ export function login(_token) {
                         }
                     });
                     socket.removeAllListeners("deleteFriendMessage");
+
                     socket.on('deleteFriendMessage', (msg) => {
-                        console.log(msg);
-                        console.log("trigger");
+                        // console.log(msg);
+                        // console.log("trigger");
                         Event.trigger("deleteFriendMessageUI",msg);
+                        console.log('1111');
                     });
                     //myChatsJson[messageID] = null;deletedConv
                 }
