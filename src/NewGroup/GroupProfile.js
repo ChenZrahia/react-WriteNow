@@ -79,9 +79,16 @@ export default class GroupProfile extends Component {
                                     <Image style={generalStyle.styles.thumb} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
                                 </View>
                                 <View style={{ flexDirection: 'column' }}>
-                                    <Text style={generalStyle.styles.textName}>
-                                        {rowData.publicInfo.fullName}
+                                    {rednerIf(rowData.id == serverSrv._uid)(
+                                        <Text style={generalStyle.styles.textName}>
+                                            You
                                     </Text>
+                                    )}
+                                    {rednerIf(rowData.id != serverSrv._uid)(
+                                        <Text style={generalStyle.styles.textName}>
+                                            {rowData.publicInfo.fullName}
+                                        </Text>
+                                    )}
                                     <Text style={generalStyle.styles.textStatus}>
                                         {rowData.phoneNumber}
                                     </Text>

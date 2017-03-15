@@ -281,11 +281,6 @@ export default class NewGroup extends Component {
                                     user.isHidden = false;
                                 }
                             });
-                            this.myFriends.map((user) => {
-                                if (user.id == rowData.id) {
-                                    console.log(user.isHidden);
-                                }
-                            });
                             this.setState({
                                 groupSource: this.ds2.cloneWithRows(this.GroupContacts),
                                 datasource: this.ds.cloneWithRows(this.myFriends)
@@ -294,9 +289,16 @@ export default class NewGroup extends Component {
                     }}>
                         <View style={{ paddingBottom: 5, paddingLeft: 5, paddingRight: 5, alignItems: 'center' }}>
                             <Image style={styles.groupMemberPic} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
-                            <Text style={styles.groupMemberName}>
-                                {rowData.publicInfo.fullName}
+                            {renderIf(rowData.id == serverSrv._uid)(
+                                <Text style={styles.groupMemberName}>
+                                    You
                             </Text>
+                            )}
+                            {renderIf(rowData.id != serverSrv._uid)(
+                                <Text style={styles.groupMemberName}>
+                                    {rowData.publicInfo.fullName}
+                                </Text>
+                            )}
                         </View>
                     </TouchableOpacity >
             );

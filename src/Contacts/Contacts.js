@@ -111,19 +111,19 @@ export default class Contacts extends Component {
     getDataSource(filterText) {
         try {
             //if filter is empty - return original data source
-            if (!filterText && this.state.dataSource.cloneWithRows) {
+            if (!filterText) {
                 return this.state.dataSource.cloneWithRows(this.myFriends);
             }
             //create filtered datasource
             let filteredContacts = this.myFriends;
-            filteredContacts = this.myFriends.filter((user) => {
-                // return user.publicInfo.fullName.toLowerCase().includes(this.state.filter.toLowerCase());
-                return ((user.publicInfo.fullName.toLowerCase().includes(filterText.toLowerCase())) || (user.phoneNumber ? user.phoneNumber.includes(filterText) : false));
-            });
-            if (this.state.dataSource.cloneWithRows) {
-                return this.state.dataSource.cloneWithRows(filteredContacts);
+            try {
+                filteredContacts = this.myFriends.filter((user) => {
+                    return ((user.publicInfo.fullName.toLowerCase().includes(filterText.toLowerCase())) || (user.phoneNumber ? user.phoneNumber.includes(filterText) : false));
+                });
+            } catch (e) {
+                ErrorHandler.WriteError("Contacts.js => getDataSource => filteredContacts", e);
             }
-            return this.state.dataSource;
+            return this.state.dataSource.cloneWithRows(filteredContacts);
         } catch (e) {
             ErrorHandler.WriteError("Contacts.js => getDataSource", e);
         }

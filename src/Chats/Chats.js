@@ -244,7 +244,6 @@ export default class Chats extends Component {
 
     onFilterChange(event) {
         try {
-            console.log('UpdateChatInfo -------onFilterChange-------');
             this.setState({
                 filter: event.nativeEvent.text,
                 dataSource: this.getDataSource(event.nativeEvent.text)
@@ -256,7 +255,6 @@ export default class Chats extends Component {
 
     getDataSource(filterText) {
         //if filter is empty - return original data source
-            console.log('UpdateChatInfo -------getDataSource-------');
         try {
             if (!filterText) {
                 return this.state.dataSource.cloneWithRows(this.myChats);
