@@ -151,9 +151,10 @@ export default class ChatRoom extends Component {
 
 deleteMessage(text,id){
     try{
-        this.messages = this.messages.filter((x) => {x.id !== id});
+      
+       this.messages = this.state.messages.filter((x) => x.id !== id);
     this.setState({
-         messages: this.messages //delete message from the UI
+         messages:  this.messages//delete message from the UI
   });
   serverSrv.deleteMessageFromLocalDB(this.convId,id);
    
@@ -168,7 +169,8 @@ deleteFriendMessageUI(mid){
     console.log("try to clear all friends message from UI");
     console.log(mid);
     // console.log(messages);
-    this.messages = this.messages.filter((x) => x.id !== mid);
+    
+     this.messages = this.state.messages.filter((x) => x.id !== mid);
     //  ((x) =>{ 
     //     if(x.id !== mid){
     //         console.log("only the right message show..");
