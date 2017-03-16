@@ -82,7 +82,8 @@ export default class Contacts extends Component {
             setTimeout(() => {
                 this.setState({
                     dataSource: this.ds.cloneWithRows(result)
-                })
+                });
+                this.myFriends = result;
             }, 20);
         } catch (e) {
             ErrorHandler.WriteError("Contacts.js => UpdateMyFriends", e);
