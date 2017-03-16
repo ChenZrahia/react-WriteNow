@@ -458,14 +458,17 @@ export function exitChatCall_server(callback) {
 }
 
 //ChatRoom
-export function GetConv(callback, convId, isUpdate) {
+export function GetConv(callback, convId, isUpdate, skip) {
     try {
         // if (_myConvs && _myConvs[convId] && callback && !isUpdate) {
         //     callback(_myConvs[convId].messages);
         //     return;
         // }
+        if (!skip) {
+            skip = 0;
+        }
         db.transaction((tx) => {
-            tx.executeSql('SELECT * FROM Messages WHERE convId = ? AND (content IS NOT NULL OR image IS NOT NULL) ORDER BY sendTime DESC', [convId], (tx, rs) => {
+            tx.executeSql('SELECT * FROM Messages WHERE convId = ? AND (content IS NOT NULL OR image IS NOT NULL) ORDER BY sendTime DESC LIMIT 20 OFFSET ' + skip + '', [convId], (tx, rs) => {
                 try {
                     var result = [];
                     for (var i = 0; i < rs.rows.length; i++) {
@@ -839,25 +842,83 @@ export function updateGroupParticipants(_convId, _participates) {
     }
 }
 
-export function getConvParticipates(_convId, callback) {
+function getConvParticipates_server(result, _convId, callback) {
     try {
         db.transaction((tx) => {
-            tx.executeSql('SELECT uid FROM Participates WHERE convId=?', [_convId], (tx, rsP) => {
-                var uidArr = '(';
-                for (var i = 0; i < rsP.rows.length; i++) {
-                    if (i == (rsP.rows.length - 1)) {
-                        uidArr += ('"' + rsP.rows.item(i).uid + '"');
-                    }
-                    else {
-                        uidArr += ('"' + rsP.rows.item(i).uid + '"' + ',');
+            for (var i = 0; i < result.length; i++) {
+                tx.executeSql('INSERT INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?)',
+                    [result[i].id,
+                    result[i].phoneNumber,
+                        '',
+                        '',
+                    result[i].publicInfo.fullName,
+                    result[i].publicInfo.picture,
+                        false], () => {
+                            if (i + 1 == result.length) {
+                                getConvParticipates(_convId, callback)
+                            }
+                        }); //?
+            }
+        });
+
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => getConvParticipates_server' + error.message, error);
+    }
+}
+
+export function getConvParticipates(_convId, callback) {
+    var newUsers = [];
+    socket.emit('getGroupParticipatesId', _convId, (participates) => {
+        try {
+            db.transaction((tx) => {
+                for (var i = 0; i < participates.length; i++) {
+                    tx.executeSql('INSERT OR REPLACE INTO Participates VALUES (?, ?, ?)',
+                        [_convId,
+                            participates[i],
+                            true
+                        ]);
+                    if (i + 1 == participates.length) {
+                        getConvParticipates_DB(_convId, callback);
                     }
                 }
-                uidArr += ')';
+            });
+        } catch (error) {
+            ErrorHandler.WriteError('serverSrv.js => getConvParticipates' + error.message, error);
+        }
+    });
+}
+
+export function getConvParticipates_DB(_convId, callback) {
+    try {
+        var newUsers = [];
+        db.transaction((tx) => {
+            tx.executeSql('SELECT uid FROM Participates WHERE convId=?', [_convId], (tx, rsP) => {
+                try {
+                    var uidArr = '(';
+                    for (var i = 0; i < rsP.rows.length; i++) {
+                        if (i == (rsP.rows.length - 1)) {
+                            uidArr += ('"' + rsP.rows.item(i).uid + '"');
+                        }
+                        else {
+                            uidArr += ('"' + rsP.rows.item(i).uid + '"' + ',');
+                        }
+                        if (newUsers.indexOf(rsP.rows.item(i).uid) == -1) {
+                            newUsers.push(rsP.rows.item(i).uid);
+                        }
+                    }
+                    uidArr += ')';
+                } catch (error) {
+                    ErrorHandler.WriteError('serverSrv.js => getConvParticipates_DB' + error.message, error);
+                }
+                
                 var selectStr = 'SELECT * FROM Friends WHERE id IN ' + uidArr + ' ORDER BY fullName';
                 tx.executeSql(selectStr, [], (tx, rs) => {
                     var convParticipates = [];
                     for (var i = 0; i < rs.rows.length; i++) {
                         if (convParticipates.indexOf(rs.rows.item(i).id) === -1) {
+                            if (newUsers.indexOf(rs.rows.item(i).id) != -1) {
+                                newUsers.splice(newUsers.indexOf(rs.rows.item(i).id), 1);
+                            }
                             convParticipates.push({
                                 id: rs.rows.item(i).id,
                                 phoneNumber: rs.rows.item(i).phoneNumber,
@@ -871,6 +932,11 @@ export function getConvParticipates(_convId, callback) {
                         }
                     }
                     callback(convParticipates)
+                    if (newUsers.length > 0) {
+                        socket.emit('getConvParticipates', newUsers, (result) => {
+                            getConvParticipates_server(result, _convId, callback);
+                        });
+                    }
                 });
             });
         });

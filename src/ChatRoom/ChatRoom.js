@@ -51,10 +51,12 @@ export default class ChatRoom extends Component {
             this.sendImageMessage = this.sendImageMessage.bind(this);
             this.LoadNewChat = this.LoadNewChat.bind(this);
             this.deleteFriendMessageUI = this.deleteFriendMessageUI.bind(this);
+            this.loadEarlierMessages = this.loadEarlierMessages.bind(this);
             this.messages = [];
             this.indexOnlineMessages = [];
             this.onlineMessages = [];
             this.convId = null;
+            this.skip = 0;
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => constructor', e);
         }
@@ -128,7 +130,7 @@ export default class ChatRoom extends Component {
                 // console.log(this.messages);
                 this.convId = convId;
                 this.setState({
-                    messages: GiftedChat.append(this.messages, this.onlineMessages),
+                    messages: GiftedChat.append(this.messages, this.onlineMessages, 0),
                 });
             }
             serverSrv.onServerTyping(this.onFriendType);
@@ -142,7 +144,8 @@ export default class ChatRoom extends Component {
                     serverSrv.GetConvByContact(callback, uid, phoneNumber, this.props.publicInfo.fullName);
                 }, 100);
             } else {
-                serverSrv.GetConv(callback, this.convId);
+                serverSrv.GetConv(callback, this.convId, null, this.skip);
+                this.skip += 20;
             }
         } catch (error) {
             ErrorHandler.WriteError('ChatRoom.js => LoadNewChat', error);
@@ -502,10 +505,34 @@ export default class ChatRoom extends Component {
         }
     }
 
+    loadEarlierMessages(){
+        try {
+            console.log('1');
+            var callback = (data, convId) => {
+                if (!data) {
+                    data = [];
+                }
+                this.messages = GiftedChat.append(data, this.messages);
+                // console.log("***LoadNewChat****");
+                // console.log(this.messages);
+                this.convId = convId;
+                this.setState({
+                    messages: GiftedChat.append(this.messages, this.onlineMessages, 0),
+                });
+            }
+            serverSrv.GetConv(callback, this.convId, null, this.skip);
+            this.skip += 20;
+        } catch (error) {
+            ErrorHandler.WriteError('ChatRoom.js => loadEarlierMessages', error);
+        }
+    }
+
     render() {
         return (
             <View style={{ flex: 1, alignSelf: 'stretch' }} >
                 <GiftedChat
+                    loadEarlier={true}
+                    onLoadEarlier={this.loadEarlierMessages}
                     userName={this.state.groupName}
                     convId={this.convId}
                     userPicture={this.state.groupPicture}
