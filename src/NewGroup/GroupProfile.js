@@ -20,6 +20,8 @@ var dismissKeyboard = require('dismissKeyboard');
 var ErrorHandler = require('../../ErrorHandler');
 var serverSrv = require('../../Services/serverSrv');
 var generalStyle = require('../../styles/generalStyle');
+var Dimensions = require('Dimensions');
+var win = Dimensions.get('window');
 
 export default class GroupProfile extends Component {
     constructor() {
@@ -79,9 +81,16 @@ export default class GroupProfile extends Component {
                                     <Image style={generalStyle.styles.thumb} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
                                 </View>
                                 <View style={{ flexDirection: 'column' }}>
-                                    <Text style={generalStyle.styles.textName}>
-                                        {rowData.publicInfo.fullName}
+                                    {rednerIf(rowData.id == serverSrv._uid)(
+                                        <Text style={generalStyle.styles.textName}>
+                                            You
                                     </Text>
+                                    )}
+                                    {rednerIf(rowData.id != serverSrv._uid)(
+                                        <Text style={generalStyle.styles.textName}>
+                                            {rowData.publicInfo.fullName}
+                                        </Text>
+                                    )}
                                     <Text style={generalStyle.styles.textStatus}>
                                         {rowData.phoneNumber}
                                     </Text>
@@ -116,7 +125,10 @@ export default class GroupProfile extends Component {
                         source={{ uri: img }}
                     />)
             } else {
-                return (<Image style={{ width: 300, height: 300, marginLeft: 5, marginRight: 5, marginBottom: 5 }} source={require('../../img/group-img.jpg')} />);
+                return (
+                    <View style={{ marginLeft: 5, marginRight: 5, marginBottom: 5 }}>
+                        <Image style={{ width: win.width-10 }} source={require('../../img/group-img.jpg')} />
+                    </View>);
             }
         } catch (e) {
             ErrorHandler.WriteError("GroupProfile.js => getImageSource", e);
@@ -221,7 +233,8 @@ export default class GroupProfile extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1
+        flex: 1,
+        backgroundColor: '#e7e7e7'
     },
     title: {
         flexDirection: 'row',

@@ -967,16 +967,18 @@ export default class GiftedChat extends React.Component {
               <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => {
-              if (this.props.isGroup) {
-                Actions.GroupProfile(this.props);
-              }
-              else {
-                Actions.ContactProfile(this.props);
-              }
+              Actions.pop();
             }}>
-              <View style={generalStyles.styles.viewImg}>
-                <Image style={generalStyles.styles.thumb} source={this.props.userPicture ? { uri: this.props.userPicture } : require('../../img/user.jpg')} />
-              </View>
+              {renderIf(this.props.isGroup)(
+                <View style={generalStyles.styles.viewImg}>
+                  <Image style={generalStyles.styles.thumb} source={this.props.userPicture ? { uri: this.props.userPicture } : require('../../img/group-img.jpg')} />
+                </View>
+              )}
+              {renderIf(!this.props.isGroup)(
+                <View style={generalStyles.styles.viewImg}>
+                  <Image style={generalStyles.styles.thumb} source={this.props.userPicture ? { uri: this.props.userPicture } : require('../../img/user.jpg')} />
+                </View>
+              )}
             </TouchableOpacity>
             <TouchableOpacity style={generalStyles.styles.titleHeaderContainer} onPress={() => {
               if (this.props.isGroup) {

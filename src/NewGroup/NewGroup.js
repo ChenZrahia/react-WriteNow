@@ -289,9 +289,16 @@ export default class NewGroup extends Component {
                     }}>
                         <View style={{ paddingBottom: 5, paddingLeft: 5, paddingRight: 5, alignItems: 'center' }}>
                             <Image style={styles.groupMemberPic} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
-                            <Text style={styles.groupMemberName}>
-                                {rowData.publicInfo.fullName}
+                            {renderIf(rowData.id == serverSrv._uid)(
+                                <Text style={styles.groupMemberName}>
+                                    You
                             </Text>
+                            )}
+                            {renderIf(rowData.id != serverSrv._uid)(
+                                <Text style={styles.groupMemberName}>
+                                    {rowData.publicInfo.fullName}
+                                </Text>
+                            )}
                         </View>
                     </TouchableOpacity >
             );

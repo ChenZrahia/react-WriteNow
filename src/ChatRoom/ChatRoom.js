@@ -154,14 +154,11 @@ export default class ChatRoom extends Component {
 
     deleteMessage(text, id) {
         try {
-
-            this.messages = this.state.messages.filter((x) => x.id !== id);
+            this.messages = this.state.messages.filter((x) => x.id !== id );
             this.setState({
-                messages: this.messages//delete message from the UI
+                messages: this.messages //delete message from the UI
             });
             serverSrv.deleteMessageFromLocalDB(this.convId, id);
-
-
         } catch (error) {
             ErrorHandler.WriteError('ChatRoom.js => deleteMessage', error);
         }
@@ -172,7 +169,6 @@ export default class ChatRoom extends Component {
             console.log("try to clear all friends message from UI");
             console.log(mid);
             // console.log(messages);
-
             this.messages = this.state.messages.filter((x) => x.id !== mid);
             //  ((x) =>{ 
             //     if(x.id !== mid){
@@ -288,14 +284,14 @@ export default class ChatRoom extends Component {
                 <Modal
                     transparent={true}
                     visible={this.state.imageVisible}
-                    onRequestClose={() => { console.log('image closed') } }
-                    >
+                    onRequestClose={() => { console.log('image closed') }}
+                >
                     <View style={{ backgroundColor: 'rgba(0,0,0,0.7)', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                         <TouchableOpacity
                             style={{ top: 15, marginLeft: 295, zIndex: 5 }}
                             onPress={() => {
                                 this.setImageVisible(!this.state.imageVisible);
-                            } }>
+                            }}>
                             <View style={{ width: 30, height: 30, backgroundColor: 'gray', borderRadius: 15 }}>
                                 <Icon name="md-close" size={15} color="white" style={{ alignSelf: 'center', paddingTop: 7 }} />
                             </View>
@@ -307,11 +303,11 @@ export default class ChatRoom extends Component {
                                 placeholder="Type a message..."
                                 onChangeText={(text) => this.setState({ text })}
                                 value={this.state.text}
-                                />
+                            />
                             <TouchableOpacity onPress={() => {
                                 this.sendImageMessage(image, this.state.text);
                                 this.setImageVisible(!this.state.imageVisible);
-                            } }>
+                            }}>
                                 <Icon name="md-send" size={30} style={{ height: 40, padding: 5 }} />
                             </TouchableOpacity>
                         </View>
@@ -547,7 +543,7 @@ export default class ChatRoom extends Component {
                     user={{
                         _id: serverSrv._uid,
                     }}
-                    />
+                />
                 {this.openImageModal(this.state.imgToMsg, this.state.pathOfImage)}
             </View>
         );
