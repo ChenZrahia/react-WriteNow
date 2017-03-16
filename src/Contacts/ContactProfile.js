@@ -21,6 +21,7 @@ var serverSrv = require('../../Services/serverSrv');
 var generalStyle = require('../../styles/generalStyle');
 var Dimensions = require('Dimensions');
 var win = Dimensions.get('window');
+var Orientation = require('react-native-orientation');
 
 export default class ContactProfile extends Component {
     constructor() {
@@ -28,7 +29,8 @@ export default class ContactProfile extends Component {
         try {
             dismissKeyboard();
             this.state = {
-                imageVisible: false
+                imageVisible: false,
+                winWidth: win.width
             }
         } catch (e) {
             ErrorHandler.WriteError("ContactProfile.js => constructor", e);
@@ -57,11 +59,24 @@ export default class ContactProfile extends Component {
             } else {
                 return (
                     <View style={{ marginLeft: 5, marginRight: 5, marginBottom: 5 }}>
-                        <Image style={{ width: win.width-10 }} source={require('../../img/user.jpg')} />
+                        <Image style={{ width: this.state.winWidth - 10 }} source={require('../../img/user.jpg')} />
                     </View>);
             }
         } catch (e) {
             ErrorHandler.WriteError("ContactProfile.js => getImageSource", e);
+        }
+    }
+
+    orientationDidChange(orientation) {
+        if (orientation == 'LANDSCAPE') {
+            this.setState({
+                winWidth: win.width
+            });
+        }
+        else {
+            this.setState({
+                winWidth: win.width
+            });
         }
     }
 

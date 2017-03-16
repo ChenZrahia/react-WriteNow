@@ -12,6 +12,9 @@ import com.imagepicker.ImagePickerPackage;
 import com.rt2zz.reactnativecontacts.ReactNativeContacts;
 import android.content.Context;
 
+import android.content.Intent;
+import android.content.res.Configuration;
+
 public class MainActivity extends ReactActivity {
 
     //added by sagi uziel 1.10.16 -start
@@ -26,5 +29,13 @@ public class MainActivity extends ReactActivity {
     protected String getMainComponentName() {
         //Context.getApplicationContext();
         return "WriteNow";        
+    }
+
+    @Override
+      public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Intent intent = new Intent("onConfigurationChanged");
+        intent.putExtra("newConfig", newConfig);
+        this.sendBroadcast(intent);
     }
 }
