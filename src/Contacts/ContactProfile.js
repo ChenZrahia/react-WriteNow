@@ -21,7 +21,6 @@ var serverSrv = require('../../Services/serverSrv');
 var generalStyle = require('../../styles/generalStyle');
 var Dimensions = require('Dimensions');
 var win = Dimensions.get('window');
-var Orientation = require('react-native-orientation');
 
 export default class ContactProfile extends Component {
     constructor() {

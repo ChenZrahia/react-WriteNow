@@ -97,6 +97,7 @@ android {
             abiFilters "armeabi-v7a", "x86"
         }
         multiDexEnabled true
+        vectorDrawables.useSupportLibrary = true
     }
     splits {
         abi {
@@ -154,7 +155,6 @@ dependencies {
     compile project(':react-native-webrtc')
     compile project(':react-native-sound')
     compile project(':react-native-incall-manager')
-    compile project(':react-native-orientation')
     //compile project(':react-native-simple-emoji-picker')
 }
 

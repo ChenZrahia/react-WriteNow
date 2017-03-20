@@ -46,6 +46,7 @@ export default class GroupProfile extends Component {
             this.setState({
                 dataSource: this.ds.cloneWithRows(this.groupMembers)
             });
+
         });
         serverSrv.getGroupManagers(this.props.convId, (result) => {
             this.groupManagers = result;
@@ -81,12 +82,12 @@ export default class GroupProfile extends Component {
                                     <Image style={generalStyle.styles.thumb} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
                                 </View>
                                 <View style={{ flexDirection: 'column' }}>
-                                    {rednerIf(rowData.id == serverSrv._uid)(
+                                    {renderIf(rowData.id == serverSrv._uid)(
                                         <Text style={generalStyle.styles.textName}>
                                             You
                                     </Text>
                                     )}
-                                    {rednerIf(rowData.id != serverSrv._uid)(
+                                    {renderIf(rowData.id != serverSrv._uid)(
                                         <Text style={generalStyle.styles.textName}>
                                             {rowData.publicInfo.fullName}
                                         </Text>
@@ -127,7 +128,7 @@ export default class GroupProfile extends Component {
             } else {
                 return (
                     <View style={{ marginLeft: 5, marginRight: 5, marginBottom: 5 }}>
-                        <Image style={{ width: win.width-10 }} source={require('../../img/group-img.jpg')} />
+                        <Image style={{ width: win.width - 10 }} source={require('../../img/group-img.jpg')} />
                     </View>);
             }
         } catch (e) {
@@ -200,7 +201,7 @@ export default class GroupProfile extends Component {
                             />
                         </View>
                     </ScrollView>
-                    {this.openImageModal({ uri: this.props.userPicture })}
+                    {this.openImageModal(this.props.userPicture)}
                 </View>
             );
         } catch (e) {
@@ -208,7 +209,7 @@ export default class GroupProfile extends Component {
         }
     }
 
-    openImageModal(image) {
+    openImageModal(img) {
         try {
             return (
                 <Modal
@@ -220,7 +221,7 @@ export default class GroupProfile extends Component {
                         this.setImageVisible(!this.state.imageVisible)
                     }}>
                         <View style={generalStyle.styles.imageModal}>
-                            <Image style={generalStyle.styles.imageInsideModal} source={image} />
+                            <Image style={generalStyle.styles.imageInsideModal} source={{ uri: img }} />
                         </View>
                     </TouchableOpacity>
                 </Modal>

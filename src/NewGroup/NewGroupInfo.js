@@ -30,11 +30,12 @@ var serverSrv = require('../../Services/serverSrv');
 var disabled = false;
 var profileImg = '';
 var options = {
-    title: 'Select Profile Image',
+    title: 'Select Group Image',
     storageOptions: {
         skipBackup: true,
         path: 'images'
-    }
+    },
+    allowsEditing: true
 };
 
 export default class NewGroupInfo extends Component {

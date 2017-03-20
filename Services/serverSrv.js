@@ -871,14 +871,26 @@ export function getConvParticipates(_convId, callback) {
     socket.emit('getGroupParticipatesId', _convId, (participates) => {
         try {
             db.transaction((tx) => {
+                var uidArr = '(';
+                var newUsers = [];
                 for (var i = 0; i < participates.length; i++) {
                     tx.executeSql('INSERT OR REPLACE INTO Participates VALUES (?, ?, ?)',
                         [_convId,
                             participates[i],
                             true
                         ]);
+                    if (i == (participates.length - 1)) {
+                        uidArr += ('"' + participates[i] + '"');
+                    }
+                    else {
+                        uidArr += ('"' + participates[i] + '"' + ',');
+                    }
+                    if (newUsers.indexOf(participates[i]) == -1) {
+                        newUsers.push(participates[i]);
+                    }
                     if (i + 1 == participates.length) {
-                        getConvParticipates_DB(_convId, callback);
+                        uidArr += ')';
+                        getConvParticipates_DB(_convId, uidArr, newUsers, callback);
                     }
                 }
             });
@@ -888,56 +900,55 @@ export function getConvParticipates(_convId, callback) {
     });
 }
 
-export function getConvParticipates_DB(_convId, callback) {
+export function getConvParticipates_DB(_convId, uidArr, newUsers, callback) {
     try {
-        var newUsers = [];
+        //var newUsers = [];
         db.transaction((tx) => {
-            tx.executeSql('SELECT uid FROM Participates WHERE convId=?', [_convId], (tx, rsP) => {
-                try {
-                    var uidArr = '(';
-                    for (var i = 0; i < rsP.rows.length; i++) {
-                        if (i == (rsP.rows.length - 1)) {
-                            uidArr += ('"' + rsP.rows.item(i).uid + '"');
+            // tx.executeSql('SELECT uid FROM Participates WHERE convId=?', [_convId], (tx, rsP) => {
+            //     try {
+            //         var uidArr = '(';
+            //         for (var i = 0; i < rsP.rows.length; i++) {
+            //             if (i == (rsP.rows.length - 1)) {
+            //                 uidArr += ('"' + rsP.rows.item(i).uid + '"');
+            //             }
+            //             else {
+            //                 uidArr += ('"' + rsP.rows.item(i).uid + '"' + ',');
+            //             }
+            //             if (newUsers.indexOf(rsP.rows.item(i).uid) == -1) {
+            //                 newUsers.push(rsP.rows.item(i).uid);
+            //             }
+            //         }
+            //         uidArr += ')';
+            //     } catch (error) {
+            //         ErrorHandler.WriteError('serverSrv.js => getConvParticipates_DB' + error.message, error);
+            //     }
+
+            var selectStr = 'SELECT * FROM Friends WHERE id IN ' + uidArr + ' ORDER BY fullName';
+            tx.executeSql(selectStr, [], (tx, rs) => {
+                var convParticipates = [];
+                for (var i = 0; i < rs.rows.length; i++) {
+                    if (convParticipates.indexOf(rs.rows.item(i).id) === -1) {
+                        if (newUsers.indexOf(rs.rows.item(i).id) != -1) {
+                            newUsers.splice(newUsers.indexOf(rs.rows.item(i).id), 1);
                         }
-                        else {
-                            uidArr += ('"' + rsP.rows.item(i).uid + '"' + ',');
-                        }
-                        if (newUsers.indexOf(rsP.rows.item(i).uid) == -1) {
-                            newUsers.push(rsP.rows.item(i).uid);
-                        }
-                    }
-                    uidArr += ')';
-                } catch (error) {
-                    ErrorHandler.WriteError('serverSrv.js => getConvParticipates_DB' + error.message, error);
-                }
-                
-                var selectStr = 'SELECT * FROM Friends WHERE id IN ' + uidArr + ' ORDER BY fullName';
-                tx.executeSql(selectStr, [], (tx, rs) => {
-                    var convParticipates = [];
-                    for (var i = 0; i < rs.rows.length; i++) {
-                        if (convParticipates.indexOf(rs.rows.item(i).id) === -1) {
-                            if (newUsers.indexOf(rs.rows.item(i).id) != -1) {
-                                newUsers.splice(newUsers.indexOf(rs.rows.item(i).id), 1);
+                        convParticipates.push({
+                            id: rs.rows.item(i).id,
+                            phoneNumber: rs.rows.item(i).phoneNumber,
+                            ModifyDate: rs.rows.item(i).ModifyDate,
+                            ModifyPicDate: rs.rows.item(i).ModifyPicDate,
+                            publicInfo: {
+                                fullName: rs.rows.item(i).fullName,
+                                picture: rs.rows.item(i).picture
                             }
-                            convParticipates.push({
-                                id: rs.rows.item(i).id,
-                                phoneNumber: rs.rows.item(i).phoneNumber,
-                                ModifyDate: rs.rows.item(i).ModifyDate,
-                                ModifyPicDate: rs.rows.item(i).ModifyPicDate,
-                                publicInfo: {
-                                    fullName: rs.rows.item(i).fullName,
-                                    picture: rs.rows.item(i).picture
-                                }
-                            });
-                        }
-                    }
-                    callback(convParticipates)
-                    if (newUsers.length > 0) {
-                        socket.emit('getConvParticipates', newUsers, (result) => {
-                            getConvParticipates_server(result, _convId, callback);
                         });
                     }
-                });
+                }
+                callback(convParticipates)
+                if (newUsers.length > 0) {
+                    socket.emit('getConvParticipates', newUsers, (result) => {
+                        getConvParticipates_server(result, _convId, callback);
+                    });
+                }
             });
         });
     } catch (error) {
