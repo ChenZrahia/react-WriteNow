@@ -43,9 +43,13 @@ export default class GroupProfile extends Component {
     }
 
     onLayout(event) {
-        this.setState({
-            screenWidth: Dimensions.get('window').width
-        });
+        try {
+            this.setState({
+                screenWidth: Dimensions.get('window').width
+            });
+        } catch (e) {
+            ErrorHandler.WriteError("GroupProfile.js => onLayout", e);
+        }
     }
 
     /*componentWillMount() {
@@ -64,34 +68,46 @@ export default class GroupProfile extends Component {
     }*/
 
     orientationDidChange(orientation) {
-        if (orientation == 'LANDSCAPE') {
-            //do something with landscape layout
-            console.log('LANDSCAPE');
-        } else {
-            //do something with portrait layout
-            console.log('PORTRAIT');
+        try {
+            if (orientation == 'LANDSCAPE') {
+                //do something with landscape layout
+                console.log('LANDSCAPE');
+            } else {
+                //do something with portrait layout
+                console.log('PORTRAIT');
+            }
+        } catch (e) {
+            ErrorHandler.WriteError("GroupProfile.js => orientationDidChange", e);
         }
     }
 
     componentDidMount() {
-        serverSrv.getConvParticipates(this.props.convId, (result) => {
-            this.groupMembers = result;
-            this.setState({
-                dataSource: this.ds.cloneWithRows(this.groupMembers)
-            });
+        try {
+            serverSrv.getConvParticipates(this.props.convId, (result) => {
+                this.groupMembers = result;
+                this.setState({
+                    dataSource: this.ds.cloneWithRows(this.groupMembers)
+                });
 
-        });
-        serverSrv.getGroupManagers(this.props.convId, (result) => {
-            this.groupManagers = result;
-            this.setState({
-                managerSource: this.ds.cloneWithRows(result)
             });
-        });
-        Orientation.addOrientationListener(this.orientationDidChange);
+            serverSrv.getGroupManagers(this.props.convId, (result) => {
+                this.groupManagers = result;
+                this.setState({
+                    managerSource: this.ds.cloneWithRows(result)
+                });
+            });
+            Orientation.addOrientationListener(this.orientationDidChange);
+        } catch (e) {
+            ErrorHandler.WriteError("GroupProfile.js => componentDidMount", e);
+        }
     }
 
     componentWillUnmount() {
-        Orientation.removeOrientationListener(this.orientationDidChange);
+        try {
+            Orientation.removeOrientationListener(this.orientationDidChange);
+        } catch (e) {
+            ErrorHandler.WriteError("GroupProfile.js => componentWillUnmount", e);
+        }
     }
 
     renderTextParticipate(rowData) {

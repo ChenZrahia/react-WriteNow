@@ -71,6 +71,10 @@ export default class NewGroup extends Component {
         }
     }
 
+    onLayout(event){
+        this.setState({});
+    }
+
     reloadFriendFromDB(isUpdate) {
         try {
             serverSrv.GetAllMyFriends(this.UpdateMyFriends, isUpdate);
