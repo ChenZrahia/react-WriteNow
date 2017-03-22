@@ -35,3 +35,6 @@ project(':react-native-webrtc').projectDir = new File(settingsDir, '../node_modu
 
 include ':react-native-incall-manager'
 project(':react-native-incall-manager').projectDir = new File(settingsDir, '../node_modules/react-native-incall-manager/android')
+
+include ':react-native-orientation', ':app'
+project(':react-native-orientation').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-orientation/android')

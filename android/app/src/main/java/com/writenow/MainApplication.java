@@ -29,6 +29,7 @@ import com.rt2zz.reactnativecontacts.ReactNativeContacts;
 import android.content.Intent;
 // import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage; 
 import com.rssignaturecapture.RSSignatureCapturePackage; 
+import com.github.yamill.orientation.OrientationPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 //private ReactNativePushNotificationPackage mReactNativePushNotificationPackage; // <------ Add Package Variable
@@ -42,6 +43,7 @@ public class MainApplication extends Application implements ReactApplication {
       return Arrays.<ReactPackage>asList(
         new SQLitePluginPackage(),
           new MainReactPackage(),
+          new OrientationPackage(),
             new InCallManagerPackage(),
             new RNSoundPackage(),
             new WebRTCModulePackage(),

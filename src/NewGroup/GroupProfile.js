@@ -8,7 +8,8 @@ import {
     Image,
     ScrollView,
     Modal,
-    TextInput
+    TextInput,
+    Dimensions
 } from 'react-native';
 import FitImage from '../../plugins/FitImage';
 import SGListView from 'react-native-sglistview';
@@ -20,8 +21,7 @@ var dismissKeyboard = require('dismissKeyboard');
 var ErrorHandler = require('../../ErrorHandler');
 var serverSrv = require('../../Services/serverSrv');
 var generalStyle = require('../../styles/generalStyle');
-var Dimensions = require('Dimensions');
-var win = Dimensions.get('window');
+var Orientation = require('react-native-orientation');
 
 export default class GroupProfile extends Component {
     constructor() {
@@ -33,10 +33,43 @@ export default class GroupProfile extends Component {
             this.groupManagers = [];
             this.state = {
                 dataSource: this.ds.cloneWithRows([]),
-                imageVisible: false
+                imageVisible: false,
+                screenWidth: Dimensions.get('window').width
             }
+            this.onLayout = this.onLayout.bind(this)
         } catch (e) {
             ErrorHandler.WriteError("GroupProfile.js => constructor", e);
+        }
+    }
+
+    onLayout(event) {
+        this.setState({
+            screenWidth: Dimensions.get('window').width
+        });
+    }
+
+    /*componentWillMount() {
+        var initial = Orientation.getInitialOrientation();
+        if (initial === 'PORTRAIT') {
+            console.log(win.width);
+            this.setState({
+                winWidth: win.width
+            });
+        } else {
+            console.log(win.width);
+            this.setState({
+                winWidth: win.width
+            });
+        }
+    }*/
+
+    orientationDidChange(orientation) {
+        if (orientation == 'LANDSCAPE') {
+            //do something with landscape layout
+            console.log('LANDSCAPE');
+        } else {
+            //do something with portrait layout
+            console.log('PORTRAIT');
         }
     }
 
@@ -54,14 +87,19 @@ export default class GroupProfile extends Component {
                 managerSource: this.ds.cloneWithRows(result)
             });
         });
+        Orientation.addOrientationListener(this.orientationDidChange);
+    }
+
+    componentWillUnmount() {
+        Orientation.removeOrientationListener(this.orientationDidChange);
     }
 
     renderTextParticipate(rowData) {
         try {
             if (this.groupManagers.indexOf(rowData.id) >= 0) {
                 return (
-                    <View style={styles.managerTag}>
-                        <Text style={{ alignSelf: 'center', color: 'purple', padding: 2 }}>manager</Text>
+                    <View style={{ borderColor: 'purple', borderWidth: 0.5, borderRadius: 5, alignSelf: 'center', left: this.state.screenWidth - 230 }}>
+                        <Text style={{ alignSelf: 'center', color: 'purple', padding: 2, paddingTop: 0 }}>manager</Text>
                     </View>
                 );
             }
@@ -128,7 +166,7 @@ export default class GroupProfile extends Component {
             } else {
                 return (
                     <View style={{ marginLeft: 5, marginRight: 5, marginBottom: 5 }}>
-                        <Image style={{ width: win.width - 10 }} source={require('../../img/group-img.jpg')} />
+                        <Image style={{ width: this.state.winWidth - 10 }} source={require('../../img/group-img.jpg')} />
                     </View>);
             }
         } catch (e) {
@@ -139,7 +177,9 @@ export default class GroupProfile extends Component {
     render() {
         try {
             return (
-                <View style={styles.container}>
+                <View
+                    onLayout={this.onLayout}
+                    style={styles.container}>
                     <View style={styles.title}>
                         <TouchableOpacity onPress={() => {
                             Actions.pop();
@@ -249,7 +289,6 @@ const styles = StyleSheet.create({
         borderColor: 'purple',
         borderWidth: 0.5,
         borderRadius: 5,
-        marginLeft: 200,
         alignSelf: 'center',
     }
 });
