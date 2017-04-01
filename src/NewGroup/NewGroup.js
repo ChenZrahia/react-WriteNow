@@ -53,6 +53,7 @@ export default class NewGroup extends Component {
             };
             this.UpdateMyFriends = this.UpdateMyFriends.bind(this);
             this.renderRow = this.renderRow.bind(this);
+            this.onLayout = this.onLayout.bind(this);
         } catch (e) {
             ErrorHandler.WriteError("NewGroup.js => constructor", e);
         }
@@ -71,8 +72,11 @@ export default class NewGroup extends Component {
         }
     }
 
-    onLayout(event){
-        this.setState({});
+    onLayout(event) {
+        this.setState({
+            groupSource: this.ds2.cloneWithRows(this.GroupContacts),
+            datasource: this.ds.cloneWithRows(this.myFriends)
+        });
     }
 
     reloadFriendFromDB(isUpdate) {
@@ -154,7 +158,8 @@ export default class NewGroup extends Component {
     render() {
         try {
             return (
-                <View style={generalStyle.styles.container}>
+                <View
+                    style={generalStyle.styles.container}>
                     <View style={generalStyle.styles.appbar}>
                         <TouchableOpacity onPress={() => {
                             Actions.pop();
@@ -244,6 +249,7 @@ export default class NewGroup extends Component {
                                         }
                                     });
                                 }
+
                                 this.setState({
                                     groupSource: this.ds2.cloneWithRows(this.GroupContacts),
                                     dataSource: this.ds.cloneWithRows(this.myFriends)
@@ -285,11 +291,11 @@ export default class NewGroup extends Component {
                                     user.isHidden = false;
                                 }
                             });
-                            this.setState({
-                                groupSource: this.ds2.cloneWithRows(this.GroupContacts),
-                                datasource: this.ds.cloneWithRows(this.myFriends)
-                            });
                         }
+                        this.setState({
+                            groupSource: this.ds2.cloneWithRows(this.GroupContacts),
+                            dataSource: this.ds.cloneWithRows(this.myFriends)
+                        });
                     }}>
                         <View style={{ paddingBottom: 5, paddingLeft: 5, paddingRight: 5, alignItems: 'center' }}>
                             <Image style={styles.groupMemberPic} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />

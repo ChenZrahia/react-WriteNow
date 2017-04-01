@@ -36,7 +36,7 @@ export default class GroupProfile extends Component {
                 imageVisible: false,
                 screenWidth: Dimensions.get('window').width
             }
-            this.onLayout = this.onLayout.bind(this)
+            this.onLayout = this.onLayout.bind(this);
         } catch (e) {
             ErrorHandler.WriteError("GroupProfile.js => constructor", e);
         }
