@@ -52,21 +52,6 @@ export default class GroupProfile extends Component {
         }
     }
 
-    /*componentWillMount() {
-        var initial = Orientation.getInitialOrientation();
-        if (initial === 'PORTRAIT') {
-            console.log(win.width);
-            this.setState({
-                winWidth: win.width
-            });
-        } else {
-            console.log(win.width);
-            this.setState({
-                winWidth: win.width
-            });
-        }
-    }*/
-
     orientationDidChange(orientation) {
         try {
             if (orientation == 'LANDSCAPE') {
