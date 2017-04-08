@@ -37,7 +37,6 @@
     "react-native-level-fs": "^3.0.0",
     "react-native-loading-spinner-overlay": "^0.3.0",
     "react-native-menu": "^0.20.2",
-    "react-native-orientation": "^1.17.0",
     "react-native-overlay": "^0.5.0",
     "react-native-popup-menu": "^0.5.7",
     "react-native-root-toast": "^1.0.3",
