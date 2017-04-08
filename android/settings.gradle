@@ -1,6 +1,4 @@
 rootProject.name = 'WriteNow'
-include ':react-native-image-crop-picker'
-project(':react-native-image-crop-picker').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-image-crop-picker/android')
 
 include ':react-native-image-resizer',':app'
 project(':react-native-image-resizer').projectDir = new File(settingsDir, '../node_modules/react-native-image-resizer/android')
@@ -36,5 +34,5 @@ project(':react-native-webrtc').projectDir = new File(settingsDir, '../node_modu
 include ':react-native-incall-manager'
 project(':react-native-incall-manager').projectDir = new File(settingsDir, '../node_modules/react-native-incall-manager/android')
 
-include ':react-native-orientation', ':app'
-project(':react-native-orientation').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-orientation/android')
+// include ':react-native-orientation', ':app'
+// project(':react-native-orientation').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-orientation/android')

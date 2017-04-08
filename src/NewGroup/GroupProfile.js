@@ -21,7 +21,7 @@ var dismissKeyboard = require('dismissKeyboard');
 var ErrorHandler = require('../../ErrorHandler');
 var serverSrv = require('../../Services/serverSrv');
 var generalStyle = require('../../styles/generalStyle');
-var Orientation = require('react-native-orientation');
+// var Orientation = require('react-native-orientation');
 
 export default class GroupProfile extends Component {
     constructor() {
@@ -67,19 +67,19 @@ export default class GroupProfile extends Component {
         }
     }*/
 
-    orientationDidChange(orientation) {
-        try {
-            if (orientation == 'LANDSCAPE') {
-                //do something with landscape layout
-                console.log('LANDSCAPE');
-            } else {
-                //do something with portrait layout
-                console.log('PORTRAIT');
-            }
-        } catch (e) {
-            ErrorHandler.WriteError("GroupProfile.js => orientationDidChange", e);
-        }
-    }
+    // orientationDidChange(orientation) {
+    //     try {
+    //         if (orientation == 'LANDSCAPE') {
+    //             //do something with landscape layout
+    //             console.log('LANDSCAPE');
+    //         } else {
+    //             //do something with portrait layout
+    //             console.log('PORTRAIT');
+    //         }
+    //     } catch (e) {
+    //         ErrorHandler.WriteError("GroupProfile.js => orientationDidChange", e);
+    //     }
+    // }
 
     componentDidMount() {
         try {
@@ -96,7 +96,7 @@ export default class GroupProfile extends Component {
                     managerSource: this.ds.cloneWithRows(result)
                 });
             });
-            Orientation.addOrientationListener(this.orientationDidChange);
+            //Orientation.addOrientationListener(this.orientationDidChange);
         } catch (e) {
             ErrorHandler.WriteError("GroupProfile.js => componentDidMount", e);
         }
@@ -104,7 +104,7 @@ export default class GroupProfile extends Component {
 
     componentWillUnmount() {
         try {
-            Orientation.removeOrientationListener(this.orientationDidChange);
+            //Orientation.removeOrientationListener(this.orientationDidChange);
         } catch (e) {
             ErrorHandler.WriteError("GroupProfile.js => componentWillUnmount", e);
         }

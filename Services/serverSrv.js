@@ -120,6 +120,7 @@ export function DeleteDb() {
         tx.executeSql('CREATE TABLE IF NOT EXISTS Participates (convId NOT NULL, uid NOT NULL, isGroup, PRIMARY KEY (convId, uid))', [], null, errorDB);
     });
 }
+//DeleteDb();
 
 setTimeout(() => {
     db.transaction((tx) => {
