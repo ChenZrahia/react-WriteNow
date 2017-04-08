@@ -34,7 +34,7 @@ public class MainApplication extends Application implements ReactApplication {
 //private ReactNativePushNotificationPackage mReactNativePushNotificationPackage; // <------ Add Package Variable
   private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
     @Override
-    protected boolean getUseDeveloperSupport() {
+    public boolean getUseDeveloperSupport() {
       return BuildConfig.DEBUG;
     }
     @Override
