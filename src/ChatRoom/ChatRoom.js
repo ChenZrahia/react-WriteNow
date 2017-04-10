@@ -36,6 +36,8 @@ export default class ChatRoom extends Component {
     constructor(props) {
         super(props);
         dismissKeyboard();
+        
+       
         try {
             this._messageId = null;
             this.state = {
@@ -53,11 +55,13 @@ export default class ChatRoom extends Component {
             this.LoadNewChat = this.LoadNewChat.bind(this);
             this.deleteFriendMessageUI = this.deleteFriendMessageUI.bind(this);
             this.loadEarlierMessages = this.loadEarlierMessages.bind(this);
+            this.exitChatRoom = this.exitChatRoom.bind(this);
             this.messages = [];
             this.indexOnlineMessages = [];
             this.onlineMessages = [];
             this.convId = null;
             this.skip = 0;
+            Event.on('LoadNewChat', this.LoadNewChat);
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => constructor', e);
         }
@@ -81,15 +85,20 @@ export default class ChatRoom extends Component {
             Event.on('encryptedMessage', this.onSend);
             BackAndroid.addEventListener('hardwareBackPress', () => {
                 serverSrv.exitChat(this.convId);
+                 //Event.trigger('exitChatRoom');
                 if (this.convId && this.messages.length > 0 && this.messages[0].text && this.messages[0].text.length > 0 && this.messages[0].sendTime) {
                     Event.trigger('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false, this.messages[0].isEncrypted);
                 }
             });
             this.LoadNewChat(this.props.id, this.props.isContact, this.props.id, this.props.phoneNumber, this.props.fullName);
-            Event.on('LoadNewChat', this.LoadNewChat);
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => componentDidMount', e);
         }
+    }
+    exitChatRoom(){
+        console.log("before reset the skip",this.skip);
+        this.skip = 0;
+        console.log("reset the skip",this.skip);
     }
 
     LoadNewChat(convId, isContact, uid, phoneNumber, fullName) {
@@ -130,9 +139,10 @@ export default class ChatRoom extends Component {
                 // console.log("***LoadNewChat****");
                 // console.log(this.messages);
                 this.convId = convId;
+                
                 this.setState({
-                    messages: GiftedChat.append(this.messages, this.onlineMessages, 0),
-                });
+                    messages: GiftedChat.append(this.messages, this.onlineMessages),
+                  });
             }
             serverSrv.onServerTyping(this.onFriendType);
             if (convId && convId != null) {
@@ -516,9 +526,9 @@ export default class ChatRoom extends Component {
         }
     }
 
+  
     loadEarlierMessages(){
         try {
-            console.log('1');
             var callback = (data, convId) => {
                 if (!data) {
                     data = [];
@@ -542,7 +552,7 @@ export default class ChatRoom extends Component {
         return (
             <View style={{ flex: 1, alignSelf: 'stretch' }} >
                 <GiftedChat
-                    loadEarlier={true}
+                    loadEarlier={this.state.messages.length >= 20  ? true : false}
                     onLoadEarlier={this.loadEarlierMessages}
                     userName={this.state.groupName}
                     convId={this.convId}

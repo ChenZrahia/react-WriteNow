@@ -203,6 +203,7 @@ export default class Chats extends Component {
 
     openChat(rowData) {
         try {
+            console.log("openChat");
             Actions.ChatRoom(rowData);
             this.UpdatelastMessage(null, null, rowData.id, false)
             Event.trigger('LoadNewChat', rowData.id, false);
