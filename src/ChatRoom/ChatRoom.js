@@ -127,11 +127,9 @@ export default class ChatRoom extends Component {
                     data = [];
                 }
                 this.messages = data;
-                // console.log("***LoadNewChat****");
-                // console.log(this.messages);
                 this.convId = convId;
                 this.setState({
-                    messages: GiftedChat.append(this.messages, this.onlineMessages, 0),
+                    messages: GiftedChat.append(this.messages, this.onlineMessages),
                 });
             }
             serverSrv.onServerTyping(this.onFriendType);
