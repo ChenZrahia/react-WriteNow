@@ -45,10 +45,6 @@ setTimeout(() => {
     startTyping = new Sound('start_type.mp3', Sound.MAIN_BUNDLE, (error) => { });
 }, 500);
 
-/*var CryptoJS = require("crypto-js");
-var SHA256 = require("crypto-js/sha256");*/
-
-
 function errorDB(error) {
     ErrorHandler.WriteError('SQL Error: ', error);
 }
@@ -98,26 +94,31 @@ setTimeout(function () {
     //printTable('Messages');
 }, 500);
 
+var counter = 0;
 export function DeleteDb() {
+    counter++;
+    if(counter < 5){
+        return;
+    }
     db.transaction((tx) => {
-        // tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
-        // tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
-        // tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
-        // tx.executeSql('DELETE FROM Participates', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Participates', [], null, errorDB); //------------------
 
 
-        // tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
-        // tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
-        // tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
-        // tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
-        // tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
 
 
-        // tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid,password)', [], null, errorDB);
-        // tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime, lastMessageEncrypted)', [], null, errorDB); //להוציא לפונקציה נפרדת
-        // tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, picture, isMyContact)', [], null, errorDB); //להוציא לפונקציה נפרדת
-        // tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll, image)', [], null, errorDB); //להוציא לפונקציה נפרדת
-        // tx.executeSql('CREATE TABLE IF NOT EXISTS Participates (convId NOT NULL, uid NOT NULL, isGroup, PRIMARY KEY (convId, uid))', [], null, errorDB);
+        tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid,password)', [], null, errorDB);
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime, lastMessageEncrypted)', [], null, errorDB); //להוציא לפונקציה נפרדת
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, picture, isMyContact)', [], null, errorDB); //להוציא לפונקציה נפרדת
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll, image)', [], null, errorDB); //להוציא לפונקציה נפרדת
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Participates (convId NOT NULL, uid NOT NULL, isGroup, PRIMARY KEY (convId, uid))', [], null, errorDB);
     });
 }
 //DeleteDb();
@@ -177,7 +178,6 @@ export function GetAllMyFriends(callback, isUpdate) {
                             setTimeout(() => {
                                 GetAllMyFriends_Server(callback);
                             }, 100);
-
                         }
                     }
                 } catch (error) {
