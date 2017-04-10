@@ -52,10 +52,12 @@ export default class ChatRoom extends Component {
             this.sendImageMessage = this.sendImageMessage.bind(this);
             this.LoadNewChat = this.LoadNewChat.bind(this);
             this.deleteFriendMessageUI = this.deleteFriendMessageUI.bind(this);
+            this.loadEarlierMessages = this.loadEarlierMessages.bind(this);
             this.messages = [];
             this.indexOnlineMessages = [];
             this.onlineMessages = [];
             this.convId = null;
+            this.skip = 0;
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => constructor', e);
         }
@@ -129,7 +131,7 @@ export default class ChatRoom extends Component {
                 // console.log(this.messages);
                 this.convId = convId;
                 this.setState({
-                    messages: GiftedChat.append(this.messages, this.onlineMessages),
+                    messages: GiftedChat.append(this.messages, this.onlineMessages, 0),
                 });
             }
             serverSrv.onServerTyping(this.onFriendType);
@@ -143,7 +145,8 @@ export default class ChatRoom extends Component {
                     serverSrv.GetConvByContact(callback, uid, phoneNumber, this.props.publicInfo.fullName);
                 }, 100);
             } else {
-                serverSrv.GetConv(callback, this.convId);
+                serverSrv.GetConv(callback, this.convId, null, this.skip);
+                this.skip += 20;
             }
         } catch (error) {
             ErrorHandler.WriteError('ChatRoom.js => LoadNewChat', error);
@@ -152,14 +155,11 @@ export default class ChatRoom extends Component {
 
     deleteMessage(text, id) {
         try {
-
-            this.messages = this.state.messages.filter((x) => x.id !== id);
+            this.messages = this.state.messages.filter((x) => x.id !== id );
             this.setState({
-                messages: this.messages//delete message from the UI
+                messages: this.messages //delete message from the UI
             });
             serverSrv.deleteMessageFromLocalDB(this.convId, id);
-
-
         } catch (error) {
             ErrorHandler.WriteError('ChatRoom.js => deleteMessage', error);
         }
@@ -170,7 +170,6 @@ export default class ChatRoom extends Component {
             console.log("try to clear all friends message from UI");
             console.log(mid);
             // console.log(messages);
-
             this.messages = this.state.messages.filter((x) => x.id !== mid);
             //  ((x) =>{ 
             //     if(x.id !== mid){
@@ -286,14 +285,14 @@ export default class ChatRoom extends Component {
                 <Modal
                     transparent={true}
                     visible={this.state.imageVisible}
-                    onRequestClose={() => { console.log('image closed') } }
-                    >
+                    onRequestClose={() => { console.log('image closed') }}
+                >
                     <View style={{ backgroundColor: 'rgba(0,0,0,0.7)', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                         <TouchableOpacity
                             style={{ top: 15, marginLeft: 295, zIndex: 5 }}
                             onPress={() => {
                                 this.setImageVisible(!this.state.imageVisible);
-                            } }>
+                            }}>
                             <View style={{ width: 30, height: 30, backgroundColor: 'gray', borderRadius: 15 }}>
                                 <Icon name="md-close" size={15} color="white" style={{ alignSelf: 'center', paddingTop: 7 }} />
                             </View>
@@ -305,11 +304,11 @@ export default class ChatRoom extends Component {
                                 placeholder="Type a message..."
                                 onChangeText={(text) => this.setState({ text })}
                                 value={this.state.text}
-                                />
+                            />
                             <TouchableOpacity onPress={() => {
                                 this.sendImageMessage(image, this.state.text);
                                 this.setImageVisible(!this.state.imageVisible);
-                            } }>
+                            }}>
                                 <Icon name="md-send" size={30} style={{ height: 40, padding: 5 }} />
                             </TouchableOpacity>
                         </View>
@@ -343,66 +342,7 @@ export default class ChatRoom extends Component {
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => sendImageMessage', e);
         }
-    }
-
-    onFriendType(msg, isImage) {
-        try {
-            if (msg.from == serverSrv._uid && !isImage) {
-                return;
-            }
-            if (!this.messages) {
-                this.messages = [];
-            }
-            if (msg.mid) {
-                msg._id = msg.mid;
-                msg.id = msg.mid;
-            }
-            if (!msg.id) {
-                msg.id = this.guid();
-            }
-            if (!msg._id) {
-                msg._id = msg.id;
-            }
-
-
-            if (!msg.user) {
-                msg.user = {
-                    _id: serverSrv._myFriendsJson[msg.from].id,
-                    name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName
-                }
-                // msg.user = serverSrv._myFriendsJson[msg.from];
-            }
-
-            if (!isImage) {
-                msg.text = msg.content;
-            }
-
-            if (!this.indexOnlineMessages[msg._id]) { //new message
-                this.indexOnlineMessages[msg._id] = msg;
-                this.onlineMessages.push(this.indexOnlineMessages[msg._id]);
-            } else {
-                this.indexOnlineMessages[msg._id].text = msg.content;
-                this.indexOnlineMessages[msg._id].content = msg.content;
-                if (!msg.content || msg.content.length == 0) {
-                    this._messageId = null;
-                    this.onlineMessages.splice(this.onlineMessages.indexOf(this.indexOnlineMessages[msg._id]), 1);
-                    delete this.indexOnlineMessages[msg._id];
-                }
-            }
-            if (msg.sendTime) {
-                this.onSend(msg);
-            } else {
-
-                this.setState((previousState) => {
-                    return {
-                        messages: GiftedChat.append(this.messages, this.onlineMessages),
-                    };
-                });
-            }
-        } catch (e) {
-            ErrorHandler.WriteError('ChatRoom.js => onFriendType', e);
-        }
-    }
+    }   
 
     onSend(messages = [], saveLocal) {
         try {
@@ -442,7 +382,9 @@ export default class ChatRoom extends Component {
                     msg.content = msg.text;
                     msg.convId = this.convId;
                     serverSrv.saveNewMessage(msg, saveLocal);
-                    this._messageId = null;
+                    if (msg.from == serverSrv._uid) {
+                        this._messageId = null;
+                    }
                 }
 
                 msg.user = {
@@ -458,7 +400,9 @@ export default class ChatRoom extends Component {
                     return o_msg.id != msg.id;
                 });
                 Event.trigger('newMessage', msg);
-                this._messageId = null; //clean if encrypted message send
+                if (msg.from == serverSrv._uid) {
+                    this._messageId = null;
+                }
             }
             this.setState((previousState) => {
                 return {
@@ -470,10 +414,71 @@ export default class ChatRoom extends Component {
         }
     }
 
+    onFriendType(msg, isImage) {
+        try {
+            if (msg.from == serverSrv._uid && !isImage) {
+                return;
+            }
+            if (!this.messages) {
+                this.messages = [];
+            }
+            if (msg.mid) {
+                msg._id = msg.mid;
+                msg.id = msg.mid;
+            }
+            if (!msg.id) {
+                msg.id = this.guid();
+            }
+            if (!msg._id) {
+                msg._id = msg.id;
+            }
+
+
+            if (!msg.user) {
+                msg.user = {
+                   name: serverSrv._myFriendsJson[msg.from] ? serverSrv._myFriendsJson[msg.from].publicInfo.fullName : 'New User',
+                _id: serverSrv._myFriendsJson[msg.from] ? serverSrv._myFriendsJson[msg.from].id : 'newUserId'
+                }
+                // msg.user = serverSrv._myFriendsJson[msg.from];
+            }
+
+            if (!isImage) {
+                msg.text = msg.content;
+            }
+
+            if (!this.indexOnlineMessages[msg._id]) { //new message
+                this.indexOnlineMessages[msg._id] = msg;
+                this.onlineMessages.push(this.indexOnlineMessages[msg._id]);
+            } else {
+                this.indexOnlineMessages[msg._id].text = msg.content;
+                this.indexOnlineMessages[msg._id].content = msg.content;
+                if (!msg.content || msg.content.length == 0) {
+                    //this._messageId = null; --marked by sagi 08/04/17
+                    this.onlineMessages.splice(this.onlineMessages.indexOf(this.indexOnlineMessages[msg._id]), 1);
+                    delete this.indexOnlineMessages[msg._id];
+                }
+            }
+            if (msg.sendTime) {
+                this.onSend(msg);
+            } else {
+
+                this.setState((previousState) => {
+                    return {
+                        messages: GiftedChat.append(this.messages, this.onlineMessages),
+                    };
+                });
+            }
+        } catch (e) {
+            ErrorHandler.WriteError('ChatRoom.js => onFriendType', e);
+        }
+    }
+
     onType(text, _isEncrypted) {
         try {
+            console.log('onType');
             if (this._messageId == null) {
                 this._messageId = this.guid();
+                console.log('onType - this._messageId == null');
             }
             var msg = {
                 mid: this._messageId,
@@ -487,8 +492,8 @@ export default class ChatRoom extends Component {
             };
             serverSrv.Typing(msg);
             msg.user = {
-                name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName,
-                _id: serverSrv._myFriendsJson[msg.from].id
+                name: serverSrv._myFriendsJson[msg.from] ? serverSrv._myFriendsJson[msg.from].publicInfo.fullName : 'New User',
+                _id: serverSrv._myFriendsJson[msg.from] ? serverSrv._myFriendsJson[msg.from].id : 'newUserId'
             }
             console.log("push2",this.indexOnlineMessages);
             if (!this.indexOnlineMessages[msg._id]) { //new message
@@ -511,10 +516,34 @@ export default class ChatRoom extends Component {
         }
     }
 
+    loadEarlierMessages(){
+        try {
+            console.log('1');
+            var callback = (data, convId) => {
+                if (!data) {
+                    data = [];
+                }
+                this.messages = GiftedChat.append(data, this.messages);
+                // console.log("***LoadNewChat****");
+                // console.log(this.messages);
+                this.convId = convId;
+                this.setState({
+                    messages: GiftedChat.append(this.messages, this.onlineMessages, 0),
+                });
+            }
+            serverSrv.GetConv(callback, this.convId, null, this.skip);
+            this.skip += 20;
+        } catch (error) {
+            ErrorHandler.WriteError('ChatRoom.js => loadEarlierMessages', error);
+        }
+    }
+
     render() {
         return (
             <View style={{ flex: 1, alignSelf: 'stretch' }} >
                 <GiftedChat
+                    loadEarlier={true}
+                    onLoadEarlier={this.loadEarlierMessages}
                     userName={this.state.groupName}
                     convId={this.convId}
                     userPicture={this.state.groupPicture}
@@ -525,7 +554,7 @@ export default class ChatRoom extends Component {
                     user={{
                         _id: serverSrv._uid,
                     }}
-                    />
+                />
                 {this.openImageModal(this.state.imgToMsg, this.state.pathOfImage)}
             </View>
         );

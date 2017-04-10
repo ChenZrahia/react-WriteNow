@@ -8,7 +8,8 @@ import {
     Image,
     ScrollView,
     Modal,
-    TextInput
+    TextInput,
+    Dimensions
 } from 'react-native';
 import FitImage from '../../plugins/FitImage';
 import SGListView from 'react-native-sglistview';
@@ -20,6 +21,7 @@ var dismissKeyboard = require('dismissKeyboard');
 var ErrorHandler = require('../../ErrorHandler');
 var serverSrv = require('../../Services/serverSrv');
 var generalStyle = require('../../styles/generalStyle');
+// var Orientation = require('react-native-orientation');
 
 export default class GroupProfile extends Component {
     constructor() {
@@ -31,34 +33,89 @@ export default class GroupProfile extends Component {
             this.groupManagers = [];
             this.state = {
                 dataSource: this.ds.cloneWithRows([]),
-                imageVisible: false
+                imageVisible: false,
+                screenWidth: Dimensions.get('window').width
             }
+            this.onLayout = this.onLayout.bind(this);
         } catch (e) {
             ErrorHandler.WriteError("GroupProfile.js => constructor", e);
         }
     }
 
+    onLayout(event) {
+        try {
+            this.setState({
+                screenWidth: Dimensions.get('window').width
+            });
+        } catch (e) {
+            ErrorHandler.WriteError("GroupProfile.js => onLayout", e);
+        }
+    }
+
+    /*componentWillMount() {
+        var initial = Orientation.getInitialOrientation();
+        if (initial === 'PORTRAIT') {
+            console.log(win.width);
+            this.setState({
+                winWidth: win.width
+            });
+        } else {
+            console.log(win.width);
+            this.setState({
+                winWidth: win.width
+            });
+        }
+    }*/
+
+    // orientationDidChange(orientation) {
+    //     try {
+    //         if (orientation == 'LANDSCAPE') {
+    //             //do something with landscape layout
+    //             console.log('LANDSCAPE');
+    //         } else {
+    //             //do something with portrait layout
+    //             console.log('PORTRAIT');
+    //         }
+    //     } catch (e) {
+    //         ErrorHandler.WriteError("GroupProfile.js => orientationDidChange", e);
+    //     }
+    // }
+
     componentDidMount() {
-        serverSrv.getConvParticipates(this.props.convId, (result) => {
-            this.groupMembers = result;
-            this.setState({
-                dataSource: this.ds.cloneWithRows(this.groupMembers)
+        try {
+            serverSrv.getConvParticipates(this.props.convId, (result) => {
+                this.groupMembers = result;
+                this.setState({
+                    dataSource: this.ds.cloneWithRows(this.groupMembers)
+                });
+
             });
-        });
-        serverSrv.getGroupManagers(this.props.convId, (result) => {
-            this.groupManagers = result;
-            this.setState({
-                managerSource: this.ds.cloneWithRows(result)
+            serverSrv.getGroupManagers(this.props.convId, (result) => {
+                this.groupManagers = result;
+                this.setState({
+                    managerSource: this.ds.cloneWithRows(result)
+                });
             });
-        });
+            //Orientation.addOrientationListener(this.orientationDidChange);
+        } catch (e) {
+            ErrorHandler.WriteError("GroupProfile.js => componentDidMount", e);
+        }
+    }
+
+    componentWillUnmount() {
+        try {
+            //Orientation.removeOrientationListener(this.orientationDidChange);
+        } catch (e) {
+            ErrorHandler.WriteError("GroupProfile.js => componentWillUnmount", e);
+        }
     }
 
     renderTextParticipate(rowData) {
         try {
             if (this.groupManagers.indexOf(rowData.id) >= 0) {
                 return (
-                    <View style={styles.managerTag}>
-                        <Text style={{ alignSelf: 'center', color: 'purple', padding: 2 }}>manager</Text>
+                    <View style={{ borderColor: 'purple', borderWidth: 0.5, borderRadius: 5, alignSelf: 'center', left: this.state.screenWidth - 230 }}>
+                        <Text style={{ alignSelf: 'center', color: 'purple', padding: 2, paddingTop: 0 }}>manager</Text>
                     </View>
                 );
             }
@@ -79,9 +136,16 @@ export default class GroupProfile extends Component {
                                     <Image style={generalStyle.styles.thumb} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
                                 </View>
                                 <View style={{ flexDirection: 'column' }}>
-                                    <Text style={generalStyle.styles.textName}>
-                                        {rowData.publicInfo.fullName}
+                                    {renderIf(rowData.id == serverSrv._uid)(
+                                        <Text style={generalStyle.styles.textName}>
+                                            You
                                     </Text>
+                                    )}
+                                    {renderIf(rowData.id != serverSrv._uid)(
+                                        <Text style={generalStyle.styles.textName}>
+                                            {rowData.publicInfo.fullName}
+                                        </Text>
+                                    )}
                                     <Text style={generalStyle.styles.textStatus}>
                                         {rowData.phoneNumber}
                                     </Text>
@@ -116,7 +180,10 @@ export default class GroupProfile extends Component {
                         source={{ uri: img }}
                     />)
             } else {
-                return (<Image style={{ width: 300, height: 300, marginLeft: 5, marginRight: 5, marginBottom: 5 }} source={require('../../img/group-img.jpg')} />);
+                return (
+                    <View style={{ marginLeft: 5, marginRight: 5, marginBottom: 5 }}>
+                        <Image style={{ width: this.state.winWidth - 10 }} source={require('../../img/group-img.jpg')} />
+                    </View>);
             }
         } catch (e) {
             ErrorHandler.WriteError("GroupProfile.js => getImageSource", e);
@@ -126,7 +193,9 @@ export default class GroupProfile extends Component {
     render() {
         try {
             return (
-                <View style={styles.container}>
+                <View
+                    onLayout={this.onLayout}
+                    style={styles.container}>
                     <View style={styles.title}>
                         <TouchableOpacity onPress={() => {
                             Actions.pop();
@@ -188,7 +257,7 @@ export default class GroupProfile extends Component {
                             />
                         </View>
                     </ScrollView>
-                    {this.openImageModal({ uri: this.props.userPicture })}
+                    {this.openImageModal(this.props.userPicture)}
                 </View>
             );
         } catch (e) {
@@ -196,7 +265,7 @@ export default class GroupProfile extends Component {
         }
     }
 
-    openImageModal(image) {
+    openImageModal(img) {
         try {
             return (
                 <Modal
@@ -208,7 +277,7 @@ export default class GroupProfile extends Component {
                         this.setImageVisible(!this.state.imageVisible)
                     }}>
                         <View style={generalStyle.styles.imageModal}>
-                            <Image style={generalStyle.styles.imageInsideModal} source={image} />
+                            <Image style={generalStyle.styles.imageInsideModal} source={{ uri: img }} />
                         </View>
                     </TouchableOpacity>
                 </Modal>
@@ -221,7 +290,8 @@ export default class GroupProfile extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1
+        flex: 1,
+        backgroundColor: '#e7e7e7'
     },
     title: {
         flexDirection: 'row',
@@ -235,7 +305,6 @@ const styles = StyleSheet.create({
         borderColor: 'purple',
         borderWidth: 0.5,
         borderRadius: 5,
-        marginLeft: 200,
         alignSelf: 'center',
     }
 });

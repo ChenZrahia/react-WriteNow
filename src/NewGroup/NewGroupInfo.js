@@ -30,11 +30,12 @@ var serverSrv = require('../../Services/serverSrv');
 var disabled = false;
 var profileImg = '';
 var options = {
-    title: 'Select Profile Image',
+    title: 'Select Group Image',
     storageOptions: {
         skipBackup: true,
         path: 'images'
-    }
+    },
+    allowsEditing: true
 };
 
 export default class NewGroupInfo extends Component {
@@ -63,8 +64,6 @@ export default class NewGroupInfo extends Component {
 
     showImagePicker = () => {
         ImagePicker.showImagePicker(options, (response) => {
-            console.log('Response = ', response);
-
             if (response.didCancel) {
                 console.log('User cancelled image picker');
             }
@@ -83,8 +82,6 @@ export default class NewGroupInfo extends Component {
                 } else {
                     const source = { uri: response.uri, isStatic: true };
                 }
-                //profileImg = response.data;
-
                 ImageResizer.createResizedImage(response.uri, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
                     NativeModules.RNImageToBase64.getBase64String(resizedImageUri, (err, base64) => {
                         profileImg = 'data:image/jpeg;base64,' + base64;
@@ -92,7 +89,6 @@ export default class NewGroupInfo extends Component {
                 }).catch((err) => {
                     ErrorHandler.WriteError('NewGroupInfo.js => showImagePicker => createResizedImage', err);
                 });
-
                 this.setState({
                     groupAvatar: source
                 });

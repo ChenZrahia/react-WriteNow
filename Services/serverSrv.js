@@ -100,26 +100,27 @@ setTimeout(function () {
 
 export function DeleteDb() {
     db.transaction((tx) => {
-        tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
-        tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
-        tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
-        tx.executeSql('DELETE FROM Participates', [], null, errorDB); //------------------
+        // tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
+        // tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
+        // tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
+        // tx.executeSql('DELETE FROM Participates', [], null, errorDB); //------------------
 
 
-        tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
-        tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
-        tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
-        tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
-        tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
+        // tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
+        // tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
+        // tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
+        // tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
+        // tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
 
 
-        tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid,password)', [], null, errorDB);
-        tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime, lastMessageEncrypted)', [], null, errorDB); //להוציא לפונקציה נפרדת
-        tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, picture, isMyContact)', [], null, errorDB); //להוציא לפונקציה נפרדת
-        tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll, image)', [], null, errorDB); //להוציא לפונקציה נפרדת
-        tx.executeSql('CREATE TABLE IF NOT EXISTS Participates (convId NOT NULL, uid NOT NULL, isGroup, PRIMARY KEY (convId, uid))', [], null, errorDB);
+        // tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid,password)', [], null, errorDB);
+        // tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime, lastMessageEncrypted)', [], null, errorDB); //להוציא לפונקציה נפרדת
+        // tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, picture, isMyContact)', [], null, errorDB); //להוציא לפונקציה נפרדת
+        // tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll, image)', [], null, errorDB); //להוציא לפונקציה נפרדת
+        // tx.executeSql('CREATE TABLE IF NOT EXISTS Participates (convId NOT NULL, uid NOT NULL, isGroup, PRIMARY KEY (convId, uid))', [], null, errorDB);
     });
 }
+//DeleteDb();
 
 setTimeout(() => {
     db.transaction((tx) => {
@@ -458,14 +459,17 @@ export function exitChatCall_server(callback) {
 }
 
 //ChatRoom
-export function GetConv(callback, convId, isUpdate) {
+export function GetConv(callback, convId, isUpdate, skip) {
     try {
         // if (_myConvs && _myConvs[convId] && callback && !isUpdate) {
         //     callback(_myConvs[convId].messages);
         //     return;
         // }
+        if (!skip) {
+            skip = 0;
+        }
         db.transaction((tx) => {
-            tx.executeSql('SELECT * FROM Messages WHERE convId = ? AND (content IS NOT NULL OR image IS NOT NULL) ORDER BY sendTime DESC', [convId], (tx, rs) => {
+            tx.executeSql('SELECT * FROM Messages WHERE convId = ? AND (content IS NOT NULL OR image IS NOT NULL) ORDER BY sendTime DESC LIMIT 20 OFFSET ' + skip + '', [convId], (tx, rs) => {
                 try {
                     var result = [];
                     for (var i = 0; i < rs.rows.length; i++) {
@@ -839,39 +843,113 @@ export function updateGroupParticipants(_convId, _participates) {
     }
 }
 
-export function getConvParticipates(_convId, callback) {
+function getConvParticipates_server(result, _convId, callback) {
     try {
         db.transaction((tx) => {
-            tx.executeSql('SELECT uid FROM Participates WHERE convId=?', [_convId], (tx, rsP) => {
+            for (var i = 0; i < result.length; i++) {
+                tx.executeSql('INSERT INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?)',
+                    [result[i].id,
+                    result[i].phoneNumber,
+                        '',
+                        '',
+                    result[i].publicInfo.fullName,
+                    result[i].publicInfo.picture,
+                        false], () => {
+                            if (i + 1 == result.length) {
+                                getConvParticipates(_convId, callback)
+                            }
+                        }); //?
+            }
+        });
+
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => getConvParticipates_server' + error.message, error);
+    }
+}
+
+export function getConvParticipates(_convId, callback) {
+    var newUsers = [];
+    socket.emit('getGroupParticipatesId', _convId, (participates) => {
+        try {
+            db.transaction((tx) => {
                 var uidArr = '(';
-                for (var i = 0; i < rsP.rows.length; i++) {
-                    if (i == (rsP.rows.length - 1)) {
-                        uidArr += ('"' + rsP.rows.item(i).uid + '"');
+                var newUsers = [];
+                for (var i = 0; i < participates.length; i++) {
+                    tx.executeSql('INSERT OR REPLACE INTO Participates VALUES (?, ?, ?)',
+                        [_convId,
+                            participates[i],
+                            true
+                        ]);
+                    if (i == (participates.length - 1)) {
+                        uidArr += ('"' + participates[i] + '"');
                     }
                     else {
-                        uidArr += ('"' + rsP.rows.item(i).uid + '"' + ',');
+                        uidArr += ('"' + participates[i] + '"' + ',');
+                    }
+                    if (newUsers.indexOf(participates[i]) == -1) {
+                        newUsers.push(participates[i]);
+                    }
+                    if (i + 1 == participates.length) {
+                        uidArr += ')';
+                        getConvParticipates_DB(_convId, uidArr, newUsers, callback);
                     }
                 }
-                uidArr += ')';
-                var selectStr = 'SELECT * FROM Friends WHERE id IN ' + uidArr + ' ORDER BY fullName';
-                tx.executeSql(selectStr, [], (tx, rs) => {
-                    var convParticipates = [];
-                    for (var i = 0; i < rs.rows.length; i++) {
-                        if (convParticipates.indexOf(rs.rows.item(i).id) === -1) {
-                            convParticipates.push({
-                                id: rs.rows.item(i).id,
-                                phoneNumber: rs.rows.item(i).phoneNumber,
-                                ModifyDate: rs.rows.item(i).ModifyDate,
-                                ModifyPicDate: rs.rows.item(i).ModifyPicDate,
-                                publicInfo: {
-                                    fullName: rs.rows.item(i).fullName,
-                                    picture: rs.rows.item(i).picture
-                                }
-                            });
+            });
+        } catch (error) {
+            ErrorHandler.WriteError('serverSrv.js => getConvParticipates' + error.message, error);
+        }
+    });
+}
+
+export function getConvParticipates_DB(_convId, uidArr, newUsers, callback) {
+    try {
+        //var newUsers = [];
+        db.transaction((tx) => {
+            // tx.executeSql('SELECT uid FROM Participates WHERE convId=?', [_convId], (tx, rsP) => {
+            //     try {
+            //         var uidArr = '(';
+            //         for (var i = 0; i < rsP.rows.length; i++) {
+            //             if (i == (rsP.rows.length - 1)) {
+            //                 uidArr += ('"' + rsP.rows.item(i).uid + '"');
+            //             }
+            //             else {
+            //                 uidArr += ('"' + rsP.rows.item(i).uid + '"' + ',');
+            //             }
+            //             if (newUsers.indexOf(rsP.rows.item(i).uid) == -1) {
+            //                 newUsers.push(rsP.rows.item(i).uid);
+            //             }
+            //         }
+            //         uidArr += ')';
+            //     } catch (error) {
+            //         ErrorHandler.WriteError('serverSrv.js => getConvParticipates_DB' + error.message, error);
+            //     }
+
+            var selectStr = 'SELECT * FROM Friends WHERE id IN ' + uidArr + ' ORDER BY fullName';
+            tx.executeSql(selectStr, [], (tx, rs) => {
+                var convParticipates = [];
+                for (var i = 0; i < rs.rows.length; i++) {
+                    if (convParticipates.indexOf(rs.rows.item(i).id) === -1) {
+                        if (newUsers.indexOf(rs.rows.item(i).id) != -1) {
+                            newUsers.splice(newUsers.indexOf(rs.rows.item(i).id), 1);
                         }
+                        convParticipates.push({
+                            id: rs.rows.item(i).id,
+                            phoneNumber: rs.rows.item(i).phoneNumber,
+                            ModifyDate: rs.rows.item(i).ModifyDate,
+                            ModifyPicDate: rs.rows.item(i).ModifyPicDate,
+                            publicInfo: {
+                                fullName: rs.rows.item(i).fullName,
+                                picture: rs.rows.item(i).picture
+                            }
+                        });
                     }
-                    callback(convParticipates)
-                });
+                }
+                callback(convParticipates)
+                if (newUsers.length > 0) {
+                    socket.emit('getConvParticipates', newUsers, (result) => {
+                        getConvParticipates_server(result, _convId, callback);
+                    });
+                }
             });
         });
     } catch (error) {
@@ -1040,6 +1118,13 @@ export function GetConvData_ByConvId(convId, callback) {
 export function GetLiveChats(callback) {
     try {
         if (callback) {
+            console.log('GetLiveChats - connect');
+            Event.on('connect', () => {
+                console.log('GetLiveChats - connect');
+                socket.emit('GetLiveChats', (data) => {
+                    callback(data);
+                });
+            });            
             socket.emit('GetLiveChats', (data) => {
                 callback(data);
             });
@@ -1075,12 +1160,11 @@ export function login(_token) {
 
                     socket.removeAllListeners("deleteFriendMessage");
                     socket.on('deleteFriendMessage', (msg) => {
-                        console.log(msg);
-                        console.log("trigger");
                         Event.trigger("deleteFriendMessageUI", msg);
                     });
 
                     socket.on('connect', function (msg) {
+                        Event.trigger('connect');
                         console.log("client connected to server");
                     });
 

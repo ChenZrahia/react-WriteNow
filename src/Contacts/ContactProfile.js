@@ -19,6 +19,8 @@ var dismissKeyboard = require('dismissKeyboard');
 var ErrorHandler = require('../../ErrorHandler');
 var serverSrv = require('../../Services/serverSrv');
 var generalStyle = require('../../styles/generalStyle');
+var Dimensions = require('Dimensions');
+var win = Dimensions.get('window');
 
 export default class ContactProfile extends Component {
     constructor() {
@@ -26,7 +28,8 @@ export default class ContactProfile extends Component {
         try {
             dismissKeyboard();
             this.state = {
-                imageVisible: false
+                imageVisible: false,
+                winWidth: win.width
             }
         } catch (e) {
             ErrorHandler.WriteError("ContactProfile.js => constructor", e);
@@ -51,12 +54,28 @@ export default class ContactProfile extends Component {
                         originalHeight={400}
                         style={{ marginLeft: 5, marginRight: 5, marginBottom: 5 }}
                         source={{ uri: img }}
-                    />)
+                    />);
             } else {
-                return (<Image style={{ width: 300, height: 300, marginLeft: 5, marginRight: 5, marginBottom: 5 }} source={require('../../img/user.jpg')} />);
+                return (
+                    <View style={{ marginLeft: 5, marginRight: 5, marginBottom: 5 }}>
+                        <Image style={{ width: this.state.winWidth - 10 }} source={require('../../img/user.jpg')} />
+                    </View>);
             }
         } catch (e) {
             ErrorHandler.WriteError("ContactProfile.js => getImageSource", e);
+        }
+    }
+
+    orientationDidChange(orientation) {
+        if (orientation == 'LANDSCAPE') {
+            this.setState({
+                winWidth: win.width
+            });
+        }
+        else {
+            this.setState({
+                winWidth: win.width
+            });
         }
     }
 
@@ -76,7 +95,7 @@ export default class ContactProfile extends Component {
                             </Text>
                         </View>
                     </View>
-                    <ScrollView style={{ flex: 1, backgroundColor: '#e7e7e7' }}>
+                    <ScrollView style={{ backgroundColor: '#e7e7e7' }}>
                         <TouchableOpacity on Press={() => {
                             this.setImageVisible(true);
                         }}>
@@ -97,8 +116,8 @@ export default class ContactProfile extends Component {
                 <Modal
                     transparent={true}
                     visible={this.state.imageVisible}
-                    onRequestClose={() => { console.log('image closed') }}
-                >
+                    onRequestClose={() => { console.log('image closed') }
+                    }>
                     <TouchableOpacity style={{ flex: 1 }} onPress={() => {
                         this.setImageVisible(!this.state.imageVisible)
                     }}>
@@ -116,10 +135,10 @@ export default class ContactProfile extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1
+        flex: 1,
+        backgroundColor: '#e7e7e7'
     },
     title: {
-        flex: 1,
         flexDirection: 'row',
         backgroundColor: '#9933FF',
         margin: 5,

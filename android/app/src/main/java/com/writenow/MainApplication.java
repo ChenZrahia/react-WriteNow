@@ -20,22 +20,21 @@ import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
-//import com.encryptionutil.EncryptionUtilPackage;
 import java.util.Arrays;
 import java.util.List;
 import com.facebook.react.modules.i18nmanager.I18nUtil;
-import org.pgsqlite.SQLitePluginPackage; //added by sagi uziel 1.10.16
+import org.pgsqlite.SQLitePluginPackage; 
 import com.rt2zz.reactnativecontacts.ReactNativeContacts;
 import android.content.Intent;
 // import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage; 
 import com.rssignaturecapture.RSSignatureCapturePackage; 
-
+// import com.github.yamill.orientation.OrientationPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 //private ReactNativePushNotificationPackage mReactNativePushNotificationPackage; // <------ Add Package Variable
   private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
     @Override
-    protected boolean getUseDeveloperSupport() {
+    public boolean getUseDeveloperSupport() {
       return BuildConfig.DEBUG;
     }
     @Override
@@ -43,6 +42,7 @@ public class MainApplication extends Application implements ReactApplication {
       return Arrays.<ReactPackage>asList(
         new SQLitePluginPackage(),
           new MainReactPackage(),
+          // new OrientationPackage(),
             new InCallManagerPackage(),
             new RNSoundPackage(),
             new WebRTCModulePackage(),
@@ -88,5 +88,3 @@ public class MainApplication extends Application implements ReactApplication {
   //       new MainReactPackage());
   //   }
 }
-
-

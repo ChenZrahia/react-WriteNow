@@ -262,7 +262,7 @@ export default class Chats extends Component {
             let filteredContacts = this.myChats;
             try {
                 filteredContacts = this.myChats.filter((chat) => {
-                    return ((chat.groupName.toLowerCase().includes(filterText.toLowerCase())));
+                    return (chat.groupName.toLowerCase().includes(filterText.toLowerCase()));
                 });
             } catch (e) {
                 ErrorHandler.WriteError('Chats.js => getDataSource => filter', e);
@@ -372,7 +372,7 @@ export default class Chats extends Component {
                             }}>
                                 <View style={generalStyle.styles.row}>
                                     <TouchableOpacity onPress={() => {
-                                        this.imgSelected = rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? rowData.isGroup : require('../../img/user.jpg'))
+                                        this.imgSelected = rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? require('../../img/group-img.jpg') : require('../../img/user.jpg'))
                                         this.setImageVisible(true);
                                     }}>
                                         <View style={generalStyle.styles.viewImg}>

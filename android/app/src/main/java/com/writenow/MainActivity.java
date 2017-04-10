@@ -5,12 +5,13 @@ import com.facebook.react.ReactActivity;
 import com.rssignaturecapture.RSSignatureCapturePackage;
 import com.github.xfumihiro.react_native_image_to_base64.ImageToBase64Package;
 import fr.bamlab.rnimageresizer.ImageResizerPackage;
-import com.imagepicker.ImagePickerPackage;
 import com.evollu.react.fcm.FIRMessagingPackage;
 import com.rt2zz.reactnativecontacts.ReactNativeContacts;
 import com.imagepicker.ImagePickerPackage;
 import com.rt2zz.reactnativecontacts.ReactNativeContacts;
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.Configuration; 
 
 public class MainActivity extends ReactActivity {
 
@@ -26,5 +27,13 @@ public class MainActivity extends ReactActivity {
     protected String getMainComponentName() {
         //Context.getApplicationContext();
         return "WriteNow";        
+    }
+
+    @Override
+      public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Intent intent = new Intent("onConfigurationChanged");
+        intent.putExtra("newConfig", newConfig);
+        this.sendBroadcast(intent);
     }
 }
