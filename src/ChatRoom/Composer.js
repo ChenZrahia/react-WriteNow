@@ -31,6 +31,22 @@ export default class Composer extends React.Component {
       ErrorHandler.WriteError('Composer.js => constructor', e);
     }
   }
+
+    onChange(e) { //add by rugbin 24.3.17 -for auto size the height
+    const contentSize = e.nativeEvent.contentSize;
+    if (!this.contentSize) {
+      this.contentSize = contentSize;
+      this.props.onInputSizeChanged(this.contentSize);
+    } else if (this.contentSize.width !== contentSize.width || this.contentSize.height !== contentSize.height) {
+      this.contentSize = contentSize;
+      this.props.onInputSizeChanged(this.contentSize);
+    }
+  }
+
+  onChangeText(text) { //add by rugbin 24.3.17 -for auto size the height
+    this.props.onTextChanged(text);
+  }
+
   _emojiSelected(emoji) {
     try {
       this.setState({ showPicker: false });
@@ -136,7 +152,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    // marginLeft: 10,
+     marginLeft: 10,
     fontSize: 16,
     lineHeight: 16,
     marginTop: Platform.select({
@@ -170,6 +186,10 @@ Composer.defaultProps = {
   textInputProps: null,
   multiline: true,
   textInputStyle: {},
+    onTextChanged: () => {//add by rugbin 24.3.17 -for auto size the height
+  },
+  onInputSizeChanged: () => {//add by rugbin 24.3.17 -for auto size the height
+  },
 };
 
 Composer.propTypes = {
@@ -179,6 +199,8 @@ Composer.propTypes = {
   placeholder: React.PropTypes.string,
   placeholderTextColor: React.PropTypes.string,
   textInputProps: React.PropTypes.object,
+  onTextChanged: React.PropTypes.func,//add by rugbin 24.3.17 -for auto size the height
+  onInputSizeChanged: React.PropTypes.func,//add by rugbin 24.3.17 -for auto size the height
   multiline: React.PropTypes.bool,
   textInputStyle: TextInput.propTypes.style,
 };

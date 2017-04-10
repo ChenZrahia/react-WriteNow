@@ -31,6 +31,7 @@ var moment = require('moment');
 var Event = require('../../Services/Events');
 var Platform = require('react-native').Platform;
 
+
 export default class ChatRoom extends Component {
     constructor(props) {
         super(props);
@@ -448,7 +449,9 @@ export default class ChatRoom extends Component {
                     name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName,
                     _id: serverSrv._myFriendsJson[msg.from].id
                 }
-                if (saveLocal != false) {
+                console.log("push",msg);
+                if (saveLocal != false ) {
+                    
                     this.messages.splice(0, 0, msg); //push
                 }
                 this.onlineMessages = this.onlineMessages.filter((o_msg) => {
@@ -487,8 +490,10 @@ export default class ChatRoom extends Component {
                 name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName,
                 _id: serverSrv._myFriendsJson[msg.from].id
             }
+            console.log("push2",this.indexOnlineMessages);
             if (!this.indexOnlineMessages[msg._id]) { //new message
                 this.indexOnlineMessages[msg._id] = msg;
+                
                 this.onlineMessages.push(this.indexOnlineMessages[msg.id]);
             } else {
                 this.indexOnlineMessages[msg._id].text = msg.content;

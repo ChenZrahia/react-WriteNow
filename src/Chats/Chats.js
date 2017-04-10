@@ -296,6 +296,8 @@ export default class Chats extends Component {
         this.myChats = this.myChats.map((chat) => {
             if (chat.id == convId) {
                 isFound = true;
+                console.log("last message");
+                console.log(lastMessage);
                 if (lastMessage != null && (chat.lastMessage || chat.lastMessageTime)) {
                     chat.lastMessage = lastMessage;
                     chat.lastMessageTime = lastMessageTime;
@@ -308,6 +310,10 @@ export default class Chats extends Component {
                         chat.notifications = 0;
                     }
                     chat.notifications = chat.notifications + 1;
+                }
+                if(lastMessage == null)
+                {
+                     chat.lastMessage = '';
                 }
             }
             return chat;
@@ -327,9 +333,14 @@ export default class Chats extends Component {
                     Encrypted Message
             </Text>
             )
-        else {
-            return (<Text>{rowData.lastMessage}</Text>)
+        else if(!rowData.lastMessage) {
+           return <Text></Text>
         }
+            else{
+                return (<Text>{rowData.lastMessage}</Text>)
+            }
+            
+        
     }
 
     render() {
