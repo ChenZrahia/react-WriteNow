@@ -74,7 +74,6 @@ export default class WriteNow extends Component {
             serverSrv.login(token);
         });
         this.notificationUnsubscribe = FCM.on('notification', (notif) => {   //application alrady open
-            console.log('## ', notif);
             if (notif && notif.data) {
                 var notifData = JSON.parse(notif.data);
                 if (notifData.isVoiceCall == 'true') {

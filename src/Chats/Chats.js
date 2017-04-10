@@ -56,7 +56,7 @@ export default class Chats extends Component {
                     try {
                         this.setState({
                             dataSource: ds.cloneWithRows(result)
-                        });
+                        });                        
                     } catch (e) {
                         ErrorHandler.WriteError("Chats.js -> UpdateChatsList -> setState", e);
                     }
@@ -312,7 +312,9 @@ export default class Chats extends Component {
             }
             return chat;
         });
+        console.log('-- -- UpdatelastMessage -- --');
         if ((isFound == false) && isNewMessage == true) {
+            console.log('-- -- UpdatelastMessage -- TRUE -- --');
             this.UpdateChatsList(true);
         } else {
             this.myChats = this.sortDates(this.myChats);
