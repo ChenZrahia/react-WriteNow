@@ -103,6 +103,7 @@ export default class ChatRoom extends Component {
 
     LoadNewChat(convId, isContact, uid, phoneNumber, fullName) {
         try {
+            this.skip = 0;
             this.messages = [];
             this.indexOnlineMessages = [];
             this.onlineMessages = [];
@@ -153,6 +154,7 @@ export default class ChatRoom extends Component {
             if (isContact == true) {
                 setTimeout(() => {
                     serverSrv.GetConvByContact(callback, uid, phoneNumber, this.props.publicInfo.fullName);
+                    this.skip += 20;
                 }, 100);
             } else {
                 serverSrv.GetConv(callback, this.convId, null, this.skip);
@@ -379,6 +381,7 @@ export default class ChatRoom extends Component {
                 this._messageId = this.guid();
             }
             for (let msg of messages) {
+                this.skip++;
                 if (msg.createdAt) {
                     msg.sendTime = moment(msg.createdAt).format();
                 } else {
@@ -485,10 +488,8 @@ export default class ChatRoom extends Component {
 
     onType(text, _isEncrypted) {
         try {
-            console.log('onType');
             if (this._messageId == null) {
                 this._messageId = this.guid();
-                console.log('onType - this._messageId == null');
             }
             var msg = {
                 mid: this._messageId,
@@ -538,7 +539,7 @@ export default class ChatRoom extends Component {
                 // console.log(this.messages);
                 this.convId = convId;
                 this.setState({
-                    messages: GiftedChat.append(this.messages, this.onlineMessages, 0),
+                    messages: GiftedChat.append(this.messages, this.onlineMessages),
                 });
             }
             serverSrv.GetConv(callback, this.convId, null, this.skip);
@@ -552,7 +553,7 @@ export default class ChatRoom extends Component {
         return (
             <View style={{ flex: 1, alignSelf: 'stretch' }} >
                 <GiftedChat
-                    loadEarlier={this.state.messages.length >= 20  ? true : false}
+                    loadEarlier={this.state.messages.length >= 20 ? true : false}
                     onLoadEarlier={this.loadEarlierMessages}
                     userName={this.state.groupName}
                     convId={this.convId}
