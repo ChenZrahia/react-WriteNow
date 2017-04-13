@@ -100,6 +100,7 @@ export default class GiftedChat extends React.Component {
       encryptedPassword: '',
       decryptedsecureTextEntry: true,
       placeholderTextColor: '#b2b2b2',
+      onlineStatus: '-'
     };
 
     this.decryptedMessage = this.decryptedMessage.bind(this);
@@ -108,6 +109,19 @@ export default class GiftedChat extends React.Component {
     Event.on('serverTyping', this.serverTyping);
     Event.removeAllListeners('decryptedMessage');
     Event.on('decryptedMessage', this.decryptedMessage);
+      setTimeout(() => {
+
+    serverSrv.socket.on("onlineStatusChanged", (data) => {   
+        console.log('-- onlineStatusChanged --', data.isOnline);
+          if (data.isOnline && !this.props.isGroup) {
+            this.setState({onlineStatus : 'Online'});
+          } else if(!this.props.isGroup) {
+            this.setState({onlineStatus : 'Last Seen: ' + moment(data.lastSeen).fromNow()});
+          } else {
+            this.setState({onlineStatus : '-'});
+          }
+      });  
+    }, 100); 
 
     this.onTouchStart = this.onTouchStart.bind(this);
     this.onTouchMove = this.onTouchMove.bind(this);
@@ -162,6 +176,10 @@ export default class GiftedChat extends React.Component {
     this.setIsMounted(true);
     this.initLocale();
     this.initMessages(this.props.messages);
+  }
+
+  componentDidMount() {
+      
   }
 
   componentWillUnmount() {
@@ -991,6 +1009,9 @@ export default class GiftedChat extends React.Component {
             }}>
               <Text style={generalStyles.styles.titleHeader}>
                 {this.props.userName}
+              </Text>
+              <Text style={generalStyles.styles.titleOnline}>
+                {this.state.onlineStatus}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ margin: 7 }} onPress={() => {

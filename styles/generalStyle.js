@@ -18,9 +18,18 @@ export const styles = StyleSheet.create({
     },
     titleHeader: {
         flex: 1,
-        margin: 10,
+        margin: 0,
+        marginLeft: 10,
         textAlign: 'left',
         fontSize: 18,
+        color: 'white',
+    },
+    titleOnline: {
+        flex: 1,
+        margin: 3,
+        marginLeft: 10,
+        textAlign: 'left',
+        fontSize: 10,
         color: 'white',
     },
     titleHeaderContainer: {
