@@ -388,6 +388,9 @@ function GetAllUserConv_Server(callback) {
         if (testMode == true) {
             convIdArray = [];
         }
+        if (!_myFriends) {
+            _myFriends = [];
+        } 
         usersArr = _myFriends.map(x => x.id);
         socket.emit('GetAllUserConvChanges', usersArr, convIdArray, ((data) => {
             getConvParticipates_server(data.NewFriends, null, () => {});

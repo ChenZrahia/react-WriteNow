@@ -11,7 +11,7 @@ import {
     TextInput,
     TouchableHighlight,
     BackAndroid,
-
+    AppState
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import IconMat from 'react-native-vector-icons/MaterialIcons';
@@ -149,8 +149,14 @@ export default class Call extends Component {
                     this.hungUp();
                 }
             });
-          
 
+            InCallManager.setMicrophoneMute(false);
+            AppState.addEventListener('change', (state) =>
+            {
+                if (state != 'active') {
+                    InCallManager.setMicrophoneMute(false);
+                }
+            });
         } catch (e) {
             ErrorHandler.WriteError("Call.js -> componentDidMount", e);
         }
