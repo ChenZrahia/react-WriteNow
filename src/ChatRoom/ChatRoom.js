@@ -163,6 +163,21 @@ export default class ChatRoom extends Component {
         }
     }
 
+    findMissingFriend(uid) {
+        try {
+            if(!serverSrv._myFriendsJson[uid]) {
+                serverSrv.findMissingFriend([uid], (data) => {
+                    if (data.length > 0) {
+                        serverSrv._myFriendsJson[msg.from] = data[0];
+                        console.log('data[0]',  data[0]);
+                    }
+                });
+            }
+        } catch (error) {
+            ErrorHandler.WriteError('ChatRoom.js => findMissingFriend', error);
+        }
+    }
+
     deleteMessage(text, id) {
         try {
             this.messages = this.state.messages.filter((x) => x.id !== id );
