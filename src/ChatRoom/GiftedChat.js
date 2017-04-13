@@ -933,8 +933,9 @@ export default class GiftedChat extends React.Component {
   }
 
   cancel_chatRoom(lastMessage, lastMessageTime, lastMessageIsEncrypted) {
-    Event.trigger('CloseChatRoom');
     Event.trigger('lastMessage', lastMessage, lastMessageTime, this.props.convId, false, lastMessageIsEncrypted);
+    Event.trigger('CloseChatRoom');
+    
   }
 
 

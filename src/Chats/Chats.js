@@ -297,9 +297,7 @@ export default class Chats extends Component {
         this.myChats = this.myChats.map((chat) => {
             if (chat.id == convId) {
                 isFound = true;
-                console.log("last message");
-                console.log(lastMessage);
-                if (lastMessage != null && (chat.lastMessage || chat.lastMessageTime)) {
+                if (lastMessage != null /*&& (chat.lastMessage || chat.lastMessageTime)*/) {
                     chat.lastMessage = lastMessage;
                     chat.lastMessageTime = lastMessageTime;
                     chat.lastMessageEncrypted = lastMessageEncrypted;
