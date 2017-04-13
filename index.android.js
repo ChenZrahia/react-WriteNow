@@ -20,13 +20,11 @@ import {
 import { Actions } from 'react-native-router-flux'
 var Sound = require('react-native-sound');
 var liveSrv = require('./Services/liveSrv');
-
 import InitRout from './src/InitRout';
 import ChatRoom from './src/ChatRoom/ChatRoom';
 import emoji from 'emoji-datasource';
 var Event = require('./Services/Events');
 var serverSrv = require('./Services/serverSrv');
-// var PushNotification = require('react-native-push-notification');
 var PhoneContacts = require('react-native-contacts');
 var ErrorHandler = require('./ErrorHandler');
 

@@ -114,7 +114,7 @@ export default class GiftedChat extends React.Component {
             if (data.isOnline == true && !this.props.isGroup) {
               this.setState({onlineStatus : 'Online'});
             } else if(!this.props.isGroup) {
-              this.setState({onlineStatus : 'Last Seen: ' + moment(data.lastSeen).fromNow()});
+              this.setState({onlineStatus : 'Offline'});
             } else {
               this.setState({onlineStatus : '-'});
             }
@@ -950,22 +950,6 @@ export default class GiftedChat extends React.Component {
     
   }
 
-
-  // renderRowOnlineMsg(){
-  //   try {
-  //     return ((msg) => <View>
-  //       <Text style={{color: 'white'}}>{msg.content}</Text>
-  //    </View>);
-  //   } catch (error) {
-
-  //   }
-  // }
-
-  //   getDataSourceOnlineMsg() {
-  //       const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1.id !== r2.id });
-  //       return ds.cloneWithRows(this.state.onlineMessages);
-  //   }
-
   render() {
     if (this.state.isInitialized === true) {
       return (
@@ -975,12 +959,14 @@ export default class GiftedChat extends React.Component {
               if (this.props.messages && this.props.messages.length > 0) {
                 this.cancel_chatRoom(this.props.messages[0].text, this.props.messages[0].sendTime);
               }
+              dismissKeyboard();
               serverSrv.exitChat(serverSrv._convId);
               Actions.pop();
             }}>
               <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => {
+              dismissKeyboard();
               Actions.pop();
             }}>
               {renderIf(this.props.isGroup)(

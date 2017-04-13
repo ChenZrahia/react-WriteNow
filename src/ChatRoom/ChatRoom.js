@@ -31,13 +31,10 @@ var moment = require('moment');
 var Event = require('../../Services/Events');
 var Platform = require('react-native').Platform;
 
-
 export default class ChatRoom extends Component {
     constructor(props) {
         super(props);
         dismissKeyboard();
-        
-       
         try {
             this._messageId = null;
             this.state = {
@@ -85,7 +82,6 @@ export default class ChatRoom extends Component {
             Event.on('encryptedMessage', this.onSend);
             BackAndroid.addEventListener('hardwareBackPress', () => {
                 serverSrv.exitChat(this.convId);
-                 //Event.trigger('exitChatRoom');
                 if (this.convId && this.messages.length > 0 && this.messages[0].text && this.messages[0].text.length > 0 && this.messages[0].sendTime) {
                     Event.trigger('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false, this.messages[0].isEncrypted);
                 }
@@ -96,9 +92,7 @@ export default class ChatRoom extends Component {
         }
     }
     exitChatRoom(){
-        console.log("before reset the skip",this.skip);
         this.skip = 0;
-        console.log("reset the skip",this.skip);
     }
 
     LoadNewChat(convId, isContact, uid, phoneNumber, fullName) {
@@ -169,7 +163,6 @@ export default class ChatRoom extends Component {
                 serverSrv.findMissingFriend([uid], (data) => {
                     if (data.length > 0) {
                         serverSrv._myFriendsJson[msg.from] = data[0];
-                        console.log('data[0]',  data[0]);
                     }
                 });
             }
@@ -192,27 +185,11 @@ export default class ChatRoom extends Component {
 
     deleteFriendMessageUI(mid) {
         try {
-            console.log("try to clear all friends message from UI");
-            console.log(mid);
-            // console.log(messages);
             this.messages = this.state.messages.filter((x) => x.id !== mid);
-            //  ((x) =>{ 
-            //     if(x.id !== mid){
-            //         console.log("only the right message show..");
-            //         console.log(x.id,mid);
-            //          return true;
-            //     }
-            //     else {
-            //         console.log("false");
-            //         return false;
-
-            // }
-            // }) //delete message from the UI
             this.setState({
                 messages: this.messages
             });
             serverSrv.deleteMessageFromLocalDBFriend(this.convId, mid);
-            //serverSrv.deleteFriendMessage(this.convId,id);
         } catch (error) {
             ErrorHandler.WriteError('ChatRoom.js => deleteFriendMessageUI', error);
         }
