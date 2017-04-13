@@ -11,7 +11,8 @@ import {
     TextInput,
     TouchableHighlight,
     BackAndroid,
-    Vibration
+    Vibration,
+    AppState
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import IconMat from 'react-native-vector-icons/MaterialIcons';
@@ -150,19 +151,29 @@ export default class Call extends Component {
                     this.hungUp();
                 }
             });
+
+            AppState.addEventListener('change', (state) =>
+            {
+                if (state != 'active') {
+                    this.hungUp(true);
+                    InCallManager.setMicrophoneMute(false);
+                }
+            })
         } catch (e) {
-            ErrorHandler.WriteError("Call.js -> componentDidMount", e);
+            ErrorHandler.WriteError("PTT.js -> componentDidMount", e);
         }
     }
 
     container_setState(data) {
         try {
-            container.setState(data);
-            if (data && data.status == 'ready') {
-                this._press();
-            }
+            setTimeout(() => {
+                container.setState(data);
+                if (data && data.status == 'ready') {
+                    this._press();
+                }
+            }, 500);
         } catch (error) {
-            ErrorHandler.WriteError("Call.js -> container_setState", error);
+            ErrorHandler.WriteError("PTT.js -> container_setState", error);
         }
     }
 
@@ -191,7 +202,9 @@ export default class Call extends Component {
         InCallManager.setKeepScreenOn(true);
         InCallManager.setMicrophoneMute(true);
         InCallManager.setSpeakerphoneOn(true);
-        this.refs.roomID.blur();
+        if (this.refs && this.refs.roomID){
+            this.refs.roomID.blur();
+        }
         this.setState({ status: 'connect', info: 'Connecting' });
         liveSrv.join(this.state.roomID);
     }
@@ -307,6 +320,7 @@ export default class Call extends Component {
         try {
             mirs1.stop();
             liveSrv.hungUp();
+            InCallManager.setMicrophoneMute(false);
             InCallManager.setKeepScreenOn(false);
             InCallManager.stop();
             if (this.callInterval) {

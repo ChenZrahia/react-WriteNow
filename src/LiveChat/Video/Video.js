@@ -10,7 +10,8 @@ import {
     Modal,
     TextInput,
     TouchableHighlight,
-    BackAndroid
+    BackAndroid,
+    AppState
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import IconMat from 'react-native-vector-icons/MaterialIcons';
@@ -138,6 +139,7 @@ export default class Video extends Component {
 
     componentDidMount() {
         try {
+            InCallManager.setMicrophoneMute(false);
             InCallManager.turnScreenOn();
             container = this;
             BackAndroid.removeEventListener('hardwareBackPress', () => { });

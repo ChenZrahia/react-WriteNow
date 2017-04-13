@@ -109,18 +109,16 @@ export default class GiftedChat extends React.Component {
     Event.on('serverTyping', this.serverTyping);
     Event.removeAllListeners('decryptedMessage');
     Event.on('decryptedMessage', this.decryptedMessage);
-      setTimeout(() => {
-
-    serverSrv.socket.on("onlineStatusChanged", (data) => {   
-        console.log('-- onlineStatusChanged --', data.isOnline);
-          if (data.isOnline && !this.props.isGroup) {
-            this.setState({onlineStatus : 'Online'});
-          } else if(!this.props.isGroup) {
-            this.setState({onlineStatus : 'Last Seen: ' + moment(data.lastSeen).fromNow()});
-          } else {
-            this.setState({onlineStatus : '-'});
-          }
-      });  
+    setTimeout(() => {
+      serverSrv.socket.on("onlineStatusChanged", (data) => {   
+            if (data.isOnline == true && !this.props.isGroup) {
+              this.setState({onlineStatus : 'Online'});
+            } else if(!this.props.isGroup) {
+              this.setState({onlineStatus : 'Last Seen: ' + moment(data.lastSeen).fromNow()});
+            } else {
+              this.setState({onlineStatus : '-'});
+            }
+        });  
     }, 100); 
 
     this.onTouchStart = this.onTouchStart.bind(this);
@@ -549,10 +547,6 @@ export default class GiftedChat extends React.Component {
 
   menuOption() {
     this.setState({ showMenu: !this.state.showMenu });
-  }
-
-  setImageVisible(visible) {
-    this.setState({ imageVisible: visible });
   }
 
   newList() {

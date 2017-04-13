@@ -10,7 +10,8 @@ import {
     Modal,
     TextInput,
     TouchableHighlight,
-    BackAndroid
+    BackAndroid,
+    AppState
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import IconMat from 'react-native-vector-icons/MaterialIcons';
@@ -146,6 +147,13 @@ export default class Call extends Component {
             serverSrv.exitChatCall_server((convId) => {
                 if (this.state.roomID.indexOf(convId) == 0) {
                     this.hungUp();
+                }
+            });
+            InCallManager.setMicrophoneMute(false);
+            AppState.addEventListener('change', (state) =>
+            {
+                if (state != 'active') {
+                    InCallManager.setMicrophoneMute(false);
                 }
             });
         } catch (e) {
