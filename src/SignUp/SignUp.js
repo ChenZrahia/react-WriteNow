@@ -120,11 +120,11 @@ export default class SignUp extends Component {
         };
 
         serverSrv.signUpFunc(newUser, (userId) => {
-            setTimeout(() => {
+            //setTimeout(() => {
                 this.setState({
                     SpinnerVisible: false
                 });
-            }, 100);
+            //}, 100);
             if (userId) {
                 Actions.Tabs({ type: 'reset' });
             } else {
@@ -143,8 +143,6 @@ export default class SignUp extends Component {
 
     showImagePicker = () => {
         ImagePicker.showImagePicker(options, (response) => {
-            console.log('Response = ', response);
-
             if (response.didCancel) {
                 console.log('User cancelled image picker');
             }
@@ -188,8 +186,8 @@ export default class SignUp extends Component {
                         transparent={true}
                         style={{ backgroundColor: 'rgba(0,0,0,0)' }}
                         visible={this.state.SpinnerVisible}
-                        onRequestClose={() => { console.log('closed') } }
-                        >
+                        onRequestClose={() => { console.log('closed') }}
+                    >
                         <View style={{ flex: 1, alignSelf: 'stretch', backgroundColor: 'rgba(0,0,0,0)', position: 'absolute' }}>
                             <Spinner visible={true} />
                         </View>
@@ -234,7 +232,7 @@ export default class SignUp extends Component {
                             style={styles.input}
                             autoCapitalize="words"
                             onChangeText={(val) => this.setState({ DisplayName: val })}
-                            />
+                        />
                         <Fumi
                             label={'Phone Number'}
                             iconClass={FontAwesomeIcon}
@@ -243,7 +241,7 @@ export default class SignUp extends Component {
                             style={styles.input}
                             keyboardType="phone-pad"
                             onChangeText={(val) => this.setState({ PhoneNumber: val })}
-                            />
+                        />
                         <Fumi
                             label={'Password'}
                             iconClass={FontAwesomeIcon}
@@ -252,7 +250,7 @@ export default class SignUp extends Component {
                             style={styles.input}
                             secureTextEntry={true}
                             onChangeText={(val) => this.setState({ Password: val })}
-                            />
+                        />
                         <TouchableOpacity disabled={disabled} style={styles.button} underlayColor='#ededed' onPress={this.SignUpSubmit}>
                             <View>
                                 <Text style={styles.buttonText}>Submit</Text>

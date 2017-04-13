@@ -21,6 +21,8 @@ var serverSrv = require('../../Services/serverSrv');
 var ErrorHandler = require('../../ErrorHandler');
 var generalStyle = require('../../styles/generalStyle');
 
+var Speech = require('react-native-android-speech');
+
 export default class Chats extends Component {
     constructor() {
         super();
@@ -45,7 +47,7 @@ export default class Chats extends Component {
             ErrorHandler.WriteError("Chats.js -> constructor", e);
         }
     }
-    
+
     UpdateChatsList(isUpdate) {
         try {
             var ds = this.ds;
@@ -291,6 +293,7 @@ export default class Chats extends Component {
             ErrorHandler.WriteError('Chats.js => _renderCancel', e);
         }
     }
+
     UpdatelastMessage(lastMessage, lastMessageTime, convId, isNewMessage, lastMessageEncrypted) {
         var isFound = false;
         this.myChats = this.myChats.map((chat) => {

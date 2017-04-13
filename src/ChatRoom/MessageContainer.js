@@ -182,7 +182,7 @@ render() {
       <View ref='container' style={{ flex: 2, backgroundColor: '#f8f8f8' }}>
         <ListView
           enableEmptySections={true}
-          keyboardShouldPersistTaps={true}
+          keyboardShouldPersistTaps="always"
           automaticallyAdjustContentInsets={false}
           initialListSize={20}
           pageSize={20}
