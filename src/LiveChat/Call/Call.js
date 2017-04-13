@@ -10,7 +10,8 @@ import {
     Modal,
     TextInput,
     TouchableHighlight,
-    BackAndroid
+    BackAndroid,
+
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import IconMat from 'react-native-vector-icons/MaterialIcons';
@@ -148,6 +149,8 @@ export default class Call extends Component {
                     this.hungUp();
                 }
             });
+          
+
         } catch (e) {
             ErrorHandler.WriteError("Call.js -> componentDidMount", e);
         }

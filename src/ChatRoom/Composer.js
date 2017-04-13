@@ -15,7 +15,7 @@ import EmojiPicker from 'react-native-simple-emoji-picker';
 import emoji from 'emoji-datasource';
 import ActionSheet from '@exponent/react-native-action-sheet';
 import dismissKeyboard from 'react-native-dismiss-keyboard';
-
+var Event = require('../../Services/Events');
 var ErrorHandler = require('../../ErrorHandler');
 
 // const EmojiPicker = require('react-native-emoji-picker');
@@ -27,6 +27,7 @@ export default class Composer extends React.Component {
       this.state = {
         showPicker: false,
       };
+     
     } catch (e) {
       ErrorHandler.WriteError('Composer.js => constructor', e);
     }
@@ -64,7 +65,9 @@ export default class Composer extends React.Component {
             <Modal
               style={{ backgroundColor: 'red' }}
               transparent={false}
-              onRequestClose={() => { console.log('modal closed') } }
+              onRequestClose={() => { this.setState({
+                showPicker: false
+              }) } }
               >
               <View style={styles.viewEmoji}>
                 <View style={styles.container}>
@@ -81,7 +84,9 @@ export default class Composer extends React.Component {
         <View style={styles.row}>
           <TouchableOpacity onPress={() => this.setState({
             showPicker: true
-          })}>
+           })
+          
+            }>
             <View>
               <Icon name='md-happy' style={styles.icon} />
             </View>

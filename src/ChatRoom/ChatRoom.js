@@ -84,11 +84,11 @@ export default class ChatRoom extends Component {
             Event.on('imojiType', this.onType);
             Event.on('encryptedMessage', this.onSend);
             BackAndroid.addEventListener('hardwareBackPress', () => {
-                serverSrv.exitChat(this.convId);
-                 //Event.trigger('exitChatRoom');
-                if (this.convId && this.messages.length > 0 && this.messages[0].text && this.messages[0].text.length > 0 && this.messages[0].sendTime) {
-                    Event.trigger('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false, this.messages[0].isEncrypted);
-                }
+                         serverSrv.exitChat(this.convId);
+                        //Event.trigger('exitChatRoom');
+                        if (this.convId && this.messages.length > 0 && this.messages[0].text && this.messages[0].text.length > 0 && this.messages[0].sendTime) {
+                            Event.trigger('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false, this.messages[0].isEncrypted);
+                        } 
             });
             this.LoadNewChat(this.props.id, this.props.isContact, this.props.id, this.props.phoneNumber, this.props.fullName);
         } catch (e) {
@@ -96,9 +96,7 @@ export default class ChatRoom extends Component {
         }
     }
     exitChatRoom(){
-        console.log("before reset the skip",this.skip);
         this.skip = 0;
-        console.log("reset the skip",this.skip);
     }
 
     LoadNewChat(convId, isContact, uid, phoneNumber, fullName) {
