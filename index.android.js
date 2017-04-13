@@ -13,7 +13,8 @@ import {
     TouchableOpacity,
     TouchableHighlight,
     View,
-    TextInput
+    TextInput,
+    AppState
 } from 'react-native';
 
 import { Actions } from 'react-native-router-flux'
@@ -185,6 +186,16 @@ export default class WriteNow extends Component {
                     ErrorHandler.WriteError(error);
                 }
             });
+
+        AppState.addEventListener('change', (state) =>
+            {
+                if (state != 'active') {
+                    serverSrv.socket.emit('changeOnlineStatus', false);
+                } else {
+                    serverSrv.socket.emit('changeOnlineStatus', true);
+                }
+            })
+
         } catch (error) {
             console.log(error);
         }

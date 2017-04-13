@@ -1188,7 +1188,7 @@ export function login(_token) {
 
                     socket.on("disconnect", function () {
                         console.log("client disconnected from server");
-                    });
+                    });                    
 
                     socket.removeAllListeners("AuthenticationOk");
                     socket.on('AuthenticationOk', (ok) => {
