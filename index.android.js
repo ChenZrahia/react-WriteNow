@@ -74,7 +74,6 @@ export default class WriteNow extends Component {
             serverSrv.login(token);
         });
         this.notificationUnsubscribe = FCM.on('notification', (notif) => {   //application alrady open
-            console.log('## ', notif);
             if (notif && notif.data) {
                 var notifData = JSON.parse(notif.data);
                 if (notifData.isVoiceCall == 'true') {
@@ -85,6 +84,7 @@ export default class WriteNow extends Component {
                         Actions.Call(notifData);
                         setTimeout(() => {
                             Event.trigger('getCall', true);
+                            Event.trigger('NewLiveChat');
                         }, 100);
                     }
                 } else if (notifData.isVideoCall == 'true') {
@@ -95,6 +95,7 @@ export default class WriteNow extends Component {
                         Actions.Video(notifData);
                         setTimeout(() => {
                             Event.trigger('getVideoCall', true);
+                            Event.trigger('NewLiveChat');
                         }, 100);
                     }
                 } else if (notifData.isPttCall == 'true') {
@@ -105,6 +106,7 @@ export default class WriteNow extends Component {
                         Actions.PTT(notifData);
                         setTimeout(() => {
                             Event.trigger('getPttCall', true);
+                            Event.trigger('NewLiveChat');
                         }, 100);
                     }
                 } else {
@@ -173,11 +175,7 @@ export default class WriteNow extends Component {
         });
     }
 
-    componentDidMount() {  
-        // setTimeout(() => {
-        //     ErrorHandler.WriteError({message: 'india'}, 'india');
-        // }, 2000);
-        
+    componentDidMount() {        
         this.loadContacts();
         try {
             serverSrv.GetAllMyFriends((result) => {
@@ -204,13 +202,6 @@ export default class WriteNow extends Component {
         );
     }
 }
-
-
-
-
-// <StatusBar barStyle="light-content" />
-// <View style={styles.statusbar} />
-// <InitRout />
 
 const styles = StyleSheet.create({
     container: {

@@ -30,6 +30,7 @@ export default class LiveChat extends Component {
         try {
             dismissKeyboard();
             this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+            this.updateLiveChatData = this.updateLiveChatData.bind(this);
         this.state = {
             dataSource: this.ds.cloneWithRows([]) 
         };
@@ -38,17 +39,29 @@ export default class LiveChat extends Component {
         }
     }
 
+    
+
     componentDidMount() {
         try {
-           serverSrv.GetLiveChats((data) => {
-                this.setState({
-                    dataSource: this.ds.cloneWithRows(data) 
-                });
-           });
+           this.updateLiveChatData();
+           Event.on('NewLiveChat', this.updateLiveChatData);
+           
         } catch (e) {
             ErrorHandler.WriteError("LiveChat.js -> componentDidMount", e);
         }
     }
+
+    updateLiveChatData(){
+        try {
+            serverSrv.GetLiveChats((data) => {
+                this.setState({
+                    dataSource: this.ds.cloneWithRows(data) 
+                });
+            });
+        } catch (error) {
+            ErrorHandler.WriteError("LiveChat.js -> updateLiveChatData", error);
+        }
+    }   
 
     getDateFormated(date) { //להוציא לסרוויס?
         try {

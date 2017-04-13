@@ -72,14 +72,14 @@ export function Connect(convId, hungUpCallback, IsIncomingCall, isVideo, isPTT) 
                 socket.emit('makeCall', () => { console.log('make a call'); }, convId, callType);
             }
             
+            Event.trigger('NewLiveChat');
+
             getLocalStream(isVideo, true, (stream) => {
                 localStream = stream;
                 Event.trigger('container_setState', { selfViewSrc: stream.toURL() });
                 Event.trigger('container_setState', { status: 'ready', info: 'Please enter or create room ID' });
             });
         });
-
-
     } catch (error) {
         ErrorHandler.WriteError('liveSrv.js => Connect', error);
     }

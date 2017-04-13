@@ -45,10 +45,6 @@ setTimeout(() => {
     startTyping = new Sound('start_type.mp3', Sound.MAIN_BUNDLE, (error) => { });
 }, 500);
 
-/*var CryptoJS = require("crypto-js");
-var SHA256 = require("crypto-js/sha256");*/
-
-
 function errorDB(error) {
     ErrorHandler.WriteError('SQL Error: ', error);
 }
@@ -98,26 +94,31 @@ setTimeout(function () {
     //printTable('Messages');
 }, 500);
 
+var counter = 0;
 export function DeleteDb() {
+    counter++;
+    if(counter < 5){
+        return;
+    }
     db.transaction((tx) => {
-        // tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
-        // tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
-        // tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
-        // tx.executeSql('DELETE FROM Participates', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Conversation', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
+        tx.executeSql('DELETE FROM Participates', [], null, errorDB); //------------------
 
 
-        // tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
-        // tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
-        // tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
-        // tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
-        // tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
+        tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
 
 
-        // tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid,password)', [], null, errorDB);
-        // tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime, lastMessageEncrypted)', [], null, errorDB); //להוציא לפונקציה נפרדת
-        // tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, picture, isMyContact)', [], null, errorDB); //להוציא לפונקציה נפרדת
-        // tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll, image)', [], null, errorDB); //להוציא לפונקציה נפרדת
-        // tx.executeSql('CREATE TABLE IF NOT EXISTS Participates (convId NOT NULL, uid NOT NULL, isGroup, PRIMARY KEY (convId, uid))', [], null, errorDB);
+        tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid,password)', [], null, errorDB);
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime, lastMessageEncrypted)', [], null, errorDB); //להוציא לפונקציה נפרדת
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, picture, isMyContact)', [], null, errorDB); //להוציא לפונקציה נפרדת
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Messages (id PRIMARY KEY NOT NULL, convId, isEncrypted , msgFrom, content, sendTime , lastTypingTime, isSeenByAll, image)', [], null, errorDB); //להוציא לפונקציה נפרדת
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Participates (convId NOT NULL, uid NOT NULL, isGroup, PRIMARY KEY (convId, uid))', [], null, errorDB);
     });
 }
 //DeleteDb();
@@ -177,7 +178,6 @@ export function GetAllMyFriends(callback, isUpdate) {
                             setTimeout(() => {
                                 GetAllMyFriends_Server(callback);
                             }, 100);
-
                         }
                     }
                 } catch (error) {
@@ -388,11 +388,10 @@ function GetAllUserConv_Server(callback) {
         if (testMode == true) {
             convIdArray = [];
         }
-        socket.emit('GetAllUserConvChanges', convIdArray, ((data) => {
-            if (testMode == true) {
-                callback(data);
-                return;
-            }
+        usersArr = _myFriends.map(x => x.id);
+        socket.emit('GetAllUserConvChanges', usersArr, convIdArray, ((data) => {
+            getConvParticipates_server(data.NewFriends, null, () => {});
+            data = data.ConvChanges;
             db.transaction((tx) => {
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].deletedConv == true && data[i].id) {
@@ -461,10 +460,6 @@ export function exitChatCall_server(callback) {
 //ChatRoom
 export function GetConv(callback, convId, isUpdate, skip) {
     try {
-        // if (_myConvs && _myConvs[convId] && callback && !isUpdate) {
-        //     callback(_myConvs[convId].messages);
-        //     return;
-        // }
         if (!skip) {
             skip = 0;
         }
@@ -510,10 +505,11 @@ export function GetConv(callback, convId, isUpdate, skip) {
                         };
                     }
                     if (callback) {
-                        callback(result, convId);
                         if (_isFirstTime_Conv == true) {
                             _isFirstTime_Conv = false;
                             GetConv_server(convId, callback);
+                        } else {
+                            callback(result, convId);
                         }
                     }
                 } catch (error) {
@@ -567,6 +563,24 @@ export function exitChat(convId) {
         socket.emit('exitChat', convId);
     } catch (error) {
         ErrorHandler.WriteError('exitChat', error);
+    }
+}
+
+export function findMissingFriend(uid, callback) {
+    try {
+        socket.emit('getUsers', uid, (data) => {
+            tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?)',
+                [data.id,
+                data.phoneNumber,
+                data.ModifyDate,
+                data.ModifyPicDate,
+                data.publicInfo.fullName,
+                data.publicInfo.picture,
+                    true]);
+            callback(data);
+        });
+    } catch (error) {
+        ErrorHandler.WriteError('findMissingFriend', error);
     }
 }
 
@@ -843,7 +857,7 @@ export function updateGroupParticipants(_convId, _participates) {
     }
 }
 
-function getConvParticipates_server(result, _convId, callback) {
+export function getConvParticipates_server(result, _convId, callback) {
     try {
         db.transaction((tx) => {
             for (var i = 0; i < result.length; i++) {
@@ -855,10 +869,14 @@ function getConvParticipates_server(result, _convId, callback) {
                     result[i].publicInfo.fullName,
                     result[i].publicInfo.picture,
                         false], () => {
-                            if (i + 1 == result.length) {
+                            if (i + 1 == result.length && _convId) {
                                 getConvParticipates(_convId, callback)
                             }
                         }); //?
+                if(!_myFriendsJson[result[i].id]){
+                    _myFriendsJson[result[i].id] = result[i];
+                    _myFriends.push(result[i]);
+                }
             }
         });
 

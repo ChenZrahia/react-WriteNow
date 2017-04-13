@@ -93,6 +93,7 @@ export default class ChatRoom extends Component {
 
     LoadNewChat(convId, isContact, uid, phoneNumber, fullName) {
         try {
+            this.skip = 0;
             this.messages = [];
             this.indexOnlineMessages = [];
             this.onlineMessages = [];
@@ -126,11 +127,9 @@ export default class ChatRoom extends Component {
                     data = [];
                 }
                 this.messages = data;
-                // console.log("***LoadNewChat****");
-                // console.log(this.messages);
                 this.convId = convId;
                 this.setState({
-                    messages: GiftedChat.append(this.messages, this.onlineMessages, 0),
+                    messages: GiftedChat.append(this.messages, this.onlineMessages),
                 });
             }
             serverSrv.onServerTyping(this.onFriendType);
@@ -142,6 +141,7 @@ export default class ChatRoom extends Component {
             if (isContact == true) {
                 setTimeout(() => {
                     serverSrv.GetConvByContact(callback, uid, phoneNumber, this.props.publicInfo.fullName);
+                    this.skip += 20;
                 }, 100);
             } else {
                 serverSrv.GetConv(callback, this.convId, null, this.skip);
@@ -149,6 +149,21 @@ export default class ChatRoom extends Component {
             }
         } catch (error) {
             ErrorHandler.WriteError('ChatRoom.js => LoadNewChat', error);
+        }
+    }
+
+    findMissingFriend(uid) {
+        try {
+            if(!serverSrv._myFriendsJson[uid]) {
+                serverSrv.findMissingFriend([uid], (data) => {
+                    if (data.length > 0) {
+                        serverSrv._myFriendsJson[msg.from] = data[0];
+                        console.log('data[0]',  data[0]);
+                    }
+                });
+            }
+        } catch (error) {
+            ErrorHandler.WriteError('ChatRoom.js => findMissingFriend', error);
         }
     }
 
@@ -368,6 +383,7 @@ export default class ChatRoom extends Component {
                 this._messageId = this.guid();
             }
             for (let msg of messages) {
+                this.skip++;
                 if (msg.createdAt) {
                     msg.sendTime = moment(msg.createdAt).format();
                 } else {
@@ -472,10 +488,8 @@ export default class ChatRoom extends Component {
 
     onType(text, _isEncrypted) {
         try {
-            console.log('onType');
             if (this._messageId == null) {
                 this._messageId = this.guid();
-                console.log('onType - this._messageId == null');
             }
             var msg = {
                 mid: this._messageId,
@@ -513,7 +527,6 @@ export default class ChatRoom extends Component {
 
     loadEarlierMessages(){
         try {
-            console.log('1');
             var callback = (data, convId) => {
                 if (!data) {
                     data = [];
@@ -523,7 +536,7 @@ export default class ChatRoom extends Component {
                 // console.log(this.messages);
                 this.convId = convId;
                 this.setState({
-                    messages: GiftedChat.append(this.messages, this.onlineMessages, 0),
+                    messages: GiftedChat.append(this.messages, this.onlineMessages),
                 });
             }
             serverSrv.GetConv(callback, this.convId, null, this.skip);
@@ -537,7 +550,7 @@ export default class ChatRoom extends Component {
         return (
             <View style={{ flex: 1, alignSelf: 'stretch' }} >
                 <GiftedChat
-                    loadEarlier={true}
+                    loadEarlier={this.state.messages.length >= 20 ? true : false}
                     onLoadEarlier={this.loadEarlierMessages}
                     userName={this.state.groupName}
                     convId={this.convId}
