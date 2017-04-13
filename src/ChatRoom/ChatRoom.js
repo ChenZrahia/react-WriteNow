@@ -137,8 +137,6 @@ export default class ChatRoom extends Component {
                     data = [];
                 }
                 this.messages = data;
-                // console.log("***LoadNewChat****");
-                // console.log(this.messages);
                 this.convId = convId;
                 
                 this.setState({

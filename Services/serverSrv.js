@@ -461,10 +461,6 @@ export function exitChatCall_server(callback) {
 //ChatRoom
 export function GetConv(callback, convId, isUpdate, skip) {
     try {
-        // if (_myConvs && _myConvs[convId] && callback && !isUpdate) {
-        //     callback(_myConvs[convId].messages);
-        //     return;
-        // }
         if (!skip) {
             skip = 0;
         }
@@ -510,10 +506,11 @@ export function GetConv(callback, convId, isUpdate, skip) {
                         };
                     }
                     if (callback) {
-                        callback(result, convId);
                         if (_isFirstTime_Conv == true) {
                             _isFirstTime_Conv = false;
                             GetConv_server(convId, callback);
+                        } else {
+                            callback(result, convId);
                         }
                     }
                 } catch (error) {
