@@ -1139,9 +1139,7 @@ export function GetConvData_ByConvId(convId, callback) {
 export function GetLiveChats(callback) {
     try {
         if (callback) {
-            console.log('GetLiveChats - connect');
             Event.on('connect', () => {
-                console.log('GetLiveChats - connect');
                 socket.emit('GetLiveChats', (data) => {
                     callback(data);
                 });

@@ -246,7 +246,9 @@ const RCTWebRTCDemo = React.createClass({
     container = this;
   },
   _press(event) {
-    this.refs.roomID.blur();
+    if (this.refs && this.refs.roomID){
+        this.refs.roomID.blur();
+    }
     this.setState({status: 'connect', info: 'Connecting'});
     join(this.state.roomID);
   },
