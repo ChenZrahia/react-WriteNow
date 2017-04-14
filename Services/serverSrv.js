@@ -388,6 +388,9 @@ function GetAllUserConv_Server(callback) {
         if (testMode == true) {
             convIdArray = [];
         }
+        if (!_myFriends) {
+            _myFriends = [];
+        } 
         usersArr = _myFriends.map(x => x.id);
         socket.emit('GetAllUserConvChanges', usersArr, convIdArray, ((data) => {
             getConvParticipates_server(data.NewFriends, null, () => {});
@@ -1136,9 +1139,7 @@ export function GetConvData_ByConvId(convId, callback) {
 export function GetLiveChats(callback) {
     try {
         if (callback) {
-            console.log('GetLiveChats - connect');
             Event.on('connect', () => {
-                console.log('GetLiveChats - connect');
                 socket.emit('GetLiveChats', (data) => {
                     callback(data);
                 });
@@ -1188,7 +1189,7 @@ export function login(_token) {
 
                     socket.on("disconnect", function () {
                         console.log("client disconnected from server");
-                    });
+                    });                    
 
                     socket.removeAllListeners("AuthenticationOk");
                     socket.on('AuthenticationOk', (ok) => {

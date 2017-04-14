@@ -205,6 +205,7 @@ export default class Chats extends Component {
 
     openChat(rowData) {
         try {
+            console.log("openChat");
             Actions.ChatRoom(rowData);
             this.UpdatelastMessage(null, null, rowData.id, false)
             Event.trigger('LoadNewChat', rowData.id, false);
@@ -299,7 +300,7 @@ export default class Chats extends Component {
         this.myChats = this.myChats.map((chat) => {
             if (chat.id == convId) {
                 isFound = true;
-                if (lastMessage != null && (chat.lastMessage || chat.lastMessageTime)) {
+                if (lastMessage != null /*&& (chat.lastMessage || chat.lastMessageTime)*/) {
                     chat.lastMessage = lastMessage;
                     chat.lastMessageTime = lastMessageTime;
                     chat.lastMessageEncrypted = lastMessageEncrypted;
@@ -312,12 +313,14 @@ export default class Chats extends Component {
                     }
                     chat.notifications = chat.notifications + 1;
                 }
+                if(lastMessage == null)
+                {
+                     chat.lastMessage = '';
+                }
             }
             return chat;
         });
-        console.log('-- -- UpdatelastMessage -- --');
         if ((isFound == false) && isNewMessage == true) {
-            console.log('-- -- UpdatelastMessage -- TRUE -- --');
             this.UpdateChatsList(true);
         } else {
             this.myChats = this.sortDates(this.myChats);
@@ -332,9 +335,12 @@ export default class Chats extends Component {
                     Encrypted Message
             </Text>
             )
-        else {
-            return (<Text>{rowData.lastMessage}</Text>)
+        else if(!rowData.lastMessage) {
+           return <Text></Text>
         }
+            else{
+                return (<Text>{rowData.lastMessage}</Text>)
+            }
     }
 
     render() {

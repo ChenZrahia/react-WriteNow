@@ -15,7 +15,7 @@ import EmojiPicker from 'react-native-simple-emoji-picker';
 import emoji from 'emoji-datasource';
 import ActionSheet from '@exponent/react-native-action-sheet';
 import dismissKeyboard from 'react-native-dismiss-keyboard';
-
+var Event = require('../../Services/Events');
 var ErrorHandler = require('../../ErrorHandler');
 
 // const EmojiPicker = require('react-native-emoji-picker');
@@ -27,10 +27,27 @@ export default class Composer extends React.Component {
       this.state = {
         showPicker: false,
       };
+     
     } catch (e) {
       ErrorHandler.WriteError('Composer.js => constructor', e);
     }
   }
+
+    onChange(e) { //add by rugbin 24.3.17 -for auto size the height
+    const contentSize = e.nativeEvent.contentSize;
+    if (!this.contentSize) {
+      this.contentSize = contentSize;
+      this.props.onInputSizeChanged(this.contentSize);
+    } else if (this.contentSize.width !== contentSize.width || this.contentSize.height !== contentSize.height) {
+      this.contentSize = contentSize;
+      this.props.onInputSizeChanged(this.contentSize);
+    }
+  }
+
+  onChangeText(text) { //add by rugbin 24.3.17 -for auto size the height
+    this.props.onTextChanged(text);
+  }
+
   _emojiSelected(emoji) {
     try {
       this.setState({ showPicker: false });
@@ -48,7 +65,9 @@ export default class Composer extends React.Component {
             <Modal
               style={{ backgroundColor: 'red' }}
               transparent={false}
-              onRequestClose={() => { console.log('modal closed') } }
+              onRequestClose={() => { this.setState({
+                showPicker: false
+              }) } }
               >
               <View style={styles.viewEmoji}>
                 <View style={styles.container}>
@@ -65,7 +84,9 @@ export default class Composer extends React.Component {
         <View style={styles.row}>
           <TouchableOpacity onPress={() => this.setState({
             showPicker: true
-          })}>
+           })
+          
+            }>
             <View>
               <Icon name='md-happy' style={styles.icon} />
             </View>
@@ -136,7 +157,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    // marginLeft: 10,
+     marginLeft: 10,
     fontSize: 16,
     lineHeight: 16,
     marginTop: Platform.select({
@@ -170,6 +191,10 @@ Composer.defaultProps = {
   textInputProps: null,
   multiline: true,
   textInputStyle: {},
+    onTextChanged: () => {//add by rugbin 24.3.17 -for auto size the height
+  },
+  onInputSizeChanged: () => {//add by rugbin 24.3.17 -for auto size the height
+  },
 };
 
 Composer.propTypes = {
@@ -179,6 +204,8 @@ Composer.propTypes = {
   placeholder: React.PropTypes.string,
   placeholderTextColor: React.PropTypes.string,
   textInputProps: React.PropTypes.object,
+  onTextChanged: React.PropTypes.func,//add by rugbin 24.3.17 -for auto size the height
+  onInputSizeChanged: React.PropTypes.func,//add by rugbin 24.3.17 -for auto size the height
   multiline: React.PropTypes.bool,
   textInputStyle: TextInput.propTypes.style,
 };

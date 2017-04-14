@@ -100,6 +100,7 @@ export default class GiftedChat extends React.Component {
       encryptedPassword: '',
       decryptedsecureTextEntry: true,
       placeholderTextColor: '#b2b2b2',
+      onlineStatus: '-'
     };
 
     this.decryptedMessage = this.decryptedMessage.bind(this);
@@ -108,6 +109,17 @@ export default class GiftedChat extends React.Component {
     Event.on('serverTyping', this.serverTyping);
     Event.removeAllListeners('decryptedMessage');
     Event.on('decryptedMessage', this.decryptedMessage);
+    setTimeout(() => {
+      serverSrv.socket.on("onlineStatusChanged", (data) => {   
+            if (data.isOnline == true && !this.props.isGroup) {
+              this.setState({onlineStatus : 'Online'});
+            } else if(!this.props.isGroup) {
+              this.setState({onlineStatus : 'Offline'});
+            } else {
+              this.setState({onlineStatus : '-'});
+            }
+        });  
+    }, 100); 
 
     this.onTouchStart = this.onTouchStart.bind(this);
     this.onTouchMove = this.onTouchMove.bind(this);
@@ -162,6 +174,10 @@ export default class GiftedChat extends React.Component {
     this.setIsMounted(true);
     this.initLocale();
     this.initMessages(this.props.messages);
+  }
+
+  componentDidMount() {
+      
   }
 
   componentWillUnmount() {
@@ -509,9 +525,7 @@ export default class GiftedChat extends React.Component {
     return null;
   }
 
-  setImageVisible(visible) {
-    this.setState({ imageVisible: visible });
-  }
+
 
   setEncryptedVisible(visible) {
     try {
@@ -531,10 +545,6 @@ export default class GiftedChat extends React.Component {
 
   menuOption() {
     this.setState({ showMenu: !this.state.showMenu });
-  }
-
-  setImageVisible(visible) {
-    this.setState({ imageVisible: visible });
   }
 
   newList() {
@@ -933,25 +943,10 @@ export default class GiftedChat extends React.Component {
   }
 
   cancel_chatRoom(lastMessage, lastMessageTime, lastMessageIsEncrypted) {
-    Event.trigger('CloseChatRoom');
     Event.trigger('lastMessage', lastMessage, lastMessageTime, this.props.convId, false, lastMessageIsEncrypted);
+    Event.trigger('CloseChatRoom');
+    
   }
-
-
-  // renderRowOnlineMsg(){
-  //   try {
-  //     return ((msg) => <View>
-  //       <Text style={{color: 'white'}}>{msg.content}</Text>
-  //    </View>);
-  //   } catch (error) {
-
-  //   }
-  // }
-
-  //   getDataSourceOnlineMsg() {
-  //       const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1.id !== r2.id });
-  //       return ds.cloneWithRows(this.state.onlineMessages);
-  //   }
 
   render() {
     if (this.state.isInitialized === true) {
@@ -962,12 +957,14 @@ export default class GiftedChat extends React.Component {
               if (this.props.messages && this.props.messages.length > 0) {
                 this.cancel_chatRoom(this.props.messages[0].text, this.props.messages[0].sendTime);
               }
+              dismissKeyboard();
               serverSrv.exitChat(serverSrv._convId);
               Actions.pop();
             }}>
               <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => {
+              dismissKeyboard();
               Actions.pop();
             }}>
               {renderIf(this.props.isGroup)(
@@ -991,6 +988,9 @@ export default class GiftedChat extends React.Component {
             }}>
               <Text style={generalStyles.styles.titleHeader}>
                 {this.props.userName}
+              </Text>
+              <Text style={generalStyles.styles.titleOnline}>
+                {this.state.onlineStatus}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ margin: 7 }} onPress={() => {

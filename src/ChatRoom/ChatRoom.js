@@ -52,11 +52,13 @@ export default class ChatRoom extends Component {
             this.LoadNewChat = this.LoadNewChat.bind(this);
             this.deleteFriendMessageUI = this.deleteFriendMessageUI.bind(this);
             this.loadEarlierMessages = this.loadEarlierMessages.bind(this);
+            this.exitChatRoom = this.exitChatRoom.bind(this);
             this.messages = [];
             this.indexOnlineMessages = [];
             this.onlineMessages = [];
             this.convId = null;
             this.skip = 0;
+            Event.on('LoadNewChat', this.LoadNewChat);
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => constructor', e);
         }
@@ -85,10 +87,12 @@ export default class ChatRoom extends Component {
                 }
             });
             this.LoadNewChat(this.props.id, this.props.isContact, this.props.id, this.props.phoneNumber, this.props.fullName);
-            Event.on('LoadNewChat', this.LoadNewChat);
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => componentDidMount', e);
         }
+    }
+    exitChatRoom(){
+        this.skip = 0;
     }
 
     LoadNewChat(convId, isContact, uid, phoneNumber, fullName) {
@@ -128,9 +132,10 @@ export default class ChatRoom extends Component {
                 }
                 this.messages = data;
                 this.convId = convId;
+                
                 this.setState({
                     messages: GiftedChat.append(this.messages, this.onlineMessages),
-                });
+                  });
             }
             serverSrv.onServerTyping(this.onFriendType);
             if (convId && convId != null) {
@@ -158,7 +163,6 @@ export default class ChatRoom extends Component {
                 serverSrv.findMissingFriend([uid], (data) => {
                     if (data.length > 0) {
                         serverSrv._myFriendsJson[msg.from] = data[0];
-                        console.log('data[0]',  data[0]);
                     }
                 });
             }
@@ -181,27 +185,11 @@ export default class ChatRoom extends Component {
 
     deleteFriendMessageUI(mid) {
         try {
-            console.log("try to clear all friends message from UI");
-            console.log(mid);
-            // console.log(messages);
             this.messages = this.state.messages.filter((x) => x.id !== mid);
-            //  ((x) =>{ 
-            //     if(x.id !== mid){
-            //         console.log("only the right message show..");
-            //         console.log(x.id,mid);
-            //          return true;
-            //     }
-            //     else {
-            //         console.log("false");
-            //         return false;
-
-            // }
-            // }) //delete message from the UI
             this.setState({
                 messages: this.messages
             });
             serverSrv.deleteMessageFromLocalDBFriend(this.convId, mid);
-            //serverSrv.deleteFriendMessage(this.convId,id);
         } catch (error) {
             ErrorHandler.WriteError('ChatRoom.js => deleteFriendMessageUI', error);
         }
@@ -406,7 +394,9 @@ export default class ChatRoom extends Component {
                     name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName,
                     _id: serverSrv._myFriendsJson[msg.from].id
                 }
-                if (saveLocal != false) {
+                console.log("push",msg);
+                if (saveLocal != false ) {
+                    
                     this.messages.splice(0, 0, msg); //push
                 }
                 this.onlineMessages = this.onlineMessages.filter((o_msg) => {
@@ -506,8 +496,10 @@ export default class ChatRoom extends Component {
                 name: serverSrv._myFriendsJson[msg.from] ? serverSrv._myFriendsJson[msg.from].publicInfo.fullName : 'New User',
                 _id: serverSrv._myFriendsJson[msg.from] ? serverSrv._myFriendsJson[msg.from].id : 'newUserId'
             }
+            console.log("push2",this.indexOnlineMessages);
             if (!this.indexOnlineMessages[msg._id]) { //new message
                 this.indexOnlineMessages[msg._id] = msg;
+                
                 this.onlineMessages.push(this.indexOnlineMessages[msg.id]);
             } else {
                 this.indexOnlineMessages[msg._id].text = msg.content;
@@ -525,6 +517,7 @@ export default class ChatRoom extends Component {
         }
     }
 
+  
     loadEarlierMessages(){
         try {
             var callback = (data, convId) => {

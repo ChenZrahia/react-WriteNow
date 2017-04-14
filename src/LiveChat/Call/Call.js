@@ -10,7 +10,8 @@ import {
     Modal,
     TextInput,
     TouchableHighlight,
-    BackAndroid
+    BackAndroid,
+    AppState
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import IconMat from 'react-native-vector-icons/MaterialIcons';
@@ -148,6 +149,14 @@ export default class Call extends Component {
                     this.hungUp();
                 }
             });
+
+            InCallManager.setMicrophoneMute(false);
+            AppState.addEventListener('change', (state) =>
+            {
+                if (state != 'active') {
+                    InCallManager.setMicrophoneMute(false);
+                }
+            });
         } catch (e) {
             ErrorHandler.WriteError("Call.js -> componentDidMount", e);
         }
@@ -187,7 +196,9 @@ export default class Call extends Component {
 
     _press(event) {
         InCallManager.start({ media: 'audio', ringback: '_DTMF_' });
-        this.refs.roomID.blur();
+        if (this.refs && this.refs.roomID){
+            this.refs.roomID.blur();
+        }
         this.setState({ status: 'connect', info: 'Connecting' });
         liveSrv.join(this.state.roomID);
     }
@@ -253,6 +264,18 @@ export default class Call extends Component {
 
     hungUp(isBackAndroid) {
         try {
+            this.setState({
+                currentTime: 0,
+                info: 'Initializing',
+                status: 'init',
+                roomID: null,
+                isFront: true,
+                selfViewSrc: null,
+                remoteList: {},
+                textRoomConnected: false,
+                textRoomData: [],
+                textRoomValue: ''
+            });
             callRingtone.stop();
             liveSrv.hungUp();
             InCallManager.stopRingback();

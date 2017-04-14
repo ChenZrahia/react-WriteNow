@@ -13,19 +13,18 @@ import {
     TouchableOpacity,
     TouchableHighlight,
     View,
-    TextInput
+    TextInput,
+    AppState
 } from 'react-native';
 
 import { Actions } from 'react-native-router-flux'
 var Sound = require('react-native-sound');
 var liveSrv = require('./Services/liveSrv');
-
 import InitRout from './src/InitRout';
 import ChatRoom from './src/ChatRoom/ChatRoom';
 import emoji from 'emoji-datasource';
 var Event = require('./Services/Events');
 var serverSrv = require('./Services/serverSrv');
-// var PushNotification = require('react-native-push-notification');
 var PhoneContacts = require('react-native-contacts');
 var ErrorHandler = require('./ErrorHandler');
 
@@ -185,6 +184,16 @@ export default class WriteNow extends Component {
                     ErrorHandler.WriteError(error);
                 }
             });
+
+        AppState.addEventListener('change', (state) =>
+            {
+                if (state != 'active') {
+                    serverSrv.socket.emit('changeOnlineStatus', false);
+                } else {
+                    serverSrv.socket.emit('changeOnlineStatus', true);
+                }
+            })
+
         } catch (error) {
             console.log(error);
         }
