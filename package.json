@@ -44,7 +44,7 @@
     "react-native-router-flux": "^3.38.0",
     "react-native-rsa": "0.0.3",
     "react-native-scrollable-tab-view": "^0.6.0",
-    "react-native-sglistview": "^0.3.2",
+    "react-native-sglistview": "^0.3.10",
     "react-native-signature-capture": "^0.4.3",
     "react-native-simple-emoji-picker": "^0.1.0",
     "react-native-simple-modal": "^4.0.1",

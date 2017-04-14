@@ -21,8 +21,6 @@ var serverSrv = require('../../Services/serverSrv');
 var ErrorHandler = require('../../ErrorHandler');
 var generalStyle = require('../../styles/generalStyle');
 
-var Speech = require('react-native-android-speech');
-
 export default class Chats extends Component {
     constructor() {
         super();
