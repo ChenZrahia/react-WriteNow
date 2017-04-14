@@ -190,7 +190,9 @@ export default class Video extends Component {
 
     _press(event) {
         InCallManager.start({ media: 'audio', ringback: '_DTMF_' });
-        this.refs.roomID.blur();
+        if (this.refs && this.refs.roomID){
+            this.refs.roomID.blur();
+        }
         this.setState({ status: 'connect', info: 'Connecting' });
         liveSrv.join(this.state.roomID);
     }
@@ -256,6 +258,18 @@ export default class Video extends Component {
 
     hungUp(isBackAndroid) {
         try {
+            this.setState({
+                currentTime: 0,
+                info: 'Initializing',
+                status: 'init',
+                roomID: null,
+                isFront: true,
+                selfViewSrc: null,
+                remoteList: {},
+                textRoomConnected: false,
+                textRoomData: [],
+                textRoomValue: ''
+            });
             callRingtone.stop();
             liveSrv.hungUp();
             InCallManager.stopRingback();

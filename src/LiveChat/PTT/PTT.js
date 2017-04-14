@@ -91,7 +91,7 @@ export default class Call extends Component {
             InCallManager.setMicrophoneMute(true);           
 
         } catch (e) {
-            ErrorHandler.WriteError("Call.js -> constructor", e);
+            ErrorHandler.WriteError("PTT.js -> constructor", e);
         }
     }
     getCall(IsIncomingCall) {
@@ -120,21 +120,25 @@ export default class Call extends Component {
                     //if convData is null or user not exist in local DB  -------- להשלים בדיקה
                     if (convData.groupPicture) {
                         ImageResizer.createResizedImage(convData.groupPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {
-                            this.setState({ userPicture: resizedImageUri });
+                            setTimeout(() => {
+                                this.setState({ userPicture: resizedImageUri });
+                            }, 500);
                         }).catch((err) => {
-                            ErrorHandler.WriteError('Call.js => render => ImageResizer', err);
+                            ErrorHandler.WriteError('PTT.js => render => ImageResizer', err);
                         });
                     }
                 });
             } else if (this.props.userPicture) {
                 ImageResizer.createResizedImage(this.props.userPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {
-                    this.setState({ userPicture: resizedImageUri });
+                    setTimeout(() => {
+                        this.setState({ userPicture: resizedImageUri });
+                    }, 500);
                 }).catch((err) => {
-                    ErrorHandler.WriteError('Call.js => render => ImageResizer', err);
+                    ErrorHandler.WriteError('PTT.js => render => ImageResizer', err);
                 });
             }
         } catch (error) {
-            ErrorHandler.WriteError("Call.js -> getCall", e);
+            ErrorHandler.WriteError("PTT.js -> getCall", e);
         }
     }
 
@@ -147,7 +151,7 @@ export default class Call extends Component {
                 this.hungUp(true);
             });
             serverSrv.exitChatCall_server((convId) => {
-                if (this.state.roomID.indexOf(convId) == 0) {
+                if (this.state && this.state.roomID && this.state.roomID.indexOf(convId) == 0) {
                     this.hungUp();
                 }
             });
@@ -155,7 +159,7 @@ export default class Call extends Component {
             AppState.addEventListener('change', (state) =>
             {
                 if (state != 'active') {
-                    this.hungUp(true);
+                    //this.hungUp(true);
                     InCallManager.setMicrophoneMute(false);
                 }
             })
@@ -183,7 +187,7 @@ export default class Call extends Component {
             delete remoteList[socketId];
             container.setState({ remoteList: remoteList });
         } catch (error) {
-            ErrorHandler.WriteError("Call.js -> delete_remoteList", error);
+            ErrorHandler.WriteError("PTT.js -> delete_remoteList", error);
         }
     }
 
@@ -193,7 +197,7 @@ export default class Call extends Component {
             remoteList[socketId] = event.stream.toURL();
             container.setState({ remoteList: remoteList });
         } catch (error) {
-            ErrorHandler.WriteError("Call.js -> add_remoteList", error);
+            ErrorHandler.WriteError("PTT.js -> add_remoteList", error);
         }
     }
 
@@ -269,7 +273,6 @@ export default class Call extends Component {
 
                 liveSrv.socket.on('getPermissionToTalk_serverAnswer', (answer, uidAsked) => {
                     mirs1.play((success) => { });
-                    console.log('getPermissionToTalk_serverAnswer', answer, uidAsked, serverSrv._uid);
                     if (answer == true && uidAsked == serverSrv._uid) {
                         InCallManager.setMicrophoneMute(false);
                         InCallManager.setSpeakerphoneOn(true);
@@ -281,8 +284,6 @@ export default class Call extends Component {
                 });
 
                 liveSrv.socket.on('getPermissionToTalk_serverAsk', (uidAsked) => {
-                    console.log('uidAsked', uidAsked);
-                    console.log('serverSrv._uid', serverSrv._uid);
                     if (this.state.statusPtt == 'green' && uidAsked != serverSrv._uid) {
                         InCallManager.setMicrophoneMute(true);
                         this.setState({statusPtt: 'red'});
@@ -318,6 +319,19 @@ export default class Call extends Component {
 
     hungUp(isBackAndroid) {
         try {
+            this.setState({
+                currentTime: 0,
+                info: 'Initializing',
+                status: 'init',
+                roomID: null,
+                isFront: true,
+                selfViewSrc: null,
+                remoteList: {},
+                textRoomConnected: false,
+                textRoomData: [],
+                textRoomValue: '',
+                statusPtt: 'red'
+            });
             mirs1.stop();
             liveSrv.hungUp();
             InCallManager.setMicrophoneMute(false);
@@ -336,7 +350,7 @@ export default class Call extends Component {
             }
             if (serverSrv._isCallMode == true) {
                 BackAndroid.exitApp();
-            }
+            }            
         } catch (e) {
             ErrorHandler.WriteError("PTT.js -> hungUp", e);
         }

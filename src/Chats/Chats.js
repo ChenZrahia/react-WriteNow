@@ -317,9 +317,7 @@ export default class Chats extends Component {
             }
             return chat;
         });
-        console.log('-- -- UpdatelastMessage -- --');
         if ((isFound == false) && isNewMessage == true) {
-            console.log('-- -- UpdatelastMessage -- TRUE -- --');
             this.UpdateChatsList(true);
         } else {
             this.myChats = this.sortDates(this.myChats);
