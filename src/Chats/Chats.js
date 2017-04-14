@@ -338,8 +338,6 @@ export default class Chats extends Component {
             else{
                 return (<Text>{rowData.lastMessage}</Text>)
             }
-            
-        
     }
 
     render() {

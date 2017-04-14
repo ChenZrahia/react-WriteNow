@@ -81,10 +81,18 @@ export default class ChatRoom extends Component {
             Event.on('imojiType', this.onType);
             Event.on('encryptedMessage', this.onSend);
             BackAndroid.addEventListener('hardwareBackPress', () => {
+<<<<<<< HEAD
                 serverSrv.exitChat(this.convId);
                 if (this.convId && this.messages.length > 0 && this.messages[0].text && this.messages[0].text.length > 0 && this.messages[0].sendTime) {
                     Event.trigger('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false, this.messages[0].isEncrypted);
                 }
+=======
+                         serverSrv.exitChat(this.convId);
+                        //Event.trigger('exitChatRoom');
+                        if (this.convId && this.messages.length > 0 && this.messages[0].text && this.messages[0].text.length > 0 && this.messages[0].sendTime) {
+                            Event.trigger('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false, this.messages[0].isEncrypted);
+                        } 
+>>>>>>> a35b7b2d89a07fc3a3a2950e00e5fc7e05af346e
             });
             this.LoadNewChat(this.props.id, this.props.isContact, this.props.id, this.props.phoneNumber, this.props.fullName);
         } catch (e) {

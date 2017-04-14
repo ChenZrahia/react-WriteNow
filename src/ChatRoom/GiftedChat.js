@@ -525,9 +525,7 @@ export default class GiftedChat extends React.Component {
     return null;
   }
 
-  setImageVisible(visible) {
-    this.setState({ imageVisible: visible });
-  }
+
 
   setEncryptedVisible(visible) {
     try {

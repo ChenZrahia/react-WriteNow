@@ -149,6 +149,7 @@ export default class Call extends Component {
                     this.hungUp();
                 }
             });
+
             InCallManager.setMicrophoneMute(false);
             AppState.addEventListener('change', (state) =>
             {
