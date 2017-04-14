@@ -225,7 +225,7 @@ export function InsertMyContacts(contacts, isMyContact, convId) {
                                     _myConvs[convId].participates.length > 2
                                     ]);
                             }
-                            tx.executeSql('INSERT INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?)',
+                            tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?)',
                                 [newId,
                                     contacts[i].phoneNumber,
                                     '',
@@ -1259,7 +1259,7 @@ export function signUpFunc(newUser, callback) {
                     this._uid = user.id;
                     login();
                     tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?,?)', [user.id, publicKey, privateKey, encryptedUid, user.privateInfo.password]);
-                    tx.executeSql('INSERT INTO Friends VALUES (?,?,?,?,?,?,?)', [user.id, newUser.phoneNumber, newUser.ModifyDate, newUser.ModifyPicDate, newUser.publicInfo.fullName, newUser.publicInfo.picture]);
+                    tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?,?,?,?,?,?,?)', [user.id, newUser.phoneNumber, newUser.ModifyDate, newUser.ModifyPicDate, newUser.publicInfo.fullName, newUser.publicInfo.picture]);
                 }, (error) => {
                     ErrorHandler.WriteError('signUp => addNewUser => transaction', error);
                 }, function () {
