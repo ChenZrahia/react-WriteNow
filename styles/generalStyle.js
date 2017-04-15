@@ -97,6 +97,12 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    imageModalBlack: {
+        backgroundColor: 'rgba(0, 0, 0, 1)',
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     imageInsideModal: {
         width: 200,
         height: 200,

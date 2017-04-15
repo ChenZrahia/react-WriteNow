@@ -4,9 +4,9 @@ import {
   StyleSheet,
   View,
   TouchableOpacity,
-  Modal,
+  Modal
 } from 'react-native';
-
+import PhotoView from 'react-native-photo-view';
 var ErrorHandler = require('../../ErrorHandler');
 var generalStyles = require('../../styles/generalStyle');
 var serverSrv = require('../../Services/serverSrv');
@@ -18,7 +18,6 @@ export default class MessageImage extends React.Component {
             imageVisible: false
          };
      }
-
 
   setImageVisible(visible) {
         try {
@@ -35,15 +34,18 @@ export default class MessageImage extends React.Component {
                 <Modal
                     transparent={true}
                     visible={this.state.imageVisible == true}
-                    onRequestClose={() => { console.log('image closed') } }
+                    onRequestClose={() => { this.setImageVisible(false); } }
                     >
-                    <TouchableOpacity style={{ flex: 1 }} onPress={() => {
-                        this.setImageVisible(!this.state.imageVisible)
-                    } }>
-                        <View style={generalStyles.styles.imageModal}>
-                            <Image style={generalStyles.styles.imageInsideModal} source={{uri: image}} />
+                        <View style={generalStyles.styles.imageModalBlack}>
+                          <PhotoView
+                            source={{uri: image}}
+                            minimumZoomScale={0.5}
+                            maximumZoomScale={6}
+                            androidScaleType="center"
+                            scale={5}
+                            style={{flex: 1, width: 1000, height: 1000}}/>
+                            {/*<Image style={generalStyles.styles.imageInsideModal} source={{uri: image}} />*/}
                         </View>
-                    </TouchableOpacity>
                 </Modal>
             );
         } catch (e) {

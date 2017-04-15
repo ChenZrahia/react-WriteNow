@@ -14,6 +14,8 @@ import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
 import Kohana from '../../styles/Kohana';
 import renderIf from '../../plugins/renderIf'
 import SGListView from 'react-native-sglistview';
+import PhotoView from 'react-native-photo-view';
+
 
 var dismissKeyboard = require('dismissKeyboard');
 var Event = require('../../Services/Events');
@@ -232,6 +234,14 @@ export default class Chats extends Component {
                         this.setImageVisible(!this.state.imageVisible)
                     }}>
                         <View style={generalStyle.styles.imageModal}>
+                            {/*<PhotoView
+                                source={image}
+                                minimumZoomScale={1}
+                                maximumZoomScale={10}
+                                androidScaleType="center"
+                                onLoad={() => console.log("Image loaded!")}
+                                style={{width: 6000, height: 6000}} />*/}
+
                             <Image style={generalStyle.styles.imageInsideModal} source={image} />
                         </View>
                     </TouchableOpacity>
@@ -329,7 +339,7 @@ export default class Chats extends Component {
         if (rowData.lastMessageEncrypted)
             return (
                 <Text>
-                    Encrypted Message
+                    🔒 Encrypted Message
             </Text>
             )
         else if(!rowData.lastMessage) {

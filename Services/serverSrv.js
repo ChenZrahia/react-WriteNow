@@ -533,7 +533,7 @@ function InsertNewContact(tx, user) {
         if (user.imgPath) {
             imgOrPath = user.imgPath;
         }
-        if (user.content && user.content.length > 0) {
+        if ((user.content && user.content.length > 0) || (imgOrPath && imgOrPath.length > 0)) {
             tx.executeSql('INSERT OR REPLACE INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 [user.id,
                 user.convId,
@@ -547,7 +547,7 @@ function InsertNewContact(tx, user) {
                 ]);
 
             tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ?, lastMessageEncrypted = ? WHERE id = ? AND lastMessageTime < ?',
-                [user.content,
+                [user.content ? user.content : ' 📷 Image',
                 user.sendTime,
                 user.convId,
                 user.sendTime,
@@ -1051,7 +1051,7 @@ export function saveNewMessage(msg, saveLocal) {
 
         if (saveLocal != false) {
             db.transaction((tx) => {
-                if (msg.content && msg.content.length > 0) {
+                if ((msg.content && msg.content.length > 0) || (pathOrImage && pathOrImage.length > 0)) {
                     tx.executeSql('INSERT OR REPLACE INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                         [msg.id,
                         msg.convId,
@@ -1064,7 +1064,7 @@ export function saveNewMessage(msg, saveLocal) {
                             pathOrImage
                         ]);
                     tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ?, lastMessageEncrypted = ? WHERE id = ? AND lastMessageTime < ?',
-                        [msg.content,
+                        [msg.content ? msg.content : ' 📷 Image',
                         moment(msg.sendTime).toISOString(),
                         msg.convId,
                         moment(msg.sendTime).toISOString(),
@@ -1256,8 +1256,8 @@ export function signUpFunc(newUser, callback) {
                 db.transaction(function (tx) {
                     this._uid = user.id;
                     login();
-                    tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?,?)', [user.id, publicKey, privateKey, encryptedUid, user.privateInfo.password]);
-                    tx.executeSql('INSERT INTO Friends VALUES (?,?,?,?,?,?,?)', [user.id, newUser.phoneNumber, newUser.ModifyDate, newUser.ModifyPicDate, newUser.publicInfo.fullName, newUser.publicInfo.picture]);
+                    tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?,?)', [user.id, publicKey, privateKey, encryptedUid, newUser.privateInfo.password]);
+                    tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?,?,?,?,?,?,?)', [user.id, newUser.phoneNumber, newUser.ModifyDate, newUser.ModifyPicDate, newUser.publicInfo.fullName, newUser.publicInfo.picture]);
                 }, (error) => {
                     ErrorHandler.WriteError('signUp => addNewUser => transaction', error);
                 }, function () {
