@@ -839,7 +839,7 @@ export default class GiftedChat extends React.Component {
         <Modal
           transparent={true}
           visible={this.state.encryptedVisible}
-          onRequestClose={() => { console.log('encrypted message modal closed') }}
+          onRequestClose={() => { }}
         >
           <View style={generalStyles.styles.imageModal}>
             <View style={{ flex: 1, minHeight: 50 }}>
