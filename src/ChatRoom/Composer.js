@@ -12,7 +12,6 @@ import {
   Text
 } from 'react-native';
 import EmojiPicker from 'react-native-simple-emoji-picker';
-import emoji from 'emoji-datasource';
 import ActionSheet from '@exponent/react-native-action-sheet';
 import dismissKeyboard from 'react-native-dismiss-keyboard';
 var Event = require('../../Services/Events');

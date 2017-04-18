@@ -331,7 +331,7 @@ const RCTWebRTCDemo = React.createClass({
             <Text>Switch camera</Text>
           </TouchableHighlight>
         </View>
-        { this.state.status == 'ready' ?
+        {/*{ this.state.status == 'ready' ?
           (<View>
             <TextInput
               ref='roomID'
@@ -345,7 +345,7 @@ const RCTWebRTCDemo = React.createClass({
               <Text>Enter room</Text>
             </TouchableHighlight>
           </View>) : null
-        }
+        }*/}
         <RTCView streamURL={this.state.selfViewSrc} style={styles.selfView}/>
         {
           mapHash(this.state.remoteList, function(remote, index) {

@@ -43,6 +43,13 @@ export default class Chats extends Component {
             this.UpdateChatInfo = this.UpdateChatInfo.bind(this);
             this.NewChat = this.NewChat.bind(this);
             this.UpdatelastMessage = this.UpdatelastMessage.bind(this);
+            Event.on('signUpCompleted', () => {
+                console.log('11111');
+                setTimeout(() => {
+                    this.UpdateChatsList(true);
+                }, 800);
+
+            });
         } catch (e) {
             ErrorHandler.WriteError("Chats.js -> constructor", e);
         }
@@ -55,16 +62,19 @@ export default class Chats extends Component {
                 try {
                     //this.myChats = this.sortDates(result);
                     this.myChats = result;
-                    try {
+                    setTimeout(() => {
+                         try {
                         this.setState({
                             dataSource: ds.cloneWithRows(result)
                         });                        
-                    } catch (e) {
-                        ErrorHandler.WriteError("Chats.js -> UpdateChatsList -> setState", e);
-                    }
-                    this.setState({
-                        dataSource: ds.cloneWithRows(this.myChats)
-                    });
+                        } catch (e) {
+                            ErrorHandler.WriteError("Chats.js -> UpdateChatsList -> setState", e);
+                        }
+                        this.setState({
+                            dataSource: ds.cloneWithRows(this.myChats)
+                        });
+                    }, 900);
+                   
                 } catch (e) {
                     ErrorHandler.WriteError("Chats.js -> UpdateChatsList -> GetAllUserConv", e);
                 }
@@ -109,6 +119,7 @@ export default class Chats extends Component {
 
     componentDidMount() {
         try {
+        console.log('componentDid - mounted');
             Event.removeAllListeners('UpdateChatsList');
             Event.on('UpdateChatsList', this.UpdateChatsList);
             Event.removeAllListeners('newMessage');
@@ -216,6 +227,7 @@ export default class Chats extends Component {
 
     setImageVisible(visible) {
         try {
+            console.log('666666');
             this.setState({ imageVisible: visible });
         } catch (e) {
             ErrorHandler.WriteError('Chats.js => setImageVisible', e);
@@ -234,14 +246,6 @@ export default class Chats extends Component {
                         this.setImageVisible(!this.state.imageVisible)
                     }}>
                         <View style={generalStyle.styles.imageModal}>
-                            {/*<PhotoView
-                                source={image}
-                                minimumZoomScale={1}
-                                maximumZoomScale={10}
-                                androidScaleType="center"
-                                onLoad={() => console.log("Image loaded!")}
-                                style={{width: 6000, height: 6000}} />*/}
-
                             <Image style={generalStyle.styles.imageInsideModal} source={image} />
                         </View>
                     </TouchableOpacity>
@@ -254,6 +258,7 @@ export default class Chats extends Component {
 
     onFilterChange(event) {
         try {
+            console.log('88888');
             this.setState({
                 filter: event.nativeEvent.text,
                 dataSource: this.getDataSource(event.nativeEvent.text)

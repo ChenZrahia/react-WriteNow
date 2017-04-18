@@ -96,7 +96,9 @@ export default class ChatRoom extends Component {
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => componentDidMount', e);
         }
+        console.log('componentDid - mounted');
     }
+
     exitChatRoom(){
         this.skip = 0;
     }
@@ -361,16 +363,16 @@ export default class ChatRoom extends Component {
                 this._messageId = this.guid();
             }
             if (messages.isEncrypted == true) {
-                this._messageId = messages.mid;
-                messages._id = this._messageId;
-                messages.id = this._messageId;
-                messages.convId = this.convId;
-                messages.text = messages.content;
                 if (messages.from == serverSrv._uid) {
+                    this._messageId = messages.mid;
                     messages.createdAt = Date.now();
+                    messages._id = this._messageId;
+                    messages.id = this._messageId;
+                    messages.convId = this.convId;
+                    messages.text = messages.content;
                 }
                 else {
-                    messages.createdAt = messages.sendTime;
+                    //messages.createdAt = messages.sendTime;
                 }
             }
             if (!messages.forEach) {

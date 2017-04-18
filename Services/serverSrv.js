@@ -609,7 +609,7 @@ function GetConv_server(convId, callback) {
             db.transaction((tx) => {
                 for (var i = 0; i < data.participates.length; i++) {
                     try {
-                        if (!_myFriendsJson[data.participates]) {
+                        if (!_myFriendsJson[data.participates[i].id]) {
                             newParticipates.push(data.participates[i].id);
                         } else {
                             data.participates[i].name = _myFriendsJson[data.participates[i].id].publicInfo.fullName;
@@ -864,7 +864,7 @@ export function getConvParticipates_server(result, _convId, callback) {
     try {
         db.transaction((tx) => {
             for (var i = 0; i < result.length; i++) {
-                tx.executeSql('INSERT INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?)',
+                tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?)',
                     [result[i].id,
                     result[i].phoneNumber,
                         '',
@@ -1184,7 +1184,6 @@ export function login(_token) {
 
                     socket.on('connect', function (msg) {
                         Event.trigger('connect');
-                        console.log("client connected to server");
                     });
 
                     socket.on("disconnect", function () {
@@ -1203,12 +1202,8 @@ export function login(_token) {
                     socket.removeAllListeners("deleteFriendMessage");
 
                     socket.on('deleteFriendMessage', (msg) => {
-                        // console.log(msg);
-                        // console.log("trigger");
                         Event.trigger("deleteFriendMessageUI", msg);
-                        console.log('1111');
                     });
-                    //myChatsJson[messageID] = null;deletedConv
                 }
                 else {
                     try {
@@ -1251,7 +1246,7 @@ export function signUpFunc(newUser, callback) {
         }
         newUser.privateInfo.tokenNotification = this._token;
         socket.emit('addNewUser', newUser, (user) => {
-            if (user && user.id) {
+            if (user && user.id) {                
                 var encryptedUid = rsa.encryptWithPrivate(user.id);
                 db.transaction(function (tx) {
                     this._uid = user.id;

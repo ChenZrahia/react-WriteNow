@@ -126,7 +126,7 @@ export default class SignUp extends Component {
                 });
             }, 100);
             if (userId) {
-                Actions.Tabs({ type: 'reset' });
+                Actions.Tabs({ type: 'reset' });                
             } else {
                 disabled = false;
                 var toast = Toast.show('Phone Number Already In Use', {
@@ -143,8 +143,6 @@ export default class SignUp extends Component {
 
     showImagePicker = () => {
         ImagePicker.showImagePicker(options, (response) => {
-            console.log('Response = ', response);
-
             if (response.didCancel) {
                 console.log('User cancelled image picker');
             }
