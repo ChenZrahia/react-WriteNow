@@ -1203,7 +1203,6 @@ export function login(_token) {
 
                     socket.on('deleteFriendMessage', (msg) => {
                         Event.trigger("deleteFriendMessageUI", msg);
-                        console.log('1111');
                     });
                 }
                 else {
