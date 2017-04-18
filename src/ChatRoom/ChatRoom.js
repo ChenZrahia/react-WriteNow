@@ -82,8 +82,14 @@ export default class ChatRoom extends Component {
             Event.on('encryptedMessage', this.onSend);
             BackAndroid.addEventListener('hardwareBackPress', () => {
                 serverSrv.exitChat(this.convId);
-                if (this.convId && this.messages.length > 0 && this.messages[0].text && this.messages[0].text.length > 0 && this.messages[0].sendTime) {
-                    Event.trigger('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false, this.messages[0].isEncrypted);
+                if (this.convId && this.messages.length > 0 && ((this.messages[0].text && this.messages[0].text.length > 0) || (this.messages[0].image && this.messages[0].image.length > 0)) && this.messages[0].sendTime) {
+                    var contentOfMessage = this.messages[0].text;
+                    if (!contentOfMessage || contentOfMessage == '') {
+                        contentOfMessage = ' 📷 Image';
+                    } else if (this.messages[0].image) {
+                        contentOfMessage = ' 📷 ' + contentOfMessage;
+                    }
+                    Event.trigger('lastMessage', contentOfMessage, this.messages[0].sendTime, this.convId, false, this.messages[0].isEncrypted);
                 }
             });
             this.LoadNewChat(this.props.id, this.props.isContact, this.props.id, this.props.phoneNumber, this.props.fullName);
@@ -274,8 +280,10 @@ export default class ChatRoom extends Component {
     };
 
     setImageVisible(visible) {
-        try {
-            this.setState({ imageVisible: visible });
+        try {            
+            this.setState({ 
+                imageVisible: visible,
+                text: '' });
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => setImageVisible', e);
         }

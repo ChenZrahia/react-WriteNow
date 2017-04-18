@@ -166,6 +166,7 @@ dependencies {
     compile project(':react-native-webrtc')
     compile project(':react-native-sound')
     compile project(':react-native-incall-manager')
+    compile project(':react-native-photo-view')
     //compile project(':react-native-simple-emoji-picker')
     // compile project(':react-native-orientation')
 }
