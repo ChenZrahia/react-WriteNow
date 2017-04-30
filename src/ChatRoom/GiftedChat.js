@@ -91,7 +91,7 @@ export default class GiftedChat extends React.Component {
       decryptedMessageVisible: false,
       DecryptedMessageText: '',
       placeHolderEncrypted: '',
-      placeHolderDecrypted: 'Enter Your Password...',
+      placeHolderDecrypted: 'Enter Your Password',
       validate: true,
       headerTextEncrypted: 'Password Validation',
       headerTextDecrypted: 'Password Validation',
@@ -531,7 +531,7 @@ export default class GiftedChat extends React.Component {
     try {
       this.setState({
         encryptedMessageText: '',
-        placeHolderEncrypted: 'Enter Your Password...',
+        placeHolderEncrypted: 'Enter Your Password',
         headerTextEncrypted: "Password Validation",
         secureTextEntry: true,
         validate: true,
@@ -575,7 +575,7 @@ export default class GiftedChat extends React.Component {
       var password = this.state.encryptedPassword;
       this.setState({
         encryptedMessageText: '',
-        placeHolderEncrypted: 'Enter Your Password...',
+        placeHolderEncrypted: 'Enter Your Password',
         headerTextEncrypted: "Password Validation",
         secureTextEntry: true,
         validate: true,
@@ -690,7 +690,7 @@ export default class GiftedChat extends React.Component {
         this.setState({
           decryptedsecureTextEntry: true,
           DecryptedMessageText: '',
-          placeHolderDecrypted: "Enter Your Password...",
+          placeHolderDecrypted: "Enter Your Password",
           headerTextDecrypted: "Password Validation",
           encryptedPassword: '',
         });
@@ -756,7 +756,7 @@ export default class GiftedChat extends React.Component {
                     this.setState({
                       decryptedMessageVisible: !this.state.decryptedMessageVisible,
                       DecryptedMessageText: '',
-                      placeHolderDecrypted: "Enter Your Password...",
+                      placeHolderDecrypted: "Enter Your Password",
                       headerTextDecrypted: "Password Validation",
                       encryptedPassword: '',
                       decryptedsecureTextEntry: true,
@@ -782,7 +782,7 @@ export default class GiftedChat extends React.Component {
       if (hash && hashFromServer && hash.toString() == hashFromServer.toString()) {
         this.setState({
           encryptedMessageText: '',
-          placeHolderEncrypted: 'Type a message...',
+          placeHolderEncrypted: 'Type a message',
           headerTextEncrypted: "Encrypt Your Message",
           secureTextEntry: false,
           validate: false,
@@ -790,7 +790,7 @@ export default class GiftedChat extends React.Component {
         });
       }
       else {
-        var toast = Toast.show("Invalid Password!", {
+        var toast = Toast.show("Invalid Password", {
           duration: Toast.durations.LONG,
           position: Toast.positions.BOTTOM,
           shadow: true,
@@ -800,7 +800,7 @@ export default class GiftedChat extends React.Component {
         });
         this.setState({
           encryptedMessageText: '',
-          placeHolderEncrypted: 'Enter Your Password...',
+          placeHolderEncrypted: 'Enter Your Password',
           headerTextEncrypted: "Password Validation",
           secureTextEntry: true,
           validate: true
@@ -901,7 +901,7 @@ export default class GiftedChat extends React.Component {
   encryptMessage() {
     try {
       this.setState({
-        placeHolderEncrypted: "Enter Your Password...",
+        placeHolderEncrypted: "Enter Your Password",
         showMenu: !this.state.showMenu,
         encryptedVisible: !this.state.encryptedVisible
       });
