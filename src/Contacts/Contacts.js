@@ -18,13 +18,13 @@ import { Actions } from 'react-native-router-flux';
 
 var dismissKeyboard = require('dismissKeyboard');
 var serverSrv = require('../../Services/serverSrv');
-var PhoneContacts = require('react-native-contacts');
 var generalStyle = require('../../styles/generalStyle');
 var Event = require('../../Services/Events');
 var ErrorHandler = require('../../ErrorHandler');
 
 export default class Contacts extends Component {
     constructor() {
+        console.log(' !! Contacts constructor is on !! ');
         super();
         try {
             dismissKeyboard();
@@ -49,10 +49,12 @@ export default class Contacts extends Component {
         try {
             setTimeout(() => {
                 var ds = this.ds;
+                Event.on('signUpCompleted', this.reloadFriendFromDB);
                 Event.on('updateFriends', this.reloadFriendFromDB);
                 Event.on('UpdateMyFriends', this.UpdateMyFriends);
+                console.log(' !! Contacts reloadFriendFromDB - reloadFriendFromDB is on !! ');
                 this.reloadFriendFromDB();
-            }, 0);
+            }, 300);
         } catch (e) {
             ErrorHandler.WriteError("Contacts.js => componentDidMount", e);
         }

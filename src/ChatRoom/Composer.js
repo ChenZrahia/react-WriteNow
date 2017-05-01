@@ -12,14 +12,12 @@ import {
   Text
 } from 'react-native';
 import EmojiPicker from 'react-native-simple-emoji-picker';
-import emoji from 'emoji-datasource';
 import ActionSheet from '@exponent/react-native-action-sheet';
 import dismissKeyboard from 'react-native-dismiss-keyboard';
 var Event = require('../../Services/Events');
 var ErrorHandler = require('../../ErrorHandler');
 
-// const EmojiPicker = require('react-native-emoji-picker');
-// const { EmojiOverlay } = require('react-native-emoji-picker');
+
 export default class Composer extends React.Component {
   constructor(props) {
     super(props);
@@ -186,7 +184,7 @@ Composer.defaultProps = {
     android: 41,
   }), // TODO SHARE with GiftedChat.js and tests
   text: '',
-  placeholder: 'Type a message...',
+  placeholder: 'Type a message',
   placeholderTextColor: '#b2b2b2',
   textInputProps: null,
   multiline: true,

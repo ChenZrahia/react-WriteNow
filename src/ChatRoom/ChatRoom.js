@@ -82,15 +82,23 @@ export default class ChatRoom extends Component {
             Event.on('encryptedMessage', this.onSend);
             BackAndroid.addEventListener('hardwareBackPress', () => {
                 serverSrv.exitChat(this.convId);
-                if (this.convId && this.messages.length > 0 && this.messages[0].text && this.messages[0].text.length > 0 && this.messages[0].sendTime) {
-                    Event.trigger('lastMessage', this.messages[0].text, this.messages[0].sendTime, this.convId, false, this.messages[0].isEncrypted);
+                if (this.convId && this.messages.length > 0 && ((this.messages[0].text && this.messages[0].text.length > 0) || (this.messages[0].image && this.messages[0].image.length > 0)) && this.messages[0].sendTime) {
+                    var contentOfMessage = this.messages[0].text;
+                    if (!contentOfMessage || contentOfMessage == '') {
+                        contentOfMessage = ' 📷 Image';
+                    } else if (this.messages[0].image) {
+                        contentOfMessage = ' 📷 ' + contentOfMessage;
+                    }
+                    Event.trigger('lastMessage', contentOfMessage, this.messages[0].sendTime, this.convId, false, this.messages[0].isEncrypted);
                 }
             });
             this.LoadNewChat(this.props.id, this.props.isContact, this.props.id, this.props.phoneNumber, this.props.fullName);
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => componentDidMount', e);
         }
+        console.log('componentDid - mounted');
     }
+
     exitChatRoom(){
         this.skip = 0;
     }
@@ -274,8 +282,10 @@ export default class ChatRoom extends Component {
     };
 
     setImageVisible(visible) {
-        try {
-            this.setState({ imageVisible: visible });
+        try {            
+            this.setState({ 
+                imageVisible: visible,
+                text: '' });
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => setImageVisible', e);
         }
@@ -303,7 +313,7 @@ export default class ChatRoom extends Component {
                         <View style={{ width: 300, flexDirection: 'row', backgroundColor: 'white', borderColor: 'gray', borderWidth: 1 }}>
                             <TextInput
                                 style={{ flex: 1, height: 40, backgroundColor: 'white' }}
-                                placeholder="Type a message..."
+                                placeholder="Type a message"
                                 onChangeText={(text) => this.setState({ text })}
                                 value={this.state.text}
                             />
@@ -352,16 +362,16 @@ export default class ChatRoom extends Component {
                 this._messageId = this.guid();
             }
             if (messages.isEncrypted == true) {
-                this._messageId = messages.mid;
-                messages._id = this._messageId;
-                messages.id = this._messageId;
-                messages.convId = this.convId;
-                messages.text = messages.content;
                 if (messages.from == serverSrv._uid) {
+                    this._messageId = messages.mid;
                     messages.createdAt = Date.now();
+                    messages._id = this._messageId;
+                    messages.id = this._messageId;
+                    messages.convId = this.convId;
+                    messages.text = messages.content;
                 }
                 else {
-                    messages.createdAt = messages.sendTime;
+                    //messages.createdAt = messages.sendTime;
                 }
             }
             if (!messages.forEach) {

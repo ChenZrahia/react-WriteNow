@@ -6,14 +6,10 @@ import {
     AsyncStorage,
     Image,
     Platform,
-    ScrollView,
     StatusBar,
     StyleSheet,
     Text,
-    TouchableOpacity,
-    TouchableHighlight,
     View,
-    TextInput,
     AppState
 } from 'react-native';
 
@@ -21,8 +17,6 @@ import { Actions } from 'react-native-router-flux'
 var Sound = require('react-native-sound');
 var liveSrv = require('./Services/liveSrv');
 import InitRout from './src/InitRout';
-import ChatRoom from './src/ChatRoom/ChatRoom';
-import emoji from 'emoji-datasource';
 var Event = require('./Services/Events');
 var serverSrv = require('./Services/serverSrv');
 var PhoneContacts = require('react-native-contacts');
@@ -174,10 +168,12 @@ export default class WriteNow extends Component {
         });
     }
 
-    componentDidMount() {        
-        this.loadContacts();
+    componentDidMount() {       
+        setTimeout(() => {
+            this.loadContacts();
+        }, 200); 
         try {
-            serverSrv.GetAllMyFriends((result) => {
+            serverSrv.GetAllMyFriends((result) => { //היה בהערה ולא טען את אנשי הקשר
                 try {
                     Event.trigger('UpdateMyFriends', result);
                 } catch (error) {

@@ -175,6 +175,7 @@ export default class Bubble extends React.Component {
 
   onLongPress() {
     try {
+      console.log('long press work well');
       if (this.props.onLongPress) {
         this.props.onLongPress(this.context);
       } else {
@@ -195,6 +196,7 @@ export default class Bubble extends React.Component {
               (buttonIndex) => {
                 switch (buttonIndex) {
                   case 0:
+                  
                     Clipboard.setString(this.props.currentMessage.text);
                     break;
                   case 1:
@@ -202,7 +204,6 @@ export default class Bubble extends React.Component {
                     break;
                 }
               });
-
           }
           else {
             const options = [

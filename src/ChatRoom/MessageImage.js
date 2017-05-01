@@ -4,12 +4,13 @@ import {
   StyleSheet,
   View,
   TouchableOpacity,
-  Modal,
+  Modal
 } from 'react-native';
-
+import PhotoView from 'react-native-photo-view';
 var ErrorHandler = require('../../ErrorHandler');
 var generalStyles = require('../../styles/generalStyle');
 var serverSrv = require('../../Services/serverSrv');
+var Event = require('../../Services/Events');
 
 export default class MessageImage extends React.Component {
      constructor() {
@@ -17,8 +18,8 @@ export default class MessageImage extends React.Component {
          this.state = {
             imageVisible: false
          };
+          this.onLongPress = this.onLongPress.bind(this);
      }
-
 
   setImageVisible(visible) {
         try {
@@ -35,15 +36,18 @@ export default class MessageImage extends React.Component {
                 <Modal
                     transparent={true}
                     visible={this.state.imageVisible == true}
-                    onRequestClose={() => { console.log('image closed') } }
+                    onRequestClose={() => { this.setImageVisible(false); } }
                     >
-                    <TouchableOpacity style={{ flex: 1 }} onPress={() => {
-                        this.setImageVisible(!this.state.imageVisible)
-                    } }>
-                        <View style={generalStyles.styles.imageModal}>
-                            <Image style={generalStyles.styles.imageInsideModal} source={{uri: image}} />
+                        <View style={generalStyles.styles.imageModalBlack}>
+                          <PhotoView
+                            source={{uri: image}}
+                            minimumZoomScale={0.5}
+                            maximumZoomScale={6}
+                            androidScaleType="center"
+                            scale={5}
+                            style={{flex: 1, width: 1000, height: 1000}}/>
+                            {/*<Image style={generalStyles.styles.imageInsideModal} source={{uri: image}} />*/}
                         </View>
-                    </TouchableOpacity>
                 </Modal>
             );
         } catch (e) {
@@ -52,12 +56,55 @@ export default class MessageImage extends React.Component {
     }
 
 
+  deleteMessage() {
+    try {
+      Event.trigger('deleteMessage', this.props.currentMessage.image, this.props.currentMessage._id);
+    } catch (e) {
+      ErrorHandler.WriteError('messagesImage.js => deleteMessage', e);
+    };
+  }
+ onLongPress() {
+    try {
+      console.log('long press work well');
+
+      console.log("this.props.currentMessage",this.props.currentMessage);
+        if (this.props.currentMessage.image) {
+          console.log(this.props.currentMessage.from);
+          console.log(serverSrv._uid);
+          if (this.props.currentMessage.from == serverSrv._uid) {
+            const options = [
+              'Delete Message',
+              'Cancel',
+            ];
+            const cancelButtonIndex = options.length - 1;
+            this.context.actionSheet().showActionSheetWithOptions({
+              options,
+              cancelButtonIndex,
+            },
+              (buttonIndex) => {
+                switch (buttonIndex) {
+                  case 0:
+                   this.deleteMessage();
+                    break;
+                  case 1:
+                    break;
+                }
+              }
+            )}}
+
+
+    } catch (e) {
+      ErrorHandler.WriteError('messagesImage.js => onLongPress', e);
+    }
+  }
 
   render() {
     try {
       return (
         <View style={[styles.container, this.props.containerStyle]} >
-        <TouchableOpacity onPress={() => {
+        <TouchableOpacity
+          onLongPress={this.onLongPress}
+         onPress={() => {
           this.setImageVisible(true)
             }}>
          <Image
@@ -76,6 +123,9 @@ export default class MessageImage extends React.Component {
 
 
 
+MessageImage.contextTypes = {
+  actionSheet: React.PropTypes.func,
+};
 
 const styles = StyleSheet.create({
   container: {

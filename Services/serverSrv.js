@@ -69,31 +69,6 @@ export var _privateKey = '';
 export var _isCallMode = false;
 export var _convId = null;
 
-function printTable(tblName) {
-    db.transaction((tx) => {
-        // tx.executeSql('SELECT * FROM UserInfo', [], (tx, rs) => {
-        //     console.log('---------------------------------------');
-        //     for (var i = 0; i < rs.rows.length; i++) {
-        //         console.log(rs.rows.item(i));
-        //     }
-        //     console.log('---------------------------------------');
-        // }, errorDB);
-        tx.executeSql('SELECT * FROM Messages', [], (tx, rs) => {
-            console.log('---------------------------------------');
-            for (var i = 0; i < rs.rows.length; i++) {
-                console.log(rs.rows.item(i));
-
-            }
-            console.log('---------------------------------------');
-        }, errorDB);
-
-    });
-}
-
-setTimeout(function () {
-    //printTable('Messages');
-}, 500);
-
 var counter = 0;
 export function DeleteDb() {
     counter++;
@@ -105,7 +80,6 @@ export function DeleteDb() {
         // tx.executeSql('DELETE FROM Friends', [], null, errorDB); //------------------
         // tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
         // tx.executeSql('DELETE FROM Participates', [], null, errorDB); //------------------
-
 
         // tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
         // tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
@@ -533,7 +507,7 @@ function InsertNewContact(tx, user) {
         if (user.imgPath) {
             imgOrPath = user.imgPath;
         }
-        if (user.content && user.content.length > 0) {
+        if ((user.content && user.content.length > 0) || (imgOrPath && imgOrPath.length > 0)) {
             tx.executeSql('INSERT OR REPLACE INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 [user.id,
                 user.convId,
@@ -547,7 +521,7 @@ function InsertNewContact(tx, user) {
                 ]);
 
             tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ?, lastMessageEncrypted = ? WHERE id = ? AND lastMessageTime < ?',
-                [user.content,
+                [user.content ? user.content : ' 📷 Image',
                 user.sendTime,
                 user.convId,
                 user.sendTime,
@@ -609,7 +583,7 @@ function GetConv_server(convId, callback) {
             db.transaction((tx) => {
                 for (var i = 0; i < data.participates.length; i++) {
                     try {
-                        if (!_myFriendsJson[data.participates]) {
+                        if (!_myFriendsJson[data.participates[i].id]) {
                             newParticipates.push(data.participates[i].id);
                         } else {
                             data.participates[i].name = _myFriendsJson[data.participates[i].id].publicInfo.fullName;
@@ -864,7 +838,7 @@ export function getConvParticipates_server(result, _convId, callback) {
     try {
         db.transaction((tx) => {
             for (var i = 0; i < result.length; i++) {
-                tx.executeSql('INSERT INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?)',
+                tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?)',
                     [result[i].id,
                     result[i].phoneNumber,
                         '',
@@ -1051,7 +1025,7 @@ export function saveNewMessage(msg, saveLocal) {
 
         if (saveLocal != false) {
             db.transaction((tx) => {
-                if (msg.content && msg.content.length > 0) {
+                if ((msg.content && msg.content.length > 0) || (pathOrImage && pathOrImage.length > 0)) {
                     tx.executeSql('INSERT OR REPLACE INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                         [msg.id,
                         msg.convId,
@@ -1064,7 +1038,7 @@ export function saveNewMessage(msg, saveLocal) {
                             pathOrImage
                         ]);
                     tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ?, lastMessageEncrypted = ? WHERE id = ? AND lastMessageTime < ?',
-                        [msg.content,
+                        [msg.content ? msg.content : ' 📷 Image',
                         moment(msg.sendTime).toISOString(),
                         msg.convId,
                         moment(msg.sendTime).toISOString(),
@@ -1184,7 +1158,6 @@ export function login(_token) {
 
                     socket.on('connect', function (msg) {
                         Event.trigger('connect');
-                        console.log("client connected to server");
                     });
 
                     socket.on("disconnect", function () {
@@ -1203,12 +1176,8 @@ export function login(_token) {
                     socket.removeAllListeners("deleteFriendMessage");
 
                     socket.on('deleteFriendMessage', (msg) => {
-                        // console.log(msg);
-                        // console.log("trigger");
                         Event.trigger("deleteFriendMessageUI", msg);
-                        console.log('1111');
                     });
-                    //myChatsJson[messageID] = null;deletedConv
                 }
                 else {
                     try {
@@ -1251,13 +1220,13 @@ export function signUpFunc(newUser, callback) {
         }
         newUser.privateInfo.tokenNotification = this._token;
         socket.emit('addNewUser', newUser, (user) => {
-            if (user && user.id) {
+            if (user && user.id) {                
                 var encryptedUid = rsa.encryptWithPrivate(user.id);
                 db.transaction(function (tx) {
                     this._uid = user.id;
                     login();
-                    tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?,?)', [user.id, publicKey, privateKey, encryptedUid, user.privateInfo.password]);
-                    tx.executeSql('INSERT INTO Friends VALUES (?,?,?,?,?,?,?)', [user.id, newUser.phoneNumber, newUser.ModifyDate, newUser.ModifyPicDate, newUser.publicInfo.fullName, newUser.publicInfo.picture]);
+                    tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?,?)', [user.id, publicKey, privateKey, encryptedUid, newUser.privateInfo.password]);
+                    tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?,?,?,?,?,?,?)', [user.id, newUser.phoneNumber, newUser.ModifyDate, newUser.ModifyPicDate, newUser.publicInfo.fullName, newUser.publicInfo.picture]);
                 }, (error) => {
                     ErrorHandler.WriteError('signUp => addNewUser => transaction', error);
                 }, function () {
