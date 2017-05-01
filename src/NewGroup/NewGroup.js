@@ -9,8 +9,10 @@ import {
     Text,
     View,
     Modal,
-    TextInput
+    TextInput,
+    BackAndroid
 } from 'react-native';
+import Toast from 'react-native-root-toast';
 import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
 import SGListView from 'react-native-sglistview';
 import Kohana from '../../styles/Kohana';
@@ -42,6 +44,7 @@ export default class NewGroup extends Component {
             if (this.props.groupSource) {
                 this.isNewGroup = false;
             }
+            this.resetData = this.resetData.bind(this);
             if (!this.isNewGroup) {
                 this.GroupContacts = this.props.groupSource._dataBlob.s1;
                 this.groupMembersCounter = this.GroupContacts.length;
@@ -61,6 +64,9 @@ export default class NewGroup extends Component {
 
     componentDidMount() {
         try {
+            BackAndroid.addEventListener('hardwareBackPress', () => {
+                this.resetData();
+            });
             setTimeout(() => {
                 var ds = this.ds;
                 Event.on('updateFriends', this.reloadFriendFromDB);
@@ -69,6 +75,24 @@ export default class NewGroup extends Component {
             }, 0);
         } catch (e) {
             ErrorHandler.WriteError("NewGroup.js => componentDidMount", e);
+        }
+    }
+
+    resetData(){
+        try {
+            this.myFriends.map((user) => {
+                user.isHidden = false;
+            });
+            this.onFilterChange({nativeEvent: {text:''}});
+            this.GroupContacts = [];
+            this.groupMembersCounter = 0;
+            this.setState({
+                filter: '',
+                groupSource: this.ds2.cloneWithRows(this.GroupContacts),
+                dataSource: this.ds.cloneWithRows(this.myFriends)
+            });
+        } catch (error) {
+            ErrorHandler.WriteError("NewGroup.js => resetData", e);
         }
     }
 
@@ -162,6 +186,7 @@ export default class NewGroup extends Component {
                     style={generalStyle.styles.container}>
                     <View style={generalStyle.styles.appbar}>
                         <TouchableOpacity onPress={() => {
+                            this.resetData();
                             Actions.pop();
                         }}>
                             <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
@@ -175,8 +200,19 @@ export default class NewGroup extends Component {
                         </Text>
                         </View>
                         <TouchableOpacity onPress={() => {
+                            if (this.GroupContacts.length == 0) {
+                                 var toast = Toast.show('At least 1 contact must be selected', {
+                                    duration: Toast.durations.LONG,
+                                    position: Toast.positions.BOTTOM,
+                                    shadow: true,
+                                    animation: true,
+                                    hideOnPress: true,
+                                    delay: 0
+                                });
+                                return;
+                            }
                             if (this.isNewGroup) {
-                                Actions.NewGroupInfo(this.GroupContacts);
+                                Actions.NewGroupInfo({data: this.GroupContacts});
                             }
                             else {
                                 var participantsArray = this.GroupContacts.map((user) => {
@@ -239,6 +275,9 @@ export default class NewGroup extends Component {
                     <View>
                         {renderIf(!rowData.isHidden)(
                             <TouchableOpacity onPress={() => {
+                                if (!this.GroupContacts) {
+                                    this.GroupContacts = [];
+                                }
                                 if (this.GroupContacts.indexOf(rowData) === -1) {
                                     this.GroupContacts.push(rowData);
                                     this.groupMembersCounter++;
@@ -344,6 +383,7 @@ var styles = StyleSheet.create({
         borderWidth: 0.5,
         width: 40,
         height: 40,
+        marginBottom: 2
     },
     groupMemberName: {
         color: 'grey',

@@ -69,31 +69,6 @@ export var _privateKey = '';
 export var _isCallMode = false;
 export var _convId = null;
 
-function printTable(tblName) {
-    db.transaction((tx) => {
-        // tx.executeSql('SELECT * FROM UserInfo', [], (tx, rs) => {
-        //     console.log('---------------------------------------');
-        //     for (var i = 0; i < rs.rows.length; i++) {
-        //         console.log(rs.rows.item(i));
-        //     }
-        //     console.log('---------------------------------------');
-        // }, errorDB);
-        tx.executeSql('SELECT * FROM Messages', [], (tx, rs) => {
-            console.log('---------------------------------------');
-            for (var i = 0; i < rs.rows.length; i++) {
-                console.log(rs.rows.item(i));
-
-            }
-            console.log('---------------------------------------');
-        }, errorDB);
-
-    });
-}
-
-setTimeout(function () {
-    //printTable('Messages');
-}, 500);
-
 var counter = 0;
 export function DeleteDb() {
     counter++;
@@ -106,13 +81,11 @@ export function DeleteDb() {
         tx.executeSql('DELETE FROM Messages', [], null, errorDB); //------------------
         tx.executeSql('DELETE FROM Participates', [], null, errorDB); //------------------
 
-
         tx.executeSql('DROP TABLE UserInfo', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Conversation', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
-
 
         tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid,password)', [], null, errorDB);
         tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime, lastMessageEncrypted)', [], null, errorDB); //להוציא לפונקציה נפרדת

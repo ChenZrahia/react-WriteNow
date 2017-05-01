@@ -173,13 +173,13 @@ export default class WriteNow extends Component {
             this.loadContacts();
         }, 200); 
         try {
-            // serverSrv.GetAllMyFriends((result) => {
-            //     try {
-            //         Event.trigger('UpdateMyFriends', result);
-            //     } catch (error) {
-            //         ErrorHandler.WriteError(error);
-            //     }
-            // });
+            serverSrv.GetAllMyFriends((result) => { //היה בהערה ולא טען את אנשי הקשר
+                try {
+                    Event.trigger('UpdateMyFriends', result);
+                } catch (error) {
+                    ErrorHandler.WriteError(error);
+                }
+            });
 
         AppState.addEventListener('change', (state) =>
             {

@@ -170,6 +170,17 @@ export default class NewGroupInfo extends Component {
                         )}
                         {renderIf(this.isNewGroup)(
                             <TouchableOpacity disabled={disabled} style={styles.button} underlayColor='#ededed' onPress={() => {
+                                if (!this.state.groupName) {
+                                    var toast = Toast.show('Provide a group name', {
+                                        duration: Toast.durations.LONG,
+                                        position: Toast.positions.BOTTOM,
+                                        shadow: true,
+                                        animation: true,
+                                        hideOnPress: true,
+                                        delay: 0
+                                    });
+                                    return;  
+                                } 
                                 var participateArray = this.props.data.map((user) => {
                                     return user.id;
                                 });

@@ -423,7 +423,7 @@ export default class Call extends Component {
                         <Text style={styles.welcome}>
                             {this.state.info}
                         </Text>
-                        {this.state.status == 'ready' ?
+                        {/*{this.state.status == 'ready' ?
                             (<View>
                                 <TextInput
                                     ref='roomID'
@@ -437,7 +437,7 @@ export default class Call extends Component {
                                     <Text>Enter room</Text>
                                 </TouchableHighlight>
                             </View>) : null
-                        }
+                        }*/}
                         <RTCView streamURL={this.state.selfViewSrc} style={styles.selfView} />
                         {
                             liveSrv.mapHash(this.state.remoteList, function (remote, index) {

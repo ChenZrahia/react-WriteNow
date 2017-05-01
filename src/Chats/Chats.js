@@ -388,7 +388,7 @@ export default class Chats extends Component {
                                         this.setImageVisible(true);
                                     }}>
                                         <View style={generalStyle.styles.viewImg}>
-                                            <Image style={generalStyle.styles.thumb} source={rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? rowData.isGroup : require('../../img/user.jpg'))} />
+                                            <Image style={generalStyle.styles.thumb} source={rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? require('../../img/group-img.jpg') : require('../../img/user.jpg'))} />
                                         </View>
                                     </TouchableOpacity>
                                     <View style={{ flexDirection: 'column', flex: 1, marginRight: 7, marginBottom: 3 }}>

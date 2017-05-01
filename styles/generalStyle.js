@@ -111,7 +111,7 @@ export const styles = StyleSheet.create({
     },
       encryptedMessageModal: {
         flex: 1,
-        height: 200,
+        minHeight: 200,
         borderRadius: 10,
         backgroundColor: 'white'
     },
@@ -119,7 +119,7 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         flex: 0.5,
         alignItems: 'center',
-        height: 40,
+        maxHeight: 40,
         width:350,
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,

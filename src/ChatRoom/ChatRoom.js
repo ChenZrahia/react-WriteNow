@@ -314,7 +314,7 @@ export default class ChatRoom extends Component {
                         <View style={{ width: 300, flexDirection: 'row', backgroundColor: 'white', borderColor: 'gray', borderWidth: 1 }}>
                             <TextInput
                                 style={{ flex: 1, height: 40, backgroundColor: 'white' }}
-                                placeholder="Type a message..."
+                                placeholder="Type a message"
                                 onChangeText={(text) => this.setState({ text })}
                                 value={this.state.text}
                             />
