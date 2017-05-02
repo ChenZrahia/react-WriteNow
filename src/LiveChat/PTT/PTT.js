@@ -87,7 +87,7 @@ export default class Call extends Component {
             };
             this.startCall = this.startCall.bind(this);
             this.pptUp = this.pptUp.bind(this);
-
+            console.log(' ## setMicrophoneMute - true');
             InCallManager.setMicrophoneMute(true);           
 
         } catch (e) {
@@ -160,6 +160,7 @@ export default class Call extends Component {
             {
                 if (state != 'active') {
                     //this.hungUp(true);
+            console.log(' ## setMicrophoneMute - false');
                     InCallManager.setMicrophoneMute(false);
                 }
             })
@@ -203,7 +204,10 @@ export default class Call extends Component {
 
     _press(event) {
         InCallManager.start({ media: 'audio' });
+            console.log(' ## setForceSpeakerphoneOn - true');
+        InCallManager.setForceSpeakerphoneOn(true);
         InCallManager.setKeepScreenOn(true);
+            console.log(' ## setMicrophoneMute - true');
         InCallManager.setMicrophoneMute(true);
         InCallManager.setSpeakerphoneOn(true);
         if (this.refs && this.refs.roomID){
@@ -264,6 +268,7 @@ export default class Call extends Component {
                 liveSrv.socket.on('lineIsFree', () => {
                     try {
                         mirs2.play((success) => { });
+            console.log(' ## setMicrophoneMute - true');
                         InCallManager.setMicrophoneMute(true);
                         this.setState({statusPtt: 'green'});
                     } catch (error) {
@@ -274,10 +279,12 @@ export default class Call extends Component {
                 liveSrv.socket.on('getPermissionToTalk_serverAnswer', (answer, uidAsked) => {
                     mirs1.play((success) => { });
                     if (answer == true && uidAsked == serverSrv._uid) {
+            console.log(' ## setMicrophoneMute - false');
                         InCallManager.setMicrophoneMute(false);
                         InCallManager.setSpeakerphoneOn(true);
                         this.setState({statusPtt: 'yellow'});
                     } else {
+            console.log(' ## setMicrophoneMute - true');
                         InCallManager.setMicrophoneMute(true);
                         this.setState({statusPtt: 'red'});
                     }
@@ -285,6 +292,7 @@ export default class Call extends Component {
 
                 liveSrv.socket.on('getPermissionToTalk_serverAsk', (uidAsked) => {
                     if (this.state.statusPtt == 'green' && uidAsked != serverSrv._uid) {
+            console.log(' ## setMicrophoneMute - true');
                         InCallManager.setMicrophoneMute(true);
                         this.setState({statusPtt: 'red'});
                         liveSrv.socket.emit('getPermissionToTalk_clientAnswer', true, uidAsked);
@@ -358,6 +366,7 @@ export default class Call extends Component {
 
     pptUp() {
         try {
+            console.log('## pptUp - 1 ', liveSrv._isInCall);
             if (liveSrv._isInCall == true) {
                 mirs2.play((success) => { });
                 if (this.state.leftBtn == require('../../../img/speaker_on1.png')) {
@@ -365,7 +374,7 @@ export default class Call extends Component {
                 } else {
                     this.setState({ leftBtn: require('../../../img/speaker_on1.png') });
                 }
-            }
+            }             
         } catch (e) {
             ErrorHandler.WriteError("PTT.js -> pptUp", e);
         }
@@ -423,21 +432,6 @@ export default class Call extends Component {
                         <Text style={styles.welcome}>
                             {this.state.info}
                         </Text>
-                        {/*{this.state.status == 'ready' ?
-                            (<View>
-                                <TextInput
-                                    ref='roomID'
-                                    autoCorrect={false}
-                                    style={{ width: 200, height: 40, borderColor: 'gray', borderWidth: 1 }}
-                                    onChangeText={(text) => this.setState({ roomID: text })}
-                                    value={this.state.roomID}
-                                    />
-                                <TouchableHighlight
-                                    onPress={this._press}>
-                                    <Text>Enter room</Text>
-                                </TouchableHighlight>
-                            </View>) : null
-                        }*/}
                         <RTCView streamURL={this.state.selfViewSrc} style={styles.selfView} />
                         {
                             liveSrv.mapHash(this.state.remoteList, function (remote, index) {
