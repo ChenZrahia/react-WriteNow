@@ -21,6 +21,7 @@ import { RTCView } from 'react-native-webrtc';
 import InCallManager from 'react-native-incall-manager';
 import FitImage from '../../../plugins/FitImage';
 import renderIf from '../../../plugins/renderIf';
+import Toast from 'react-native-root-toast';
 
 var dismissKeyboard = require('dismissKeyboard');
 var Event = require('../../../Services/Events');
@@ -298,9 +299,25 @@ export default class Video extends Component {
                 if (this.state.leftBtn == require('../../../img/speaker_on1.png')) {
                     this.setState({ leftBtn: require('../../../img/speaker_off.png') });
                     InCallManager.setSpeakerphoneOn(true);
+                    var toast = Toast.show("Speaker is on", {
+                        duration: Toast.durations.LONG,
+                        position: Toast.positions.BOTTOM,
+                        shadow: true,
+                        animation: true,
+                        hideOnPress: true,
+                        delay: 0
+                    });
                 } else {
                     this.setState({ leftBtn: require('../../../img/speaker_on1.png') });
                     InCallManager.setSpeakerphoneOn(false);
+                    var toast = Toast.show("Speaker is off", {
+                        duration: Toast.durations.LONG,
+                        position: Toast.positions.BOTTOM,
+                        shadow: true,
+                        animation: true,
+                        hideOnPress: true,
+                        delay: 0
+                    });
                 }
             }
 
