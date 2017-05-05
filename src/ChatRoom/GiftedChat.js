@@ -874,7 +874,13 @@ export default class GiftedChat extends React.Component {
                       this.encryptedMessageFunc(this.state.encryptedPassword);
                     }
                   }} >
-                  <Text style={{ color: 'white' }}>Send</Text>
+                  
+                   {renderIf(this.state.headerTextEncrypted == "Password Validation")(
+                    <Text style={{ color: 'white' }}> Validate  </Text>
+                   )}
+                     {renderIf(this.state.headerTextEncrypted == "Encrypt Your Message")(
+                    <Text style={{ color: 'white' }}> Send  </Text>
+                   )}
                 </TouchableOpacity>
                 <View style={{ flex: 0.6, justifyContent: "center", alignItems: "center" }}>
                   <Image

@@ -11,8 +11,9 @@ import {
   TouchableOpacity,
   Text
 } from 'react-native';
-import EmojiPicker from 'react-native-simple-emoji-picker';
+ import EmojiPicker from 'react-native-simple-emoji-picker';
 import ActionSheet from '@exponent/react-native-action-sheet';
+// var json = require("json!./file.json");
 import dismissKeyboard from 'react-native-dismiss-keyboard';
 var Event = require('../../Services/Events');
 var ErrorHandler = require('../../ErrorHandler');
