@@ -1,8 +1,6 @@
 var React = require('react-native');
 import { Actions } from 'react-native-router-flux';
-//import React from 'react-native';
 import './UserAgent';
-//import io from 'socket.io-client/socket.io';
 
 
 import io from 'socket.io-client/dist/socket.io';
@@ -19,16 +17,6 @@ var SignUp = require('../src/SignUp/SignUp');
 var moment = require('moment');
 var RSAKey = require('react-native-rsa');
 var Sound = require('react-native-sound');
-
-//--------for dev mode only-----------//
-var encryptedUid = 'UIP5n4v1jj24a+dHq6L/QqLwDFtPnSoebPzUe5+DWKOQ+rj5boKTAI6goMgySXHDj4BRMOa16wNV743D3/5WfRlXPrizY6nvi3XEmg/oPQvmNLlchDDjqZpQW8nfAS3IH9jZwDqFjxMKVkMau1SOLJxMroz7hTKVH7gOCGLHzik=';
-var publicKey = `-----BEGIN PUBLIC KEY-----
-        MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAInhtN7l9IVl0BqKC+yav4KrB09XtICc
-            B3nfrzvfLZBCmXKkS5GYg/xzIx5BbsfVSKOKXzCcnlIhWUssanrDiW8CAwEAAQ==
-            -----END PUBLIC KEY-----`;
-//--------for dev mode only-----------//
-
-// var ReactNativeRSAUtil = React.NativeModules.ReactNativeRSAUtil;
 
 export var socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {});
 var ErrorHandler = require('../ErrorHandler');
@@ -94,7 +82,6 @@ export function DeleteDb() {
         tx.executeSql('CREATE TABLE IF NOT EXISTS Participates (convId NOT NULL, uid NOT NULL, isGroup, PRIMARY KEY (convId, uid))', [], null, errorDB);
     });
 }
-//DeleteDb();
 
 setTimeout(() => {
     db.transaction((tx) => {

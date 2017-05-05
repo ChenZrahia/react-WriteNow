@@ -16,7 +16,6 @@ import Menu, { MenuContext, MenuOptions, MenuOption, MenuTrigger } from 'react-n
 var ErrorHandler = require('../../ErrorHandler');
 import Toast from 'react-native-root-toast';
 import SGListView from 'react-native-sglistview';
-
 import ActionSheet from '@exponent/react-native-action-sheet';
 import dismissKeyboard from 'react-native-dismiss-keyboard';
 import moment from 'moment/min/moment-with-locales.min';
