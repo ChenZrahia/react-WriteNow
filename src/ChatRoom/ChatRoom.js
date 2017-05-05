@@ -293,7 +293,7 @@ export default class ChatRoom extends Component {
 
     openImageModal(image, pathOfImage) {
         try {
-            console.log("openImageModal");
+             console.log("openImageModal4");
             return (
                 <Modal
                     transparent={true}
