@@ -6,6 +6,7 @@ import {
   StyleSheet,
   View,
   Image,
+  ScrollView,
   TouchableOpacity,
   Text,
   TextInput,
@@ -99,13 +100,17 @@ export default class GiftedChat extends React.Component {
       encryptedPassword: '',
       decryptedsecureTextEntry: true,
       placeholderTextColor: '#b2b2b2',
-      onlineStatus: '-'
+      onlineStatus: '-',
+      isEmojiOpen: false
     };
 
     this.decryptedMessage = this.decryptedMessage.bind(this);
     this.serverTyping = this.serverTyping.bind(this);
+    this.openEmojiModal = this.openEmojiModal.bind(this);
     Event.removeAllListeners('serverTyping');
     Event.on('serverTyping', this.serverTyping);
+    Event.removeAllListeners('openEmojiModal');
+    Event.on('openEmojiModal', this.openEmojiModal);
     Event.removeAllListeners('decryptedMessage');
     Event.on('decryptedMessage', this.decryptedMessage);
     setTimeout(() => {
@@ -131,7 +136,6 @@ export default class GiftedChat extends React.Component {
     this.onSend = this.onSend.bind(this);
     this.getLocale = this.getLocale.bind(this);
     this.cancel_chatRoom = this.cancel_chatRoom.bind(this);
-
     this.CallFriend = this.CallFriend.bind(this);
     this.VedioCallFriend = this.VedioCallFriend.bind(this);
     this.invertibleScrollViewProps = {
@@ -395,6 +399,7 @@ export default class GiftedChat extends React.Component {
   }
 
   renderMessages() {
+    console.log('## renderMessages', this.state.messagesContainerHeight);
     const AnimatedView = this.props.isAnimated === true ? Animated.View : View;
     return (
       <AnimatedView style={{
@@ -458,7 +463,7 @@ export default class GiftedChat extends React.Component {
   calculateInputToolbarHeight(newComposerHeight) {
     return newComposerHeight + (this.getMinInputToolbarHeight() - MIN_COMPOSER_HEIGHT);
   }
-
+ 
   onType(e) {
     if (this.getIsTypingDisabled() === true) {
       return;
@@ -947,6 +952,38 @@ export default class GiftedChat extends React.Component {
     
   }
 
+
+  openEmojiModal(isOpen) {
+    try {
+      if (isOpen){
+        this.setState({isEmojiOpen: true, messagesContainerHeight: (this.state.messagesContainerHeight * 2)});
+      } else {
+        this.setState({isEmojiOpen: false, messagesContainerHeight: (this.state.messagesContainerHeight / 2)});
+      }
+    } catch (error) {
+      ErrorHandler.WriteError('GiftedChat.js => openEmojiModal', error);
+    }
+  }
+
+renderEmoji(){
+        try {
+            var data = "😀 😃 😄 😁 😆 😅 😂 😊 😇 😉 😌 😍 😘 😗 😙 😚 😋 😜 😝 😛 😎 😏 😒 😞 😔 😟 😕 🙁 ☹️ 😣 😖 😫 😩 😤 😠 😡 😶 😐 😑 😯 😦 😧 😮 😲 😵 😳 😱 😨 😰 😢 😥 😭 😓 😪 😴 😬 😷 😈 👿 👹 👺 💩 👻 💀 ☠️ 👽 👾 🎃 😺 😸 😹 😻 😼 😽 🙀 😿 😾 👐 🙌 👏 🙏 👍 👎 👊 ✊ ✌️ 👌 👈 👉 👆 👇 ☝️ ✋ 🖐 🖖 👋 💪 🖕 ✍️ 💅 🖖 💄 💋 👄 👅 👂 👃 👣 👁 👀 🗣 👤 👥 👶 👦 👧 👨 👩 👱‍♀️ 👱 👴 👵 👲 👳‍♀️ 👳 👮‍♀️ 👮 👷‍♀️ 👷 💂‍♀️ 💂 🕵️‍♀️ 🕵️ 👩‍⚕️ 👨‍⚕️ 👩‍🌾 👨‍🌾 👩‍🍳 👨‍🍳 👩‍🎓 👨‍🎓 👩‍🎤 👨‍🎤 👩‍🏫 👨‍🏫 👩‍🏭 👨‍🏭 👩‍💻 👨‍💻 👩‍💼 👨‍💼 👩‍🔧 👨‍🔧 👩‍🔬 👨‍🔬 👩‍🎨 👨‍🎨 👩‍🚒 👨‍🚒 👩‍✈️ 👨‍✈️ 👩‍🚀 👨‍🚀 👩‍⚖️ 👨‍⚖️ 🎅 👸 👰 👼 🙇‍♀️ 🙇 💁 💁‍♂️ 🙅 🙅‍♂️ 🙆 🙆‍♂️ 🙋 🙋‍♂️ 🙎 🙎‍♂️ 🙍 🙍‍♂️ 💇 💇‍♂️ 💆 💆‍♂️ 🕴 💃 👯 👯‍♂️ 🚶‍♀️ 🚶 🏃‍♀️ 🏃 👫 👭 👬 💑 👩‍❤️‍👩 👨‍❤️‍👨 💏 👩‍❤️‍💋‍👩 👨‍❤️‍💋‍👨 👪 👨‍👩‍👧 👨‍👩‍👧‍👦 👨‍👩‍👦‍👦 👨‍👩‍👧‍👧 👩‍👩‍👦 👩‍👩‍👧 👩‍👩‍👧‍👦 👩‍👩‍👦‍👦 👩‍👩‍👧‍👧 👨‍👨‍👦 👨‍👨‍👧 👨‍👨‍👧‍👦 👨‍👨‍👦‍👦 👨‍👨‍👧‍👧 👩‍👦 👩‍👧 👩‍👧‍👦 👩‍👦‍👦 👩‍👧‍👧 👨‍👦 👨‍👧 👨‍👧‍👦 👨‍👦‍👦 👨‍👧‍👧 👚 👕 👖 👔 👗 👙 👘 👠 👡 ";
+            data = data.split(' ');
+            data = data.filter(Boolean);
+            data = data.map((x) => {
+                return <TouchableOpacity
+                 style={{height: 40}}
+                  onPress={() => {
+                    this.changeText(x);
+                  }}
+                ><Text style={styles.emojiText}>{x}</Text></TouchableOpacity>;
+            });
+            return  <ScrollView style={{ flex: 1, backgroundColor: 'red' }}><View style={styles.emoji}>{data}</View></ScrollView>
+        } catch (error) {
+            
+        }
+    }
+
   render() {
     if (this.state.isInitialized === true) {
       return (
@@ -964,6 +1001,7 @@ export default class GiftedChat extends React.Component {
             </TouchableOpacity>
             <TouchableOpacity onPress={() => {
               dismissKeyboard();
+              Event.trigger('closeChatRoom');
               Actions.pop();
             }}>
               {renderIf(this.props.isGroup)(
@@ -1072,6 +1110,33 @@ export default class GiftedChat extends React.Component {
                 </TouchableOpacity>
               </Modal>
             )}
+
+            {/*emoji*/}
+            {renderIf(this.state.showMenu)(
+              <Modal
+                onRequestClose={() => { }}
+                style={{ flex: 1 }}
+                transparent={true}
+              >
+                <TouchableOpacity style={{ flex: 1 }} onPress={() => {
+                  this.setState({ showMenu: !this.state.showMenu })
+                }}>
+                  <View style={{
+                    flex:1,
+                    height: 170,
+                    backgroundColor: 'white',
+                    position: 'absolute',
+                    bottom: 0,
+                    right: 0,
+                    left: 0,
+                    elevation: 6,
+                  }}
+                  >
+                    
+                  </View>
+                </TouchableOpacity>
+              </Modal>
+            )}
             <View style={styles.button} />
           </View>
           <ActionSheet ref={component => this._actionSheetRef = component}>
@@ -1095,7 +1160,7 @@ export default class GiftedChat extends React.Component {
             >
               {this.renderMessages()}
               {this.renderInputToolbar()}
-
+              {this.renderEmoji()}
             </View>
           </ActionSheet>
           {this.openImageModal(this.imgSelected)}
@@ -1130,6 +1195,17 @@ const styles = StyleSheet.create({
   chatRoomMain: {
     flex: 1,
     flexDirection: 'column'
+  },
+  emoji:{
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-around',
+      backgroundColor: '#d6d6d6'
+  },
+  emojiText:{
+      fontSize: 30,
+      height: 40,
+      color: 'black'
   },
   buttonStyle: {
     flex: 0.6, justifyContent: "center", alignItems: "center", height: 35,
@@ -1200,11 +1276,6 @@ GiftedChat.defaultProps = {
   bottomOffset: 0,
   isLoadingEarlier: false,
 };
-//  Modal.propTypes = {
-
-//     onPressBackdrop:this.walkieTalkie() ,
-
-//   },
 
 GiftedChat.propTypes = {
   messages: React.PropTypes.array,

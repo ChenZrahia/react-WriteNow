@@ -11,7 +11,6 @@ import {
     Text,
     TextInput,
     Dimensions,
-    ScrollView,
     View,
     NativeModules,
     Modal,
@@ -81,6 +80,7 @@ export default class ChatRoom extends Component {
             Event.on('imojiType', this.onType);
             Event.on('encryptedMessage', this.onSend);
             BackAndroid.addEventListener('hardwareBackPress', () => {
+                Event.trigger('closeChatRoom');
                 serverSrv.exitChat(this.convId);
                 if (this.convId && this.messages.length > 0 && ((this.messages[0].text && this.messages[0].text.length > 0) || (this.messages[0].image && this.messages[0].image.length > 0)) && this.messages[0].sendTime) {
                     var contentOfMessage = this.messages[0].text;
@@ -96,7 +96,6 @@ export default class ChatRoom extends Component {
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => componentDidMount', e);
         }
-        console.log('componentDid - mounted');
     }
 
     exitChatRoom(){

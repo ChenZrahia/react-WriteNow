@@ -1,5 +1,6 @@
 import React from 'react';
 import { Container, Content, Icon } from 'native-base';
+import Icon2 from 'react-native-vector-icons/MaterialIcons';
 import {
   Animated,
   InteractionManager,
@@ -14,9 +15,10 @@ import {
 import EmojiPicker from 'react-native-simple-emoji-picker';
 import ActionSheet from '@exponent/react-native-action-sheet';
 import dismissKeyboard from 'react-native-dismiss-keyboard';
+import renderIf from '../../plugins/renderIf';
+
 var Event = require('../../Services/Events');
 var ErrorHandler = require('../../ErrorHandler');
-
 
 export default class Composer extends React.Component {
   constructor(props) {
@@ -25,13 +27,16 @@ export default class Composer extends React.Component {
       this.state = {
         showPicker: false,
       };
-     
+      Event.on('closeChatRoom', () => {
+        this.setState({isEmojiOpen: false});
+      });
+
     } catch (e) {
       ErrorHandler.WriteError('Composer.js => constructor', e);
     }
   }
 
-    onChange(e) { //add by rugbin 24.3.17 -for auto size the height
+  onChange(e) { //add by rugbin 24.3.17 -for auto size the height
     const contentSize = e.nativeEvent.contentSize;
     if (!this.contentSize) {
       this.contentSize = contentSize;
@@ -57,42 +62,37 @@ export default class Composer extends React.Component {
 
   render() {
     try {
+
       if (this.state.showPicker === true) {
-        return (
-          <View style={styles.cont} >
-            <Modal
-              style={{ backgroundColor: 'red' }}
-              transparent={false}
-              onRequestClose={() => { this.setState({
-                showPicker: false
-              }) } }
-              >
-              <View style={styles.viewEmoji}>
-                <View style={styles.container}>
-                  <EmojiPicker
-                    onPick={emoji => { this._emojiSelected(emoji) } } />
-                </View>
-              </View>
-            </Modal>
-          </View>
-        );
+        return null;
       }
 
       return (
         <View style={styles.row}>
-          <TouchableOpacity onPress={() => this.setState({
-            showPicker: true
-           })
-          
-            }>
+          <TouchableOpacity onPress={() => {
+            if (!this.state.isEmojiOpen) {
+              dismissKeyboard();
+            }
+            setTimeout(() => {
+              Event.trigger('openEmojiModal', this.state.isEmojiOpen);
+              this.setState({ isEmojiOpen: !this.state.isEmojiOpen });
+            }, 200);
+          }
+          }>
             <View>
-              <Icon name='md-happy' style={styles.icon} />
+              {renderIf(!this.state.isEmojiOpen)(
+                <Icon name='md-happy' style={styles.icon} />
+              )}
+              {renderIf(this.state.isEmojiOpen)(
+                <Icon2 name='keyboard-arrow-down' style={styles.icon} />
+              )}
             </View>
           </TouchableOpacity>
           <TextInput
             placeholder={this.props.placeholder}
             placeholderTextColor={this.props.placeholderTextColor}
             multiline={this.props.multiline}
+            onFocus={() => this.setState({ isEmojiOpen: false})}
             onChange={(e) => {
               this.props.onChange(e);
             }
@@ -104,7 +104,7 @@ export default class Composer extends React.Component {
             enablesReturnKeyAutomatically={true}
             underlineColorAndroid="transparent"
             {...this.props.textInputProps}
-            />
+          />
         </View>
       );
     } catch (e) {
@@ -125,8 +125,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
   },
-
-
   viewEmoji: {
     flex: 1,
     flexDirection: 'row',
@@ -155,7 +153,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-     marginLeft: 10,
+    marginLeft: 10,
     fontSize: 16,
     lineHeight: 16,
     marginTop: Platform.select({
@@ -189,7 +187,7 @@ Composer.defaultProps = {
   textInputProps: null,
   multiline: true,
   textInputStyle: {},
-    onTextChanged: () => {//add by rugbin 24.3.17 -for auto size the height
+  onTextChanged: () => {//add by rugbin 24.3.17 -for auto size the height
   },
   onInputSizeChanged: () => {//add by rugbin 24.3.17 -for auto size the height
   },

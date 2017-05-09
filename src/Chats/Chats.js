@@ -355,6 +355,8 @@ export default class Chats extends Component {
             }
     }
 
+    
+
     render() {
         try {
             return (
@@ -370,6 +372,7 @@ export default class Chats extends Component {
                         value={this.state.filter}
                         onChange={this.onFilterChange.bind(this)}
                     />
+                    
                     <SGListView style={{ paddingTop: 5, flex: 1 }}
                         enableEmptySections={true}
                         dataSource={this.state.dataSource}
@@ -410,6 +413,10 @@ export default class Chats extends Component {
                         }
                     />
                     {this.openImageModal(this.imgSelected)}
+                                       
+                    <Text>
+                        
+                    </Text>
                 </View>
             );
         } catch (e) {
@@ -418,7 +425,7 @@ export default class Chats extends Component {
     }
 }
 
-var styles = StyleSheet.create({
+var styles = StyleSheet.create({    
     searchBar: {
         borderWidth: 0.5,
         borderRadius: 4,
