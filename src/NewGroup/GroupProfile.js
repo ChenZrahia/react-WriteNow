@@ -44,7 +44,6 @@ export default class GroupProfile extends Component {
 
     onLayout(event) {
         try {
-            console.log("onLayout");
             setTimeout(() => {
                 if (this.state.screenWidth != Dimensions.get('window').width) {
                     this.setState({
@@ -88,8 +87,6 @@ export default class GroupProfile extends Component {
     // }
 
     componentDidMount() {
-        console.log("componentDidMount");
-
         try {
             serverSrv.getConvParticipates(this.props.convId, (result) => {
                 this.groupMembers = result;
@@ -115,8 +112,6 @@ export default class GroupProfile extends Component {
     }
 
     renderTextParticipate(rowData) {
-        console.log("renderTextParticipate");
-
         try {
             if (this.groupManagers.indexOf(rowData.id) >= 0) {
                 return (
@@ -131,8 +126,6 @@ export default class GroupProfile extends Component {
     }
 
     renderRow() {
-        console.log("renderRow");
-
         try {
             return (
                 (rowData) =>
@@ -169,7 +162,6 @@ export default class GroupProfile extends Component {
     }
 
     setImageVisible(visible) {
-        console.log("setImageVisible");
         try {
             this.setState({ imageVisible: visible });
         } catch (e) {
@@ -178,8 +170,6 @@ export default class GroupProfile extends Component {
     }
 
     getImageSource(img) {
-        console.log("getImageSource");
-
         try {
             if (img) {
                 return (
@@ -202,8 +192,6 @@ export default class GroupProfile extends Component {
     }
 
     render() {
-        console.log("render");
-
         try {
             return (
                 <View
@@ -279,8 +267,6 @@ export default class GroupProfile extends Component {
     }
 
     openImageModal(img) {
-        console.log("openImageModal");
-
         try {
             return (
                 <Modal

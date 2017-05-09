@@ -70,9 +70,9 @@ export default class Chats extends Component {
                         } catch (e) {
                             ErrorHandler.WriteError("Chats.js -> UpdateChatsList -> setState", e);
                         }
-                        this.setState({
-                            dataSource: ds.cloneWithRows(this.myChats)
-                        });
+                        // this.setState({
+                        //     dataSource: ds.cloneWithRows(this.myChats)
+                        // });
                     }, 900);
                    
                 } catch (e) {
@@ -92,9 +92,9 @@ export default class Chats extends Component {
                     chat.groupPicture = groupInfo.groupPicture;
                 }
             });
-            this.setState({
-                dataSource: this.ds.cloneWithRows(this.myChats)
-            });
+            // this.setState({
+            //     dataSource: this.ds.cloneWithRows(this.myChats)
+            // });
             setTimeout(() => {
                 this.setState({
                     dataSource: this.ds.cloneWithRows(this.myChats)

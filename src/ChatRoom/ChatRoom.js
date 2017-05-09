@@ -96,7 +96,6 @@ export default class ChatRoom extends Component {
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => componentDidMount', e);
         }
-        console.log('componentDid - mounted');
     }
 
     exitChatRoom(){
@@ -140,7 +139,6 @@ export default class ChatRoom extends Component {
                 }
                 this.messages = data;
                 this.convId = convId;
-                
                 this.setState({
                     messages: GiftedChat.append(this.messages, this.onlineMessages),
                   });
@@ -182,6 +180,7 @@ export default class ChatRoom extends Component {
     deleteMessage(text, id) {
         try {
             this.messages = this.state.messages.filter((x) => x.id !== id );
+            
             this.setState({
                 messages: this.messages //delete message from the UI
             });
@@ -194,6 +193,7 @@ export default class ChatRoom extends Component {
     deleteFriendMessageUI(mid) {
         try {
             this.messages = this.state.messages.filter((x) => x.id !== mid);
+            
             this.setState({
                 messages: this.messages
             });
@@ -293,7 +293,6 @@ export default class ChatRoom extends Component {
 
     openImageModal(image, pathOfImage) {
         try {
-             console.log("openImageModal4");
             return (
                 <Modal
                     transparent={true}
