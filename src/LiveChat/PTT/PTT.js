@@ -22,6 +22,7 @@ import { RTCView } from 'react-native-webrtc';
 import InCallManager from 'react-native-incall-manager';
 import FitImage from '../../../plugins/FitImage';
 import renderIf from '../../../plugins/renderIf';
+import Toast from 'react-native-root-toast';
 
 var dismissKeyboard = require('dismissKeyboard');
 var Event = require('../../../Services/Events');
@@ -58,6 +59,7 @@ export default class Call extends Component {
         this.talk = this.talk.bind(this);
         this.endTalk = this.endTalk.bind(this);
         this.connectToServer = this.connectToServer.bind(this);
+        this.recall = this.recall.bind(this)
         Event.on('container_setState', this.container_setState);
         Event.on('receiveTextData', this.receiveTextData);
         Event.on('delete_remoteList', this.delete_remoteList);
@@ -87,7 +89,6 @@ export default class Call extends Component {
             };
             this.startCall = this.startCall.bind(this);
             this.pptUp = this.pptUp.bind(this);
-            console.log(' ## setMicrophoneMute - true');
             InCallManager.setMicrophoneMute(true);           
 
         } catch (e) {
@@ -160,7 +161,6 @@ export default class Call extends Component {
             {
                 if (state != 'active') {
                     //this.hungUp(true);
-            console.log(' ## setMicrophoneMute - false');
                     InCallManager.setMicrophoneMute(false);
                 }
             })
@@ -204,10 +204,8 @@ export default class Call extends Component {
 
     _press(event) {
         InCallManager.start({ media: 'audio' });
-            console.log(' ## setForceSpeakerphoneOn - true');
         InCallManager.setForceSpeakerphoneOn(true);
         InCallManager.setKeepScreenOn(true);
-            console.log(' ## setMicrophoneMute - true');
         InCallManager.setMicrophoneMute(true);
         InCallManager.setSpeakerphoneOn(true);
         if (this.refs && this.refs.roomID){
@@ -257,6 +255,21 @@ export default class Call extends Component {
         this.setState({ textRoomData, textRoomValue: '' });
     }
 
+    recall(){
+        try {
+            var toast = Toast.show("Sending signal...", {
+                        duration: Toast.durations.SHORT,
+                        position: Toast.positions.BOTTOM,
+                        shadow: true,
+                        animation: true,
+                        hideOnPress: true,
+                        delay: 0
+                    });
+            liveSrv.socket.emit('makeCall', () => { console.log('make a call'); }, this.props.convId, 3, true);
+        } catch (error) {
+            ErrorHandler.WriteError("PTT.js -> recall", error);
+        }
+    }
 
     connectToServer(){
         try {
@@ -268,7 +281,6 @@ export default class Call extends Component {
                 liveSrv.socket.on('lineIsFree', () => {
                     try {
                         mirs2.play((success) => { });
-            console.log(' ## setMicrophoneMute - true');
                         InCallManager.setMicrophoneMute(true);
                         this.setState({statusPtt: 'green'});
                     } catch (error) {
@@ -279,12 +291,10 @@ export default class Call extends Component {
                 liveSrv.socket.on('getPermissionToTalk_serverAnswer', (answer, uidAsked) => {
                     mirs1.play((success) => { });
                     if (answer == true && uidAsked == serverSrv._uid) {
-            console.log(' ## setMicrophoneMute - false');
                         InCallManager.setMicrophoneMute(false);
                         InCallManager.setSpeakerphoneOn(true);
                         this.setState({statusPtt: 'yellow'});
                     } else {
-            console.log(' ## setMicrophoneMute - true');
                         InCallManager.setMicrophoneMute(true);
                         this.setState({statusPtt: 'red'});
                     }
@@ -292,7 +302,6 @@ export default class Call extends Component {
 
                 liveSrv.socket.on('getPermissionToTalk_serverAsk', (uidAsked) => {
                     if (this.state.statusPtt == 'green' && uidAsked != serverSrv._uid) {
-            console.log(' ## setMicrophoneMute - true');
                         InCallManager.setMicrophoneMute(true);
                         this.setState({statusPtt: 'red'});
                         liveSrv.socket.emit('getPermissionToTalk_clientAnswer', true, uidAsked);
@@ -318,6 +327,10 @@ export default class Call extends Component {
                 this.callInterval = setInterval(() => {
                     this.setState({ currentTime: (moment() - this.state.startTime) });
                 }, 1000);
+                mirs1.play((success) => { });
+            } else {
+                this.recall();
+                mirs1.stop();
                 mirs1.play((success) => { });
             }
         } catch (e) {
@@ -366,15 +379,7 @@ export default class Call extends Component {
 
     pptUp() {
         try {
-            console.log('## pptUp - 1 ', liveSrv._isInCall);
-            if (liveSrv._isInCall == true) {
-                mirs2.play((success) => { });
-                if (this.state.leftBtn == require('../../../img/speaker_on1.png')) {
-                    this.setState({ leftBtn: require('../../../img/speaker_off.png') });
-                } else {
-                    this.setState({ leftBtn: require('../../../img/speaker_on1.png') });
-                }
-            }             
+                    
         } catch (e) {
             ErrorHandler.WriteError("PTT.js -> pptUp", e);
         }
