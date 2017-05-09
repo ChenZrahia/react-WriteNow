@@ -64,6 +64,7 @@ export default class NewGroup extends Component {
 
     componentDidMount() {
         try {
+            console.log("componentDidMount1");
             BackAndroid.addEventListener('hardwareBackPress', () => {
                 this.resetData();
             });
@@ -79,6 +80,8 @@ export default class NewGroup extends Component {
     }
 
     resetData(){
+            console.log("resetData1");
+        
         try {
             this.myFriends.map((user) => {
                 user.isHidden = false;
@@ -97,6 +100,8 @@ export default class NewGroup extends Component {
     }
 
     onLayout(event) {
+            console.log("onLayout1");
+        
         this.setState({
             groupSource: this.ds2.cloneWithRows(this.GroupContacts),
             datasource: this.ds.cloneWithRows(this.myFriends)
@@ -104,6 +109,8 @@ export default class NewGroup extends Component {
     }
 
     reloadFriendFromDB(isUpdate) {
+            console.log("reloadFriendFromDB1");
+        
         try {
             serverSrv.GetAllMyFriends(this.UpdateMyFriends, isUpdate);
         } catch (e) {
@@ -112,6 +119,8 @@ export default class NewGroup extends Component {
     }
 
     UpdateMyFriends(result) {
+            console.log("UpdateMyFriends1");
+        
         try {
             if (!result) {
                 result = [];
@@ -149,6 +158,7 @@ export default class NewGroup extends Component {
     }
 
     onFilterChange(event) {
+            console.log("onFilterChange1");
         try {
             this.setState({
                 filter: event.nativeEvent.text,
@@ -160,6 +170,8 @@ export default class NewGroup extends Component {
     }
 
     getDataSource(fiterText) {
+            console.log("getDataSource1");
+        
         try {
             //if filter is empty - return original data source
             if (!fiterText && this.state.dataSource.cloneWithRows) {
@@ -180,6 +192,8 @@ export default class NewGroup extends Component {
     }
 
     render() {
+            console.log("render1");
+        
         try {
             return (
                 <View
@@ -269,6 +283,8 @@ export default class NewGroup extends Component {
     }
 
     renderRow() {
+            console.log("renderRow1");
+        
         try {
             return (
                 (rowData) =>
@@ -317,6 +333,8 @@ export default class NewGroup extends Component {
     }
 
     renderGroup() {
+            console.log("renderGroup1");
+        
         try {
             return (
                 (rowData) =>

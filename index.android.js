@@ -62,7 +62,10 @@ export default class WriteNow extends Component {
                 }
             }
         });
+        console.log("##su");
         FCM.getFCMToken().then(token => {
+        console.log("##su", token);
+            
             serverSrv._token = token;
             serverSrv.login(token);
         });

@@ -745,9 +745,15 @@ export default class GiftedChat extends React.Component {
                 />
               </View>
               <View style={{ flexDirection: "row", flex: 0.5 }}>
+              
                 <TouchableOpacity style={styles.buttonStyle}
                   onPress={() => { this.tryToDecrypt(this.state.DecryptedMessageText) }} >
-                  <Text style={{ color: 'white' }}>Decrypt</Text>
+                     {renderIf(this.state.headerTextDecrypted == "Password Validation")(
+                    <Text style={{ color: 'white' }}> Validate  </Text>
+                   )}
+                     {renderIf(this.state.headerTextDecrypted == "Message Decrypted Successfully")(
+                    <Text style={{ color: 'white' }}> Decrypt  </Text>
+                   )}
                 </TouchableOpacity>
                 <View style={{ flex: 0.6, justifyContent: "center", alignItems: "center" }}>
                   <Image
@@ -878,7 +884,13 @@ export default class GiftedChat extends React.Component {
                       this.encryptedMessageFunc(this.state.encryptedPassword);
                     }
                   }} >
-                  <Text style={{ color: 'white' }}>Send</Text>
+                  
+                   {renderIf(this.state.headerTextEncrypted == "Password Validation")(
+                    <Text style={{ color: 'white' }}> Validate  </Text>
+                   )}
+                     {renderIf(this.state.headerTextEncrypted == "Encrypt Your Message")(
+                    <Text style={{ color: 'white' }}> Send  </Text>
+                   )}
                 </TouchableOpacity>
                 <View style={{ flex: 0.6, justifyContent: "center", alignItems: "center" }}>
                   <Image
