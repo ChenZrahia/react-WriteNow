@@ -40,7 +40,6 @@ import Time from './Time';
 import IconMat from 'react-native-vector-icons/MaterialIcons';
 
 var Event = require('../../Services/Events');
-import CryptLib from 'react-native-aes-encryption';
 var CryptoJS = require("crypto-js");
 var SHA256 = require("crypto-js/sha256");
 var serverSrv = require('../../Services/serverSrv');

@@ -54,7 +54,7 @@ export default class Chats extends Component {
             ErrorHandler.WriteError("Chats.js -> constructor", e);
         }
     }
-    
+
     UpdateChatsList(isUpdate) {
         try {
             var ds = this.ds;
@@ -63,10 +63,10 @@ export default class Chats extends Component {
                     //this.myChats = this.sortDates(result);
                     this.myChats = result;
                     setTimeout(() => {
-                         try {
-                        this.setState({
-                            dataSource: ds.cloneWithRows(result)
-                        });                        
+                        try {
+                            this.setState({
+                                dataSource: ds.cloneWithRows(result)
+                            });
                         } catch (e) {
                             ErrorHandler.WriteError("Chats.js -> UpdateChatsList -> setState", e);
                         }
@@ -74,7 +74,7 @@ export default class Chats extends Component {
                         //     dataSource: ds.cloneWithRows(this.myChats)
                         // });
                     }, 900);
-                   
+
                 } catch (e) {
                     ErrorHandler.WriteError("Chats.js -> UpdateChatsList -> GetAllUserConv", e);
                 }
@@ -119,7 +119,7 @@ export default class Chats extends Component {
 
     componentDidMount() {
         try {
-        console.log('componentDid - mounted');
+            console.log('componentDid - mounted');
             Event.removeAllListeners('UpdateChatsList');
             Event.on('UpdateChatsList', this.UpdateChatsList);
             Event.removeAllListeners('newMessage');
@@ -240,11 +240,11 @@ export default class Chats extends Component {
                 <Modal
                     transparent={true}
                     visible={this.state.imageVisible == true}
-                    onRequestClose={() => { console.log('image closed') }}
-                >
+                    onRequestClose={() => { console.log('image closed') } }
+                    >
                     <TouchableOpacity style={{ flex: 1 }} onPress={() => {
                         this.setImageVisible(!this.state.imageVisible)
-                    }}>
+                    } }>
                         <View style={generalStyle.styles.imageModal}>
                             <Image style={generalStyle.styles.imageInsideModal} source={image} />
                         </View>
@@ -325,9 +325,8 @@ export default class Chats extends Component {
                     }
                     chat.notifications = chat.notifications + 1;
                 }
-                if(lastMessage == null)
-                {
-                     chat.lastMessage = '';
+                if (lastMessage == null) {
+                    chat.lastMessage = '';
                 }
             }
             return chat;
@@ -341,21 +340,25 @@ export default class Chats extends Component {
     }
 
     renderEncryptedLastMessage(rowData) {
-        if (rowData.lastMessageEncrypted)
+        if (rowData.lastMessageEncrypted) {
+            console.log("Encrypted Message1");
             return (
                 <Text>
                     🔒 Encrypted Message
             </Text>
             )
-        else if(!rowData.lastMessage) {
-           return <Text></Text>
         }
-            else{
-                return (<Text>{rowData.lastMessage}</Text>)
-            }
+        else if (!rowData.lastMessage) {
+            console.log("Encrypted Message2");
+            return <Text></Text>
+        }
+        else {
+            console.log("Encrypted Message2");
+            return (<Text>{rowData.lastMessage}</Text>)
+        }
     }
 
-    
+
 
     render() {
         try {
@@ -371,8 +374,8 @@ export default class Chats extends Component {
                         inputStyle={{ color: '#f50057', alignSelf: 'stretch' }}
                         value={this.state.filter}
                         onChange={this.onFilterChange.bind(this)}
-                    />
-                    
+                        />
+
                     <SGListView style={{ paddingTop: 5, flex: 1 }}
                         enableEmptySections={true}
                         dataSource={this.state.dataSource}
@@ -384,12 +387,12 @@ export default class Chats extends Component {
                         renderRow={(rowData) =>
                             <TouchableOpacity onPress={() => {
                                 this.openChat(rowData);
-                            }}>
+                            } }>
                                 <View style={generalStyle.styles.row}>
                                     <TouchableOpacity onPress={() => {
                                         this.imgSelected = rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? require('../../img/group-img.jpg') : require('../../img/user.jpg'))
                                         this.setImageVisible(true);
-                                    }}>
+                                    } }>
                                         <View style={generalStyle.styles.viewImg}>
                                             <Image style={generalStyle.styles.thumb} source={rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? require('../../img/group-img.jpg') : require('../../img/user.jpg'))} />
                                         </View>
@@ -411,11 +414,11 @@ export default class Chats extends Component {
                                 </View>
                             </TouchableOpacity>
                         }
-                    />
+                        />
                     {this.openImageModal(this.imgSelected)}
-                                       
+
                     <Text>
-                        
+
                     </Text>
                 </View>
             );
@@ -425,7 +428,7 @@ export default class Chats extends Component {
     }
 }
 
-var styles = StyleSheet.create({    
+var styles = StyleSheet.create({
     searchBar: {
         borderWidth: 0.5,
         borderRadius: 4,

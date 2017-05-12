@@ -15,7 +15,6 @@ import { Actions } from 'react-native-router-flux'
 import Toast from 'react-native-root-toast';
 import Fumi from '../../styles/Fumi';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
-import Spinner from 'react-native-loading-spinner-overlay';
 import ImageResizer from 'react-native-image-resizer';
 import SGListView from 'react-native-sglistview';
 import Icon from 'react-native-vector-icons/Ionicons';
