@@ -1122,33 +1122,6 @@ renderEmoji(){
                 </TouchableOpacity>
               </Modal>
             )}
-
-            {/*emoji*/}
-            {renderIf(this.state.showMenu)(
-              <Modal
-                onRequestClose={() => { }}
-                style={{ flex: 1 }}
-                transparent={true}
-              >
-                <TouchableOpacity style={{ flex: 1 }} onPress={() => {
-                  this.setState({ showMenu: !this.state.showMenu })
-                }}>
-                  <View style={{
-                    flex:1,
-                    height: 170,
-                    backgroundColor: 'white',
-                    position: 'absolute',
-                    bottom: 0,
-                    right: 0,
-                    left: 0,
-                    elevation: 6,
-                  }}
-                  >
-                    
-                  </View>
-                </TouchableOpacity>
-              </Modal>
-            )}
             <View style={styles.button} />
           </View>
           <ActionSheet ref={component => this._actionSheetRef = component}>

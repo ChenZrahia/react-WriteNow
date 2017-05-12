@@ -183,32 +183,42 @@ export default class Chats extends Component {
 
     sortDates(dataSource) {
         try {
-            return dataSource.sort((a, b) => {
+            var result = dataSource.sort((a, b) => {
                 try {
                     if (a.lastMessageTime && b.lastMessageTime) {
                         if (a.lastMessageTime > b.lastMessageTime) {
+                            console.log('## sortDates: 1', a.lastMessageTime , b.lastMessageTime);
                             return -1;
                         }
                         else if (a.lastMessageTime < b.lastMessageTime) {
+                            console.log('## sortDates: 2', a.lastMessageTime , b.lastMessageTime);
                             return 1;
                         }
                         else {
+                            console.log('## sortDates: 3', a.lastMessageTime , b.lastMessageTime);
                             return 0;
                         }
                     }
                     else if (a.lastMessageTime && !b.lastMessageTime) {
+                        console.log('## sortDates: 4');
                         return -1;
                     }
                     else if (!a.lastMessageTime && b.lastMessageTime) {
+                        console.log('## sortDates: 5');
                         return 1;
                     }
                     else {
+                        console.log('## sortDates: 6');
                         return 0;
                     }
                 } catch (e) {
                     ErrorHandler.WriteError('Chats.js => sortDates => sort', e);
                 }
             });
+            for(i = 0;  i < result.length; i++){
+                console.log(result[i].groupName);
+            }
+            return result;
         } catch (e) {
             ErrorHandler.WriteError('Chats.js => sortDates', e);
         }
@@ -309,6 +319,9 @@ export default class Chats extends Component {
     }
     UpdatelastMessage(lastMessage, lastMessageTime, convId, isNewMessage, lastMessageEncrypted) {
         var isFound = false;
+        if (!this.myChats){
+            this.myChats = [];
+        }
         this.myChats = this.myChats.map((chat) => {
             if (chat.id == convId) {
                 isFound = true;
@@ -336,6 +349,10 @@ export default class Chats extends Component {
             this.UpdateChatsList(true);
         } else {
             this.myChats = this.sortDates(this.myChats);
+        }
+        console.log('## UpdatelastMessage 6');
+        for(i = 0;  i< this.myChats.length; i++){
+            console.log(this.myChats[i].groupName);
         }
         this.setState({ dataSource: this.ds.cloneWithRows(this.myChats) });
     }
