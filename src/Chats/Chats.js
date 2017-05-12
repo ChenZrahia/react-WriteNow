@@ -226,9 +226,8 @@ export default class Chats extends Component {
 
     openChat(rowData) {
         try {
-            console.log("openChat");
             Actions.ChatRoom(rowData);
-            this.UpdatelastMessage(null, null, rowData.id, false)
+            this.UpdatelastMessage(null, null, rowData.id, false,rowData.lastMessageEncrypted)
             Event.trigger('LoadNewChat', rowData.id, false);
         } catch (e) {
             ErrorHandler.WriteError('Chats.js => openChat', e);
@@ -357,6 +356,7 @@ export default class Chats extends Component {
     }
 
     renderEncryptedLastMessage(rowData) {
+        console.log("1111111",rowData);
         if (rowData.lastMessageEncrypted) {
             console.log("Encrypted Message1");
             return (
@@ -370,7 +370,7 @@ export default class Chats extends Component {
             return <Text></Text>
         }
         else {
-            console.log("Encrypted Message2");
+            console.log("Encrypted Message3");
             return (<Text>{rowData.lastMessage}</Text>)
         }
     }
