@@ -16,7 +16,7 @@ import renderIf from '../../plugins/renderIf'
 import SGListView from 'react-native-sglistview';
 import PhotoView from 'react-native-photo-view';
 
-
+var moment = require('moment');
 var dismissKeyboard = require('dismissKeyboard');
 var Event = require('../../Services/Events');
 var serverSrv = require('../../Services/serverSrv');
@@ -185,25 +185,27 @@ export default class Chats extends Component {
         try {
             var result = dataSource.sort((a, b) => {
                 try {
-                    if (a.lastMessageTime && b.lastMessageTime) {
-                        if (a.lastMessageTime > b.lastMessageTime) {
-                            console.log('## sortDates: 1', a.lastMessageTime , b.lastMessageTime);
+                    var aDate = moment(a.lastMessageTime).format();
+                    var bDate = moment(b.lastMessageTime).format();
+                    if (aDate && bDate) {
+                        if (aDate > bDate) {
+                            console.log('## sortDates: 1', aDate , bDate);
                             return -1;
                         }
-                        else if (a.lastMessageTime < b.lastMessageTime) {
-                            console.log('## sortDates: 2', a.lastMessageTime , b.lastMessageTime);
+                        else if (aDate < bDate) {
+                            console.log('## sortDates: 2', aDate , bDate);
                             return 1;
                         }
                         else {
-                            console.log('## sortDates: 3', a.lastMessageTime , b.lastMessageTime);
+                            console.log('## sortDates: 3', aDate , bDate);
                             return 0;
                         }
                     }
-                    else if (a.lastMessageTime && !b.lastMessageTime) {
+                    else if (aDate && !bDate) {
                         console.log('## sortDates: 4');
                         return -1;
                     }
-                    else if (!a.lastMessageTime && b.lastMessageTime) {
+                    else if (!aDate && bDate) {
                         console.log('## sortDates: 5');
                         return 1;
                     }
