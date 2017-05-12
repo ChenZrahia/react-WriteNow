@@ -1070,7 +1070,7 @@ renderEmoji(){
                 }}>
                   <View style={{
                     width: 160,
-                    height: 170,
+                    height: this.props.isGroup ? 140 : 175,
                     backgroundColor: 'white',
                     position: 'absolute',
                     top: 35,
@@ -1102,7 +1102,8 @@ renderEmoji(){
                         <Text> Walkie-Talkie</Text>
                       </View>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => {
+                     {renderIf(!this.props.isGroup)(
+                   <TouchableOpacity onPress={() => {
                       this.encryptMessage();
                     }}>
                       <View style={{ margin: 7, left: 6, alignItems: 'center', flexDirection: 'row' }}>
@@ -1110,6 +1111,8 @@ renderEmoji(){
                         <Text> Encrypt Message</Text>
                       </View>
                     </TouchableOpacity>
+                   )}
+                    
                     <TouchableOpacity onPress={() => {
                       this.settings();
                     }}>

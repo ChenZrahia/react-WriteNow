@@ -63,8 +63,6 @@ export default class NewGroupInfo extends Component {
     }
 
     showImagePicker = () => {
-                    console.log("showImagePicker2");
-
         ImagePicker.showImagePicker(options, (response) => {
             if (response.didCancel) {
                 console.log('User cancelled image picker');
@@ -99,8 +97,6 @@ export default class NewGroupInfo extends Component {
     }
 
     render() {
-                    console.log("render2");
-        
         try {
             return (
                 <View style={styles.container}>
@@ -228,8 +224,6 @@ export default class NewGroupInfo extends Component {
     }
 
     renderGroup() {
-                    console.log("renderGroup2");
-        
         try {
             return (
                 (rowData) =>

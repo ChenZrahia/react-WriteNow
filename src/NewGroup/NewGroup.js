@@ -80,8 +80,6 @@ export default class NewGroup extends Component {
     }
 
     resetData(){
-            console.log("resetData1");
-        
         try {
             this.myFriends.map((user) => {
                 user.isHidden = false;
@@ -100,8 +98,6 @@ export default class NewGroup extends Component {
     }
 
     onLayout(event) {
-            console.log("onLayout1");
-        
         this.setState({
             groupSource: this.ds2.cloneWithRows(this.GroupContacts),
             datasource: this.ds.cloneWithRows(this.myFriends)
@@ -109,8 +105,6 @@ export default class NewGroup extends Component {
     }
 
     reloadFriendFromDB(isUpdate) {
-            console.log("reloadFriendFromDB1");
-        
         try {
             serverSrv.GetAllMyFriends(this.UpdateMyFriends, isUpdate);
         } catch (e) {
@@ -119,8 +113,6 @@ export default class NewGroup extends Component {
     }
 
     UpdateMyFriends(result) {
-            console.log("UpdateMyFriends1");
-        
         try {
             if (!result) {
                 result = [];
@@ -158,7 +150,6 @@ export default class NewGroup extends Component {
     }
 
     onFilterChange(event) {
-            console.log("onFilterChange1");
         try {
             this.setState({
                 filter: event.nativeEvent.text,
@@ -170,8 +161,6 @@ export default class NewGroup extends Component {
     }
 
     getDataSource(fiterText) {
-            console.log("getDataSource1");
-        
         try {
             //if filter is empty - return original data source
             if (!fiterText && this.state.dataSource.cloneWithRows) {
@@ -192,8 +181,6 @@ export default class NewGroup extends Component {
     }
 
     render() {
-            console.log("render1");
-        
         try {
             return (
                 <View
@@ -214,7 +201,7 @@ export default class NewGroup extends Component {
                         </Text>
                         </View>
                         <TouchableOpacity onPress={() => {
-                            if (this.GroupContacts.length == 0) {
+                            if (this.GroupContacts.length < 2) {
                                  var toast = Toast.show('At least 1 contact must be selected', {
                                     duration: Toast.durations.LONG,
                                     position: Toast.positions.BOTTOM,
@@ -232,7 +219,6 @@ export default class NewGroup extends Component {
                                 var participantsArray = this.GroupContacts.map((user) => {
                                     return user.id;
                                 });
-                                Actions.Tabs({ type: 'reset' });
                                 serverSrv.updateGroupParticipants(this.props.convId, participantsArray);
                             }
                         }}>
@@ -283,8 +269,6 @@ export default class NewGroup extends Component {
     }
 
     renderRow() {
-            console.log("renderRow1");
-        
         try {
             return (
                 (rowData) =>
@@ -304,11 +288,14 @@ export default class NewGroup extends Component {
                                         }
                                     });
                                 }
-
                                 this.setState({
                                     groupSource: this.ds2.cloneWithRows(this.GroupContacts),
                                     dataSource: this.ds.cloneWithRows(this.myFriends)
                                 });
+                                setTimeout(() =>  {
+                                    this.onFilterChange({nativeEvent: {text:this.state.filter}});
+                                }, 1);
+                                
                             }}>
                                 <View style={generalStyle.styles.row}>
                                     <View style={generalStyle.styles.viewImg}>
@@ -333,8 +320,6 @@ export default class NewGroup extends Component {
     }
 
     renderGroup() {
-            console.log("renderGroup1");
-        
         try {
             return (
                 (rowData) =>
@@ -353,6 +338,9 @@ export default class NewGroup extends Component {
                             groupSource: this.ds2.cloneWithRows(this.GroupContacts),
                             dataSource: this.ds.cloneWithRows(this.myFriends)
                         });
+                           setTimeout(() =>  {
+                                    this.onFilterChange({nativeEvent: {text:this.state.filter}});
+                                }, 1);
                     }}>
                         <View style={{ paddingBottom: 5, paddingLeft: 5, paddingRight: 5, alignItems: 'center' }}>
                             <Image style={styles.groupMemberPic} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
