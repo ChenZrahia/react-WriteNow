@@ -13,47 +13,51 @@ var serverSrv = require('../../Services/serverSrv');
 var Event = require('../../Services/Events');
 
 export default class MessageImage extends React.Component {
-     constructor() {
-        super();
-         this.state = {
-            imageVisible: false
-         };
-          this.onLongPress = this.onLongPress.bind(this);
-     }
+  constructor() {
+    try {
+      super();
+      this.state = {
+        imageVisible: false
+      };
+      this.onLongPress = this.onLongPress.bind(this);
+    } catch (e) {
+      ErrorHandler.WriteError("MessageImage.js => constructor", e);
+    }
+  }
 
   setImageVisible(visible) {
-        try {
-            this.setState({ imageVisible: visible });
-        } catch (e) {
-            ErrorHandler.WriteError('MessageImage.js => setImageVisible', e);
-        }
+    try {
+      this.setState({ imageVisible: visible });
+    } catch (e) {
+      ErrorHandler.WriteError('MessageImage.js => setImageVisible', e);
     }
+  }
 
-     
+
   openImageModal(image) {
-        try {
-            return (
-                <Modal
-                    transparent={true}
-                    visible={this.state.imageVisible == true}
-                    onRequestClose={() => { this.setImageVisible(false); } }
-                    >
-                        <View style={generalStyles.styles.imageModalBlack}>
-                          <PhotoView
-                            source={{uri: image}}
-                            minimumZoomScale={0.5}
-                            maximumZoomScale={6}
-                            androidScaleType="center"
-                            scale={5}
-                            style={{flex: 1, width: 1000, height: 1000}}/>
-                            {/*<Image style={generalStyles.styles.imageInsideModal} source={{uri: image}} />*/}
-                        </View>
-                </Modal>
-            );
-        } catch (e) {
-            ErrorHandler.WriteError('MessageImage.js => openImageModal', e);
-        }
+    try {
+      return (
+        <Modal
+          transparent={true}
+          visible={this.state.imageVisible == true}
+          onRequestClose={() => { this.setImageVisible(false); }}
+        >
+          <View style={generalStyles.styles.imageModalBlack}>
+            <PhotoView
+              source={{ uri: image }}
+              minimumZoomScale={0.5}
+              maximumZoomScale={6}
+              androidScaleType="center"
+              scale={5}
+              style={{ flex: 1, width: 1000, height: 1000 }} />
+            {/*<Image style={generalStyles.styles.imageInsideModal} source={{uri: image}} />*/}
+          </View>
+        </Modal>
+      );
+    } catch (e) {
+      ErrorHandler.WriteError('MessageImage.js => openImageModal', e);
     }
+  }
 
 
   deleteMessage() {
@@ -63,36 +67,31 @@ export default class MessageImage extends React.Component {
       ErrorHandler.WriteError('messagesImage.js => deleteMessage', e);
     };
   }
- onLongPress() {
+  onLongPress() {
     try {
-      console.log('long press work well');
-
-      console.log("this.props.currentMessage",this.props.currentMessage);
-        if (this.props.currentMessage.image) {
-          console.log(this.props.currentMessage.from);
-          console.log(serverSrv._uid);
-          if (this.props.currentMessage.from == serverSrv._uid) {
-            const options = [
-              'Delete Message',
-              'Cancel',
-            ];
-            const cancelButtonIndex = options.length - 1;
-            this.context.actionSheet().showActionSheetWithOptions({
-              options,
-              cancelButtonIndex,
-            },
-              (buttonIndex) => {
-                switch (buttonIndex) {
-                  case 0:
-                   this.deleteMessage();
-                    break;
-                  case 1:
-                    break;
-                }
+      if (this.props.currentMessage.image) {
+        if (this.props.currentMessage.from == serverSrv._uid) {
+          const options = [
+            'Delete Message',
+            'Cancel',
+          ];
+          const cancelButtonIndex = options.length - 1;
+          this.context.actionSheet().showActionSheetWithOptions({
+            options,
+            cancelButtonIndex,
+          },
+            (buttonIndex) => {
+              switch (buttonIndex) {
+                case 0:
+                  this.deleteMessage();
+                  break;
+                case 1:
+                  break;
               }
-            )}}
-
-
+            }
+          )
+        }
+      }
     } catch (e) {
       ErrorHandler.WriteError('messagesImage.js => onLongPress', e);
     }
@@ -102,16 +101,16 @@ export default class MessageImage extends React.Component {
     try {
       return (
         <View style={[styles.container, this.props.containerStyle]} >
-        <TouchableOpacity
-          onLongPress={this.onLongPress}
-         onPress={() => {
-          this.setImageVisible(true)
+          <TouchableOpacity
+            onLongPress={this.onLongPress}
+            onPress={() => {
+              this.setImageVisible(true)
             }}>
-         <Image
-            style={[styles.image, this.props.imageStyle]}
-            source={{ uri: this.props.currentMessage.image }}
+            <Image
+              style={[styles.image, this.props.imageStyle]}
+              source={{ uri: this.props.currentMessage.image }}
             />
-            </TouchableOpacity>
+          </TouchableOpacity>
           {this.openImageModal(this.props.currentMessage.image)}
         </View>
       );
@@ -120,8 +119,6 @@ export default class MessageImage extends React.Component {
     }
   }
 }
-
-
 
 MessageImage.contextTypes = {
   actionSheet: React.PropTypes.func,

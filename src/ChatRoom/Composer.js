@@ -25,25 +25,32 @@ export default class Composer extends React.Component {
       this.state = {
         showPicker: false,
       };
-     
     } catch (e) {
       ErrorHandler.WriteError('Composer.js => constructor', e);
     }
   }
 
-    onChange(e) { //add by rugbin 24.3.17 -for auto size the height
-    const contentSize = e.nativeEvent.contentSize;
-    if (!this.contentSize) {
-      this.contentSize = contentSize;
-      this.props.onInputSizeChanged(this.contentSize);
-    } else if (this.contentSize.width !== contentSize.width || this.contentSize.height !== contentSize.height) {
-      this.contentSize = contentSize;
-      this.props.onInputSizeChanged(this.contentSize);
+  onChange(e) { //add by rugbin 24.3.17 -for auto size the height
+    try {
+      const contentSize = e.nativeEvent.contentSize;
+      if (!this.contentSize) {
+        this.contentSize = contentSize;
+        this.props.onInputSizeChanged(this.contentSize);
+      } else if (this.contentSize.width !== contentSize.width || this.contentSize.height !== contentSize.height) {
+        this.contentSize = contentSize;
+        this.props.onInputSizeChanged(this.contentSize);
+      }
+    } catch (e) {
+      ErrorHandler.WriteError('Composer.js => onChange', e);
     }
   }
 
   onChangeText(text) { //add by rugbin 24.3.17 -for auto size the height
-    this.props.onTextChanged(text);
+    try {
+      this.props.onTextChanged(text);
+    } catch (e) {
+      ErrorHandler.WriteError('Composer.js => onChangeText', e);
+    }
   }
 
   _emojiSelected(emoji) {
@@ -63,14 +70,16 @@ export default class Composer extends React.Component {
             <Modal
               style={{ backgroundColor: 'red' }}
               transparent={false}
-              onRequestClose={() => { this.setState({
-                showPicker: false
-              }) } }
-              >
+              onRequestClose={() => {
+                this.setState({
+                  showPicker: false
+                })
+              }}
+            >
               <View style={styles.viewEmoji}>
                 <View style={styles.container}>
                   <EmojiPicker
-                    onPick={emoji => { this._emojiSelected(emoji) } } />
+                    onPick={emoji => { this._emojiSelected(emoji) }} />
                 </View>
               </View>
             </Modal>
@@ -82,9 +91,9 @@ export default class Composer extends React.Component {
         <View style={styles.row}>
           <TouchableOpacity onPress={() => this.setState({
             showPicker: true
-           })
-          
-            }>
+          })
+
+          }>
             <View>
               <Icon name='md-happy' style={styles.icon} />
             </View>
@@ -104,7 +113,7 @@ export default class Composer extends React.Component {
             enablesReturnKeyAutomatically={true}
             underlineColorAndroid="transparent"
             {...this.props.textInputProps}
-            />
+          />
         </View>
       );
     } catch (e) {
@@ -112,8 +121,6 @@ export default class Composer extends React.Component {
     }
   }
 }
-
-// onChangeText = {(title) => {this.setState({text: title})}}
 
 const styles = StyleSheet.create({
   cont: {
@@ -155,7 +162,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-     marginLeft: 10,
+    marginLeft: 10,
     fontSize: 16,
     lineHeight: 16,
     marginTop: Platform.select({
@@ -189,7 +196,7 @@ Composer.defaultProps = {
   textInputProps: null,
   multiline: true,
   textInputStyle: {},
-    onTextChanged: () => {//add by rugbin 24.3.17 -for auto size the height
+  onTextChanged: () => {//add by rugbin 24.3.17 -for auto size the height
   },
   onInputSizeChanged: () => {//add by rugbin 24.3.17 -for auto size the height
   },

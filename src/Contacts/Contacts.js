@@ -24,7 +24,6 @@ var ErrorHandler = require('../../ErrorHandler');
 
 export default class Contacts extends Component {
     constructor() {
-        console.log(' !! Contacts constructor is on !! ');
         super();
         try {
             dismissKeyboard();
@@ -52,7 +51,6 @@ export default class Contacts extends Component {
                 Event.on('signUpCompleted', this.reloadFriendFromDB);
                 Event.on('updateFriends', this.reloadFriendFromDB);
                 Event.on('UpdateMyFriends', this.UpdateMyFriends);
-                console.log(' !! Contacts reloadFriendFromDB - reloadFriendFromDB is on !! ');
                 this.reloadFriendFromDB();
             }, 300);
         } catch (e) {

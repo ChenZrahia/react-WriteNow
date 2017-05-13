@@ -31,7 +31,7 @@ export default class LoadEarlier extends React.Component {
             color='white'
             size='small'
             style={[styles.activityIndicator, this.props.activityIndicatorStyle]}
-            />
+          />
         </View>
       );
     } catch (e) {
@@ -48,9 +48,9 @@ export default class LoadEarlier extends React.Component {
             if (this.props.onLoadEarlier) {
               this.props.onLoadEarlier();
             }
-          } }
+          }}
           disabled={this.props.isLoadingEarlier === true}
-          >
+        >
           <View style={[styles.wrapper, this.props.wrapperStyle]}>
             {this.renderLoading()}
           </View>

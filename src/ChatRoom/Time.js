@@ -42,17 +42,17 @@ const styles = {
     container: {
       ...containerStyle,
     },
-  text: {
-    color: '#aaa',
+    text: {
+      color: '#aaa',
       ...textStyle,
     },
   }),
-right: StyleSheet.create({
-  container: {
+  right: StyleSheet.create({
+    container: {
       ...containerStyle,
     },
-  text: {
-    color: '#aaa', //#fff
+    text: {
+      color: '#aaa', //#fff
       ...textStyle,
     },
   }),

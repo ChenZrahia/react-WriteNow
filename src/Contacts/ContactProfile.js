@@ -67,15 +67,19 @@ export default class ContactProfile extends Component {
     }
 
     orientationDidChange(orientation) {
-        if (orientation == 'LANDSCAPE') {
-            this.setState({
-                winWidth: win.width
-            });
-        }
-        else {
-            this.setState({
-                winWidth: win.width
-            });
+        try {
+            if (orientation == 'LANDSCAPE') {
+                this.setState({
+                    winWidth: win.width
+                });
+            }
+            else {
+                this.setState({
+                    winWidth: win.width
+                });
+            }
+        } catch (e) {
+            ErrorHandler.WriteError("ContactProfile.js => orientationDidChange", e);
         }
     }
 

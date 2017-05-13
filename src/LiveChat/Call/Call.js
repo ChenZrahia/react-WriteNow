@@ -33,19 +33,19 @@ var liveSrv = require('../../../Services/liveSrv');
 var _IsIncomingCall = false;
 var mirs1 = new Sound('mirs1.mp3', Sound.MAIN_BUNDLE, (error) => {
     if (error) {
-        console.log('failed to load the sound', error);
+        ErrorHandler.WriteError("Call.js => mirs1", error);
     }
 });
 
 var mirs2 = new Sound('mirs2.mp3', Sound.MAIN_BUNDLE, (error) => {
     if (error) {
-        console.log('failed to load the sound', error);
+        ErrorHandler.WriteError("Call.js => mirs2", error);
     }
 });
 
 var callRingtone = new Sound('voicecall.mp3', Sound.MAIN_BUNDLE, (error) => {
     if (error) {
-        console.log('failed to load the sound', error);
+        ErrorHandler.WriteError("Call.js => callRingtone", error);
     }
 });
 
@@ -53,20 +53,20 @@ let container = null;
 
 export default class Call extends Component {
     constructor() {
-        super();
-        this.container_setState = this.container_setState.bind(this);
-        this.receiveTextData = this.receiveTextData.bind(this);
-        this.delete_remoteList = this.delete_remoteList.bind(this);
-        this.add_remoteList = this.add_remoteList.bind(this);
-        this.hungUp = this.hungUp.bind(this);
-        this.getCall = this.getCall.bind(this);
-        Event.on('container_setState', this.container_setState);
-        Event.on('receiveTextData', this.receiveTextData);
-        Event.on('delete_remoteList', this.delete_remoteList);
-        Event.on('add_remoteList', this.add_remoteList);
-        Event.on('hungUp', this.hungUp);
-        Event.on('getCall', this.getCall);
         try {
+            super();
+            this.container_setState = this.container_setState.bind(this);
+            this.receiveTextData = this.receiveTextData.bind(this);
+            this.delete_remoteList = this.delete_remoteList.bind(this);
+            this.add_remoteList = this.add_remoteList.bind(this);
+            this.hungUp = this.hungUp.bind(this);
+            this.getCall = this.getCall.bind(this);
+            Event.on('container_setState', this.container_setState);
+            Event.on('receiveTextData', this.receiveTextData);
+            Event.on('delete_remoteList', this.delete_remoteList);
+            Event.on('add_remoteList', this.add_remoteList);
+            Event.on('hungUp', this.hungUp);
+            Event.on('getCall', this.getCall);
             dismissKeyboard();
             this.callInterval = null;
             this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => true });
@@ -97,10 +97,8 @@ export default class Call extends Component {
             if (this.props.convId) {
                 roomId = this.props.convId;
                 this.setState({ roomID: this.props.convId });
-                console.log('OKKK!!!', roomId);
             } else {
                 roomId = this.state.roomID;
-                console.log('else!!!', roomId);
             }
             liveSrv._convId = roomId;
             serverSrv.enterChatCall(roomId);
@@ -119,7 +117,6 @@ export default class Call extends Component {
                         ImageResizer.createResizedImage(convData.groupPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {
                             this.setState({ userPicture: resizedImageUri });
                         }).catch((err) => {
-                            console.log(err);
                             ErrorHandler.WriteError('Call.js => render => ImageResizer', err);
                         });
                     }
@@ -128,7 +125,6 @@ export default class Call extends Component {
                 ImageResizer.createResizedImage(this.props.userPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {
                     this.setState({ userPicture: resizedImageUri });
                 }).catch((err) => {
-                    console.log(err);
                     ErrorHandler.WriteError('Call.js => render => ImageResizer', err);
                 });
             }
@@ -152,8 +148,7 @@ export default class Call extends Component {
             });
 
             InCallManager.setMicrophoneMute(false);
-            AppState.addEventListener('change', (state) =>
-            {
+            AppState.addEventListener('change', (state) => {
                 if (state != 'active') {
                     InCallManager.setMicrophoneMute(false);
                 }
@@ -196,52 +191,68 @@ export default class Call extends Component {
     }
 
     _press(event) {
-        InCallManager.start({ media: 'audio', ringback: '_DTMF_' });
-        if (this.refs && this.refs.roomID){
-            this.refs.roomID.blur();
+        try {
+            InCallManager.start({ media: 'audio', ringback: '_DTMF_' });
+            if (this.refs && this.refs.roomID) {
+                this.refs.roomID.blur();
+            }
+            this.setState({ status: 'connect', info: 'Connecting' });
+            liveSrv.join(this.state.roomID);
+        } catch (error) {
+            ErrorHandler.WriteError("Call.js -> _press", error);
         }
-        this.setState({ status: 'connect', info: 'Connecting' });
-        liveSrv.join(this.state.roomID);
     }
 
     _switchVideoType() {
-        const isFront = !this.state.isFront;
-        this.setState({ isFront });
-        liveSrv.getLocalStream(false, isFront, function (stream) {
-            if (liveSrv.localStream) {
+        try {
+            const isFront = !this.state.isFront;
+            this.setState({ isFront });
+            liveSrv.getLocalStream(false, isFront, function (stream) {
+                if (liveSrv.localStream) {
+                    for (const id in liveSrv.pcPeers) {
+                        const pc = liveSrv.pcPeers[id];
+                        pc && pc.removeStream(liveSrv.localStream);
+                    }
+                    liveSrv.localStream.release();
+                }
+                liveSrv.localStream = stream;
+                liveSrv.container.setState({ selfViewSrc: stream.toURL() });
+
                 for (const id in liveSrv.pcPeers) {
                     const pc = liveSrv.pcPeers[id];
-                    pc && pc.removeStream(liveSrv.localStream);
+                    pc && pc.addStream(liveSrv.localStream);
                 }
-                liveSrv.localStream.release();
-            }
-            liveSrv.localStream = stream;
-            liveSrv.container.setState({ selfViewSrc: stream.toURL() });
-
-            for (const id in liveSrv.pcPeers) {
-                const pc = liveSrv.pcPeers[id];
-                pc && pc.addStream(liveSrv.localStream);
-            }
-        });
+            });
+        } catch (error) {
+            ErrorHandler.WriteError("Call.js -> _switchVideoType", error);
+        }
     }
 
     receiveTextData(data) {
-        const textRoomData = this.state.textRoomData.slice();
-        textRoomData.push(data);
-        this.setState({ textRoomData, textRoomValue: '' });
+        try {
+            const textRoomData = this.state.textRoomData.slice();
+            textRoomData.push(data);
+            this.setState({ textRoomData, textRoomValue: '' });
+        } catch (error) {
+            ErrorHandler.WriteError("Call.js -> receiveTextData", error);
+        }
     }
 
     _textRoomPress() {
-        if (!this.state.textRoomValue) {
-            return
+        try {
+            if (!this.state.textRoomValue) {
+                return
+            }
+            const textRoomData = this.state.textRoomData.slice();
+            textRoomData.push({ user: 'Me', message: this.state.textRoomValue });
+            for (const key in liveSrv.pcPeers) {
+                const pc = liveSrv.pcPeers[key];
+                pc.textDataChannel.send(this.state.textRoomValue);
+            }
+            this.setState({ textRoomData, textRoomValue: '' });
+        } catch (error) {
+            ErrorHandler.WriteError("Call.js -> _textRoomPress", error);
         }
-        const textRoomData = this.state.textRoomData.slice();
-        textRoomData.push({ user: 'Me', message: this.state.textRoomValue });
-        for (const key in liveSrv.pcPeers) {
-            const pc = liveSrv.pcPeers[key];
-            pc.textDataChannel.send(this.state.textRoomValue);
-        }
-        this.setState({ textRoomData, textRoomValue: '' });
     }
 
     startCall() {
@@ -348,7 +359,7 @@ export default class Call extends Component {
                                 originalWidth={400}
                                 originalHeight={400}
                                 source={{ uri: this.state.userPicture }}
-                                />
+                            />
                         )}
                         {renderIf(!this.state.userPicture)(
                             <Image style={{ resizeMode: 'cover', width: null }} source={require('../../../img/user.jpg')} />
@@ -367,7 +378,7 @@ export default class Call extends Component {
                                     style={{ width: 200, height: 40, borderColor: 'gray', borderWidth: 1 }}
                                     onChangeText={(text) => this.setState({ roomID: text })}
                                     value={this.state.roomID}
-                                    />
+                                />
                                 <TouchableHighlight
                                     onPress={this._press}>
                                     <Text>Enter room</Text>
@@ -403,7 +414,6 @@ export default class Call extends Component {
         }
     }
 }
-
 
 var styles = StyleSheet.create({
     selfView: {

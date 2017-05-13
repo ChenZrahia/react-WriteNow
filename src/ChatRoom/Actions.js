@@ -51,10 +51,10 @@ export default class Actions extends React.Component {
             return (
                 <View
                     style={[styles.wrapper, this.props.wrapperStyle]}
-                    >
+                >
                     <Text
                         style={[styles.iconText, this.props.iconTextStyle]}
-                        >
+                    >
                         +
         </Text>
                 </View>
@@ -70,7 +70,7 @@ export default class Actions extends React.Component {
                 <TouchableOpacity
                     style={[styles.container, this.props.containerStyle]}
                     onPress={this.onActionsPress}
-                    >
+                >
                     {this.renderIcon()}
                 </TouchableOpacity>
             );

@@ -31,37 +31,34 @@ export default class LiveChat extends Component {
             dismissKeyboard();
             this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
             this.updateLiveChatData = this.updateLiveChatData.bind(this);
-        this.state = {
-            dataSource: this.ds.cloneWithRows([]) 
-        };
+            this.state = {
+                dataSource: this.ds.cloneWithRows([])
+            };
         } catch (e) {
             ErrorHandler.WriteError("LiveChat.js -> constructor", e);
         }
     }
 
-    
-
     componentDidMount() {
         try {
-           this.updateLiveChatData();
-           Event.on('NewLiveChat', this.updateLiveChatData);
-           
+            this.updateLiveChatData();
+            Event.on('NewLiveChat', this.updateLiveChatData);
         } catch (e) {
             ErrorHandler.WriteError("LiveChat.js -> componentDidMount", e);
         }
     }
 
-    updateLiveChatData(){
+    updateLiveChatData() {
         try {
             serverSrv.GetLiveChats((data) => {
                 this.setState({
-                    dataSource: this.ds.cloneWithRows(data) 
+                    dataSource: this.ds.cloneWithRows(data)
                 });
             });
         } catch (error) {
             ErrorHandler.WriteError("LiveChat.js -> updateLiveChatData", error);
         }
-    }   
+    }
 
     getDateFormated(date) { //להוציא לסרוויס?
         try {
@@ -86,27 +83,35 @@ export default class LiveChat extends Component {
     }
 
     renderIconType(type) {
-        if (type == callType.audio) {
-            return (<IconMat name="call" size={25} color="#57129c" />);
-        } else if (type == callType.video) {
-            return (<IconMat name="videocam" size={25} color="#57129c" />);
-        } else if (type == callType.ppt) {
-          return (<IconMat name="record-voice-over" size={25} color="#57129c" />);
-        } 
+        try {
+            if (type == callType.audio) {
+                return (<IconMat name="call" size={25} color="#57129c" />);
+            } else if (type == callType.video) {
+                return (<IconMat name="videocam" size={25} color="#57129c" />);
+            } else if (type == callType.ppt) {
+                return (<IconMat name="record-voice-over" size={25} color="#57129c" />);
+            }
+        } catch (e) {
+            ErrorHandler.WriteError('LiveChat.js => renderIconType', e);
+        }
     }
 
     renderIconIsIncommingCall(callerId) {
-        if (callerId == serverSrv._uid) {
-            return (<IconMat name="call-made" size={20} color="#00ff1f" />);
-        } else {
-            return (<IconMat name="call-received" size={20} color="red" />);
+        try {
+            if (callerId == serverSrv._uid) {
+                return (<IconMat name="call-made" size={20} color="#00ff1f" />);
+            } else {
+                return (<IconMat name="call-received" size={20} color="red" />);
+            }
+        } catch (e) {
+            ErrorHandler.WriteError('LiveChat.js => renderIconIsIncommingCall', e);
         }
     }
 
     render() {
         try {
             return (
-                <View style={{ flex: 1, alignSelf: 'stretch' }}>                    
+                <View style={{ flex: 1, alignSelf: 'stretch' }}>
                     <ListView style={{ paddingTop: 5, flex: 1 }}
                         enableEmptySections={true}
                         dataSource={this.state.dataSource}
@@ -114,15 +119,15 @@ export default class LiveChat extends Component {
                             <TouchableOpacity onPress={() => {
                                 //Actions.Call();
                                 console.log(rowData.Conversation.groupName);
-                            } }>
+                            }}>
                                 <View style={generalStyle.styles.row}>
                                     <TouchableOpacity onPress={() => {
                                         this.imgSelected = rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? rowData.isGroup : require('../../img/user.jpg'))
                                         this.setImageVisible(true);
-                                    } }>
+                                    }}>
                                         <View style={generalStyle.styles.viewImg}>
                                             <Image style={generalStyle.styles.thumb} source={serverSrv._myFriendsJson[rowData.receiverId] && serverSrv._myFriendsJson[rowData.receiverId].publicInfo.picture
-                                             ? serverSrv._myFriendsJson[rowData.receiverId].publicInfo.picture : require('../../img/user.jpg')} />
+                                                ? serverSrv._myFriendsJson[rowData.receiverId].publicInfo.picture : require('../../img/user.jpg')} />
                                         </View>
                                     </TouchableOpacity>
                                     <View style={{ flexDirection: 'column', flex: 1, marginRight: 7 }}>
@@ -131,25 +136,25 @@ export default class LiveChat extends Component {
                                                 <Text style={generalStyle.styles.textName}>
                                                     {rowData.Conversation.groupName}
                                                 </Text>
-                                            </Text>                                            
+                                            </Text>
                                             <Text style={generalStyle.styles.textDate}>
                                                 (00:00:00)
                                             </Text>
                                         </View>
                                         <Text style={generalStyle.styles.textStatus}>
-                                            {moment(rowData.callDateTime).calendar() }
+                                            {moment(rowData.callDateTime).calendar()}
                                         </Text>
                                     </View>
                                     <View style={generalStyle.styles.iconContainer}>
                                         <Text>
                                             {this.renderIconType(rowData.callType)}
                                         </Text>
-                                        
+
                                     </View>
                                 </View>
                             </TouchableOpacity>
                         }
-                        />
+                    />
                 </View>
             );
         } catch (e) {
@@ -157,7 +162,3 @@ export default class LiveChat extends Component {
         }
     }
 }
-
-var styles = StyleSheet.create({
-   
-});

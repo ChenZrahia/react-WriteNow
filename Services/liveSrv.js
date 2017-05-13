@@ -45,12 +45,12 @@ export function Connect(convId, hungUpCallback, IsIncomingCall, isVideo, isPTT) 
         if (convId) {
             _convId = convId;
         }
-        if(_isInCall == true){
+        if (_isInCall == true) {
             return;
         }
         _isInCall = true;
         //socket.disconnect();
-        socket = io.connect('https://server-sagi-uziel.c9users.io:8081', { transports: ['websocket'], query: { uid: serverSrv._uid, convId: _convId } }); 
+        socket = io.connect('https://server-sagi-uziel.c9users.io:8081', { transports: ['websocket'], query: { uid: serverSrv._uid, convId: _convId } });
         if (hungUpCallback) {
             socket.on('hungUp', hungUpCallback);
         }
@@ -66,12 +66,12 @@ export function Connect(convId, hungUpCallback, IsIncomingCall, isVideo, isPTT) 
                 var callType = 'voice';
                 if (isVideo == true) {
                     callType = 'video';
-                } else if (isPTT == true){
+                } else if (isPTT == true) {
                     callType = 'ptt';
                 }
                 socket.emit('makeCall', () => { console.log('make a call'); }, convId, callType);
             }
-            
+
             Event.trigger('NewLiveChat');
 
             getLocalStream(isVideo, true, (stream) => {
@@ -94,7 +94,7 @@ export function hungUp() {
             if (_pc != null) {
                 _pc.close();
             }
-        } 
+        }
         _isInCall = false;
     } catch (error) {
         ErrorHandler.WriteError('liveSrv.js => hungUp', error);
@@ -102,33 +102,41 @@ export function hungUp() {
 }
 
 export function getLocalStream(isVideo, isFront, callback) {
-    if (!isVideo) {
-        isVideo = false;
-    }
-    MediaStreamTrack.getSources(sourceInfos => {
-        let videoSourceId;
-        for (const i = 0; i < sourceInfos.length; i++) {
-            const sourceInfo = sourceInfos[i];
-            if (sourceInfo.kind == "video" && sourceInfo.facing == (isFront ? "front" : "back")) {
-                videoSourceId = sourceInfo.id;
-            }
+    try {
+        if (!isVideo) {
+            isVideo = false;
         }
-        getUserMedia({
-            audio: true,
-            video: isVideo
-        }, function (stream) {
-            callback(stream);
-        }, logError);
-    });
+        MediaStreamTrack.getSources(sourceInfos => {
+            let videoSourceId;
+            for (const i = 0; i < sourceInfos.length; i++) {
+                const sourceInfo = sourceInfos[i];
+                if (sourceInfo.kind == "video" && sourceInfo.facing == (isFront ? "front" : "back")) {
+                    videoSourceId = sourceInfo.id;
+                }
+            }
+            getUserMedia({
+                audio: true,
+                video: isVideo
+            }, function (stream) {
+                callback(stream);
+            }, logError);
+        });
+    } catch (error) {
+        ErrorHandler.WriteError('liveSrv.js => getLocalStream', error);
+    }
 }
 
 export function join(roomID) {
-    socket.emit('join', roomID, function (socketIds) {
-        for (const i in socketIds) {
-            const socketId = socketIds[i];
-            _pc = createPC(socketId, true);
-        }
-    });
+    try {
+        socket.emit('join', roomID, function (socketIds) {
+            for (const i in socketIds) {
+                const socketId = socketIds[i];
+                _pc = createPC(socketId, true);
+            }
+        });
+    } catch (error) {
+        ErrorHandler.WriteError('liveSrv.js => join', error);
+    }
 }
 
 function createPC(socketId, isOffer) {
@@ -203,47 +211,63 @@ function createPC(socketId, isOffer) {
 }
 
 function exchange(data) {
-    const fromId = data.from;
-    let pc;
-    if (fromId in pcPeers) {
-        pc = pcPeers[fromId];
-    } else {
-        pc = createPC(fromId, false);
-    }
-    _pc = pc;
-    if (data.sdp) {
-        pc.setRemoteDescription(new RTCSessionDescription(data.sdp), function () {
-            if (pc.remoteDescription.type == "offer")
-                pc.createAnswer(function (desc) {
-                    pc.setLocalDescription(desc, function () {
-                        socket.emit('exchange', { 'to': fromId, 'sdp': pc.localDescription });
-                    }, logError);
+    try {
+        const fromId = data.from;
+        let pc;
+        if (fromId in pcPeers) {
+            pc = pcPeers[fromId];
+        } else {
+            pc = createPC(fromId, false);
+        }
+        _pc = pc;
+        if (data.sdp) {
+            try {
+                pc.setRemoteDescription(new RTCSessionDescription(data.sdp), function () {
+                    if (pc.remoteDescription.type == "offer")
+                        pc.createAnswer(function (desc) {
+                            pc.setLocalDescription(desc, function () {
+                                socket.emit('exchange', { 'to': fromId, 'sdp': pc.localDescription });
+                            }, logError);
+                        }, logError);
                 }, logError);
-        }, logError);
-    } else {
-        pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+            } catch (error) {
+                ErrorHandler.WriteError('liveSrv.js => exchange => setRemoteDescription', error);
+            }
+        } else {
+            try {
+                pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+            } catch (error) {
+                ErrorHandler.WriteError('liveSrv.js => exchange => addIceCandidate', error);
+            }
+        }
+    } catch (error) {
+        ErrorHandler.WriteError('liveSrv.js => exchange', error);
     }
 }
 
 function leave(socketId) {
-    const pc = pcPeers[socketId];
-    const viewIndex = pc.viewIndex;
-    pc.close();
-    delete pcPeers[socketId];
+    try {
+        const pc = pcPeers[socketId];
+        const viewIndex = pc.viewIndex;
+        pc.close();
+        delete pcPeers[socketId];
 
-    Event.trigger('delete_remoteList', socketId);
-    Event.trigger('container_setState', { info: 'One peer leave!', statusPtt: 'red' });
-    if (!pcPeers.length) {
-        Event.trigger('hungUp');
+        Event.trigger('delete_remoteList', socketId);
+        Event.trigger('container_setState', { info: 'One peer leave!', statusPtt: 'red' });
+        if (!pcPeers.length) {
+            Event.trigger('hungUp');
+        }
+        if (socket) {
+            socket.close();
+            socket.disconnect();
+        }
+        if (_pc != null) {
+            _pc.close();
+        }
+        _isInCall = false;
+    } catch (error) {
+        ErrorHandler.WriteError('liveSrv.js => leave', error);
     }
-    if(socket){
-        socket.close();
-        socket.disconnect();
-    }
-    if (_pc != null) {
-        _pc.close();
-    }
-    _isInCall = false;
 }
 
 function logError(error) {
@@ -251,19 +275,27 @@ function logError(error) {
 }
 
 export function mapHash(hash, func) {
-    const array = [];
-    for (const key in hash) {
-        const obj = hash[key];
-        array.push(func(obj, key));
+    try {
+        const array = [];
+        for (const key in hash) {
+            const obj = hash[key];
+            array.push(func(obj, key));
+        }
+        return array;
+    } catch (error) {
+        ErrorHandler.WriteError('liveSrv.js => mapHash', error);
     }
-    return array;
 }
 
 function getStats() {
-    const pc = pcPeers[Object.keys(pcPeers)[0]];
-    if (pc.getRemoteStreams()[0] && pc.getRemoteStreams()[0].getAudioTracks()[0]) {
-        const track = pc.getRemoteStreams()[0].getAudioTracks()[0];
-        pc.getStats(track, function (report) {
-        }, logError);
+    try {
+        const pc = pcPeers[Object.keys(pcPeers)[0]];
+        if (pc.getRemoteStreams()[0] && pc.getRemoteStreams()[0].getAudioTracks()[0]) {
+            const track = pc.getRemoteStreams()[0].getAudioTracks()[0];
+            pc.getStats(track, function (report) {
+            }, logError);
+        }
+    } catch (error) {
+        ErrorHandler.WriteError('liveSrv.js => getStats', error);
     }
 }

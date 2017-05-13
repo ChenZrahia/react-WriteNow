@@ -33,19 +33,19 @@ var liveSrv = require('../../../Services/liveSrv');
 var _IsIncomingCall = false;
 var mirs1 = new Sound('mirs1.mp3', Sound.MAIN_BUNDLE, (error) => {
     if (error) {
-        console.log('failed to load the sound', error);
+        ErrorHandler.WriteError("Video.j => mirs1", error);
     }
 });
 
 var mirs2 = new Sound('mirs2.mp3', Sound.MAIN_BUNDLE, (error) => {
     if (error) {
-        console.log('failed to load the sound', error);
+        ErrorHandler.WriteError("Video.j => mirs2", error);
     }
 });
 
 var callRingtone = new Sound('voicecall.mp3', Sound.MAIN_BUNDLE, (error) => {
     if (error) {
-        console.log('failed to load the sound', error);
+        ErrorHandler.WriteError("Video.j => callRingtone", error);
     }
 });
 
@@ -53,22 +53,21 @@ let container = null;
 
 export default class Video extends Component {
     constructor() {
-        super();
-        this.container_setState = this.container_setState.bind(this);
-        this.receiveTextData = this.receiveTextData.bind(this);
-        this.delete_remoteList = this.delete_remoteList.bind(this);
-        this.add_remoteList = this.add_remoteList.bind(this);
-        this.hungUp = this.hungUp.bind(this);
-        this.getCall = this.getCall.bind(this);
-        Event.on('container_setState', this.container_setState);
-        Event.on('receiveTextData', this.receiveTextData);
-        Event.on('delete_remoteList', this.delete_remoteList);
-        Event.on('add_remoteList', this.add_remoteList);
-        Event.on('hungUp', this.hungUp);
-        Event.on('getVideoCall', this.getCall);
-        InCallManager.setSpeakerphoneOn(true);
-
         try {
+            super();
+            this.container_setState = this.container_setState.bind(this);
+            this.receiveTextData = this.receiveTextData.bind(this);
+            this.delete_remoteList = this.delete_remoteList.bind(this);
+            this.add_remoteList = this.add_remoteList.bind(this);
+            this.hungUp = this.hungUp.bind(this);
+            this.getCall = this.getCall.bind(this);
+            Event.on('container_setState', this.container_setState);
+            Event.on('receiveTextData', this.receiveTextData);
+            Event.on('delete_remoteList', this.delete_remoteList);
+            Event.on('add_remoteList', this.add_remoteList);
+            Event.on('hungUp', this.hungUp);
+            Event.on('getVideoCall', this.getCall);
+            InCallManager.setSpeakerphoneOn(true);
             dismissKeyboard();
             this.callInterval = null;
             this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => true });
@@ -102,7 +101,6 @@ export default class Video extends Component {
             } else {
                 roomId = this.state.roomID;
             }
-            console.log('roomId', roomId);
             liveSrv._convId = roomId;
             serverSrv.enterChatCall(roomId);
             if (roomId) {
@@ -120,7 +118,6 @@ export default class Video extends Component {
                         ImageResizer.createResizedImage(convData.groupPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {
                             this.setState({ userPicture: resizedImageUri });
                         }).catch((err) => {
-                            console.log(err);
                             ErrorHandler.WriteError('Call.js => render => ImageResizer', err);
                         });
                     }
@@ -129,7 +126,6 @@ export default class Video extends Component {
                 ImageResizer.createResizedImage(this.props.userPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {
                     this.setState({ userPicture: resizedImageUri });
                 }).catch((err) => {
-                    console.log(err);
                     ErrorHandler.WriteError('Call.js => render => ImageResizer', err);
                 });
             }
@@ -190,52 +186,68 @@ export default class Video extends Component {
     }
 
     _press(event) {
-        InCallManager.start({ media: 'audio', ringback: '_DTMF_' });
-        if (this.refs && this.refs.roomID){
-            this.refs.roomID.blur();
+        try {
+            InCallManager.start({ media: 'audio', ringback: '_DTMF_' });
+            if (this.refs && this.refs.roomID) {
+                this.refs.roomID.blur();
+            }
+            this.setState({ status: 'connect', info: 'Connecting' });
+            liveSrv.join(this.state.roomID);
+        } catch (error) {
+            ErrorHandler.WriteError("Call.js -> _press", error);
         }
-        this.setState({ status: 'connect', info: 'Connecting' });
-        liveSrv.join(this.state.roomID);
     }
 
     _switchVideoType() {
-        const isFront = !this.state.isFront;
-        this.setState({ isFront });
-        liveSrv.getLocalStream(true, isFront, function (stream) {
-            if (liveSrv.localStream) {
+        try {
+            const isFront = !this.state.isFront;
+            this.setState({ isFront });
+            liveSrv.getLocalStream(true, isFront, function (stream) {
+                if (liveSrv.localStream) {
+                    for (const id in liveSrv.pcPeers) {
+                        const pc = liveSrv.pcPeers[id];
+                        pc && pc.removeStream(liveSrv.localStream);
+                    }
+                    liveSrv.localStream.release();
+                }
+                liveSrv.localStream = stream;
+                liveSrv.container.setState({ selfViewSrc: stream.toURL() });
+
                 for (const id in liveSrv.pcPeers) {
                     const pc = liveSrv.pcPeers[id];
-                    pc && pc.removeStream(liveSrv.localStream);
+                    pc && pc.addStream(liveSrv.localStream);
                 }
-                liveSrv.localStream.release();
-            }
-            liveSrv.localStream = stream;
-            liveSrv.container.setState({ selfViewSrc: stream.toURL() });
-
-            for (const id in liveSrv.pcPeers) {
-                const pc = liveSrv.pcPeers[id];
-                pc && pc.addStream(liveSrv.localStream);
-            }
-        });
+            });
+        } catch (error) {
+            ErrorHandler.WriteError("Call.js -> _switchVideoType", error);
+        }
     }
 
     receiveTextData(data) {
-        const textRoomData = this.state.textRoomData.slice();
-        textRoomData.push(data);
-        this.setState({ textRoomData, textRoomValue: '' });
+        try {
+            const textRoomData = this.state.textRoomData.slice();
+            textRoomData.push(data);
+            this.setState({ textRoomData, textRoomValue: '' });
+        } catch (error) {
+            ErrorHandler.WriteError("Call.js -> receiveTextData", error);
+        }
     }
 
     _textRoomPress() {
-        if (!this.state.textRoomValue) {
-            return
+        try {
+            if (!this.state.textRoomValue) {
+                return
+            }
+            const textRoomData = this.state.textRoomData.slice();
+            textRoomData.push({ user: 'Me', message: this.state.textRoomValue });
+            for (const key in liveSrv.pcPeers) {
+                const pc = liveSrv.pcPeers[key];
+                pc.textDataChannel.send(this.state.textRoomValue);
+            }
+            this.setState({ textRoomData, textRoomValue: '' });
+        } catch (error) {
+            ErrorHandler.WriteError("Call.js -> _textRoomPress", error);
         }
-        const textRoomData = this.state.textRoomData.slice();
-        textRoomData.push({ user: 'Me', message: this.state.textRoomValue });
-        for (const key in liveSrv.pcPeers) {
-            const pc = liveSrv.pcPeers[key];
-            pc.textDataChannel.send(this.state.textRoomValue);
-        }
-        this.setState({ textRoomData, textRoomValue: '' });
     }
 
     startCall() {
@@ -320,7 +332,6 @@ export default class Video extends Component {
                     });
                 }
             }
-
         } catch (e) {
             ErrorHandler.WriteError("Call.js -> pptUp", e);
         }
@@ -343,8 +354,6 @@ export default class Video extends Component {
                                 return <RTCView key={index} streamURL={remote} style={styles.remoteView} />
                             })
                         }
-
-                        
                     </View>
                     <View style={styles.statusPanel}>
                         <Text style={styles.welcome}>
@@ -365,7 +374,7 @@ export default class Video extends Component {
                                 </TouchableHighlight>
                             </View>) : null
                         }
-                        
+
                     </View>
                     <View style={styles.clockPanel}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
@@ -389,7 +398,6 @@ export default class Video extends Component {
         }
     }
 }
-
 
 var styles = StyleSheet.create({
     selfView: {

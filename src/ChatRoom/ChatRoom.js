@@ -96,10 +96,9 @@ export default class ChatRoom extends Component {
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => componentDidMount', e);
         }
-        console.log('componentDid - mounted');
     }
 
-    exitChatRoom(){
+    exitChatRoom() {
         this.skip = 0;
     }
 
@@ -140,10 +139,10 @@ export default class ChatRoom extends Component {
                 }
                 this.messages = data;
                 this.convId = convId;
-                
+
                 this.setState({
                     messages: GiftedChat.append(this.messages, this.onlineMessages),
-                  });
+                });
             }
             serverSrv.onServerTyping(this.onFriendType);
             if (convId && convId != null) {
@@ -167,7 +166,7 @@ export default class ChatRoom extends Component {
 
     findMissingFriend(uid) {
         try {
-            if(!serverSrv._myFriendsJson[uid]) {
+            if (!serverSrv._myFriendsJson[uid]) {
                 serverSrv.findMissingFriend([uid], (data) => {
                     if (data.length > 0) {
                         serverSrv._myFriendsJson[msg.from] = data[0];
@@ -181,7 +180,7 @@ export default class ChatRoom extends Component {
 
     deleteMessage(text, id) {
         try {
-            this.messages = this.state.messages.filter((x) => x.id !== id );
+            this.messages = this.state.messages.filter((x) => x.id !== id);
             this.setState({
                 messages: this.messages //delete message from the UI
             });
@@ -202,7 +201,6 @@ export default class ChatRoom extends Component {
             ErrorHandler.WriteError('ChatRoom.js => deleteFriendMessageUI', error);
         }
     }
-
 
     guid() {
         try {
@@ -282,10 +280,11 @@ export default class ChatRoom extends Component {
     };
 
     setImageVisible(visible) {
-        try {            
-            this.setState({ 
+        try {
+            this.setState({
                 imageVisible: visible,
-                text: '' });
+                text: ''
+            });
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => setImageVisible', e);
         }
@@ -354,7 +353,7 @@ export default class ChatRoom extends Component {
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => sendImageMessage', e);
         }
-    }   
+    }
 
     onSend(messages = [], saveLocal) {
         try {
@@ -404,9 +403,7 @@ export default class ChatRoom extends Component {
                     name: serverSrv._myFriendsJson[msg.from].publicInfo.fullName,
                     _id: serverSrv._myFriendsJson[msg.from].id
                 }
-                console.log("push",msg);
-                if (saveLocal != false ) {
-                    
+                if (saveLocal != false) {
                     this.messages.splice(0, 0, msg); //push
                 }
                 this.onlineMessages = this.onlineMessages.filter((o_msg) => {
@@ -449,8 +446,8 @@ export default class ChatRoom extends Component {
 
             if (!msg.user) {
                 msg.user = {
-                   name: serverSrv._myFriendsJson[msg.from] ? serverSrv._myFriendsJson[msg.from].publicInfo.fullName : 'New User',
-                _id: serverSrv._myFriendsJson[msg.from] ? serverSrv._myFriendsJson[msg.from].id : 'newUserId'
+                    name: serverSrv._myFriendsJson[msg.from] ? serverSrv._myFriendsJson[msg.from].publicInfo.fullName : 'New User',
+                    _id: serverSrv._myFriendsJson[msg.from] ? serverSrv._myFriendsJson[msg.from].id : 'newUserId'
                 }
                 // msg.user = serverSrv._myFriendsJson[msg.from];
             }
@@ -506,10 +503,9 @@ export default class ChatRoom extends Component {
                 name: serverSrv._myFriendsJson[msg.from] ? serverSrv._myFriendsJson[msg.from].publicInfo.fullName : 'New User',
                 _id: serverSrv._myFriendsJson[msg.from] ? serverSrv._myFriendsJson[msg.from].id : 'newUserId'
             }
-            console.log("push2",this.indexOnlineMessages);
             if (!this.indexOnlineMessages[msg._id]) { //new message
                 this.indexOnlineMessages[msg._id] = msg;
-                
+
                 this.onlineMessages.push(this.indexOnlineMessages[msg.id]);
             } else {
                 this.indexOnlineMessages[msg._id].text = msg.content;
@@ -520,23 +516,19 @@ export default class ChatRoom extends Component {
                     delete this.indexOnlineMessages[msg._id];
                 }
             }
-
             this.setState({ messages: GiftedChat.append(this.messages, this.onlineMessages) });
         } catch (e) {
             ErrorHandler.WriteError('ChatRoom.js => onType', e);
         }
     }
 
-  
-    loadEarlierMessages(){
+    loadEarlierMessages() {
         try {
             var callback = (data, convId) => {
                 if (!data) {
                     data = [];
                 }
                 this.messages = GiftedChat.append(data, this.messages);
-                // console.log("***LoadNewChat****");
-                // console.log(this.messages);
                 this.convId = convId;
                 this.setState({
                     messages: GiftedChat.append(this.messages, this.onlineMessages),
@@ -550,25 +542,29 @@ export default class ChatRoom extends Component {
     }
 
     render() {
-        return (
-            <View style={{ flex: 1, alignSelf: 'stretch' }} >
-                <GiftedChat
-                    loadEarlier={this.state.messages.length >= 20 ? true : false}
-                    onLoadEarlier={this.loadEarlierMessages}
-                    userName={this.state.groupName}
-                    convId={this.convId}
-                    userPicture={this.state.groupPicture}
-                    messages={this.state.messages}
-                    onSend={this.onSend}
-                    onType={this.onType}
-                    isGroup={this.props.isGroup}
-                    user={{
-                        _id: serverSrv._uid,
-                    }}
-                />
-                {this.openImageModal(this.state.imgToMsg, this.state.pathOfImage)}
-            </View>
-        );
+        try {
+            return (
+                <View style={{ flex: 1, alignSelf: 'stretch' }} >
+                    <GiftedChat
+                        loadEarlier={this.state.messages.length >= 20 ? true : false}
+                        onLoadEarlier={this.loadEarlierMessages}
+                        userName={this.state.groupName}
+                        convId={this.convId}
+                        userPicture={this.state.groupPicture}
+                        messages={this.state.messages}
+                        onSend={this.onSend}
+                        onType={this.onType}
+                        isGroup={this.props.isGroup}
+                        user={{
+                            _id: serverSrv._uid,
+                        }}
+                    />
+                    {this.openImageModal(this.state.imgToMsg, this.state.pathOfImage)}
+                </View>
+            );
+        } catch (error) {
+            ErrorHandler.WriteError('ChatRoom.js => render', error);
+        }
     }
 }
 

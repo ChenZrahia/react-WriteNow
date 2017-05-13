@@ -78,10 +78,10 @@ export default class MessageText extends React.Component {
               { type: 'phone', style: StyleSheet.flatten([styles[this.props.position].link, this.props.linkStyle[this.props.position]]), onPress: this.onPhonePress },
               { type: 'email', style: StyleSheet.flatten([styles[this.props.position].link, this.props.linkStyle[this.props.position]]), onPress: this.onEmailPress },
             ]}
-            >
+          >
             {this.props.currentMessage.text}
 
-          
+
           </ParsedText>
         </View>
       );
@@ -108,22 +108,22 @@ const styles = {
       color: 'black',
       ...textStyle,
     },
-  link: {
-    color: 'black',
-    textDecorationLine: 'underline',
-  },
+    link: {
+      color: 'black',
+      textDecorationLine: 'underline',
+    },
   }),
-right: StyleSheet.create({
-  container: {
-  },
-  text: {
-    color: 'black', //white
+  right: StyleSheet.create({
+    container: {
+    },
+    text: {
+      color: 'black', //white
       ...textStyle,
     },
-  link: {
-    color: 'black', //white
-    textDecorationLine: 'underline',
-  },
+    link: {
+      color: 'black', //white
+      textDecorationLine: 'underline',
+    },
   }),
 };
 

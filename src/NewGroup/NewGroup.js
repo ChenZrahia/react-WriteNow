@@ -78,12 +78,12 @@ export default class NewGroup extends Component {
         }
     }
 
-    resetData(){
+    resetData() {
         try {
             this.myFriends.map((user) => {
                 user.isHidden = false;
             });
-            this.onFilterChange({nativeEvent: {text:''}});
+            this.onFilterChange({ nativeEvent: { text: '' } });
             this.GroupContacts = [];
             this.groupMembersCounter = 0;
             this.setState({
@@ -97,10 +97,14 @@ export default class NewGroup extends Component {
     }
 
     onLayout(event) {
-        this.setState({
-            groupSource: this.ds2.cloneWithRows(this.GroupContacts),
-            datasource: this.ds.cloneWithRows(this.myFriends)
-        });
+        try {
+            this.setState({
+                groupSource: this.ds2.cloneWithRows(this.GroupContacts),
+                datasource: this.ds.cloneWithRows(this.myFriends)
+            });
+        } catch (error) {
+            ErrorHandler.WriteError("NewGroup.js => onLayout", e);
+        }
     }
 
     reloadFriendFromDB(isUpdate) {
@@ -201,7 +205,7 @@ export default class NewGroup extends Component {
                         </View>
                         <TouchableOpacity onPress={() => {
                             if (this.GroupContacts.length == 0) {
-                                 var toast = Toast.show('At least 1 contact must be selected', {
+                                var toast = Toast.show('At least 1 contact must be selected', {
                                     duration: Toast.durations.LONG,
                                     position: Toast.positions.BOTTOM,
                                     shadow: true,
@@ -212,7 +216,7 @@ export default class NewGroup extends Component {
                                 return;
                             }
                             if (this.isNewGroup) {
-                                Actions.NewGroupInfo({data: this.GroupContacts});
+                                Actions.NewGroupInfo({ data: this.GroupContacts });
                             }
                             else {
                                 var participantsArray = this.GroupContacts.map((user) => {

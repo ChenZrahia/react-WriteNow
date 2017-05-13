@@ -45,7 +45,7 @@ export default class InputToolbar extends React.Component {
       return (
         <Composer
           {...this.props}
-          />
+        />
       );
     } catch (e) {
       ErrorHandler.WriteError('InputToolbar.js => renderComposer', e);

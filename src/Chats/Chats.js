@@ -44,11 +44,9 @@ export default class Chats extends Component {
             this.NewChat = this.NewChat.bind(this);
             this.UpdatelastMessage = this.UpdatelastMessage.bind(this);
             Event.on('signUpCompleted', () => {
-                console.log('11111');
                 setTimeout(() => {
                     this.UpdateChatsList(true);
                 }, 800);
-
             });
         } catch (e) {
             ErrorHandler.WriteError("Chats.js -> constructor", e);
@@ -63,10 +61,10 @@ export default class Chats extends Component {
                     //this.myChats = this.sortDates(result);
                     this.myChats = result;
                     setTimeout(() => {
-                         try {
-                        this.setState({
-                            dataSource: ds.cloneWithRows(result)
-                        });                        
+                        try {
+                            this.setState({
+                                dataSource: ds.cloneWithRows(result)
+                            });
                         } catch (e) {
                             ErrorHandler.WriteError("Chats.js -> UpdateChatsList -> setState", e);
                         }
@@ -74,7 +72,6 @@ export default class Chats extends Component {
                             dataSource: ds.cloneWithRows(this.myChats)
                         });
                     }, 900);
-                   
                 } catch (e) {
                     ErrorHandler.WriteError("Chats.js -> UpdateChatsList -> GetAllUserConv", e);
                 }
@@ -119,7 +116,6 @@ export default class Chats extends Component {
 
     componentDidMount() {
         try {
-        console.log('componentDid - mounted');
             Event.removeAllListeners('UpdateChatsList');
             Event.on('UpdateChatsList', this.UpdateChatsList);
             Event.removeAllListeners('newMessage');
@@ -216,7 +212,6 @@ export default class Chats extends Component {
 
     openChat(rowData) {
         try {
-            console.log("openChat");
             Actions.ChatRoom(rowData);
             this.UpdatelastMessage(null, null, rowData.id, false)
             Event.trigger('LoadNewChat', rowData.id, false);
@@ -227,7 +222,6 @@ export default class Chats extends Component {
 
     setImageVisible(visible) {
         try {
-            console.log('666666');
             this.setState({ imageVisible: visible });
         } catch (e) {
             ErrorHandler.WriteError('Chats.js => setImageVisible', e);
@@ -258,7 +252,6 @@ export default class Chats extends Component {
 
     onFilterChange(event) {
         try {
-            console.log('88888');
             this.setState({
                 filter: event.nativeEvent.text,
                 dataSource: this.getDataSource(event.nativeEvent.text)
@@ -309,51 +302,58 @@ export default class Chats extends Component {
     }
 
     UpdatelastMessage(lastMessage, lastMessageTime, convId, isNewMessage, lastMessageEncrypted) {
-        var isFound = false;
-        this.myChats = this.myChats.map((chat) => {
-            if (chat.id == convId) {
-                isFound = true;
-                if (lastMessage != null /*&& (chat.lastMessage || chat.lastMessageTime)*/) {
-                    chat.lastMessage = lastMessage;
-                    chat.lastMessageTime = lastMessageTime;
-                    chat.lastMessageEncrypted = lastMessageEncrypted;
-                }
-                if (isNewMessage == false) {
-                    chat.notifications = null;
-                } else {
-                    if (!chat.notifications) {
-                        chat.notifications = 0;
+        try {
+            var isFound = false;
+            this.myChats = this.myChats.map((chat) => {
+                if (chat.id == convId) {
+                    isFound = true;
+                    if (lastMessage != null /*&& (chat.lastMessage || chat.lastMessageTime)*/) {
+                        chat.lastMessage = lastMessage;
+                        chat.lastMessageTime = lastMessageTime;
+                        chat.lastMessageEncrypted = lastMessageEncrypted;
                     }
-                    chat.notifications = chat.notifications + 1;
+                    if (isNewMessage == false) {
+                        chat.notifications = null;
+                    } else {
+                        if (!chat.notifications) {
+                            chat.notifications = 0;
+                        }
+                        chat.notifications = chat.notifications + 1;
+                    }
+                    if (lastMessage == null) {
+                        chat.lastMessage = '';
+                    }
                 }
-                if(lastMessage == null)
-                {
-                     chat.lastMessage = '';
-                }
+                return chat;
+            });
+            if ((isFound == false) && isNewMessage == true) {
+                this.UpdateChatsList(true);
+            } else {
+                this.myChats = this.sortDates(this.myChats);
             }
-            return chat;
-        });
-        if ((isFound == false) && isNewMessage == true) {
-            this.UpdateChatsList(true);
-        } else {
-            this.myChats = this.sortDates(this.myChats);
+            this.setState({ dataSource: this.ds.cloneWithRows(this.myChats) });
+        } catch (e) {
+            ErrorHandler.WriteError('Chats.js => UpdatelastMessage', e);
         }
-        this.setState({ dataSource: this.ds.cloneWithRows(this.myChats) });
     }
 
     renderEncryptedLastMessage(rowData) {
-        if (rowData.lastMessageEncrypted)
-            return (
-                <Text>
-                    🔒 Encrypted Message
+        try {
+            if (rowData.lastMessageEncrypted)
+                return (
+                    <Text>
+                        🔒 Encrypted Message
             </Text>
-            )
-        else if(!rowData.lastMessage) {
-           return <Text></Text>
-        }
-            else{
+                )
+            else if (!rowData.lastMessage) {
+                return <Text></Text>
+            }
+            else {
                 return (<Text>{rowData.lastMessage}</Text>)
             }
+        } catch (e) {
+            ErrorHandler.WriteError('Chats.js => renderEncryptedLastMessage', e);
+        }
     }
 
     render() {

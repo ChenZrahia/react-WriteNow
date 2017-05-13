@@ -48,76 +48,76 @@ export default class Message extends React.Component {
   renderDay() {
     try {
       if (this.props.currentMessage.createdAt) {
-        const {containerStyle, ...other} = this.props;
+        const { containerStyle, ...other } = this.props;
         const dayProps = {
-        ...other,
+          ...other,
           isSameUser: this.isSameUser,
-            isSameDay: this.isSameDay,
-      };
-      if (this.props.renderDay) {
-        return this.props.renderDay(dayProps);
+          isSameDay: this.isSameDay,
+        };
+        if (this.props.renderDay) {
+          return this.props.renderDay(dayProps);
+        }
+        return <Day {...dayProps} />;
       }
-      return <Day {...dayProps} />;
+      return null;
+    } catch (e) {
+      ErrorHandler.WriteError('Message.js => renderDay', e);
     }
-    return null;
-  } catch(e) {
-    ErrorHandler.WriteError('Message.js => renderDay', e);
-  }
-}
-
-renderBubble() {
-  try {
-    const {containerStyle, ...other} = this.props;
-    const bubbleProps = {
-      ...other,
-      isSameUser: this.isSameUser,
-        isSameDay: this.isSameDay,
-    };
-  if (this.props.renderBubble) {
-    return this.props.renderBubble(bubbleProps);
-  }
-  return <Bubble {...bubbleProps} />;
-} catch (e) {
-  ErrorHandler.WriteError('Message.js => renderBubble', e);
-}
   }
 
-renderAvatar() {
-  try {
-    if (this.props.user._id !== this.props.currentMessage.user._id) {
-      const {containerStyle, ...other} = this.props;
-      const avatarProps = {
+  renderBubble() {
+    try {
+      const { containerStyle, ...other } = this.props;
+      const bubbleProps = {
         ...other,
         isSameUser: this.isSameUser,
-          isSameDay: this.isSameDay,
+        isSameDay: this.isSameDay,
       };
-
-    return <Avatar {...avatarProps} />;
+      if (this.props.renderBubble) {
+        return this.props.renderBubble(bubbleProps);
+      }
+      return <Bubble {...bubbleProps} />;
+    } catch (e) {
+      ErrorHandler.WriteError('Message.js => renderBubble', e);
+    }
   }
-return null;
-} catch (e) {
-  ErrorHandler.WriteError('Message.js => renderAvatar', e);
-}
+
+  renderAvatar() {
+    try {
+      if (this.props.user._id !== this.props.currentMessage.user._id) {
+        const { containerStyle, ...other } = this.props;
+        const avatarProps = {
+          ...other,
+          isSameUser: this.isSameUser,
+          isSameDay: this.isSameDay,
+        };
+
+        return <Avatar {...avatarProps} />;
+      }
+      return null;
+    } catch (e) {
+      ErrorHandler.WriteError('Message.js => renderAvatar', e);
+    }
   }
 
-render() {
-  try {
-    return (
-      <View>
-        {this.renderDay()}
-        <View style={[styles[this.props.position].container, {
-          marginBottom: this.isSameUser(this.props.currentMessage, this.props.nextMessage) ? 2 : 10,
-        }, this.props.containerStyle[this.props.position]]}>
-          {this.props.position === 'left' ? this.renderAvatar() : null}
-          {this.renderBubble()}
-          {this.props.position === 'right' ? this.renderAvatar() : null}
+  render() {
+    try {
+      return (
+        <View>
+          {this.renderDay()}
+          <View style={[styles[this.props.position].container, {
+            marginBottom: this.isSameUser(this.props.currentMessage, this.props.nextMessage) ? 2 : 10,
+          }, this.props.containerStyle[this.props.position]]}>
+            {this.props.position === 'left' ? this.renderAvatar() : null}
+            {this.renderBubble()}
+            {this.props.position === 'right' ? this.renderAvatar() : null}
+          </View>
         </View>
-      </View>
-    );
-  } catch (e) {
-    ErrorHandler.WriteError('Message.js => render', e);
+      );
+    } catch (e) {
+      ErrorHandler.WriteError('Message.js => render', e);
+    }
   }
-}
 }
 
 const styles = {

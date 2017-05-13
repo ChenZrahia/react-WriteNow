@@ -33,8 +33,6 @@ export default class Bubble extends React.Component {
 
     this.renderMessageText = this.renderMessageText.bind(this);
     this.renderMessageEncrypted = this.renderMessageEncrypted.bind(this);
-
-    ;
   }
 
 
@@ -60,12 +58,16 @@ export default class Bubble extends React.Component {
     }
   }
   greenLock() {
-    return (
-      <Image
-        style={{ width: 40, height: 40, padding: 5 }}
-        source={{ uri: 'https://thebuntlist.files.wordpress.com/2016/05/ratelockgraphic.png' }}
+    try {
+      return (
+        <Image
+          style={{ width: 40, height: 40, padding: 5 }}
+          source={{ uri: 'https://thebuntlist.files.wordpress.com/2016/05/ratelockgraphic.png' }}
         />
-    );
+      );
+    } catch (e) {
+      ErrorHandler.WriteError('Bubble.js => greenLock', e);
+    }
   }
 
 
@@ -73,26 +75,24 @@ export default class Bubble extends React.Component {
     try {
       //this.props.messages[0].text = "Encrypted Message";
       if (this.props.currentMessage.isEncrypted == 1) {
-        const {containerStyle, wrapperStyle, ...messageEncrypedProps} = this.props;
+        const { containerStyle, wrapperStyle, ...messageEncrypedProps } = this.props;
         return (
-
           <View >
             <TouchableOpacity onPress={() => {
               Event.trigger('decryptedMessage', this.props.currentMessage.text, this.props.currentMessage._id);
-            } }>
+            }}>
 
               <View style={{ flexDirection: 'row' }}>
                 <Image
                   style={{ width: 35, height: 35, padding: 5, marginTop: 8, marginLeft: 8 }}
                   source={require('../../img/lock.png')}
-                  />
+                />
                 <Text style={{ fontSize: 16, lineHeight: 20, marginTop: 16, marginBottom: 5, marginLeft: 5, marginRight: 5, color: 'black', fontWeight: 'bold' }}>
                   Encrypted Message
               </Text>
               </View>
             </TouchableOpacity>
           </View>
-
         );
       }
       return null;
@@ -108,7 +108,7 @@ export default class Bubble extends React.Component {
         return;
       }
       if (this.props.currentMessage.text) {
-        const {containerStyle, wrapperStyle, ...messageTextProps} = this.props;
+        const { containerStyle, wrapperStyle, ...messageTextProps } = this.props;
         if (this.props.renderMessageText) {
           return this.props.renderMessageText(messageTextProps);
         }
@@ -126,7 +126,7 @@ export default class Bubble extends React.Component {
   renderMessageImage() {
     try {
       if (this.props.currentMessage.image) {
-        const {containerStyle, wrapperStyle, ...messageImageProps} = this.props;
+        const { containerStyle, wrapperStyle, ...messageImageProps } = this.props;
         if (this.props.renderMessageImage) {
           return this.props.renderMessageImage(messageImageProps);
         }
@@ -141,7 +141,7 @@ export default class Bubble extends React.Component {
   renderTime() {
     try {
       if (this.props.currentMessage.createdAt) {
-        const {containerStyle, wrapperStyle, ...timeProps} = this.props;
+        const { containerStyle, wrapperStyle, ...timeProps } = this.props;
         if (this.props.renderTime) {
           return this.props.renderTime(timeProps);
         }
@@ -165,7 +165,6 @@ export default class Bubble extends React.Component {
   }
   deleteMessage() {
     try {
-      console.log("*********************deleteMessage***************************deleteMessage");
       Event.trigger('deleteMessage', this.props.currentMessage.text, this.props.currentMessage._id);
     } catch (e) {
       ErrorHandler.WriteError('Bubble.js => deleteMessage', e);
@@ -175,13 +174,10 @@ export default class Bubble extends React.Component {
 
   onLongPress() {
     try {
-      console.log('long press work well');
       if (this.props.onLongPress) {
         this.props.onLongPress(this.context);
       } else {
         if (this.props.currentMessage.text) {
-          console.log(this.props.currentMessage.from);
-          console.log(serverSrv._uid);
           if (this.props.currentMessage.from == serverSrv._uid) {
             const options = [
               'Copy Text',
@@ -196,7 +192,6 @@ export default class Bubble extends React.Component {
               (buttonIndex) => {
                 switch (buttonIndex) {
                   case 0:
-                  
                     Clipboard.setString(this.props.currentMessage.text);
                     break;
                   case 1:
@@ -222,7 +217,6 @@ export default class Bubble extends React.Component {
                     break;
                 }
               });
-
           }
         }
       }
@@ -239,7 +233,7 @@ export default class Bubble extends React.Component {
             <TouchableWithoutFeedback
               onLongPress={this.onLongPress}
               {...this.props.touchableProps}
-              >
+            >
               <View>
                 {this.renderCustomView()}
                 {this.renderMessageImage()}

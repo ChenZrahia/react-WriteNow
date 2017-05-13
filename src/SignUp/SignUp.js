@@ -36,100 +36,62 @@ var options = {
 
 export default class SignUp extends Component {
     constructor() {
-        super();
-        this.state = {
-            DisplayName: "",
-            PhoneNumber: "",
-            Password: "",
-            avatarSource: require('../../img/user.jpg'),
-            SpinnerVisible: false
+        try {
+            super();
+            this.state = {
+                DisplayName: "",
+                PhoneNumber: "",
+                Password: "",
+                avatarSource: require('../../img/user.jpg'),
+                SpinnerVisible: false
+            }
+        } catch (e) {
+            ErrorHandler.WriteError('SignUp.js => constructor', e);
         }
     }
 
     checkStringPassword_pam(password) {
-        var msg = '';
-        return msg; //for test only -----
-        if (!password) {
-            msg = 'Enter A Password';
-        } else if (password.length < 6) {
-            msg = 'Password Need To Contain At Least 6 Characters';
-        } else if (password.search(/\d/) == -1) {
-            msg = 'Password Need To Contain Numbers';
-        } else if (password.search(/[a-zA-Z]/) == -1) {
-            msg = 'Password Need To Contain Letters';
-        } else if (password.search(/[\!\@\#\$\%\^\&\*\(\)\_\+\.\,\;\:]/) == -1) {
-            msg = 'Password Need To Contain Signs';
+        try {
+            var msg = '';
+            return msg; //for test only -----
+            if (!password) {
+                msg = 'Enter A Password';
+            } else if (password.length < 6) {
+                msg = 'Password Need To Contain At Least 6 Characters';
+            } else if (password.search(/\d/) == -1) {
+                msg = 'Password Need To Contain Numbers';
+            } else if (password.search(/[a-zA-Z]/) == -1) {
+                msg = 'Password Need To Contain Letters';
+            } else if (password.search(/[\!\@\#\$\%\^\&\*\(\)\_\+\.\,\;\:]/) == -1) {
+                msg = 'Password Need To Contain Signs';
+            }
+            return msg;
+        } catch (e) {
+            ErrorHandler.WriteError('SignUp.js => checkStringPassword_pam', e);
         }
-        return msg;
     }
 
     componentDidMount() {
     }
 
     SignUpSubmit = (() => {
-        if (disabled == true) {
-            return;
-        }
-        var msg = '';
-        if (!this.state.PhoneNumber) {
-            msg = 'Enter Your Phone Number';
-        } else if (this.state.PhoneNumber.length != 10) {
-            msg = 'Invalid Phone Number';
-        } else if (!this.state.DisplayName || this.state.DisplayName < 2) {
-            msg = 'Enter Your Name';
-        }
-        else {
-            msg = this.checkStringPassword_pam(this.state.Password);
-        }
-        if (msg.length > 0) {
-            var toast = Toast.show(msg, {
-                duration: Toast.durations.LONG,
-                position: Toast.positions.BOTTOM,
-                shadow: true,
-                animation: true,
-                hideOnPress: true,
-                delay: 0
-            });
-            return;
-        }
-        disabled = true;
-        setTimeout(() => {
-            this.setState({
-                SpinnerVisible: true
-            });
-        }, 0);
-
-        var hashPassword = CryptoJS.SHA256(this.state.Password);
-        var newUser = {
-            pkey: '',
-            lastSeen: Date.now(),
-            isOnline: true,
-            ModifyDate: Date.now(),
-            ModifyPicDate: Date.now(),
-            phoneNumber: this.state.PhoneNumber,
-            publicInfo: {
-                fullName: this.state.DisplayName,
-                mail: '',
-                picture: profileImg,
-                gender: ''
-            },
-            privateInfo: {
-                tokenNotification: '',
-                password: hashPassword.toString(),
+        try {
+            if (disabled == true) {
+                return;
             }
-        };
-
-        serverSrv.signUpFunc(newUser, (userId) => {
-            //setTimeout(() => {
-                this.setState({
-                    SpinnerVisible: false
-                });
-            //}, 100);
-            if (userId) {
-                Actions.Tabs({ type: 'reset' });                
-            } else {
-                disabled = false;
-                var toast = Toast.show('Phone Number Already In Use', {
+            var msg = '';
+            if (!this.state.PhoneNumber) {
+                msg = 'Enter Your Phone Number';
+            } else if (this.state.PhoneNumber.length != 10) {
+                msg = 'Invalid Phone Number';
+            } else if (!this.state.DisplayName || this.state.DisplayName < 2) {
+                msg = 'Enter Your Name';
+            }
+            else {
+                msg = this.checkStringPassword_pam(this.state.Password);
+            }
+            if (msg.length > 0) {
+                var toast = Toast.show(msg, {
                     duration: Toast.durations.LONG,
                     position: Toast.positions.BOTTOM,
                     shadow: true,
@@ -137,62 +99,120 @@ export default class SignUp extends Component {
                     hideOnPress: true,
                     delay: 0
                 });
+                return;
             }
-        });
+            disabled = true;
+            setTimeout(() => {
+                this.setState({
+                    SpinnerVisible: true
+                });
+            }, 0);
+
+            var hashPassword = CryptoJS.SHA256(this.state.Password);
+            var newUser = {
+                pkey: '',
+                lastSeen: Date.now(),
+                isOnline: true,
+                ModifyDate: Date.now(),
+                ModifyPicDate: Date.now(),
+                phoneNumber: this.state.PhoneNumber,
+                publicInfo: {
+                    fullName: this.state.DisplayName,
+                    mail: '',
+                    picture: profileImg,
+                    gender: ''
+                },
+                privateInfo: {
+                    tokenNotification: '',
+                    password: hashPassword.toString(),
+                }
+            };
+
+            serverSrv.signUpFunc(newUser, (userId) => {
+                //setTimeout(() => {
+                this.setState({
+                    SpinnerVisible: false
+                });
+                //}, 100);
+                if (userId) {
+                    Actions.Tabs({ type: 'reset' });
+                } else {
+                    disabled = false;
+                    var toast = Toast.show('Phone Number Already In Use', {
+                        duration: Toast.durations.LONG,
+                        position: Toast.positions.BOTTOM,
+                        shadow: true,
+                        animation: true,
+                        hideOnPress: true,
+                        delay: 0
+                    });
+                }
+            });
+        } catch (e) {
+            ErrorHandler.WriteError('SignUp.js => SignUpSubmit', e);
+        }
     });
 
     showImagePicker = () => {
-        ImagePicker.showImagePicker(options, (response) => {
-            if (response.didCancel) {
-                console.log('User cancelled image picker');
-            }
-            else if (response.error) {
-                ErrorHandler.WriteError('ImagePicker Error: ', response.error);
-            }
-            else if (response.customButton) {
-                console.log('User tapped custom button: ', response.customButton);
-            }
-            else {
-                // You can display the image using either data...
-                const source = { uri: 'data:image/jpeg;base64,' + response.data, isStatic: true };
-                // or a reference to the platform specific asset location
-                if (Platform.OS === 'ios') {
-                    const source = { uri: response.uri.replace('file://', ''), isStatic: true };
-                } else {
-                    const source = { uri: response.uri, isStatic: true };
+        try {
+            ImagePicker.showImagePicker(options, (response) => {
+                if (response.didCancel) {
+                    console.log('User cancelled image picker');
                 }
-                //profileImg = response.data;
+                else if (response.error) {
+                    ErrorHandler.WriteError('ImagePicker Error: ', response.error);
+                }
+                else if (response.customButton) {
+                    console.log('User tapped custom button: ', response.customButton);
+                }
+                else {
+                    // You can display the image using either data...
+                    const source = { uri: 'data:image/jpeg;base64,' + response.data, isStatic: true };
+                    // or a reference to the platform specific asset location
+                    if (Platform.OS === 'ios') {
+                        const source = { uri: response.uri.replace('file://', ''), isStatic: true };
+                    } else {
+                        const source = { uri: response.uri, isStatic: true };
+                    }
+                    //profileImg = response.data;
 
-                ImageResizer.createResizedImage(response.uri, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
-                    NativeModules.RNImageToBase64.getBase64String(resizedImageUri, (err, base64) => {
-                        profileImg = 'data:image/jpeg;base64,' + base64;
-                    })
-                }).catch((err) => {
-                    ErrorHandler.WriteError('SignUp.js => showImagePicker => createResizedImage', err);
-                });
+                    ImageResizer.createResizedImage(response.uri, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
+                        NativeModules.RNImageToBase64.getBase64String(resizedImageUri, (err, base64) => {
+                            profileImg = 'data:image/jpeg;base64,' + base64;
+                        })
+                    }).catch((err) => {
+                        ErrorHandler.WriteError('SignUp.js => showImagePicker => createResizedImage', err);
+                    });
 
-                this.setState({
-                    avatarSource: source
-                });
-            }
-        });
+                    this.setState({
+                        avatarSource: source
+                    });
+                }
+            });
+        } catch (e) {
+            ErrorHandler.WriteError('SignUp.js => showImagePicker', e);
+        }
     }
 
     logInSpinner() {
-        if (this.state.SpinnerVisible == true) {
-            return (
-                <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0)', position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}>
-                    <Modal
-                        transparent={true}
-                        style={{ backgroundColor: 'rgba(0,0,0,0)' }}
-                        visible={this.state.SpinnerVisible}
-                        onRequestClose={() => { console.log('closed') }}
-                    >
-                        <View style={{ flex: 1, alignSelf: 'stretch', backgroundColor: 'rgba(0,0,0,0)', position: 'absolute' }}>
-                            <Spinner visible={true} />
-                        </View>
-                    </Modal>
-                </View>)
+        try {
+            if (this.state.SpinnerVisible == true) {
+                return (
+                    <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0)', position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}>
+                        <Modal
+                            transparent={true}
+                            style={{ backgroundColor: 'rgba(0,0,0,0)' }}
+                            visible={this.state.SpinnerVisible}
+                            onRequestClose={() => { console.log('closed') }}
+                        >
+                            <View style={{ flex: 1, alignSelf: 'stretch', backgroundColor: 'rgba(0,0,0,0)', position: 'absolute' }}>
+                                <Spinner visible={true} />
+                            </View>
+                        </Modal>
+                    </View>)
+            }
+        } catch (e) {
+            ErrorHandler.WriteError('SignUp.js => logInSpinner', e);
         }
     }
 

@@ -77,9 +77,13 @@ const styles = StyleSheet.create({
 
 export default class Tabs extends Component {
     constructor() {
-        super();
-        this.state = {
-            showMenu: false
+        try {
+            super();
+            this.state = {
+                showMenu: false
+            }
+        } catch (e) {
+            ErrorHandler.WriteError('Tabs.js => constructor', e);
         }
     }
 
@@ -88,7 +92,11 @@ export default class Tabs extends Component {
     };
 
     menuOption() {
-        this.setState({ showMenu: !this.state.showMenu });
+        try {
+            this.setState({ showMenu: !this.state.showMenu });
+        } catch (e) {
+            ErrorHandler.WriteError('Tabs.js => menuOption', e);
+        }
     }
 
     showNewGroup() {
@@ -110,26 +118,26 @@ export default class Tabs extends Component {
                         </Text>
                         <TouchableHighlight style={{ flex: 1, alignSelf: 'stretch' }} onPress={() => {
                             serverSrv.DeleteDb();
-                        } }>
+                        }}>
                             <Text style={generalStyle.styles.titleHeader}>Delete Db</Text>
                         </TouchableHighlight>
                         <TouchableOpacity style={{ margin: 7 }} onPress={() => {
                             this.menuOption();
-                        } }>
-                            <IconMat name="more-vert" size={25} color="white" />                           
+                        }}>
+                            <IconMat name="more-vert" size={25} color="white" />
 
                         </TouchableOpacity>
 
                         {renderIf(this.state.showMenu)(
                             <Modal
-                                onRequestClose={() => { } }
+                                onRequestClose={() => { }}
                                 style={{ flex: 1 }}
                                 transparent={true}
-                                >
+                            >
 
                                 <TouchableOpacity style={{ flex: 1 }} onPress={() => {
                                     this.setState({ showMenu: !this.state.showMenu })
-                                } }>
+                                }}>
                                     <View style={{
                                         width: 160,
                                         height: 100,
@@ -141,25 +149,25 @@ export default class Tabs extends Component {
                                     }}>
                                         <TouchableOpacity onPress={() => {
                                             this.showNewGroup();
-                                        } }>
-                                        <View style={{ margin: 7, left: 6 ,alignItems:'center', flexDirection:'row' }}>
-                                            <IconMat name="people" size={20} color="black" /> 
-                                            <Text> New Group</Text>
-                                        </View>   
+                                        }}>
+                                            <View style={{ margin: 7, left: 6, alignItems: 'center', flexDirection: 'row' }}>
+                                                <IconMat name="people" size={20} color="black" />
+                                                <Text> New Group</Text>
+                                            </View>
                                         </TouchableOpacity>
                                         <TouchableOpacity onPress={() => {
-                                        } }>
-                                        <View style={{ margin: 7, left: 6 ,alignItems:'center', flexDirection:'row' }}>
-                                            <IconMat name="list" size={20} color="black" /> 
-                                            <Text> New List</Text>
-                                        </View>
+                                        }}>
+                                            <View style={{ margin: 7, left: 6, alignItems: 'center', flexDirection: 'row' }}>
+                                                <IconMat name="list" size={20} color="black" />
+                                                <Text> New List</Text>
+                                            </View>
                                         </TouchableOpacity>
                                         <TouchableOpacity onPress={() => {
-                                        } }>
-                                        <View style={{ margin: 7, left: 6 ,alignItems:'center', flexDirection:'row' }}>
-                                            <IconMat name="settings" size={20} color="black" /> 
-                                            <Text> Settings</Text>
-                                        </View>
+                                        }}>
+                                            <View style={{ margin: 7, left: 6, alignItems: 'center', flexDirection: 'row' }}>
+                                                <IconMat name="settings" size={20} color="black" />
+                                                <Text> Settings</Text>
+                                            </View>
                                         </TouchableOpacity>
                                     </View>
                                 </TouchableOpacity>

@@ -2,7 +2,7 @@ var React = require('react');
 var ReactNative = require('react-native');
 var Event = require('../../../Services/Events');
 
-var {Component} = React;
+var { Component } = React;
 
 var {
     AppRegistry,
@@ -34,17 +34,17 @@ export default class Signature extends Component {
 
                     <View style={{ flexDirection: "row" }}>
                         <TouchableOpacity style={styles.buttonStyle}
-                            onPress={() => { this.saveSign() } } >
+                            onPress={() => { this.saveSign() }} >
                             <Text style={{ color: 'white' }}>Send</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.buttonStyle}
-                            onPress={() => { this.resetSign() } } >
+                            onPress={() => { this.resetSign() }} >
                             <Text style={{ color: 'white' }}>Reset</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.buttonStyle}
-                            onPress={() => { this.cancelSign() } } >
+                            onPress={() => { this.cancelSign() }} >
                             <Text style={{ color: 'white' }}>Cancel</Text>
                         </TouchableOpacity>
                     </View>
@@ -90,8 +90,7 @@ export default class Signature extends Component {
                     //error check
                 })
             }).catch((err) => {
-                console.log(err);
-                console.log('err');
+                ErrorHandler.WriteError('Signature.js => _onSaveEvent => createResizedImage', err);
             });
             Actions.pop();
         } catch (e) {

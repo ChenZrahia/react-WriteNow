@@ -59,7 +59,7 @@ export default class GiftedAvatar extends React.Component {
           <Image
             source={{ uri: this.props.user.avatar }}
             style={[defaultStyles.avatarStyle, this.props.avatarStyle]}
-            />
+          />
         );
       }
       return null;
@@ -97,10 +97,10 @@ export default class GiftedAvatar extends React.Component {
           <TouchableOpacity
             disabled={this.props.onPress ? false : true}
             onPress={() => {
-              const {onPress, ...other} = this.props;
+              const { onPress, ...other } = this.props;
               this.props.onPress && this.props.onPress(other);
-            } }
-            >
+            }}
+          >
             {this.renderAvatar()}
           </TouchableOpacity>
         );
@@ -114,15 +114,15 @@ export default class GiftedAvatar extends React.Component {
         <TouchableOpacity
           disabled={this.props.onPress ? false : true}
           onPress={() => {
-            const {onPress, ...other} = this.props;
+            const { onPress, ...other } = this.props;
             this.props.onPress && this.props.onPress(other);
-          } }
+          }}
           style={[
             defaultStyles.avatarStyle,
             { backgroundColor: this.avatarColor },
             this.props.avatarStyle,
           ]}
-          >
+        >
           {this.renderInitials()}
         </TouchableOpacity>
       );

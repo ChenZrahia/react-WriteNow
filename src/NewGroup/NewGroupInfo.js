@@ -40,60 +40,68 @@ var options = {
 
 export default class NewGroupInfo extends Component {
     constructor(props) {
-        super(props);
-        this.isNewGroup = true;
-        this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-        if (this.props.groupName) {
-            this.isNewGroup = false;
-        }
-        if (this.isNewGroup) {
-            this.state = {
-                groupName: "",
-                groupAvatar: require('../../img/group-img.jpg'),
-                groupSource: this.ds.cloneWithRows(this.props.data)
+        try {
+            super(props);
+            this.isNewGroup = true;
+            this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+            if (this.props.groupName) {
+                this.isNewGroup = false;
             }
-        }
-        else {
-            this.state = {
-                groupName: this.props.groupName,
-                groupAvatar: { uri: this.props.groupPicture },
-                groupSource: this.ds.cloneWithRows(this.props.groupSource)
+            if (this.isNewGroup) {
+                this.state = {
+                    groupName: "",
+                    groupAvatar: require('../../img/group-img.jpg'),
+                    groupSource: this.ds.cloneWithRows(this.props.data)
+                }
             }
+            else {
+                this.state = {
+                    groupName: this.props.groupName,
+                    groupAvatar: { uri: this.props.groupPicture },
+                    groupSource: this.ds.cloneWithRows(this.props.groupSource)
+                }
+            }
+        } catch (e) {
+            ErrorHandler.WriteError('NewGroupInfo.js => constructor', e);
         }
     }
 
     showImagePicker = () => {
-        ImagePicker.showImagePicker(options, (response) => {
-            if (response.didCancel) {
-                console.log('User cancelled image picker');
-            }
-            else if (response.error) {
-                ErrorHandler.WriteError('ImagePicker Error: ', response.error);
-            }
-            else if (response.customButton) {
-                console.log('User tapped custom button: ', response.customButton);
-            }
-            else {
-                // You can display the image using either data...
-                const source = { uri: 'data:image/jpeg;base64,' + response.data, isStatic: true };
-                // or a reference to the platform specific asset location
-                if (Platform.OS === 'ios') {
-                    const source = { uri: response.uri.replace('file://', ''), isStatic: true };
-                } else {
-                    const source = { uri: response.uri, isStatic: true };
+        try {
+            ImagePicker.showImagePicker(options, (response) => {
+                if (response.didCancel) {
+                    console.log('User cancelled image picker');
                 }
-                ImageResizer.createResizedImage(response.uri, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
-                    NativeModules.RNImageToBase64.getBase64String(resizedImageUri, (err, base64) => {
-                        profileImg = 'data:image/jpeg;base64,' + base64;
-                    })
-                }).catch((err) => {
-                    ErrorHandler.WriteError('NewGroupInfo.js => showImagePicker => createResizedImage', err);
-                });
-                this.setState({
-                    groupAvatar: source
-                });
-            }
-        });
+                else if (response.error) {
+                    ErrorHandler.WriteError('ImagePicker Error: ', response.error);
+                }
+                else if (response.customButton) {
+                    console.log('User tapped custom button: ', response.customButton);
+                }
+                else {
+                    // You can display the image using either data...
+                    const source = { uri: 'data:image/jpeg;base64,' + response.data, isStatic: true };
+                    // or a reference to the platform specific asset location
+                    if (Platform.OS === 'ios') {
+                        const source = { uri: response.uri.replace('file://', ''), isStatic: true };
+                    } else {
+                        const source = { uri: response.uri, isStatic: true };
+                    }
+                    ImageResizer.createResizedImage(response.uri, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
+                        NativeModules.RNImageToBase64.getBase64String(resizedImageUri, (err, base64) => {
+                            profileImg = 'data:image/jpeg;base64,' + base64;
+                        })
+                    }).catch((err) => {
+                        ErrorHandler.WriteError('NewGroupInfo.js => showImagePicker => createResizedImage', err);
+                    });
+                    this.setState({
+                        groupAvatar: source
+                    });
+                }
+            });
+        } catch (e) {
+            ErrorHandler.WriteError('NewGroupInfo.js => showImagePicker', e);
+        }
     }
 
     render() {
@@ -179,8 +187,8 @@ export default class NewGroupInfo extends Component {
                                         hideOnPress: true,
                                         delay: 0
                                     });
-                                    return;  
-                                } 
+                                    return;
+                                }
                                 var participateArray = this.props.data.map((user) => {
                                     return user.id;
                                 });
