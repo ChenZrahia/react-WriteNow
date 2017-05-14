@@ -446,7 +446,6 @@ export default class ChatRoom extends Component {
                 msg._id = msg.id;
             }
 
-
             if (!msg.user) {
                 msg.user = {
                     name: serverSrv._myFriendsJson[msg.from] ? serverSrv._myFriendsJson[msg.from].publicInfo.fullName : 'New User',

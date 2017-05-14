@@ -28,7 +28,7 @@ export default class Composer extends React.Component {
         showPicker: false,
       };
       Event.on('closeChatRoom', () => {
-        this.setState({isEmojiOpen: false});
+        this.setState({ isEmojiOpen: false });
       });
 
     } catch (e) {
@@ -37,18 +37,26 @@ export default class Composer extends React.Component {
   }
 
   onChange(e) { //add by rugbin 24.3.17 -for auto size the height
-    const contentSize = e.nativeEvent.contentSize;
-    if (!this.contentSize) {
-      this.contentSize = contentSize;
-      this.props.onInputSizeChanged(this.contentSize);
-    } else if (this.contentSize.width !== contentSize.width || this.contentSize.height !== contentSize.height) {
-      this.contentSize = contentSize;
-      this.props.onInputSizeChanged(this.contentSize);
+    try {
+      const contentSize = e.nativeEvent.contentSize;
+      if (!this.contentSize) {
+        this.contentSize = contentSize;
+        this.props.onInputSizeChanged(this.contentSize);
+      } else if (this.contentSize.width !== contentSize.width || this.contentSize.height !== contentSize.height) {
+        this.contentSize = contentSize;
+        this.props.onInputSizeChanged(this.contentSize);
+      }
+    } catch (e) {
+      ErrorHandler.WriteError('Composer.js => onChange', e);
     }
   }
 
   onChangeText(text) { //add by rugbin 24.3.17 -for auto size the height
-    this.props.onTextChanged(text);
+    try {
+      this.props.onTextChanged(text);
+    } catch (e) {
+      ErrorHandler.WriteError('Composer.js => onChangeText', e);
+    }
   }
 
   _emojiSelected(emoji) {
@@ -62,11 +70,9 @@ export default class Composer extends React.Component {
 
   render() {
     try {
-
       if (this.state.showPicker === true) {
         return null;
       }
-
       return (
         <View style={styles.row}>
           <TouchableOpacity onPress={() => {
@@ -92,7 +98,7 @@ export default class Composer extends React.Component {
             placeholder={this.props.placeholder}
             placeholderTextColor={this.props.placeholderTextColor}
             multiline={this.props.multiline}
-            onFocus={() => this.setState({ isEmojiOpen: false})}
+            onFocus={() => this.setState({ isEmojiOpen: false })}
             onChange={(e) => {
               this.props.onChange(e);
             }
@@ -112,8 +118,6 @@ export default class Composer extends React.Component {
     }
   }
 }
-
-// onChangeText = {(title) => {this.setState({text: title})}}
 
 const styles = StyleSheet.create({
   cont: {

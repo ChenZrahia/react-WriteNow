@@ -73,7 +73,6 @@ export default class Bubble extends React.Component {
 
   renderMessageEncrypted() {
     try {
-      //this.props.messages[0].text = "Encrypted Message";
       if (this.props.currentMessage.isEncrypted == 1) {
         const { containerStyle, wrapperStyle, ...messageEncrypedProps } = this.props;
         return (
@@ -84,7 +83,6 @@ export default class Bubble extends React.Component {
             } }
             onLongPress={this.onLongPress}
             >
-
               <View style={{ flexDirection: 'row' }}>
                 <Image
                   style={{ width: 35, height: 35, padding: 5, marginTop: 8, marginLeft: 8 }}
@@ -117,14 +115,11 @@ export default class Bubble extends React.Component {
         }
         return <MessageText {...messageTextProps} />;
       }
-
       return null;
     } catch (e) {
       ErrorHandler.WriteError('Bubble.js => renderMessageText', e);
     }
   }
-
-
 
   renderMessageImage() {
     try {
@@ -166,6 +161,7 @@ export default class Bubble extends React.Component {
       ErrorHandler.WriteError('Bubble.js => renderCustomView', e);
     }
   }
+
   deleteMessage() {
     try {
       Event.trigger('deleteMessage', this.props.currentMessage.text, this.props.currentMessage._id);
@@ -173,7 +169,6 @@ export default class Bubble extends React.Component {
       ErrorHandler.WriteError('Bubble.js => deleteMessage', e);
     };
   }
-
 
   onLongPress() {
     try {

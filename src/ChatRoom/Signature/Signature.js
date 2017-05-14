@@ -48,7 +48,6 @@ export default class Signature extends Component {
                             <Text style={{ color: 'white' }}>Cancel</Text>
                         </TouchableOpacity>
                     </View>
-
                 </View>
             );
         } catch (e) {
