@@ -195,13 +195,12 @@ export function InsertMyContacts(contacts, isMyContact, convId) {
                                     contacts[i].publicInfo.picture,
                                     isMyContact]);
                         } catch (error) {
-                            console.log(error);
+                            ErrorHandler.WriteError('serverSrv.js => InsertMyContacts => SELECT phoneNumber FROM Friends', error);
                         }
                     }
                 }
                 Event.trigger('updateFriends', true);
             }, errorDB);
-
         }, (error) => {
             ErrorHandler.WriteError('serverSrv.js => InsertMyContacts => INSERT OR REPLACE INTO Friends', error);
         });
@@ -703,11 +702,9 @@ function UpdatePhoneNumberToId(phoneNumber, id) {
 
 export function deleteMessageFromLocalDBFriend(convID, messageID) {
     try {
-        console.log(messageID);
         db.transaction((tx) => {
             tx.executeSql('DELETE FROM Messages WHERE id = ?', [messageID], (tx, rs) => { });
         });
-
         myChatsJson[messageID] = null;
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => deleteMessageFromLocalDBFriend', error);
@@ -716,7 +713,6 @@ export function deleteMessageFromLocalDBFriend(convID, messageID) {
 
 export function deleteMessageFromLocalDB(convID, messageID) {
     try {
-        console.log(messageID);
         db.transaction((tx) => {
             tx.executeSql('DELETE FROM Messages WHERE id = ?', [messageID], (tx, rs) => { });
         });
@@ -728,7 +724,6 @@ export function deleteMessageFromLocalDB(convID, messageID) {
         //     Event.trigger("deleteFriendMessageUI",msg);
         // });
         myChatsJson[messageID] = null;
-
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => deleteMessageFromLocalDB', error);
     }
@@ -736,7 +731,6 @@ export function deleteMessageFromLocalDB(convID, messageID) {
 
 export function Typing(msg) {
     try {
-
         if (_ActiveConvId) {
             msg.convId = _ActiveConvId;
         }
@@ -843,7 +837,6 @@ export function getConvParticipates_server(result, _convId, callback) {
                 }
             }
         });
-
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => getConvParticipates_server' + error.message, error);
     }
@@ -885,7 +878,6 @@ export function getConvParticipates(_convId, callback) {
 
 export function getConvParticipates_DB(_convId, uidArr, newUsers, callback) {
     try {
-        //var newUsers = [];
         db.transaction((tx) => {
             // tx.executeSql('SELECT uid FROM Participates WHERE convId=?', [_convId], (tx, rsP) => {
             //     try {
@@ -1042,6 +1034,7 @@ export function saveNewMessage(msg, saveLocal) {
         ErrorHandler.WriteError('serverSrv.js => saveNewMessage' + error.message, error);
     }
 }
+
 export function GetEncryptedMessage_ById(mid, callback) {
     try {
         db.transaction((tx) => {
@@ -1059,15 +1052,12 @@ export function GetEncryptedMessage_ById(mid, callback) {
                     ErrorHandler.WriteError('serverSrv.js => GetEncryptedMessage_ById => SELECT * FROM Messages WHERE id=?', error);
                 }
             }, errorDB);
-
         });
-
-
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => GetEncryptedMessage_ById' + error.message, error);
     }
-
 }
+
 //calls
 export function GetConvData_ByConvId(convId, callback) {
     try {

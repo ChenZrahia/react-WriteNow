@@ -144,17 +144,25 @@ function createPC(socketId, isOffer) {
     pcPeers[socketId] = pc;
 
     pc.onicecandidate = function (event) {
-        if (event.candidate) {
-            socket.emit('exchange', { 'to': socketId, 'candidate': event.candidate });
+        try {
+            if (event.candidate) {
+                socket.emit('exchange', { 'to': socketId, 'candidate': event.candidate });
+            }
+        } catch (error) {
+            ErrorHandler.WriteError('liveSrv.js => createPC => onicecandidate', error);
         }
     };
 
     function createOffer() {
-        pc.createOffer(function (desc) {
-            pc.setLocalDescription(desc, function () {
-                socket.emit('exchange', { 'to': socketId, 'sdp': pc.localDescription });
+        try {
+            pc.createOffer(function (desc) {
+                pc.setLocalDescription(desc, function () {
+                    socket.emit('exchange', { 'to': socketId, 'sdp': pc.localDescription });
+                }, logError);
             }, logError);
-        }, logError);
+        } catch (error) {
+            ErrorHandler.WriteError('liveSrv.js => createPC => createOffer', error);
+        }
     }
 
     pc.onnegotiationneeded = function () {
@@ -164,13 +172,17 @@ function createPC(socketId, isOffer) {
     }
 
     pc.oniceconnectionstatechange = function (event) {
-        if (event.target.iceConnectionState === 'completed') {
-            setTimeout(() => {
-                getStats();
-            }, 1000);
-        }
-        if (event.target.iceConnectionState === 'connected') {
-            createDataChannel();
+        try {
+            if (event.target.iceConnectionState === 'completed') {
+                setTimeout(() => {
+                    getStats();
+                }, 1000);
+            }
+            if (event.target.iceConnectionState === 'connected') {
+                createDataChannel();
+            }
+        } catch (error) {
+            ErrorHandler.WriteError('liveSrv.js => createPC => oniceconnectionstatechange', error);
         }
     };
     pc.onsignalingstatechange = function (event) {
@@ -271,7 +283,7 @@ function leave(socketId) {
 }
 
 function logError(error) {
-    console.log("logError", error);
+    ErrorHandler.WriteError("logError", error);
 }
 
 export function mapHash(hash, func) {
