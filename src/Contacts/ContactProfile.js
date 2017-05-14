@@ -24,8 +24,8 @@ var win = Dimensions.get('window');
 
 export default class ContactProfile extends Component {
     constructor() {
-        super();
         try {
+        super();
             dismissKeyboard();
             this.state = {
                 imageVisible: false,

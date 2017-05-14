@@ -127,9 +127,6 @@ export default class MessageContainer extends React.Component {
     }
   }
 
-
-
-
   renderRow(message, sectionId, rowId) {
     try {
       if (!message._id && message._id !== 0) {

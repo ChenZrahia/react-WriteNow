@@ -91,6 +91,7 @@ export default class Video extends Component {
             ErrorHandler.WriteError("Call.js -> constructor", e);
         }
     }
+    
     getCall(IsIncomingCall) {
         try {
             _IsIncomingCall = IsIncomingCall;

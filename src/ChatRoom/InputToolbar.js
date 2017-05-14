@@ -11,7 +11,11 @@ var ErrorHandler = require('../../ErrorHandler');
 
 export default class InputToolbar extends React.Component {
   constructor(props) {
-    super(props);
+    try {
+      super(props);
+    } catch (e) {
+      ErrorHandler.WriteError('InputToolbar.js => constructor', e);
+    }
   }
 
   renderActions() {

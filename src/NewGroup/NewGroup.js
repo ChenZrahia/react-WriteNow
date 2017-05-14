@@ -29,8 +29,8 @@ var ErrorHandler = require('../../ErrorHandler');
 
 export default class NewGroup extends Component {
     constructor(props) {
-        super(props);
         try {
+            super(props);
             dismissKeyboard();
             this.isGetMyContacts = false;
             this.isGetMyFriends = false;
@@ -64,7 +64,6 @@ export default class NewGroup extends Component {
 
     componentDidMount() {
         try {
-            console.log("componentDidMount1");
             BackAndroid.addEventListener('hardwareBackPress', () => {
                 this.resetData();
             });
@@ -207,7 +206,7 @@ export default class NewGroup extends Component {
                         <TouchableOpacity onPress={() => {
 
                             if (this.GroupContacts.length < 2) {
-                                 var toast = Toast.show('At least 1 contact must be selected', {
+                                var toast = Toast.show('At least 1 contact must be selected', {
                                     duration: Toast.durations.LONG,
                                     position: Toast.positions.BOTTOM,
                                     shadow: true,
@@ -297,10 +296,10 @@ export default class NewGroup extends Component {
                                     groupSource: this.ds2.cloneWithRows(this.GroupContacts),
                                     dataSource: this.ds.cloneWithRows(this.myFriends)
                                 });
-                                setTimeout(() =>  {
-                                    this.onFilterChange({nativeEvent: {text:this.state.filter}});
+                                setTimeout(() => {
+                                    this.onFilterChange({ nativeEvent: { text: this.state.filter } });
                                 }, 1);
-                                
+
                             }}>
                                 <View style={generalStyle.styles.row}>
                                     <View style={generalStyle.styles.viewImg}>
@@ -343,9 +342,9 @@ export default class NewGroup extends Component {
                             groupSource: this.ds2.cloneWithRows(this.GroupContacts),
                             dataSource: this.ds.cloneWithRows(this.myFriends)
                         });
-                           setTimeout(() =>  {
-                                    this.onFilterChange({nativeEvent: {text:this.state.filter}});
-                                }, 1);
+                        setTimeout(() => {
+                            this.onFilterChange({ nativeEvent: { text: this.state.filter } });
+                        }, 1);
                     }}>
                         <View style={{ paddingBottom: 5, paddingLeft: 5, paddingRight: 5, alignItems: 'center' }}>
                             <Image style={styles.groupMemberPic} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />

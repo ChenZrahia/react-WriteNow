@@ -90,6 +90,7 @@ export default class Call extends Component {
             ErrorHandler.WriteError("Call.js -> constructor", e);
         }
     }
+    
     getCall(IsIncomingCall) {
         try {
             _IsIncomingCall = IsIncomingCall;

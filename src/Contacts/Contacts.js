@@ -24,8 +24,8 @@ var ErrorHandler = require('../../ErrorHandler');
 
 export default class Contacts extends Component {
     constructor() {
-        super();
         try {
+        super();
             dismissKeyboard();
             this.isGetMyContacts = false;
             this.isGetMyFriends = false;

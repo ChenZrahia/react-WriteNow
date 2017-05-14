@@ -25,8 +25,8 @@ var generalStyle = require('../../styles/generalStyle');
 
 export default class Chats extends Component {
     constructor() {
-        super();
         try {
+            super();
             dismissKeyboard();
             this.myChats = [];
             this.todayDate = new Date();
@@ -98,7 +98,6 @@ export default class Chats extends Component {
                     dataSource: this.ds.cloneWithRows(this.myChats)
                 });
             }, 100);
-            //Actions.
         } catch (e) {
             ErrorHandler.WriteError("Chats.js -> UpdateChatInfo", e);
         }
@@ -117,7 +116,6 @@ export default class Chats extends Component {
 
     componentDidMount() {
         try {
-
             Event.removeAllListeners('UpdateChatsList');
             Event.on('UpdateChatsList', this.UpdateChatsList);
             Event.removeAllListeners('newMessage');
@@ -187,37 +185,28 @@ export default class Chats extends Component {
                     var bDate = moment(b.lastMessageTime).format();
                     if (aDate && bDate) {
                         if (aDate > bDate) {
-                            console.log('## sortDates: 1', aDate , bDate);
                             return -1;
                         }
                         else if (aDate < bDate) {
-                            console.log('## sortDates: 2', aDate , bDate);
                             return 1;
                         }
                         else {
-                            console.log('## sortDates: 3', aDate , bDate);
                             return 0;
                         }
                     }
                     else if (aDate && !bDate) {
-                        console.log('## sortDates: 4');
                         return -1;
                     }
                     else if (!aDate && bDate) {
-                        console.log('## sortDates: 5');
                         return 1;
                     }
                     else {
-                        console.log('## sortDates: 6');
                         return 0;
                     }
                 } catch (e) {
                     ErrorHandler.WriteError('Chats.js => sortDates => sort', e);
                 }
             });
-            for(i = 0;  i < result.length; i++){
-                console.log(result[i].groupName);
-            }
             return result;
         } catch (e) {
             ErrorHandler.WriteError('Chats.js => sortDates', e);
@@ -227,7 +216,7 @@ export default class Chats extends Component {
     openChat(rowData) {
         try {
             Actions.ChatRoom(rowData);
-            this.UpdatelastMessage(null, null, rowData.id, false,rowData.lastMessageEncrypted)
+            this.UpdatelastMessage(null, null, rowData.id, false, rowData.lastMessageEncrypted)
             Event.trigger('LoadNewChat', rowData.id, false);
         } catch (e) {
             ErrorHandler.WriteError('Chats.js => openChat', e);
@@ -248,11 +237,11 @@ export default class Chats extends Component {
                 <Modal
                     transparent={true}
                     visible={this.state.imageVisible == true}
-                    onRequestClose={() => { console.log('image closed') } }
-                    >
+                    onRequestClose={() => { console.log('image closed') }}
+                >
                     <TouchableOpacity style={{ flex: 1 }} onPress={() => {
                         this.setImageVisible(!this.state.imageVisible)
-                    } }>
+                    }}>
                         <View style={generalStyle.styles.imageModal}>
                             <Image style={generalStyle.styles.imageInsideModal} source={image} />
                         </View>
@@ -318,9 +307,9 @@ export default class Chats extends Component {
     UpdatelastMessage(lastMessage, lastMessageTime, convId, isNewMessage, lastMessageEncrypted) {
         try {
             var isFound = false;
-             if (!this.myChats){
-            this.myChats = [];
-        }
+            if (!this.myChats) {
+                this.myChats = [];
+            }
             this.myChats = this.myChats.map((chat) => {
                 if (chat.id == convId) {
                     isFound = true;
@@ -353,16 +342,11 @@ export default class Chats extends Component {
         } catch (e) {
             ErrorHandler.WriteError('Chats.js => UpdatelastMessage', e);
         }
-
-        for(i = 0;  i< this.myChats.length; i++){
-            console.log(this.myChats[i].groupName);
-        }
         this.setState({ dataSource: this.ds.cloneWithRows(this.myChats) });
     }
 
     renderEncryptedLastMessage(rowData) {
         if (rowData.lastMessageEncrypted) {
-            console.log("Encrypted Message1");
             return (
                 <Text>
                     🔒 Encrypted Message
@@ -370,16 +354,12 @@ export default class Chats extends Component {
             )
         }
         else if (!rowData.lastMessage) {
-            console.log("Encrypted Message2");
             return <Text></Text>
         }
         else {
-            console.log("Encrypted Message3");
             return (<Text>{rowData.lastMessage}</Text>)
         }
     }
-
-
 
     render() {
         try {
@@ -395,7 +375,7 @@ export default class Chats extends Component {
                         inputStyle={{ color: '#f50057', alignSelf: 'stretch' }}
                         value={this.state.filter}
                         onChange={this.onFilterChange.bind(this)}
-                        />
+                    />
 
                     <SGListView style={{ paddingTop: 5, flex: 1 }}
                         enableEmptySections={true}
@@ -408,12 +388,12 @@ export default class Chats extends Component {
                         renderRow={(rowData) =>
                             <TouchableOpacity onPress={() => {
                                 this.openChat(rowData);
-                            } }>
+                            }}>
                                 <View style={generalStyle.styles.row}>
                                     <TouchableOpacity onPress={() => {
                                         this.imgSelected = rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? require('../../img/group-img.jpg') : require('../../img/user.jpg'))
                                         this.setImageVisible(true);
-                                    } }>
+                                    }}>
                                         <View style={generalStyle.styles.viewImg}>
                                             <Image style={generalStyle.styles.thumb} source={rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? require('../../img/group-img.jpg') : require('../../img/user.jpg'))} />
                                         </View>
@@ -435,9 +415,8 @@ export default class Chats extends Component {
                                 </View>
                             </TouchableOpacity>
                         }
-                        />
+                    />
                     {this.openImageModal(this.imgSelected)}
-
                     <Text>
 
                     </Text>

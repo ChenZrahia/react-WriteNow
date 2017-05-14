@@ -26,8 +26,8 @@ var callType = {
 
 export default class LiveChat extends Component {
     constructor() {
-        super();
         try {
+            super();
             dismissKeyboard();
             this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
             this.updateLiveChatData = this.updateLiveChatData.bind(this);

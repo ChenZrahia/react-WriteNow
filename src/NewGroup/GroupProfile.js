@@ -25,8 +25,8 @@ var generalStyle = require('../../styles/generalStyle');
 
 export default class GroupProfile extends Component {
     constructor() {
-        super();
         try {
+            super();
             dismissKeyboard();
             this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
             this.groupMembers = {};
@@ -129,7 +129,7 @@ export default class GroupProfile extends Component {
                 (rowData) =>
                     <View>
                         <TouchableOpacity onPress={() => {
-                        } }>
+                        }}>
                             <View style={generalStyle.styles.row}>
                                 <View style={generalStyle.styles.viewImg}>
                                     <Image style={generalStyle.styles.thumb} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
@@ -177,7 +177,7 @@ export default class GroupProfile extends Component {
                         originalHeight={400}
                         style={{ marginLeft: 5, marginRight: 5, marginBottom: 5 }}
                         source={{ uri: img }}
-                        />)
+                    />)
             } else {
                 return (
                     <View style={{ marginLeft: 5, marginRight: 5, marginBottom: 5 }}>
@@ -198,7 +198,7 @@ export default class GroupProfile extends Component {
                     <View style={styles.title}>
                         <TouchableOpacity onPress={() => {
                             Actions.pop();
-                        } }>
+                        }}>
                             <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
                         </TouchableOpacity>
                         <Text style={{ color: 'white', fontSize: 25 }}>
@@ -213,7 +213,7 @@ export default class GroupProfile extends Component {
                                         groupName: this.props.userName,
                                         groupSource: this.state.dataSource
                                     });
-                                } }>
+                                }}>
                                     <Icon name="ios-person-add" size={25} color="white" style={{ paddingRight: 10 }} />
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => {
@@ -223,7 +223,7 @@ export default class GroupProfile extends Component {
                                         groupName: this.props.userName,
                                         groupSource: this.state.dataSource
                                     });
-                                } }>
+                                }}>
                                     <Icon name="ios-create" size={25} color="white" />
                                 </TouchableOpacity>
                             </View>
@@ -231,7 +231,7 @@ export default class GroupProfile extends Component {
                         {renderIf(this.groupManagers.indexOf(serverSrv._uid) < 0)(
                             <TouchableOpacity onPress={() => {
                                 Actions.NewGroupInfo({ convId: this.props.convId, groupPicture: this.props.userPicture, groupName: this.props.userName, groupSource: this.state.dataSource });
-                            } }>
+                            }}>
                                 <Icon name="ios-create" size={25} color="white" style={{ alignItems: 'flex-end' }} />
                             </TouchableOpacity>
                         )}
@@ -239,7 +239,7 @@ export default class GroupProfile extends Component {
                     <ScrollView style={{ flex: 1, backgroundColor: '#e7e7e7' }}>
                         <TouchableOpacity on Press={() => {
                             this.setImageVisible(true);
-                        } }>
+                        }}>
                             {this.getImageSource(this.props.userPicture)}
                         </TouchableOpacity>
                         <View style={{ flex: 1, backgroundColor: 'white', marginLeft: 5, marginRight: 5 }}>
@@ -253,7 +253,7 @@ export default class GroupProfile extends Component {
                                 scrollRenderAheadDistance={50}
                                 pageSize={30}
                                 renderRow={this.renderRow()}
-                                />
+                            />
                         </View>
                     </ScrollView>
                     {this.openImageModal(this.props.userPicture)}
@@ -270,11 +270,11 @@ export default class GroupProfile extends Component {
                 <Modal
                     transparent={true}
                     visible={this.state.imageVisible}
-                    onRequestClose={() => { console.log('image closed') } }
-                    >
+                    onRequestClose={() => { console.log('image closed') }}
+                >
                     <TouchableOpacity style={{ flex: 1 }} onPress={() => {
                         this.setImageVisible(!this.state.imageVisible)
-                    } }>
+                    }}>
                         <View style={generalStyle.styles.imageModal}>
                             <Image style={generalStyle.styles.imageInsideModal} source={{ uri: img }} />
                         </View>

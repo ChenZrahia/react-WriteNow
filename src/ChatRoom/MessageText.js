@@ -14,8 +14,8 @@ var ErrorHandler = require('../../ErrorHandler');
 
 export default class MessageText extends React.Component {
   constructor(props) {
-    super(props);
     try {
+      super(props);
       this.onUrlPress = this.onUrlPress.bind(this);
       this.onPhonePress = this.onPhonePress.bind(this);
       this.onEmailPress = this.onEmailPress.bind(this);
@@ -80,8 +80,6 @@ export default class MessageText extends React.Component {
             ]}
           >
             {this.props.currentMessage.text}
-
-
           </ParsedText>
         </View>
       );
