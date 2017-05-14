@@ -6,6 +6,7 @@ import {
   StyleSheet,
   View,
   Image,
+  ScrollView,
   TouchableOpacity,
   Text,
   TextInput,
@@ -23,6 +24,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { Actions } from 'react-native-router-flux';
 
 import renderIf from '../../plugins/renderIf';
+//import Actions from './Actions';
 import Avatar from './Avatar';
 import Bubble from './Bubble';
 import MessageImage from './MessageImage';
@@ -38,7 +40,6 @@ import Time from './Time';
 import IconMat from 'react-native-vector-icons/MaterialIcons';
 
 var Event = require('../../Services/Events');
-import CryptLib from 'react-native-aes-encryption';
 var CryptoJS = require("crypto-js");
 var SHA256 = require("crypto-js/sha256");
 var serverSrv = require('../../Services/serverSrv');
@@ -58,471 +59,330 @@ const MIN_INPUT_TOOLBAR_HEIGHT = 44;
 
 export default class GiftedChat extends React.Component {
   constructor(props) {
-    try {
-      super(props);
-      Event.on('LoadNewChat', () => {
-        this.setState({ text: '' });
-      });
-      // default values
-      this._isMounted = false;
-      this._keyboardHeight = 0;
-      this._bottomOffset = 0;
-      this._maxHeight = null;
-      this._touchStarted = false;
-      this._isFirstLayout = true;
-      this._isTypingDisabled = false;
-      this._locale = 'en';
-      this._messages = [];
-      this._onlineMessages = [];
-      this._onlineMessagesIds = {};
-      this._numOfInvalidPassword = 0;
-      this._blockStartTime = null;
-      this.state = {
-        isInitialized: false, // initialization will calculate maxHeight before rendering the chat
-        imageVisible: false,
-        showMenu: false,
-        encryptedVisible: false,
-        multiline: true,
-        encryptedMessageText: '',
-        height: 0,
-        onlineMessages: this._onlineMessages,
-        onlineMessagesIds: this._onlineMessagesIds,
-        decryptedMessageVisible: false,
-        DecryptedMessageText: '',
-        placeHolderEncrypted: '',
-        placeHolderDecrypted: 'Enter Your Password',
-        validate: true,
-        headerTextEncrypted: 'Password Validation',
-        headerTextDecrypted: 'Password Validation',
-        secureTextEntry: true,
-        mid: "",
-        encryptedPassword: '',
-        decryptedsecureTextEntry: true,
-        placeholderTextColor: '#b2b2b2',
-        onlineStatus: '-'
-      };
+    super(props);
+    Event.on('LoadNewChat', () => {
+      this.setState({ text: '' });
+    });
+    // default values
+    this._isMounted = false;
+    this._keyboardHeight = 0;
+    this._bottomOffset = 0;
+    this._maxHeight = null;
+    this._touchStarted = false;
+    this._isFirstLayout = true;
+    this._isTypingDisabled = false;
+    this._locale = 'en';
+    this._messages = [];
+    this._onlineMessages = [];
+    this._onlineMessagesIds = {};
+    this._numOfInvalidPassword = 0;
+    this._blockStartTime = null;
+    this.state = {
+      isInitialized: false, // initialization will calculate maxHeight before rendering the chat
+      imageVisible: false,
+      showMenu: false,
+      encryptedVisible: false,
+      multiline: true,
+      encryptedMessageText: '',
+      height: 0,
+      onlineMessages: this._onlineMessages,
+      onlineMessagesIds: this._onlineMessagesIds,
+      decryptedMessageVisible: false,
+      DecryptedMessageText: '',
+      placeHolderEncrypted: '',
+      placeHolderDecrypted: 'Enter Your Password',
+      validate: true,
+      headerTextEncrypted: 'Password Validation',
+      headerTextDecrypted: 'Password Validation',
+      secureTextEntry: true,
+      mid: "",
+      encryptedPassword: '',
+      decryptedsecureTextEntry: true,
+      placeholderTextColor: '#b2b2b2',
+      onlineStatus: '-',
+      isEmojiOpen: false
+    };
 
-      this.decryptedMessage = this.decryptedMessage.bind(this);
-      this.serverTyping = this.serverTyping.bind(this);
-      Event.removeAllListeners('serverTyping');
-      Event.on('serverTyping', this.serverTyping);
-      Event.removeAllListeners('decryptedMessage');
-      Event.on('decryptedMessage', this.decryptedMessage);
-      setTimeout(() => {
-        serverSrv.socket.on("onlineStatusChanged", (data) => {
-          if (data.isOnline == true && !this.props.isGroup) {
-            this.setState({ onlineStatus: 'Online' });
-          } else if (!this.props.isGroup) {
-            this.setState({ onlineStatus: 'Offline' });
-          } else {
-            this.setState({ onlineStatus: '-' });
-          }
-        });
-      }, 100);
+    this.decryptedMessage = this.decryptedMessage.bind(this);
+    this.serverTyping = this.serverTyping.bind(this);
+    this.openEmojiModal = this.openEmojiModal.bind(this);
+    Event.removeAllListeners('serverTyping');
+    Event.on('serverTyping', this.serverTyping);
+    Event.removeAllListeners('openEmojiModal');
+    Event.on('openEmojiModal', this.openEmojiModal);
+    Event.removeAllListeners('decryptedMessage');
+    Event.on('decryptedMessage', this.decryptedMessage);
+    setTimeout(() => {
+      serverSrv.socket.on("onlineStatusChanged", (data) => {   
+            if (data.isOnline == true && !this.props.isGroup) {
+              this.setState({onlineStatus : 'Online'});
+            } else if(!this.props.isGroup) {
+              this.setState({onlineStatus : 'Offline'});
+            } else {
+              this.setState({onlineStatus : '-'});
+            }
+        });  
+    }, 100); 
 
-      this.onTouchStart = this.onTouchStart.bind(this);
-      this.onTouchMove = this.onTouchMove.bind(this);
-      this.onTouchEnd = this.onTouchEnd.bind(this);
-      this.onKeyboardWillShow = this.onKeyboardWillShow.bind(this);
-      this.onKeyboardWillHide = this.onKeyboardWillHide.bind(this);
-      this.onKeyboardDidShow = this.onKeyboardDidShow.bind(this);
-      this.onKeyboardDidHide = this.onKeyboardDidHide.bind(this);
-      this.onType = this.onType.bind(this);
-      this.onSend = this.onSend.bind(this);
-      this.getLocale = this.getLocale.bind(this);
-      this.cancel_chatRoom = this.cancel_chatRoom.bind(this);
-
-      this.CallFriend = this.CallFriend.bind(this);
-      this.VedioCallFriend = this.VedioCallFriend.bind(this);
-      this.invertibleScrollViewProps = {
-        inverted: true,
-        keyboardShouldPersistTaps: "always",
-        onTouchStart: this.onTouchStart,
-        onTouchMove: this.onTouchMove,
-        onTouchEnd: this.onTouchEnd,
-        onKeyboardWillShow: this.onKeyboardWillShow,
-        onKeyboardWillHide: this.onKeyboardWillHide,
-        onKeyboardDidShow: this.onKeyboardDidShow,
-        onKeyboardDidHide: this.onKeyboardDidHide,
-      };
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => constructor', error);
-    }
+    this.onTouchStart = this.onTouchStart.bind(this);
+    this.onTouchMove = this.onTouchMove.bind(this);
+    this.onTouchEnd = this.onTouchEnd.bind(this);
+    this.onKeyboardWillShow = this.onKeyboardWillShow.bind(this);
+    this.onKeyboardWillHide = this.onKeyboardWillHide.bind(this);
+    this.onKeyboardDidShow = this.onKeyboardDidShow.bind(this);
+    this.onKeyboardDidHide = this.onKeyboardDidHide.bind(this);
+    this.onType = this.onType.bind(this);
+    this.onSend = this.onSend.bind(this);
+    this.getLocale = this.getLocale.bind(this);
+    this.cancel_chatRoom = this.cancel_chatRoom.bind(this);
+    this.CallFriend = this.CallFriend.bind(this);
+    this.VedioCallFriend = this.VedioCallFriend.bind(this);
+    this.invertibleScrollViewProps = {
+      inverted: true,
+      keyboardShouldPersistTaps: "always",
+      onTouchStart: this.onTouchStart,
+      onTouchMove: this.onTouchMove,
+      onTouchEnd: this.onTouchEnd,
+      onKeyboardWillShow: this.onKeyboardWillShow,
+      onKeyboardWillHide: this.onKeyboardWillHide,
+      onKeyboardDidShow: this.onKeyboardDidShow,
+      onKeyboardDidHide: this.onKeyboardDidHide,
+    };
   }
 
   static append(currentMessages = [], messages) {
-    try {
-      if (!Array.isArray(messages)) {
-        messages = [messages];
-      }
-      var allMessages = messages.concat(currentMessages);
-      return allMessages;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => append', error);
+    if (!Array.isArray(messages)) {
+      messages = [messages];
     }
+    var allMessages = messages.concat(currentMessages);
+    return allMessages;
   }
 
   static prepend(currentMessages = [], messages) {
-    try {
-      if (!Array.isArray(messages)) {
-        messages = [messages];
-      }
-      return currentMessages.concat(messages);
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => prepend', error);
+    if (!Array.isArray(messages)) {
+      messages = [messages];
     }
+    return currentMessages.concat(messages);
   }
 
   getChildContext() {
-    try {
-      return {
-        actionSheet: () => this._actionSheetRef,
-        getLocale: this.getLocale,
-      };
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => getChildContext', error);
-    }
+    return {
+      actionSheet: () => this._actionSheetRef,
+      getLocale: this.getLocale,
+    };
   }
 
   componentWillMount() {
-    try {
-      this.setIsMounted(true);
-      this.initLocale();
-      this.initMessages(this.props.messages);
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => componentWillMount', error);
-    }
+    this.setIsMounted(true);
+    this.initLocale();
+    this.initMessages(this.props.messages);
   }
 
   componentDidMount() {
-
+      
   }
 
   componentWillUnmount() {
-    try {
-      this.setIsMounted(false);
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => componentWillUnmount', error);
-    }
+    this.setIsMounted(false);
   }
 
   componentWillReceiveProps(nextProps = {}) {
-    try {
-      this.initMessages(nextProps.messages);
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => componentWillReceiveProps', error);
-    }
+    this.initMessages(nextProps.messages);
   }
 
   initLocale() {
-    try {
-      if (this.props.locale === null || moment.locales().indexOf(this.props.locale) === -1) {
-        this.setLocale('en');
-      } else {
-        this.setLocale(this.props.locale);
-      }
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => initLocale', error);
+    if (this.props.locale === null || moment.locales().indexOf(this.props.locale) === -1) {
+      this.setLocale('en');
+    } else {
+      this.setLocale(this.props.locale);
     }
   }
 
   initMessages(messages = []) {
-    try {
-      this.setMessages(messages);
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => initMessages', error);
-    }
+    this.setMessages(messages);
   }
 
   setLocale(locale) {
-    try {
-      this._locale = locale;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => setLocale', error);
-    }
+    this._locale = locale;
   }
 
   getLocale() {
-    try {
-      return this._locale;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => getLocale', error);
-    }
+    return this._locale;
   }
 
   setMessages(messages) {
-    try {
-      this._messages = messages;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => setMessages', error);
-    }
+    this._messages = messages;
   }
 
   getMessages() {
-    try {
-      return this._messages;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => getMessages', error);
-    }
+    return this._messages;
   }
 
   setMaxHeight(height) {
-    try {
-      this._maxHeight = height;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => setMaxHeight', error);
-    }
+    this._maxHeight = height;
   }
 
   getMaxHeight() {
-    try {
-      return this._maxHeight;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => getMaxHeight', error);
-    }
+    return this._maxHeight;
   }
 
   setKeyboardHeight(height) {
-    try {
-      this._keyboardHeight = height;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => setKeyboardHeight', error);
-    }
+    this._keyboardHeight = height;
   }
 
   getKeyboardHeight() {
-    try {
-      return this._keyboardHeight;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => getKeyboardHeight', error);
-    }
+    return this._keyboardHeight;
   }
 
   setBottomOffset(value) {
-    try {
-      this._bottomOffset = value;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => setBottomOffset', error);
-    }
+    this._bottomOffset = value;
   }
 
   getBottomOffset() {
-    try {
-      return this._bottomOffset;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => getBottomOffset', error);
-    }
+    return this._bottomOffset;
   }
 
   setIsFirstLayout(value) {
-    try {
-      this._isFirstLayout = value;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => setIsFirstLayout', error);
-    }
+    this._isFirstLayout = value;
   }
 
   getIsFirstLayout() {
-    try {
-      return this._isFirstLayout;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => getIsFirstLayout', error);
-    }
+    return this._isFirstLayout;
   }
 
   setIsTypingDisabled(value) {
-    try {
-      this._isTypingDisabled = value;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => setIsTypingDisabled', error);
-    }
+    this._isTypingDisabled = value;
   }
 
   getIsTypingDisabled() {
-    try {
-      return this._isTypingDisabled;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => getIsTypingDisabled', error);
-    }
+    return this._isTypingDisabled;
   }
 
   setIsMounted(value) {
-    try {
-      this._isMounted = value;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => setIsMounted', error);
-    }
+    this._isMounted = value;
   }
 
   getIsMounted() {
-    try {
-      return this._isMounted;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => getIsMounted', error);
-    }
+    return this._isMounted;
   }
 
   // TODO
   // setMinInputToolbarHeight
   getMinInputToolbarHeight() {
-    try {
-      if (this.props.renderAccessory) {
-        return MIN_INPUT_TOOLBAR_HEIGHT * 2;
-      }
-      return MIN_INPUT_TOOLBAR_HEIGHT;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => getMinInputToolbarHeight', error);
+    if (this.props.renderAccessory) {
+      return MIN_INPUT_TOOLBAR_HEIGHT * 2;
     }
+    return MIN_INPUT_TOOLBAR_HEIGHT;
   }
 
   prepareMessagesContainerHeight(value) {
-    try {
-      if (this.props.isAnimated === true) {
-        return new Animated.Value(value);
-      }
-      return value;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => prepareMessagesContainerHeight', error);
+    if (this.props.isAnimated === true) {
+      return new Animated.Value(value);
     }
+    return value;
   }
 
   onKeyboardWillShow(e) {
-    try {
-      this.setIsTypingDisabled(true);
-      this.setKeyboardHeight(e.endCoordinates ? e.endCoordinates.height : e.end.height);
-      this.setBottomOffset(this.props.bottomOffset);
-      const newMessagesContainerHeight = (this.getMaxHeight() - (this.state.composerHeight + (this.getMinInputToolbarHeight() - MIN_COMPOSER_HEIGHT))) - this.getKeyboardHeight() + this.getBottomOffset();
-      if (this.props.isAnimated === true) {
-        Animated.timing(this.state.messagesContainerHeight, {
-          toValue: newMessagesContainerHeight,
-          duration: 210,
-        }).start();
-      } else {
-        this.setState((previousState) => {
-          return {
-            messagesContainerHeight: newMessagesContainerHeight,
-          };
-        });
-      }
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => onKeyboardWillShow', error);
+    this.setIsTypingDisabled(true);
+    this.setKeyboardHeight(e.endCoordinates ? e.endCoordinates.height : e.end.height);
+    this.setBottomOffset(this.props.bottomOffset);
+    const newMessagesContainerHeight = (this.getMaxHeight() - (this.state.composerHeight + (this.getMinInputToolbarHeight() - MIN_COMPOSER_HEIGHT))) - this.getKeyboardHeight() + this.getBottomOffset();
+    if (this.props.isAnimated === true) {
+      Animated.timing(this.state.messagesContainerHeight, {
+        toValue: newMessagesContainerHeight,
+        duration: 210,
+      }).start();
+    } else {
+      this.setState((previousState) => {
+        return {
+          messagesContainerHeight: newMessagesContainerHeight,
+        };
+      });
     }
   }
 
   onKeyboardWillHide() {
-    try {
-      this.setIsTypingDisabled(true);
-      this.setKeyboardHeight(0);
-      this.setBottomOffset(0);
-      const newMessagesContainerHeight = this.getMaxHeight() - (this.state.composerHeight + (this.getMinInputToolbarHeight() - MIN_COMPOSER_HEIGHT));
-      if (this.props.isAnimated === true) {
-        Animated.timing(this.state.messagesContainerHeight, {
-          toValue: newMessagesContainerHeight,
-          duration: 210,
-        }).start();
-      } else {
-        this.setState((previousState) => {
-          return {
-            messagesContainerHeight: newMessagesContainerHeight,
-          };
-        });
-      }
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => onKeyboardWillHide', error);
+    this.setIsTypingDisabled(true);
+    this.setKeyboardHeight(0);
+    this.setBottomOffset(0);
+    const newMessagesContainerHeight = this.getMaxHeight() - (this.state.composerHeight + (this.getMinInputToolbarHeight() - MIN_COMPOSER_HEIGHT));
+    if (this.props.isAnimated === true) {
+      Animated.timing(this.state.messagesContainerHeight, {
+        toValue: newMessagesContainerHeight,
+        duration: 210,
+      }).start();
+    } else {
+      this.setState((previousState) => {
+        return {
+          messagesContainerHeight: newMessagesContainerHeight,
+        };
+      });
     }
   }
 
   onKeyboardDidShow(e) {
-    try {
-      if (Platform.OS === 'android') {
-        this.onKeyboardWillShow(e);
-      }
-      this.setIsTypingDisabled(false);
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => onKeyboardDidShow', error);
+    if (Platform.OS === 'android') {
+      this.onKeyboardWillShow(e);
     }
+    this.setIsTypingDisabled(false);
   }
 
   onKeyboardDidHide(e) {
-    try {
-      if (Platform.OS === 'android') {
-        this.onKeyboardWillHide(e);
-      }
-      this.setIsTypingDisabled(false);
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => onKeyboardDidHide', error);
+    if (Platform.OS === 'android') {
+      this.onKeyboardWillHide(e);
     }
+    this.setIsTypingDisabled(false);
   }
 
   scrollToBottom(animated = true) {
-    try {
-      this._messageContainerRef.scrollTo({
-        y: 0,
-        animated,
-      });
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => scrollToBottom', error);
-    }
+    this._messageContainerRef.scrollTo({
+      y: 0,
+      animated,
+    });
   }
 
   onTouchStart() {
-    try {
-      this._touchStarted = true;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => onTouchStart', error);
-    }
+    this._touchStarted = true;
   }
 
   onTouchMove() {
-    try {
-      this._touchStarted = false;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => onTouchMove', error);
-    }
+    this._touchStarted = false;
   }
 
   // handle Tap event to dismiss keyboard
   onTouchEnd() {
-    try {
-      if (this._touchStarted === true) {
-        dismissKeyboard();
-      }
-      this._touchStarted = false;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => onTouchEnd', error);
+    if (this._touchStarted === true) {
+      dismissKeyboard();
     }
+    this._touchStarted = false;
   }
 
   serverTyping(msg) {
-    try {
-      if (!this._onlineMessagesIds[msg.id] && msg.content.length > 0) {
-        this._onlineMessages.push(msg);
-        this._onlineMessagesIds[msg.id] = msg.id;
-        this.setState({
-          onlineMessages: this._onlineMessages
-        });
-      } else if (msg.content.length == 0) {
-        delete this._onlineMessagesIds[msg.id];
-        this._onlineMessages = this._onlineMessages.filter((_msg) => {
-          return _msg.id != msg.id;
-        });
-        this.setState({
-          onlineMessages: this._onlineMessages
-        });
-      } else {
-        this._onlineMessages = this._onlineMessages.filter((_msg) => {
-          if (_msg.id == msg.id) {
-            _msg.content = msg.content;
-            _msg.text = msg.text;
-          }
-          return true;
-        });
-        this.setState({
-          onlineMessages: this._onlineMessages
-        });
-      }
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => serverTyping', error);
+    if (!this._onlineMessagesIds[msg.id] && msg.content.length > 0) {
+      this._onlineMessages.push(msg);
+      this._onlineMessagesIds[msg.id] = msg.id;
+      this.setState({
+        onlineMessages: this._onlineMessages
+      });
+    } else if (msg.content.length == 0) {
+      delete this._onlineMessagesIds[msg.id];
+      this._onlineMessages = this._onlineMessages.filter((_msg) => {
+        return _msg.id != msg.id;
+      });
+      this.setState({
+        onlineMessages: this._onlineMessages
+      });
+    } else {
+      this._onlineMessages = this._onlineMessages.filter((_msg) => {
+        if (_msg.id == msg.id) {
+          _msg.content = msg.content;
+          _msg.text = msg.text;
+        }
+        return true;
+      });
+      this.setState({
+        onlineMessages: this._onlineMessages
+      });
     }
   }
 
@@ -538,170 +398,137 @@ export default class GiftedChat extends React.Component {
   }
 
   renderMessages() {
-    try {
-      const AnimatedView = this.props.isAnimated === true ? Animated.View : View;
-      return (
-        <AnimatedView style={{
-          height: this.state.messagesContainerHeight,
-        }}>
-          <MessageContainer
-            {...this.props}
+    console.log('## renderMessages', this.state.messagesContainerHeight);
+    const AnimatedView = this.props.isAnimated === true ? Animated.View : View;
+    return (
+      <AnimatedView style={{
+        height: this.state.messagesContainerHeight,
+      }}>
+        <MessageContainer
+          {...this.props}
 
-            invertibleScrollViewProps={this.invertibleScrollViewProps}
+          invertibleScrollViewProps={this.invertibleScrollViewProps}
 
-            messages={this.getMessages()}
+          messages={this.getMessages()}
 
-            ref={component => this._messageContainerRef = component}
-          />
-          {this.renderChatFooter()}
-        </AnimatedView>
-      );
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => renderMessages', error);
-    }
+          ref={component => this._messageContainerRef = component}
+        />
+        {this.renderChatFooter()}
+      </AnimatedView>
+    );
   }
 
   onSend(messages = [], shouldResetInputToolbar = false) {
-    try {
-      if (!Array.isArray(messages)) {
-        messages = [messages];
-      }
+    if (!Array.isArray(messages)) {
+      messages = [messages];
+    }
 
-      messages = messages.map((message) => {
-        return {
-          ...message,
-          user: this.props.user,
-          createdAt: new Date(),
-          _id: 'temp-id-' + Math.round(Math.random() * 1000000),
-        };
-      });
+    messages = messages.map((message) => {
+      return {
+        ...message,
+        user: this.props.user,
+        createdAt: new Date(),
+        _id: 'temp-id-' + Math.round(Math.random() * 1000000),
+      };
+    });
 
-      if (shouldResetInputToolbar === true) {
-        this.setIsTypingDisabled(true);
-        this.resetInputToolbar();
-      }
+    if (shouldResetInputToolbar === true) {
+      this.setIsTypingDisabled(true);
+      this.resetInputToolbar();
+    }
 
-      this.props.onSend(messages);
-      this.scrollToBottom();
+    this.props.onSend(messages);
+    this.scrollToBottom();
 
-      if (shouldResetInputToolbar === true) {
-        setTimeout(() => {
-          if (this.getIsMounted() === true) {
-            this.setIsTypingDisabled(false);
-          }
-        }, 200);
-      }
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => onSend', error);
+    if (shouldResetInputToolbar === true) {
+      setTimeout(() => {
+        if (this.getIsMounted() === true) {
+          this.setIsTypingDisabled(false);
+        }
+      }, 200);
     }
   }
 
   resetInputToolbar() {
-    try {
-      this.setState((previousState) => {
-        return {
-          text: '',
-          composerHeight: MIN_COMPOSER_HEIGHT,
-          messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight() - this.getKeyboardHeight() + this.getBottomOffset()),
-        };
-      });
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => resetInputToolbar', error);
-    }
+    this.setState((previousState) => {
+      return {
+        text: '',
+        composerHeight: MIN_COMPOSER_HEIGHT,
+        messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight() - this.getKeyboardHeight() + this.getBottomOffset()),
+      };
+    });
   }
 
   calculateInputToolbarHeight(newComposerHeight) {
-    try {
-      return newComposerHeight + (this.getMinInputToolbarHeight() - MIN_COMPOSER_HEIGHT);
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => calculateInputToolbarHeight', error);
-    }
+    return newComposerHeight + (this.getMinInputToolbarHeight() - MIN_COMPOSER_HEIGHT);
   }
-
+ 
   onType(e) {
-    try {
-      if (this.getIsTypingDisabled() === true) {
-        return;
-      }
-      let newComposerHeight = null;
-      if (e.nativeEvent && e.nativeEvent.contentSize) {
-        newComposerHeight = Math.max(MIN_COMPOSER_HEIGHT, Math.min(MAX_COMPOSER_HEIGHT, e.nativeEvent.contentSize.height));
-      } else {
-        newComposerHeight = MIN_COMPOSER_HEIGHT;
-      }
-
-      const newMessagesContainerHeight = this.getMaxHeight() - this.calculateInputToolbarHeight(newComposerHeight) - this.getKeyboardHeight() + this.getBottomOffset();
-      const newText = e.nativeEvent.text;
-      this.setState((previousState) => {
-        return {
-          text: newText,
-          composerHeight: newComposerHeight,
-          messagesContainerHeight: this.prepareMessagesContainerHeight(newMessagesContainerHeight),
-        };
-      });
-      this.props.onType(newText, false);
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => onType', error);
+    if (this.getIsTypingDisabled() === true) {
+      return;
     }
+    let newComposerHeight = null;
+    if (e.nativeEvent && e.nativeEvent.contentSize) {
+      newComposerHeight = Math.max(MIN_COMPOSER_HEIGHT, Math.min(MAX_COMPOSER_HEIGHT, e.nativeEvent.contentSize.height));
+    } else {
+      newComposerHeight = MIN_COMPOSER_HEIGHT;
+    }
+
+    const newMessagesContainerHeight = this.getMaxHeight() - this.calculateInputToolbarHeight(newComposerHeight) - this.getKeyboardHeight() + this.getBottomOffset();
+    const newText = e.nativeEvent.text;
+    this.setState((previousState) => {
+      return {
+        text: newText,
+        composerHeight: newComposerHeight,
+        messagesContainerHeight: this.prepareMessagesContainerHeight(newMessagesContainerHeight),
+      };
+    });
+    this.props.onType(newText, false);
   }
 
   changeText = (data) => {
-    try {
-      Event.trigger('imojiType', this.state.text + data, false);
-      this.setState({ text: this.state.text + data });
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => changeText', error);
-    }
+    Event.trigger('imojiType', this.state.text + data, false);
+    this.setState({ text: this.state.text + data });
   }
 
   renderInputToolbar() {
-    try {
-      const inputToolbarProps = {
-        ...this.props,
-        text: this.state.text,
-        composerHeight: Math.max(MIN_COMPOSER_HEIGHT, this.state.composerHeight),
-        onChange: this.onType,
-        onSend: this.onSend,
-      };
-      if (this.props.renderInputToolbar) {
-        return this.props.renderInputToolbar(inputToolbarProps);
-      }
-      return (
-        <InputToolbar
-          changeText={this.changeText}
-          textInput={this.state.text}
-          {...inputToolbarProps}
-        />
-      );
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => renderInputToolbar', error);
+    const inputToolbarProps = {
+      ...this.props,
+      text: this.state.text,
+      composerHeight: Math.max(MIN_COMPOSER_HEIGHT, this.state.composerHeight),
+      onChange: this.onType,
+      onSend: this.onSend,
+    };
+    if (this.props.renderInputToolbar) {
+      return this.props.renderInputToolbar(inputToolbarProps);
     }
+    return (
+      <InputToolbar
+        changeText={this.changeText}
+        textInput={this.state.text}
+        {...inputToolbarProps}
+      />
+    );
   }
 
   renderChatFooter() {
-    try {
-      if (this.props.renderChatFooter) {
-        const footerProps = {
-          ...this.props,
-        };
-        return this.props.renderChatFooter(footerProps);
-      }
-      return null;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => renderChatFooter', error);
+    if (this.props.renderChatFooter) {
+      const footerProps = {
+        ...this.props,
+      };
+      return this.props.renderChatFooter(footerProps);
     }
+    return null;
   }
 
   renderLoading() {
-    try {
-      if (this.props.renderLoading) {
-        return this.props.renderLoading();
-      }
-      return null;
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => renderLoading', error);
+    if (this.props.renderLoading) {
+      return this.props.renderLoading();
     }
+    return null;
   }
+
+
 
   setEncryptedVisible(visible) {
     try {
@@ -713,25 +540,19 @@ export default class GiftedChat extends React.Component {
         validate: true,
         encryptedVisible: visible
       });
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => setEncryptedVisible', error);
+    }
+    catch (e) {
+      ErrorHandler.WriteError('GiftedChat.js => setEncryptedVisible', e);
     }
   }
 
   menuOption() {
-    try {
-      this.setState({ showMenu: !this.state.showMenu });
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => menuOption', error);
-    }
+    this.setState({ showMenu: !this.state.showMenu });
   }
 
   newList() {
-    try {
-      this.setState({ showMenu: !this.state.showMenu });
-    } catch (error) {
-      ErrorHandler.WriteError('GiftedChat.js => newList', error);
-    }
+    console.log('new list is working well');
+    this.setState({ showMenu: !this.state.showMenu });
   }
 
   guid() {
@@ -923,9 +744,15 @@ export default class GiftedChat extends React.Component {
                 />
               </View>
               <View style={{ flexDirection: "row", flex: 0.5 }}>
+              
                 <TouchableOpacity style={styles.buttonStyle}
                   onPress={() => { this.tryToDecrypt(this.state.DecryptedMessageText) }} >
-                  <Text style={{ color: 'white' }}>Decrypt</Text>
+                     {renderIf(this.state.headerTextDecrypted == "Password Validation")(
+                    <Text style={{ color: 'white' }}> Validate  </Text>
+                   )}
+                     {renderIf(this.state.headerTextDecrypted == "Message Decrypted Successfully")(
+                    <Text style={{ color: 'white' }}> Decrypt  </Text>
+                   )}
                 </TouchableOpacity>
                 <View style={{ flex: 0.6, justifyContent: "center", alignItems: "center" }}>
                   <Image
@@ -1056,7 +883,13 @@ export default class GiftedChat extends React.Component {
                       this.encryptedMessageFunc(this.state.encryptedPassword);
                     }
                   }} >
-                  <Text style={{ color: 'white' }}>Send</Text>
+                  
+                   {renderIf(this.state.headerTextEncrypted == "Password Validation")(
+                    <Text style={{ color: 'white' }}> Validate  </Text>
+                   )}
+                     {renderIf(this.state.headerTextEncrypted == "Encrypt Your Message")(
+                    <Text style={{ color: 'white' }}> Send  </Text>
+                   )}
                 </TouchableOpacity>
                 <View style={{ flex: 0.6, justifyContent: "center", alignItems: "center" }}>
                   <Image
@@ -1093,241 +926,255 @@ export default class GiftedChat extends React.Component {
   }
 
   VedioCallFriend() {
-    try {
-      liveSrv.Connect(this.props.convId, null, false, true, false);
-      Actions.Video({ userName: this.props.userName, userPicture: this.props.userPicture, convId: this.props.convId });
-      setTimeout(() => {
-        Event.trigger('getVideoCall', false);
-      }, 100);
-      this.setState({ showMenu: !this.state.showMenu });
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => VedioCallFriend', e);
-    }
+    liveSrv.Connect(this.props.convId, null, false, true, false);
+    Actions.Video({ userName: this.props.userName, userPicture: this.props.userPicture, convId: this.props.convId });
+    setTimeout(() => {
+      Event.trigger('getVideoCall', false);
+    }, 100);
+    this.setState({ showMenu: !this.state.showMenu });
   }
 
   CallFriend() {
-    try {
-      liveSrv.Connect(this.props.convId);
-      Actions.Call({ userName: this.props.userName, userPicture: this.props.userPicture, convId: this.props.convId });
-      setTimeout(() => {
-        Event.trigger('getCall', false);
-      }, 100);
-      this.setState({ showMenu: !this.state.showMenu });
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => CallFriend', e);
-    }
+    liveSrv.Connect(this.props.convId);
+    Actions.Call({ userName: this.props.userName, userPicture: this.props.userPicture, convId: this.props.convId });
+    setTimeout(() => {
+      Event.trigger('getCall', false);
+    }, 100);
+    this.setState({ showMenu: !this.state.showMenu });
   }
 
   walkieTalkie() {
-    try {
-      liveSrv.Connect(this.props.convId, null, false, false, true);
-      Actions.PTT({ userName: this.props.userName, userPicture: this.props.userPicture, convId: this.props.convId });
-      setTimeout(() => {
-        Event.trigger('getPttCall', false);
-      }, 100);
-      this.setState({ showMenu: !this.state.showMenu });
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => walkieTalkie', e);
-    }
+    liveSrv.Connect(this.props.convId, null, false, false, true);
+    Actions.PTT({ userName: this.props.userName, userPicture: this.props.userPicture, convId: this.props.convId });
+    setTimeout(() => {
+      Event.trigger('getPttCall', false);
+    }, 100);
+    this.setState({ showMenu: !this.state.showMenu });
   }
 
   settings() {
-    try {
-      this.setState({ showMenu: !this.state.showMenu });
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => settings', e);
-    }
+    console.log('settings is working well');
+    this.setState({ showMenu: !this.state.showMenu });
   }
 
   cancel_chatRoom(lastMessage, lastMessageTime, lastMessageIsEncrypted) {
+    Event.trigger('lastMessage', lastMessage, lastMessageTime, this.props.convId, false, lastMessageIsEncrypted);
+    Event.trigger('CloseChatRoom');
+    
+  }
+
+
+  openEmojiModal(isOpen) {
     try {
-      Event.trigger('lastMessage', lastMessage, lastMessageTime, this.props.convId, false, lastMessageIsEncrypted);
-      Event.trigger('CloseChatRoom');
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => cancel_chatRoom', e);
+      if (isOpen){
+        this.setState({isEmojiOpen: true, messagesContainerHeight: (this.state.messagesContainerHeight * 2)});
+      } else {
+        this.setState({isEmojiOpen: false, messagesContainerHeight: (this.state.messagesContainerHeight / 2)});
+      }
+    } catch (error) {
+      ErrorHandler.WriteError('GiftedChat.js => openEmojiModal', error);
     }
   }
 
-  render() {
-    try {
-      if (this.state.isInitialized === true) {
-        return (
-          <View style={styles.chatRoomMain}>
-            <View style={generalStyles.styles.appbar}>
-              <TouchableOpacity onPress={() => {
-                if (this.props.messages && this.props.messages.length > 0) {
-                  this.cancel_chatRoom(this.props.messages[0].text, this.props.messages[0].sendTime);
-                }
-                dismissKeyboard();
-                serverSrv.exitChat(serverSrv._convId);
-                Actions.pop();
-              }}>
-                <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => {
-                dismissKeyboard();
-                Actions.pop();
-              }}>
-                {renderIf(this.props.isGroup)(
-                  <View style={generalStyles.styles.viewImg}>
-                    <Image style={generalStyles.styles.thumb} source={this.props.userPicture ? { uri: this.props.userPicture } : require('../../img/group-img.jpg')} />
-                  </View>
-                )}
-                {renderIf(!this.props.isGroup)(
-                  <View style={generalStyles.styles.viewImg}>
-                    <Image style={generalStyles.styles.thumb} source={this.props.userPicture ? { uri: this.props.userPicture } : require('../../img/user.jpg')} />
-                  </View>
-                )}
-              </TouchableOpacity>
-              <TouchableOpacity style={generalStyles.styles.titleHeaderContainer} onPress={() => {
-                if (this.props.isGroup) {
-                  Actions.GroupProfile(this.props);
-                }
-                else {
-                  Actions.ContactProfile(this.props);
-                }
-              }}>
-                <Text style={generalStyles.styles.titleHeader}>
-                  {this.props.userName}
-                </Text>
-                <Text style={generalStyles.styles.titleOnline}>
-                  {this.state.onlineStatus}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={{ margin: 7 }} onPress={() => {
-                Event.trigger('showImagePicker');
-              }}>
-                <IconMat name="photo-camera" size={25} color="white" />
-              </TouchableOpacity>
-
-              <TouchableOpacity style={{ margin: 7 }} onPress={() => {
-                Event.trigger('showSignature');
-              }}>
-                <IconMat name="brush" size={25} color="white" />
-              </TouchableOpacity>
-              <TouchableOpacity style={{ margin: 7 }} onPress={() => {
-                this.menuOption();
-              }}>
-                <IconMat name="more-vert" size={25} color="white" />
-              </TouchableOpacity>
-
-              {renderIf(this.state.showMenu)(
-                <Modal
-                  onRequestClose={() => { }}
-                  style={{ flex: 1 }}
-                  transparent={true}
-                >
-                  <TouchableOpacity style={{ flex: 1 }} onPress={() => {
-                    this.setState({ showMenu: !this.state.showMenu })
-                  }}>
-                    <View style={{
-                      width: 160,
-                      height: 170,
-                      backgroundColor: 'white',
-                      position: 'absolute',
-                      top: 35,
-                      right: 25,
-                      elevation: 6,
-                    }}
-                    >
-                      <TouchableOpacity onPress={() => {
-                        this.CallFriend();
-                      }}>
-                        <View style={{ margin: 7, left: 6, alignItems: 'center', flexDirection: 'row' }}>
-                          <IconMat name="call" size={20} color="black" />
-                          <Text> Voice Call</Text>
-                        </View>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => {
-                        this.VedioCallFriend();
-                      }}>
-                        <View style={{ margin: 7, left: 6, alignItems: 'center', flexDirection: 'row' }}>
-                          <IconMat name="videocam" size={20} color="black" />
-                          <Text> Video Call</Text>
-                        </View>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => {
-                        this.walkieTalkie();
-                      }}>
-                        <View style={{ margin: 7, left: 6, alignItems: 'center', flexDirection: 'row' }}>
-                          <IconMat name="speaker-phone" size={20} color="black" />
-                          <Text> Walkie-Talkie</Text>
-                        </View>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => {
-                        this.encryptMessage();
-                      }}>
-                        <View style={{ margin: 7, left: 6, alignItems: 'center', flexDirection: 'row' }}>
-                          <IconMat name="lock" size={20} color="black" />
-                          <Text> Encrypt Message</Text>
-                        </View>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => {
-                        this.settings();
-                      }}>
-                        <View style={{ margin: 7, left: 6, alignItems: 'center', flexDirection: 'row' }}>
-                          <IconMat name="settings" size={20} color="black" />
-                          <Text> Settings</Text>
-                        </View>
-                      </TouchableOpacity>
-                    </View>
-                  </TouchableOpacity>
-                </Modal>
-              )}
-              <View style={styles.button} />
-            </View>
-            <ActionSheet ref={component => this._actionSheetRef = component}>
-              <View
-                style={styles.container}
-                onLayout={(e) => {
-                  if (Platform.OS === 'android') {
-                    // fix an issue when keyboard is dismissing during the initialization
-                    const layout = e.nativeEvent.layout;
-                    if (this.getMaxHeight() !== layout.height && this.getIsFirstLayout() === true) {
-                      this.setMaxHeight(layout.height);
-                      this.setState({
-                        messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight()),
-                      });
-                    }
-                  }
-                  if (this.getIsFirstLayout() === true) {
-                    this.setIsFirstLayout(false);
-                  }
-                }}
-              >
-                {this.renderMessages()}
-                {this.renderInputToolbar()}
-
-              </View>
-            </ActionSheet>
-            {this.openImageModal(this.imgSelected)}
-            {this.encrypteModal()}
-            {this.renderdecryptedMessage()}
-          </View>
-        );
-      }
-      return (
-        <View
-          style={styles.container}
-          onLayout={(e) => {
-            const layout = e.nativeEvent.layout;
-            this.setMaxHeight(layout.height);
-            InteractionManager.runAfterInteractions(() => {
-              this.setState({
-                isInitialized: true,
-                text: '',
-                composerHeight: MIN_COMPOSER_HEIGHT,
-                messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight()),
-              });
+renderEmoji(){
+        try {
+            var data = "😀 😃 😄 😁 😆 😅 😂 😊 😇 😉 😌 😍 😘 😗 😙 😚 😋 😜 😝 😛 😎 😏 😒 😞 😔 😟 😕 🙁 ☹️ 😣 😖 😫 😩 😤 😠 😡 😶 😐 😑 😯 😦 😧 😮 😲 😵 😳 😱 😨 😰 😢 😥 😭 😓 😪 😴 😬 😷 😈 👿 👹 👺 💩 👻 💀 ☠️ 👽 👾 🎃 😺 😸 😹 😻 😼 😽 🙀 😿 😾 👐 🙌 👏 🙏 👍 👎 👊 ✊ ✌️ 👌 👈 👉 👆 👇 ☝️ ✋ 🖐 🖖 👋 💪 🖕 ✍️ 💅 🖖 💄 💋 👄 👅 👂 👃 👣 👁 👀 🗣 👤 👥 👶 👦 👧 👨 👩 👱‍♀️ 👱 👴 👵 👲 👳‍♀️ 👳 👮‍♀️ 👮 👷‍♀️ 👷 💂‍♀️ 💂 🕵️‍♀️ 🕵️ 👩‍⚕️ 👨‍⚕️ 👩‍🌾 👨‍🌾 👩‍🍳 👨‍🍳 👩‍🎓 👨‍🎓 👩‍🎤 👨‍🎤 👩‍🏫 👨‍🏫 👩‍🏭 👨‍🏭 👩‍💻 👨‍💻 👩‍💼 👨‍💼 👩‍🔧 👨‍🔧 👩‍🔬 👨‍🔬 👩‍🎨 👨‍🎨 👩‍🚒 👨‍🚒 👩‍✈️ 👨‍✈️ 👩‍🚀 👨‍🚀 👩‍⚖️ 👨‍⚖️ 🎅 👸 👰 👼 🙇‍♀️ 🙇 💁 💁‍♂️ 🙅 🙅‍♂️ 🙆 🙆‍♂️ 🙋 🙋‍♂️ 🙎 🙎‍♂️ 🙍 🙍‍♂️ 💇 💇‍♂️ 💆 💆‍♂️ 🕴 💃 👯 👯‍♂️ 🚶‍♀️ 🚶 🏃‍♀️ 🏃 👫 👭 👬 💑 👩‍❤️‍👩 👨‍❤️‍👨 💏 👩‍❤️‍💋‍👩 👨‍❤️‍💋‍👨 👪 👨‍👩‍👧 👨‍👩‍👧‍👦 👨‍👩‍👦‍👦 👨‍👩‍👧‍👧 👩‍👩‍👦 👩‍👩‍👧 👩‍👩‍👧‍👦 👩‍👩‍👦‍👦 👩‍👩‍👧‍👧 👨‍👨‍👦 👨‍👨‍👧 👨‍👨‍👧‍👦 👨‍👨‍👦‍👦 👨‍👨‍👧‍👧 👩‍👦 👩‍👧 👩‍👧‍👦 👩‍👦‍👦 👩‍👧‍👧 👨‍👦 👨‍👧 👨‍👧‍👦 👨‍👦‍👦 👨‍👧‍👧 👚 👕 👖 👔 👗 👙 👘 👠 👡 ";
+            data = data.split(' ');
+            data = data.filter(Boolean);
+            data = data.map((x) => {
+                return <TouchableOpacity
+                 style={{height: 40}}
+                  onPress={() => {
+                    this.changeText(x);
+                  }}
+                ><Text style={styles.emojiText}>{x}</Text></TouchableOpacity>;
             });
-          }}
-        >
-          {this.renderLoading()}
+            return  <ScrollView style={{ flex: 1, backgroundColor: 'red' }}><View style={styles.emoji}>{data}</View></ScrollView>
+        } catch (error) {
+            
+        }
+    }
+
+  render() {
+    if (this.state.isInitialized === true) {
+      return (
+        <View style={styles.chatRoomMain}>
+          <View style={generalStyles.styles.appbar}>
+            <TouchableOpacity onPress={() => {
+              if (this.props.messages && this.props.messages.length > 0) {
+                this.cancel_chatRoom(this.props.messages[0].text, this.props.messages[0].sendTime,this.props.messages[0].isEncrypted);
+              }
+              dismissKeyboard();
+              serverSrv.exitChat(serverSrv._convId);
+              Actions.pop();
+            }}>
+              <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => {
+              dismissKeyboard();
+              Event.trigger('closeChatRoom');
+              Actions.pop();
+            }}>
+              {renderIf(this.props.isGroup)(
+                <View style={generalStyles.styles.viewImg}>
+                  <Image style={generalStyles.styles.thumb} source={this.props.userPicture ? { uri: this.props.userPicture } : require('../../img/group-img.jpg')} />
+                </View>
+              )}
+              {renderIf(!this.props.isGroup)(
+                <View style={generalStyles.styles.viewImg}>
+                  <Image style={generalStyles.styles.thumb} source={this.props.userPicture ? { uri: this.props.userPicture } : require('../../img/user.jpg')} />
+                </View>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity style={generalStyles.styles.titleHeaderContainer} onPress={() => {
+              if (this.props.isGroup) {
+                Actions.GroupProfile(this.props);
+              }
+              else {
+                Actions.ContactProfile(this.props);
+              }
+            }}>
+              <Text style={generalStyles.styles.titleHeader}>
+                {this.props.userName}
+              </Text>
+              <Text style={generalStyles.styles.titleOnline}>
+                {this.state.onlineStatus}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{ margin: 7 }} onPress={() => {
+              Event.trigger('showImagePicker');
+            }}>
+              <IconMat name="photo-camera" size={25} color="white" />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={{ margin: 7 }} onPress={() => {
+              Event.trigger('showSignature');
+            }}>
+              <IconMat name="brush" size={25} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity style={{ margin: 7 }} onPress={() => {
+              this.menuOption();
+            }}>
+              <IconMat name="more-vert" size={25} color="white" />
+            </TouchableOpacity>
+
+            {renderIf(this.state.showMenu)(
+              <Modal
+                onRequestClose={() => { }}
+                style={{ flex: 1 }}
+                transparent={true}
+              >
+                <TouchableOpacity style={{ flex: 1 }} onPress={() => {
+                  this.setState({ showMenu: !this.state.showMenu })
+                }}>
+                  <View style={{
+                    width: 160,
+                    height: this.props.isGroup ? 140 : 175,
+                    backgroundColor: 'white',
+                    position: 'absolute',
+                    top: 35,
+                    right: 25,
+                    elevation: 6,
+                  }}
+                  >
+                    <TouchableOpacity onPress={() => {
+                      this.CallFriend();
+                    }}>
+                      <View style={{ margin: 7, left: 6, alignItems: 'center', flexDirection: 'row' }}>
+                        <IconMat name="call" size={20} color="black" />
+                        <Text> Voice Call</Text>
+                      </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => {
+                      this.VedioCallFriend();
+                    }}>
+                      <View style={{ margin: 7, left: 6, alignItems: 'center', flexDirection: 'row' }}>
+                        <IconMat name="videocam" size={20} color="black" />
+                        <Text> Video Call</Text>
+                      </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => {
+                      this.walkieTalkie();
+                    }}>
+                      <View style={{ margin: 7, left: 6, alignItems: 'center', flexDirection: 'row' }}>
+                        <IconMat name="speaker-phone" size={20} color="black" />
+                        <Text> Walkie-Talkie</Text>
+                      </View>
+                    </TouchableOpacity>
+                     {renderIf(!this.props.isGroup)(
+                   <TouchableOpacity onPress={() => {
+                      this.encryptMessage();
+                    }}>
+                      <View style={{ margin: 7, left: 6, alignItems: 'center', flexDirection: 'row' }}>
+                        <IconMat name="lock" size={20} color="black" />
+                        <Text> Encrypt Message</Text>
+                      </View>
+                    </TouchableOpacity>
+                   )}
+                    
+                    <TouchableOpacity onPress={() => {
+                      this.settings();
+                    }}>
+                      <View style={{ margin: 7, left: 6, alignItems: 'center', flexDirection: 'row' }}>
+                        <IconMat name="settings" size={20} color="black" />
+                        <Text> Settings</Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                </TouchableOpacity>
+              </Modal>
+            )}
+            <View style={styles.button} />
+          </View>
+          <ActionSheet ref={component => this._actionSheetRef = component}>
+            <View
+              style={styles.container}
+              onLayout={(e) => {
+                if (Platform.OS === 'android') {
+                  // fix an issue when keyboard is dismissing during the initialization
+                  const layout = e.nativeEvent.layout;
+                  if (this.getMaxHeight() !== layout.height && this.getIsFirstLayout() === true) {
+                    this.setMaxHeight(layout.height);
+                    this.setState({
+                      messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight()),
+                    });
+                  }
+                }
+                if (this.getIsFirstLayout() === true) {
+                  this.setIsFirstLayout(false);
+                }
+              }}
+            >
+              {this.renderMessages()}
+              {this.renderInputToolbar()}
+              {this.renderEmoji()}
+            </View>
+          </ActionSheet>
+          {this.openImageModal(this.imgSelected)}
+          {this.encrypteModal()}
+          {this.renderdecryptedMessage()}
         </View>
       );
-    } catch (e) {
-      ErrorHandler.WriteError('GiftedChat.js => render', e);
     }
+    return (
+      <View
+        style={styles.container}
+        onLayout={(e) => {
+          const layout = e.nativeEvent.layout;
+          this.setMaxHeight(layout.height);
+          InteractionManager.runAfterInteractions(() => {
+            this.setState({
+              isInitialized: true,
+              text: '',
+              composerHeight: MIN_COMPOSER_HEIGHT,
+              messagesContainerHeight: this.prepareMessagesContainerHeight(this.getMaxHeight() - this.getMinInputToolbarHeight()),
+            });
+          });
+        }}
+      >
+        {this.renderLoading()}
+      </View>
+    );
   }
 }
 
@@ -1335,6 +1182,17 @@ const styles = StyleSheet.create({
   chatRoomMain: {
     flex: 1,
     flexDirection: 'column'
+  },
+  emoji:{
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-around',
+      backgroundColor: '#d6d6d6'
+  },
+  emojiText:{
+      fontSize: 30,
+      height: 40,
+      color: 'black'
   },
   buttonStyle: {
     flex: 0.6, justifyContent: "center", alignItems: "center", height: 35,
@@ -1405,11 +1263,6 @@ GiftedChat.defaultProps = {
   bottomOffset: 0,
   isLoadingEarlier: false,
 };
-//  Modal.propTypes = {
-
-//     onPressBackdrop:this.walkieTalkie() ,
-
-//   },
 
 GiftedChat.propTypes = {
   messages: React.PropTypes.array,

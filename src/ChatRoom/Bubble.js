@@ -80,7 +80,10 @@ export default class Bubble extends React.Component {
           <View >
             <TouchableOpacity onPress={() => {
               Event.trigger('decryptedMessage', this.props.currentMessage.text, this.props.currentMessage._id);
-            }}>
+
+            } }
+            onLongPress={this.onLongPress}
+            >
 
               <View style={{ flexDirection: 'row' }}>
                 <Image

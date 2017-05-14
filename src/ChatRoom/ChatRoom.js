@@ -11,7 +11,6 @@ import {
     Text,
     TextInput,
     Dimensions,
-    ScrollView,
     View,
     NativeModules,
     Modal,
@@ -81,6 +80,7 @@ export default class ChatRoom extends Component {
             Event.on('imojiType', this.onType);
             Event.on('encryptedMessage', this.onSend);
             BackAndroid.addEventListener('hardwareBackPress', () => {
+                Event.trigger('closeChatRoom');
                 serverSrv.exitChat(this.convId);
                 if (this.convId && this.messages.length > 0 && ((this.messages[0].text && this.messages[0].text.length > 0) || (this.messages[0].image && this.messages[0].image.length > 0)) && this.messages[0].sendTime) {
                     var contentOfMessage = this.messages[0].text;
@@ -180,7 +180,9 @@ export default class ChatRoom extends Component {
 
     deleteMessage(text, id) {
         try {
-            this.messages = this.state.messages.filter((x) => x.id !== id);
+
+            this.messages = this.state.messages.filter((x) => x.id !== id );
+            
             this.setState({
                 messages: this.messages //delete message from the UI
             });
@@ -193,6 +195,7 @@ export default class ChatRoom extends Component {
     deleteFriendMessageUI(mid) {
         try {
             this.messages = this.state.messages.filter((x) => x.id !== mid);
+            
             this.setState({
                 messages: this.messages
             });

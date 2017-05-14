@@ -7,7 +7,6 @@ import {
     TouchableOpacity,
     Modal
 } from 'react-native';
-import { TabViewAnimated, TabViewPage, TabBarTop } from 'react-native-tab-view';
 import Contacts from './Contacts/Contacts';
 import ChatRoom from './ChatRoom/ChatRoom';
 import SignUp from './SignUp/SignUp';

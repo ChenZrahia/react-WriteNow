@@ -1,5 +1,6 @@
 import React from 'react';
 import { Container, Content, Icon } from 'native-base';
+import Icon2 from 'react-native-vector-icons/MaterialIcons';
 import {
   Animated,
   InteractionManager,
@@ -11,12 +12,13 @@ import {
   TouchableOpacity,
   Text
 } from 'react-native';
-import EmojiPicker from 'react-native-simple-emoji-picker';
 import ActionSheet from '@exponent/react-native-action-sheet';
+// var json = require("json!./file.json");
 import dismissKeyboard from 'react-native-dismiss-keyboard';
+import renderIf from '../../plugins/renderIf';
+
 var Event = require('../../Services/Events');
 var ErrorHandler = require('../../ErrorHandler');
-
 
 export default class Composer extends React.Component {
   constructor(props) {
@@ -25,32 +27,28 @@ export default class Composer extends React.Component {
       this.state = {
         showPicker: false,
       };
+      Event.on('closeChatRoom', () => {
+        this.setState({isEmojiOpen: false});
+      });
+
     } catch (e) {
       ErrorHandler.WriteError('Composer.js => constructor', e);
     }
   }
 
   onChange(e) { //add by rugbin 24.3.17 -for auto size the height
-    try {
-      const contentSize = e.nativeEvent.contentSize;
-      if (!this.contentSize) {
-        this.contentSize = contentSize;
-        this.props.onInputSizeChanged(this.contentSize);
-      } else if (this.contentSize.width !== contentSize.width || this.contentSize.height !== contentSize.height) {
-        this.contentSize = contentSize;
-        this.props.onInputSizeChanged(this.contentSize);
-      }
-    } catch (e) {
-      ErrorHandler.WriteError('Composer.js => onChange', e);
+    const contentSize = e.nativeEvent.contentSize;
+    if (!this.contentSize) {
+      this.contentSize = contentSize;
+      this.props.onInputSizeChanged(this.contentSize);
+    } else if (this.contentSize.width !== contentSize.width || this.contentSize.height !== contentSize.height) {
+      this.contentSize = contentSize;
+      this.props.onInputSizeChanged(this.contentSize);
     }
   }
 
   onChangeText(text) { //add by rugbin 24.3.17 -for auto size the height
-    try {
-      this.props.onTextChanged(text);
-    } catch (e) {
-      ErrorHandler.WriteError('Composer.js => onChangeText', e);
-    }
+    this.props.onTextChanged(text);
   }
 
   _emojiSelected(emoji) {
@@ -64,44 +62,37 @@ export default class Composer extends React.Component {
 
   render() {
     try {
+
       if (this.state.showPicker === true) {
-        return (
-          <View style={styles.cont} >
-            <Modal
-              style={{ backgroundColor: 'red' }}
-              transparent={false}
-              onRequestClose={() => {
-                this.setState({
-                  showPicker: false
-                })
-              }}
-            >
-              <View style={styles.viewEmoji}>
-                <View style={styles.container}>
-                  <EmojiPicker
-                    onPick={emoji => { this._emojiSelected(emoji) }} />
-                </View>
-              </View>
-            </Modal>
-          </View>
-        );
+        return null;
       }
 
       return (
         <View style={styles.row}>
-          <TouchableOpacity onPress={() => this.setState({
-            showPicker: true
-          })
-
+          <TouchableOpacity onPress={() => {
+            if (!this.state.isEmojiOpen) {
+              dismissKeyboard();
+            }
+            setTimeout(() => {
+              Event.trigger('openEmojiModal', this.state.isEmojiOpen);
+              this.setState({ isEmojiOpen: !this.state.isEmojiOpen });
+            }, 200);
+          }
           }>
             <View>
-              <Icon name='md-happy' style={styles.icon} />
+              {renderIf(!this.state.isEmojiOpen)(
+                <Icon name='md-happy' style={styles.icon} />
+              )}
+              {renderIf(this.state.isEmojiOpen)(
+                <Icon2 name='keyboard-arrow-down' style={styles.icon} />
+              )}
             </View>
           </TouchableOpacity>
           <TextInput
             placeholder={this.props.placeholder}
             placeholderTextColor={this.props.placeholderTextColor}
             multiline={this.props.multiline}
+            onFocus={() => this.setState({ isEmojiOpen: false})}
             onChange={(e) => {
               this.props.onChange(e);
             }
@@ -122,6 +113,8 @@ export default class Composer extends React.Component {
   }
 }
 
+// onChangeText = {(title) => {this.setState({text: title})}}
+
 const styles = StyleSheet.create({
   cont: {
     flex: 1,
@@ -132,8 +125,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
   },
-
-
   viewEmoji: {
     flex: 1,
     flexDirection: 'row',

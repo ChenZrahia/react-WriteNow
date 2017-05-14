@@ -22,6 +22,7 @@ import { RTCView } from 'react-native-webrtc';
 import InCallManager from 'react-native-incall-manager';
 import FitImage from '../../../plugins/FitImage';
 import renderIf from '../../../plugins/renderIf';
+import Toast from 'react-native-root-toast';
 
 var dismissKeyboard = require('dismissKeyboard');
 var Event = require('../../../Services/Events');
@@ -34,13 +35,13 @@ var _IsIncomingCall = false;
 
 var mirs1 = new Sound('mirs1.mp3', Sound.MAIN_BUNDLE, (error) => {
     if (error) {
-        ErrorHandler.WriteError("PTT.js => mirs1", error);
+        console.log('failed to load the sound', error);
     }
 });
 
 var mirs2 = new Sound('mirs2.mp3', Sound.MAIN_BUNDLE, (error) => {
     if (error) {
-        ErrorHandler.WriteError("PTT.js => mirs2", error);
+        console.log('failed to load the sound', error);
     }
 });
 
@@ -48,24 +49,26 @@ let container = null;
 
 export default class Call extends Component {
     constructor() {
+        super();
+        this.container_setState = this.container_setState.bind(this);
+        this.receiveTextData = this.receiveTextData.bind(this);
+        this.delete_remoteList = this.delete_remoteList.bind(this);
+        this.add_remoteList = this.add_remoteList.bind(this);
+        this.hungUp = this.hungUp.bind(this);
+        this.getCall = this.getCall.bind(this);
+        this.talk = this.talk.bind(this);
+        this.endTalk = this.endTalk.bind(this);
+        this.connectToServer = this.connectToServer.bind(this);
+        this.recall = this.recall.bind(this)
+        Event.on('container_setState', this.container_setState);
+        Event.on('receiveTextData', this.receiveTextData);
+        Event.on('delete_remoteList', this.delete_remoteList);
+        Event.on('add_remoteList', this.add_remoteList);
+        Event.on('hungUp', this.hungUp);
+        Event.on('getPttCall', this.getCall);
+        InCallManager.setSpeakerphoneOn(true);
+        
         try {
-            super();
-            this.container_setState = this.container_setState.bind(this);
-            this.receiveTextData = this.receiveTextData.bind(this);
-            this.delete_remoteList = this.delete_remoteList.bind(this);
-            this.add_remoteList = this.add_remoteList.bind(this);
-            this.hungUp = this.hungUp.bind(this);
-            this.getCall = this.getCall.bind(this);
-            this.talk = this.talk.bind(this);
-            this.endTalk = this.endTalk.bind(this);
-            this.connectToServer = this.connectToServer.bind(this);
-            Event.on('container_setState', this.container_setState);
-            Event.on('receiveTextData', this.receiveTextData);
-            Event.on('delete_remoteList', this.delete_remoteList);
-            Event.on('add_remoteList', this.add_remoteList);
-            Event.on('hungUp', this.hungUp);
-            Event.on('getPttCall', this.getCall);
-            InCallManager.setSpeakerphoneOn(true);
             dismissKeyboard();
             this.callInterval = null;
             this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => true });
@@ -86,12 +89,12 @@ export default class Call extends Component {
             };
             this.startCall = this.startCall.bind(this);
             this.pptUp = this.pptUp.bind(this);
-            InCallManager.setMicrophoneMute(true);
+            InCallManager.setMicrophoneMute(true);           
+
         } catch (e) {
             ErrorHandler.WriteError("PTT.js -> constructor", e);
         }
     }
-
     getCall(IsIncomingCall) {
         try {
             _IsIncomingCall = IsIncomingCall;
@@ -154,7 +157,8 @@ export default class Call extends Component {
                 }
             });
 
-            AppState.addEventListener('change', (state) => {
+            AppState.addEventListener('change', (state) =>
+            {
                 if (state != 'active') {
                     //this.hungUp(true);
                     InCallManager.setMicrophoneMute(false);
@@ -199,112 +203,112 @@ export default class Call extends Component {
     }
 
     _press(event) {
-        try {
-            InCallManager.start({ media: 'audio' });
-            InCallManager.setForceSpeakerphoneOn(true);
-            InCallManager.setKeepScreenOn(true);
-            InCallManager.setMicrophoneMute(true);
-            InCallManager.setSpeakerphoneOn(true);
-            if (this.refs && this.refs.roomID) {
-                this.refs.roomID.blur();
-            }
-            this.setState({ status: 'connect', info: 'Connecting' });
-            liveSrv.join(this.state.roomID);
-        } catch (error) {
-            ErrorHandler.WriteError("PTT.js -> _press", error);
+        InCallManager.start({ media: 'audio' });
+        InCallManager.setForceSpeakerphoneOn(true);
+        InCallManager.setKeepScreenOn(true);
+        InCallManager.setMicrophoneMute(true);
+        InCallManager.setSpeakerphoneOn(true);
+        if (this.refs && this.refs.roomID){
+            this.refs.roomID.blur();
         }
+        this.setState({ status: 'connect', info: 'Connecting' });
+        liveSrv.join(this.state.roomID);
     }
 
     _switchVideoType() {
-        try {
-            const isFront = !this.state.isFront;
-            this.setState({ isFront });
-            liveSrv.getLocalStream(false, isFront, function (stream) {
-                if (liveSrv.localStream) {
-                    for (const id in liveSrv.pcPeers) {
-                        const pc = liveSrv.pcPeers[id];
-                        pc && pc.removeStream(liveSrv.localStream);
-                    }
-                    liveSrv.localStream.release();
-                }
-                liveSrv.localStream = stream;
-                liveSrv.container.setState({ selfViewSrc: stream.toURL() });
-
+        const isFront = !this.state.isFront;
+        this.setState({ isFront });
+        liveSrv.getLocalStream(false, isFront, function (stream) {
+            if (liveSrv.localStream) {
                 for (const id in liveSrv.pcPeers) {
                     const pc = liveSrv.pcPeers[id];
-                    pc && pc.addStream(liveSrv.localStream);
+                    pc && pc.removeStream(liveSrv.localStream);
                 }
-            });
-        } catch (error) {
-            ErrorHandler.WriteError("PTT.js -> _switchVideoType", error);
-        }
+                liveSrv.localStream.release();
+            }
+            liveSrv.localStream = stream;
+            liveSrv.container.setState({ selfViewSrc: stream.toURL() });
+
+            for (const id in liveSrv.pcPeers) {
+                const pc = liveSrv.pcPeers[id];
+                pc && pc.addStream(liveSrv.localStream);
+            }
+        });
     }
 
     receiveTextData(data) {
-        try {
-            const textRoomData = this.state.textRoomData.slice();
-            textRoomData.push(data);
-            this.setState({ textRoomData, textRoomValue: '' });
-        } catch (error) {
-            ErrorHandler.WriteError("PTT.js -> receiveTextData", error);
-        }
+        const textRoomData = this.state.textRoomData.slice();
+        textRoomData.push(data);
+        this.setState({ textRoomData, textRoomValue: '' });
     }
 
     _textRoomPress() {
+        if (!this.state.textRoomValue) {
+            return
+        }
+        const textRoomData = this.state.textRoomData.slice();
+        textRoomData.push({ user: 'Me', message: this.state.textRoomValue });
+        for (const key in liveSrv.pcPeers) {
+            const pc = liveSrv.pcPeers[key];
+            pc.textDataChannel.send(this.state.textRoomValue);
+        }
+        this.setState({ textRoomData, textRoomValue: '' });
+    }
+
+    recall(){
         try {
-            if (!this.state.textRoomValue) {
-                return
-            }
-            const textRoomData = this.state.textRoomData.slice();
-            textRoomData.push({ user: 'Me', message: this.state.textRoomValue });
-            for (const key in liveSrv.pcPeers) {
-                const pc = liveSrv.pcPeers[key];
-                pc.textDataChannel.send(this.state.textRoomValue);
-            }
-            this.setState({ textRoomData, textRoomValue: '' });
+            var toast = Toast.show("Sending signal...", {
+                        duration: Toast.durations.SHORT,
+                        position: Toast.positions.BOTTOM,
+                        shadow: true,
+                        animation: true,
+                        hideOnPress: true,
+                        delay: 0
+                    });
+            liveSrv.socket.emit('makeCall', () => { console.log('make a call'); }, this.props.convId, 3, true);
         } catch (error) {
-            ErrorHandler.WriteError("PTT.js -> _textRoomPress", error);
+            ErrorHandler.WriteError("PTT.js -> recall", error);
         }
     }
 
-    connectToServer() {
+    connectToServer(){
         try {
             liveSrv.Connect(this.props.convId, this.hungUp, _IsIncomingCall, false, true);
             liveSrv.socket.on('leave', () => {
                 InCallManager.setKeepScreenOn(false);
                 InCallManager.stop();
             });
-            liveSrv.socket.on('lineIsFree', () => {
-                try {
-                    mirs2.play((success) => { });
-                    InCallManager.setMicrophoneMute(true);
-                    this.setState({ statusPtt: 'green' });
-                } catch (error) {
-                    ErrorHandler.WriteError("PTT.js -> lineIsFree", e);
-                }
-            });
+                liveSrv.socket.on('lineIsFree', () => {
+                    try {
+                        mirs2.play((success) => { });
+                        InCallManager.setMicrophoneMute(true);
+                        this.setState({statusPtt: 'green'});
+                    } catch (error) {
+                        ErrorHandler.WriteError("PTT.js -> lineIsFree", e);
+                    }
+                });
 
-            liveSrv.socket.on('getPermissionToTalk_serverAnswer', (answer, uidAsked) => {
-                mirs1.play((success) => { });
-                if (answer == true && uidAsked == serverSrv._uid) {
-                    InCallManager.setMicrophoneMute(false);
-                    InCallManager.setSpeakerphoneOn(true);
-                    this.setState({ statusPtt: 'yellow' });
-                } else {
-                    InCallManager.setMicrophoneMute(true);
-                    this.setState({ statusPtt: 'red' });
-                }
-            });
+                liveSrv.socket.on('getPermissionToTalk_serverAnswer', (answer, uidAsked) => {
+                    mirs1.play((success) => { });
+                    if (answer == true && uidAsked == serverSrv._uid) {
+                        InCallManager.setMicrophoneMute(false);
+                        InCallManager.setSpeakerphoneOn(true);
+                        this.setState({statusPtt: 'yellow'});
+                    } else {
+                        InCallManager.setMicrophoneMute(true);
+                        this.setState({statusPtt: 'red'});
+                    }
+                });
 
-            liveSrv.socket.on('getPermissionToTalk_serverAsk', (uidAsked) => {
-                if (this.state.statusPtt == 'green' && uidAsked != serverSrv._uid) {
-                    InCallManager.setMicrophoneMute(true);
-                    this.setState({ statusPtt: 'red' });
-                    liveSrv.socket.emit('getPermissionToTalk_clientAnswer', true, uidAsked);
-                } else if (this.state.statusPtt != 'green' && uidAsked != serverSrv._uid) {
-                    liveSrv.socket.emit('getPermissionToTalk_clientAnswer', false, uidAsked);
-                }
-            });
+                liveSrv.socket.on('getPermissionToTalk_serverAsk', (uidAsked) => {
+                    if (this.state.statusPtt == 'green' && uidAsked != serverSrv._uid) {
+                        InCallManager.setMicrophoneMute(true);
+                        this.setState({statusPtt: 'red'});
+                        liveSrv.socket.emit('getPermissionToTalk_clientAnswer', true, uidAsked);
+                    } else if(this.state.statusPtt != 'green' && uidAsked != serverSrv._uid) {
+                        liveSrv.socket.emit('getPermissionToTalk_clientAnswer', false, uidAsked);
+                    }
+                });              
         } catch (error) {
             ErrorHandler.WriteError("PTT.js -> connectToServer", error);
         }
@@ -323,6 +327,10 @@ export default class Call extends Component {
                 this.callInterval = setInterval(() => {
                     this.setState({ currentTime: (moment() - this.state.startTime) });
                 }, 1000);
+                mirs1.play((success) => { });
+            } else {
+                this.recall();
+                mirs1.stop();
                 mirs1.play((success) => { });
             }
         } catch (e) {
@@ -363,7 +371,7 @@ export default class Call extends Component {
             }
             if (serverSrv._isCallMode == true) {
                 BackAndroid.exitApp();
-            }
+            }            
         } catch (e) {
             ErrorHandler.WriteError("PTT.js -> hungUp", e);
         }
@@ -371,40 +379,33 @@ export default class Call extends Component {
 
     pptUp() {
         try {
-            if (liveSrv._isInCall == true) {
-                mirs2.play((success) => { });
-                if (this.state.leftBtn == require('../../../img/speaker_on1.png')) {
-                    this.setState({ leftBtn: require('../../../img/speaker_off.png') });
-                } else {
-                    this.setState({ leftBtn: require('../../../img/speaker_on1.png') });
-                }
-            }
+                    
         } catch (e) {
             ErrorHandler.WriteError("PTT.js -> pptUp", e);
         }
     }
 
-    talk() {
+    talk(){
         try {
             if (this.state.statusPtt == 'green') {
                 liveSrv.socket.emit('getPermissionToTalk_clientAsk', this.props.convId);
-                Vibration.vibrate(10);
+                    Vibration.vibrate(10);
             } else {
-
+                
             }
         } catch (error) {
             ErrorHandler.WriteError("PTT.js -> talk", error);
         }
     }
 
-    endTalk() {
+    endTalk(){
         try {
             if (this.state.statusPtt == 'yellow') {
                 liveSrv.socket.emit('releaseLine');
-                this.setState({ statusPtt: 'green' });
-                Vibration.vibrate(10);
+                this.setState({statusPtt: 'green'});
+                    Vibration.vibrate(10);
             } else {
-
+                
             }
         } catch (error) {
             ErrorHandler.WriteError("PTT.js -> talk", error);
@@ -420,14 +421,14 @@ export default class Call extends Component {
                             Walkie-Talkie With {this.props.userName}
                         </Text>
                     </View>
-
+                    
                     <View style={styles.callerImageContainer}>
-                        {renderIf(this.state.statusPtt == 'red')(
+                         {renderIf(this.state.statusPtt == 'red')(
                             <Image style={{ resizeMode: 'contain', width: null, flex: 1, margin: 30 }} source={require('../../../img/glossy-red-button-hi.png')} />
                         )}
                         {renderIf(this.state.statusPtt == 'yellow')(
                             <Image style={{ resizeMode: 'contain', width: null, flex: 1, margin: 30 }} source={require('../../../img/glossy-yellow-button-hi.png')} />
-                        )}
+                        )}                         
                         {renderIf(this.state.statusPtt == 'green')(
                             <Image style={{ resizeMode: 'contain', width: null, flex: 1, margin: 30 }} source={require('../../../img/glossy-green-button-hi.png')} />
                         )}
@@ -449,15 +450,15 @@ export default class Call extends Component {
                         </View>
                     </View>
 
-                    <TouchableOpacity onPressIn={this.talk} onPressOut={this.endTalk} style={styles.pttPanel}>
-                        <View style={{ width: null, flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingTop: 60 }}>
+                    <TouchableOpacity onPressIn={this.talk} onPressOut={this.endTalk}  style={styles.pttPanel}>
+                         <View style={{ width: null, flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingTop: 60}}>
                         </View>
                     </TouchableOpacity>
 
                     <View style={styles.mngPanel}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
                             <TouchableOpacity onPressIn={this.startCall} onPressOut={this.pptUp}>
-
+                         
                                 <Image style={{ height: 50, width: 50, marginRight: 30, marginLeft: 30, marginTop: 10 }} source={this.state.leftBtn} />
                             </TouchableOpacity>
                             <TouchableOpacity onPress={this.hungUp} >
@@ -472,6 +473,7 @@ export default class Call extends Component {
         }
     }
 }
+
 
 var styles = StyleSheet.create({
     selfView: {

@@ -186,7 +186,7 @@ export function InsertMyContacts(contacts, isMyContact, convId) {
                                     _myConvs[convId].participates.length > 2
                                     ]);
                             }
-                            tx.executeSql('INSERT INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?)',
+                            tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?)',
                                 [newId,
                                     contacts[i].phoneNumber,
                                     '',

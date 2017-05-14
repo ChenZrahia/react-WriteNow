@@ -12,7 +12,7 @@ export function on(_eventName, _func) {
             function: _func
         });
     } catch (error) {
-        ErrorHandler.WriteError(error,'Events.js => on');
+        ErrorHandler.WriteError('Events.js => on', error);
     }
 }
 
@@ -25,13 +25,13 @@ export function trigger(_eventName, ..._args) {
                         listeners[_eventName][i].function(..._args);
                     }
                 } catch (error) {
-                    console.log('trigger -> ### ' , error);
-                    console.log('_eventName -> ### ' , _eventName);
+                    ErrorHandler.WriteError('trigger -> ### ' , error);
+                    ErrorHandler.WriteError('_eventName -> ### ' , _eventName);
                 }
             }
         }
     } catch (error) {
-        ErrorHandler.WriteError(error,'Events.js => trigger');
+        ErrorHandler.WriteError('Events.js => trigger', error);
     }
 }
 
@@ -39,6 +39,6 @@ export function removeAllListeners(_eventName) {
     try {
         listeners[_eventName] = [];
     } catch (error) {
-        ErrorHandler.WriteError(error,'Events.js => removeAllListeners');
+        ErrorHandler.WriteError('Events.js => removeAllListeners', error);
     }
 }
