@@ -14,7 +14,6 @@ import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
 import Kohana from '../../styles/Kohana';
 import renderIf from '../../plugins/renderIf'
 import SGListView from 'react-native-sglistview';
-import PhotoView from 'react-native-photo-view';
 
 var moment = require('moment');
 var dismissKeyboard = require('dismissKeyboard');
