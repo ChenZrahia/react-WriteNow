@@ -145,7 +145,7 @@ export default class Video extends Component {
                 this.hungUp(true);
             });
             serverSrv.exitChatCall_server((convId) => {
-                if (this.state.roomID.indexOf(convId) == 0) {
+                if (this.state.roomID && this.state.roomID.indexOf(convId) == 0) {
                     this.hungUp();
                 }
             });

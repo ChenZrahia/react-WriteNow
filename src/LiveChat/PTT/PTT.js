@@ -203,8 +203,10 @@ export default class Call extends Component {
 
     _press(event) {
         try {
+            console.log('## setKeepScreenOn ');
             InCallManager.start({ media: 'audio' });
             InCallManager.setForceSpeakerphoneOn(true);
+            InCallManager.turnScreenOn();
             InCallManager.setKeepScreenOn(true);
             InCallManager.setMicrophoneMute(true);
             InCallManager.setSpeakerphoneOn(true);
