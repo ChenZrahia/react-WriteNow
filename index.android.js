@@ -31,183 +31,222 @@ setTimeout(() => {
 
 export default class WriteNow extends Component {
     constructor(a, b, c, d, e, f) {
-        super();
+        try {
+            super();
+        } catch (error) {
+            ErrorHandler.WriteError('index.android.js => constructor', error);
+        }
     }
 
     componentWillMount() {
-        FCM.getInitialNotification().then(notif => {
-            if (notif && notif.data) {
-                var notifData = JSON.parse(notif.data);
-                if (notifData.isVoiceCall == 'true') {
-                    serverSrv._isCallMode = true;
-                    Actions.Call(notifData);
-                    setTimeout(() => {
-                        Event.trigger('getCall', true);
-                    }, 100);
-                } else if (notifData.isVideoCall == 'true') {
-                    serverSrv._isCallMode = true;
-                    Actions.Video(notifData);
-                    setTimeout(() => {
-                        Event.trigger('getVideoCall', true);
-                    }, 100);
-                } else if (notifData.isPttCall == 'true') {
-                    serverSrv._isCallMode = true;
-                    Actions.PTT(notifData);
-                    setTimeout(() => {
-                        Event.trigger('getPttCall', true);
-                    }, 100);
-                }                
-                else {
-                    Event.trigger('lastMessage', notifData.message, notifData.message_time, notifData.convId, true, notifData.isEncrypted == 'true');
+        try {
+            FCM.getInitialNotification().then(notif => {
+                try {
+                    if (notif && notif.data) {
+                        var notifData = JSON.parse(notif.data);
+                        if (notifData.isVoiceCall == 'true') {
+                            serverSrv._isCallMode = true;
+                            Actions.Call(notifData);
+                            setTimeout(() => {
+                                Event.trigger('getCall', true);
+                            }, 100);
+                        } else if (notifData.isVideoCall == 'true') {
+                            serverSrv._isCallMode = true;
+                            Actions.Video(notifData);
+                            setTimeout(() => {
+                                Event.trigger('getVideoCall', true);
+                            }, 100);
+                        } else if (notifData.isPttCall == 'true') {
+                            serverSrv._isCallMode = true;
+                            Actions.PTT(notifData);
+                            setTimeout(() => {
+                                Event.trigger('getPttCall', true);
+                            }, 100);
+                        }
+                        else {
+                            Event.trigger('lastMessage', notifData.message, notifData.message_time, notifData.convId, true, notifData.isEncrypted == 'true');
+                        }
+                    }
+                } catch (error) {
+                    ErrorHandler.WriteError('index.android.js => ComponentWillMount => FCM.getInitialNotification');
                 }
-            }
-        });
-        console.log("##su");
-        FCM.getFCMToken().then(token => {
-        console.log("##su", token);
-            
-            serverSrv._token = token;
-            serverSrv.login(token);
-        });
-        this.notificationUnsubscribe = FCM.on('notification', (notif) => {   //application alrady open
-            if (notif && notif.data) {
-                var notifData = JSON.parse(notif.data);
-                if (notifData.isVoiceCall == 'true') {
-                    serverSrv._isCallMode = false;
-                    if (liveSrv._isInCall == true) {
-                        liveSrv.socket.emit('unavailableCall'); //TODO: לממש
-                    } else {
-                        Actions.Call(notifData);
-                        setTimeout(() => {
-                            Event.trigger('getCall', true);
-                            Event.trigger('NewLiveChat');
-                        }, 100);
-                    }
-                } else if (notifData.isVideoCall == 'true') {
-                    serverSrv._isCallMode = false;
-                    if (liveSrv._isInCall == true) {
-                        liveSrv.socket.emit('unavailableCall'); //TODO: לממש
-                    } else {
-                        Actions.Video(notifData);
-                        setTimeout(() => {
-                            Event.trigger('getVideoCall', true);
-                            Event.trigger('NewLiveChat');
-                        }, 100);
-                    }
-                } else if (notifData.isPttCall == 'true') {
-                    serverSrv._isCallMode = false;
-                    if (liveSrv._isInCall == true) {
-                        liveSrv.socket.emit('unavailableCall'); //TODO: לממש
-                    } else {
-                        Actions.PTT(notifData);
-                        setTimeout(() => {
-                            Event.trigger('getPttCall', true);
-                            Event.trigger('NewLiveChat');
-                        }, 100);
-                    }
-                } else {
-                    if (newMsg_ring && serverSrv._convId != notifData.convId) {
-                        newMsg_ring.play((success) => { });
-                    } 
-                    if (notifData && notifData.message) {
-                        Event.trigger('lastMessage', notifData.message, notifData.message_time, notifData.convId, true, notifData.isEncrypted == 'true');
-                    } else if (notifData && notifData.lastMessage) {
-                        Event.trigger('lastMessage', notifData.lastMessage, notifData.lastMessageTime, notifData.id, true, notifData.isEncrypted == 'true');
-                    }
+            });
+            FCM.getFCMToken().then(token => {
+                try {
+                    serverSrv._token = token;
+                    serverSrv.login(token);
+                } catch (error) {
+                    ErrorHandler.WriteError('index.android.js => ComponentWillMount => FCM.getFCMToken');
                 }
-            } else {
-                if (notif.isVoiceCall != 'true' && notif.isVideoCall != 'true' && notif.isPttCall != 'true') {
-                    if (newMsg_ring && serverSrv._convId != notif.convId) {
-                        newMsg_ring.play((success) => { });
+            });
+            this.notificationUnsubscribe = FCM.on('notification', (notif) => {   //application alrady open
+                try {
+                    if (notif && notif.data) {
+                        var notifData = JSON.parse(notif.data);
+                        if (notifData.isVoiceCall == 'true') {
+                            serverSrv._isCallMode = false;
+                            if (liveSrv._isInCall == true) {
+                                liveSrv.socket.emit('unavailableCall'); //TODO: לממש
+                            } else {
+                                Actions.Call(notifData);
+                                setTimeout(() => {
+                                    Event.trigger('getCall', true);
+                                    Event.trigger('NewLiveChat');
+                                }, 100);
+                            }
+                        } else if (notifData.isVideoCall == 'true') {
+                            serverSrv._isCallMode = false;
+                            if (liveSrv._isInCall == true) {
+                                liveSrv.socket.emit('unavailableCall'); //TODO: לממש
+                            } else {
+                                Actions.Video(notifData);
+                                setTimeout(() => {
+                                    Event.trigger('getVideoCall', true);
+                                    Event.trigger('NewLiveChat');
+                                }, 100);
+                            }
+                        } else if (notifData.isPttCall == 'true') {
+                            serverSrv._isCallMode = false;
+                            if (liveSrv._isInCall == true) {
+                                liveSrv.socket.emit('unavailableCall'); //TODO: לממש
+                            } else {
+                                Actions.PTT(notifData);
+                                setTimeout(() => {
+                                    Event.trigger('getPttCall', true);
+                                    Event.trigger('NewLiveChat');
+                                }, 100);
+                            }
+                        } else {
+                            if (newMsg_ring && serverSrv._convId != notifData.convId) {
+                                newMsg_ring.play((success) => { });
+                            }
+                            if (notifData && notifData.message) {
+                                Event.trigger('lastMessage', notifData.message, notifData.message_time, notifData.convId, true, notifData.isEncrypted == 'true');
+                            } else if (notifData && notifData.lastMessage) {
+                                Event.trigger('lastMessage', notifData.lastMessage, notifData.lastMessageTime, notifData.id, true, notifData.isEncrypted == 'true');
+                            }
+                        }
+                    } else {
+                        if (notif.isVoiceCall != 'true' && notif.isVideoCall != 'true' && notif.isPttCall != 'true') {
+                            if (newMsg_ring && serverSrv._convId != notif.convId) {
+                                newMsg_ring.play((success) => { });
+                            }
+                            Event.trigger('lastMessage', notif.message, notif.message_time, notif.convId, true, notif.isEncrypted == 'true');
+                        }
                     }
-                    Event.trigger('lastMessage', notif.message, notif.message_time, notif.convId, true, notif.isEncrypted == 'true');
+                } catch (error) {
+                    ErrorHandler.WriteError('index.android.js => ComponentWillMount => FCM.on');
                 }
-            }
-            // there are two parts of notif. notif.notification contains the notification payload, notif.data contains data payload
-            if (notif.local_notification) {
-            }
-            if (notif.opened_from_tray) {
-            }
-        });
+                // there are two parts of notif. notif.notification contains the notification payload, notif.data contains data payload
+                if (notif.local_notification) {
+                }
+                if (notif.opened_from_tray) {
+                }
+            });
+        } catch (error) {
+            ErrorHandler.WriteError('index.android.js => ComponentWillMount', error);
+        }
     }
 
     loadContacts() {
-        serverSrv.getAllPhoneNumbers((phnesNumbers) => {
-            if (!phnesNumbers) {
-                phnesNumbers = [];
-            }
-            var myContacts = [];
-            PhoneContacts.getAll((err, contacts) => {
-                if (err && err.type === 'permissionDenied') {
-                    console.log('permissionDenied');
-                    // x.x 
-                } else {
-                    contacts = contacts.filter((user) => {
-                        if (user.phoneNumbers && user.phoneNumbers[0]) {
-                            var usr = {
-                                isOnline: false,
-                                isPhoneContact: true,
-                                phoneNumber: user.phoneNumbers[0].number.replace('+972', '0').replace(/[ ]|[-()]/g, ''),
-                                publicInfo: {
-                                    fullName: user.givenName + (user.middleName ? (' ' + user.middleName) : '') + (user.familyName ? (' ' + user.familyName) : ''),
-                                    picture: user.thumbnailPath
-                                }
-                            };
-                            if (phnesNumbers.indexOf(usr.phoneNumber) >= 0) {
-                                return false;
+        try {
+            serverSrv.getAllPhoneNumbers((phnesNumbers) => {
+                try {
+                    if (!phnesNumbers) {
+                        phnesNumbers = [];
+                    }
+                    var myContacts = [];
+                    PhoneContacts.getAll((err, contacts) => {
+                        try {
+                            if (err && err.type === 'permissionDenied') {
+                                console.log('permissionDenied');
+                                // x.x 
+                            } else {
+                                contacts = contacts.filter((user) => {
+                                    try {
+                                        if (user.phoneNumbers && user.phoneNumbers[0]) {
+                                            var usr = {
+                                                isOnline: false,
+                                                isPhoneContact: true,
+                                                phoneNumber: user.phoneNumbers[0].number.replace('+972', '0').replace(/[ ]|[-()]/g, ''),
+                                                publicInfo: {
+                                                    fullName: user.givenName + (user.middleName ? (' ' + user.middleName) : '') + (user.familyName ? (' ' + user.familyName) : ''),
+                                                    picture: user.thumbnailPath
+                                                }
+                                            };
+                                            if (phnesNumbers.indexOf(usr.phoneNumber) >= 0) {
+                                                return false;
+                                            }
+                                            else {
+                                                myContacts.push(usr);
+                                                phnesNumbers.push(usr.phoneNumber);
+                                                return true;
+                                            }
+                                        } else {
+                                            return false;
+                                        }
+                                    } catch (error) {
+                                        ErrorHandler.WriteError('index.android.js => loadContacts => getAllPhoneNumbers => getAll => filter', error);
+                                    }
+                                });
+                                serverSrv.InsertMyContacts(myContacts, true);
                             }
-                            else {
-                                myContacts.push(usr);
-                                phnesNumbers.push(usr.phoneNumber);
-                                return true;
-                            }
-                        } else {
-                            return false;
+                        } catch (error) {
+                            ErrorHandler.WriteError('index.android.js => loadContacts => getAllPhoneNumbers => getAll', error);
                         }
                     });
-                    serverSrv.InsertMyContacts(myContacts, true);
+                } catch (error) {
+                    ErrorHandler.WriteError('index.android.js => loadContacts => getAllPhoneNumbers', error);
                 }
             });
-        });
+        } catch (error) {
+            ErrorHandler.WriteError('index.android.js => loadContacts', error);
+        }
     }
 
-    componentDidMount() {       
+    componentDidMount() {
         setTimeout(() => {
             this.loadContacts();
-        }, 200); 
+        }, 200);
         try {
             serverSrv.GetAllMyFriends((result) => { //היה בהערה ולא טען את אנשי הקשר
                 try {
                     Event.trigger('UpdateMyFriends', result);
                 } catch (error) {
-                    ErrorHandler.WriteError(error);
+                    ErrorHandler.WriteError('index.android.js => componentDidMount => GetAllMyFriends', error);
                 }
             });
 
-        AppState.addEventListener('change', (state) =>
-            {
-                if (state != 'active') {
-                    serverSrv.socket.emit('changeOnlineStatus', false);
-                } else {
-                    serverSrv.socket.emit('changeOnlineStatus', true);
+            AppState.addEventListener('change', (state) => {
+                try {
+                    if (state != 'active') {
+                        serverSrv.socket.emit('changeOnlineStatus', false);
+                    } else {
+                        serverSrv.socket.emit('changeOnlineStatus', true);
+                    }
+                } catch (error) {
+                    ErrorHandler.WriteError('index.android.js => componentDidMount => addEventListener', error);
                 }
             })
-
         } catch (error) {
-            console.log(error);
+            ErrorHandler.WriteError('index.android.js => componentDidMount', error);
         }
     }
 
     render() {
-        return (
-            <View style={styles.container}>
-                <StatusBar
-                    backgroundColor="#820cf7"
-                    animated={true}
+        try {
+            return (
+                <View style={styles.container}>
+                    <StatusBar
+                        backgroundColor="#820cf7"
+                        animated={true}
                     />
-                <InitRout />
-            </View>
-        );
+                    <InitRout />
+                </View>
+            );
+        } catch (error) {
+            ErrorHandler.WriteError('index.android.js => render', error);
+        }
     }
 }
 

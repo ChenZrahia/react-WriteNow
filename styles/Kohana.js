@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 
 import BaseInput from './BaseInput';
+var ErrorHandler = require('../ErrorHandler');
 
 const PADDING = 10;
 
@@ -37,65 +38,69 @@ export default class Kohana extends BaseInput {
     };
 
     render() {
-        const {
+        try {
+            const {
             iconClass: Icon,
-            iconColor,
-            iconName,
-            label,
-            style: containerStyle,
-            inputStyle,
-            labelStyle,
+                iconColor,
+                iconName,
+                label,
+                style: containerStyle,
+                inputStyle,
+                labelStyle,
         } = this.props;
-        const { focusedAnim, value } = this.state;
+            const { focusedAnim, value } = this.state;
 
-        return (
-            <View style={[styles.container, containerStyle]} onLayout={this._onLayout}>
-                <TouchableWithoutFeedback onPress={this._focus}>
-                    <Animated.View style={{
-                        justifyContent: 'center',
-                        padding: PADDING,
-                        marginLeft: focusedAnim.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [-40, 0],
-                        }),
-                    }}>
-                        <Icon
-                            name={iconName}
-                            color={iconColor}
-                            size={25}
+            return (
+                <View style={[styles.container, containerStyle]} onLayout={this._onLayout}>
+                    <TouchableWithoutFeedback onPress={this._focus}>
+                        <Animated.View style={{
+                            justifyContent: 'center',
+                            padding: PADDING,
+                            marginLeft: focusedAnim.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [-40, 0],
+                            }),
+                        }}>
+                            <Icon
+                                name={iconName}
+                                color={iconColor}
+                                size={25}
                             />
-                    </Animated.View>
-                </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback onPress={this._focus}>
-                    <Animated.View style={{
-                        position: 'absolute',
-                        top: 5,
-                        left: focusedAnim.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [PADDING, 80],
-                        }),
-                        opacity: focusedAnim.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [1, 0],
-                        }),
-                    }}>
-                        <Text style={[styles.label, labelStyle]}>
-                            {label}
-                        </Text>
-                    </Animated.View>
-                </TouchableWithoutFeedback>
-                <TextInput
-                    ref="input"
-                    {...this.props}
-                    style={[styles.textInput, inputStyle]}
-                    value={value}
-                    onBlur={this._onBlur}
-                    onFocus={this._onFocus}
-                    onChange={this._onChange}
-                    underlineColorAndroid={'transparent'}
+                        </Animated.View>
+                    </TouchableWithoutFeedback>
+                    <TouchableWithoutFeedback onPress={this._focus}>
+                        <Animated.View style={{
+                            position: 'absolute',
+                            top: 5,
+                            left: focusedAnim.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [PADDING, 80],
+                            }),
+                            opacity: focusedAnim.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [1, 0],
+                            }),
+                        }}>
+                            <Text style={[styles.label, labelStyle]}>
+                                {label}
+                            </Text>
+                        </Animated.View>
+                    </TouchableWithoutFeedback>
+                    <TextInput
+                        ref="input"
+                        {...this.props}
+                        style={[styles.textInput, inputStyle]}
+                        value={value}
+                        onBlur={this._onBlur}
+                        onFocus={this._onFocus}
+                        onChange={this._onChange}
+                        underlineColorAndroid={'transparent'}
                     />
-            </View>
-        );
+                </View>
+            );
+        } catch (error) {
+            ErrorHandler.WriteError('Kohana.js => render', error);
+        }
     }
 }
 
