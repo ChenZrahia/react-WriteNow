@@ -235,11 +235,11 @@ export default class SignUp extends Component {
                                 <Text style={styles.Welcome}>
                                     Welcome to WriteNow!
                                 </Text>
-                                <TouchableOpacity onPress={this.showImagePicker} >
-                                    <View style={styles.viewImg}>
+                                <View style={styles.viewImg}>
+                                    <TouchableOpacity onPress={this.showImagePicker} >
                                         <Image style={styles.UserImage} source={this.state.avatarSource} />
-                                    </View>
-                                </TouchableOpacity>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
                         </Image>
                     </View>

@@ -18,7 +18,12 @@ var moment = require('moment');
 var RSAKey = require('react-native-rsa');
 var Sound = require('react-native-sound');
 
-export var socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {});
+export var socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {
+                        query: {
+                            encryptedUid: '',
+                            publicKey: ''
+                        }
+                    });
 var ErrorHandler = require('../ErrorHandler');
 var SQLite = require('react-native-sqlite-storage')
 
@@ -101,6 +106,7 @@ export function GetAllMyFriends(callback, isUpdate) {
             return;
         }
         db.transaction((tx) => {
+            tx.executeSql('CREATE TABLE IF NOT EXISTS Friends (id UNIQUE NOT NULL, phoneNumber UNIQUE, ModifyDate , ModifyPicDate, fullName, picture, isMyContact)', [], null, errorDB); //להוציא לפונקציה נפרדת
             tx.executeSql('SELECT * FROM Friends ORDER BY fullName', [], (tx, rs) => {
                 try {
                     var finalResult = [];
@@ -1158,7 +1164,12 @@ export function login(_token) {
                 }
                 else {
                     try {
-                        socket = io.connect('https://server-sagi-uziel.c9users.io:8080');
+                        socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {
+                        query: {
+                            encryptedUid: '',
+                            publicKey: ''
+                        }
+                    });
                         setTimeout(function () {
                             Actions.SignUp({ type: 'replace' });
                         }, 100);
@@ -1201,12 +1212,12 @@ export function signUpFunc(newUser, callback) {
                 var encryptedUid = rsa.encryptWithPrivate(user.id);
                 db.transaction(function (tx) {
                     this._uid = user.id;
-                    login();
                     tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?,?)', [user.id, publicKey, privateKey, encryptedUid, newUser.privateInfo.password]);
                     tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?,?,?,?,?,?,?)', [user.id, newUser.phoneNumber, newUser.ModifyDate, newUser.ModifyPicDate, newUser.publicInfo.fullName, newUser.publicInfo.picture]);
+                    login();
                 }, (error) => {
                     ErrorHandler.WriteError('signUp => addNewUser => transaction', error);
-                }, function () {
+                }, function () {                    
                 });
             }
             if (callback) {

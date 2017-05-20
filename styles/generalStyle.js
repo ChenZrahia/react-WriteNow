@@ -102,10 +102,11 @@ export const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
+        
     },
     imageInsideModal: {
-        width: 200,
-        height: 200,
+        width: 300,
+        height: 300,
         borderRadius: 10,
         borderWidth: 1
     },
