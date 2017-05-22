@@ -1148,7 +1148,7 @@ export function login(_token) {
                                         delay: 0
                                     });
                             }   
-                        }, 900);
+                        }, 1500);
                     
                     socket.removeAllListeners("deleteFriendMessage");
                     socket.on('deleteFriendMessage', (msg) => {
@@ -1178,7 +1178,7 @@ export function login(_token) {
                     });
 
                     socket.on('error', function() {
-                        var toast = Toast.show('Server Is Down!', {
+                        var toast = Toast.show('Server Is Down! (1)', {
                                         duration: Toast.durations.LONG,
                                         position: Toast.positions.CENTER,
                                         shadow: true,
