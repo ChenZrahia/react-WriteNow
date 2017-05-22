@@ -22,7 +22,8 @@ export var socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {
                         query: {
                             encryptedUid: '',
                             publicKey: ''
-                        }
+                        },
+                        'connect timeout': 5000
                     });
 var ErrorHandler = require('../ErrorHandler');
 var SQLite = require('react-native-sqlite-storage')
@@ -1131,7 +1132,8 @@ export function login(_token) {
                         query: {
                             encryptedUid: _encryptedUid,
                             publicKey: item.publicKey, uid: _uid, token: this._token
-                        }
+                        },
+                        'connect timeout': 5000
                     });
 
                     socket.removeAllListeners("deleteFriendMessage");
@@ -1141,6 +1143,14 @@ export function login(_token) {
 
                     socket.on('connect', function (msg) {
                         Event.trigger('connect');
+                    });
+
+                    socket.on('connect_failed', function(){
+                        console.log('Connection Failed');
+                    });
+
+                    socket.on('error', function() {
+                         console.log('## socket io ERROR');
                     });
 
                     socket.on("disconnect", function () {
@@ -1168,7 +1178,8 @@ export function login(_token) {
                         query: {
                             encryptedUid: '',
                             publicKey: ''
-                        }
+                        },
+                        'connect timeout': 5000
                     });
                         setTimeout(function () {
                             Actions.SignUp({ type: 'replace' });
