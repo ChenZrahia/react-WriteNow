@@ -10,6 +10,7 @@ import {
     Modal,
     NativeModules,
     TouchableOpacity,
+    Keyboard
 } from 'react-native';
 import { Actions } from 'react-native-router-flux'
 import Toast from 'react-native-root-toast';
@@ -42,6 +43,7 @@ export default class NewGroupInfo extends Component {
         try {
             super(props);
             this.isNewGroup = true;
+            this.keyboardOn = false;
             this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
             if (this.props.groupName) {
                 this.isNewGroup = false;
@@ -103,6 +105,24 @@ export default class NewGroupInfo extends Component {
         }
     }
 
+    componentWillMount() {
+        this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
+        this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
+    }
+
+    componentWillUnmount() {
+        this.keyboardDidShowListener.remove();
+        this.keyboardDidHideListener.remove();
+    }
+
+    _keyboardDidShow() {
+        this.keyboardOn = true;
+    }
+
+    _keyboardDidHide() {
+        this.keyboardOn = false;
+    }
+
     render() {
         try {
             return (
@@ -137,6 +157,10 @@ export default class NewGroupInfo extends Component {
                             </View>
                         </Image>
                     </View>
+                    {renderIf(!this.keyboardOn)(
+                        <View style={{ margin: 15 }}>
+                        </View>
+                    )}
                     <View style={{ flex: 1 }}>
                         {renderIf(this.isNewGroup)(
                             <Fumi
@@ -248,6 +272,9 @@ export default class NewGroupInfo extends Component {
 }
 
 const styles = StyleSheet.create({
+    keyboardImage: {
+        marginTop: 30
+    },
     container: {
         flex: 1,
         justifyContent: 'center',
