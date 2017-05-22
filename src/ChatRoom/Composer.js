@@ -10,7 +10,8 @@ import {
   View,
   Modal,
   TouchableOpacity,
-  Text
+  Text,
+  BackAndroid
 } from 'react-native';
 import ActionSheet from '@exponent/react-native-action-sheet';
 // var json = require("json!./file.json");
@@ -24,20 +25,35 @@ export default class Composer extends React.Component {
   constructor(props) {
     super(props);
     try {
+
       this.state = {
         showPicker: false,
       };
       Event.on('closeChatRoom', () => {
         this.setState({ isEmojiOpen: false });
-      });
+      });       
 
     } catch (e) {
       ErrorHandler.WriteError('Composer.js => constructor', e);
     }
   }
 
-  onChange(e) { //add by rugbin 24.3.17 -for auto size the height
+  componentDidMount(){
     try {
+      BackAndroid.addEventListener('hardwareBackPress', () => {
+            if (this.state.isEmojiOpen) {
+              Event.trigger('openEmojiModal', this.state.isEmojiOpen);
+              this.setState({ isEmojiOpen: !this.state.isEmojiOpen });
+              return true;
+            }
+        });
+    } catch (error) {
+      ErrorHandler.WriteError('Composer.js => componentDidMount', e);
+    }
+  }
+
+  onChange(e) { //add by rugbin 24.3.17 -for auto size the height
+    try {      
       const contentSize = e.nativeEvent.contentSize;
       if (!this.contentSize) {
         this.contentSize = contentSize;
@@ -59,15 +75,6 @@ export default class Composer extends React.Component {
     }
   }
 
-  _emojiSelected(emoji) {
-    try {
-      this.setState({ showPicker: false });
-      this.props.changeText(emoji);
-    } catch (e) {
-      ErrorHandler.WriteError('Composer.js => _emojiSelected', e);
-    }
-  }
-
   render() {
     try {
       if (this.state.showPicker === true) {
@@ -78,11 +85,18 @@ export default class Composer extends React.Component {
           <TouchableOpacity onPress={() => {
             if (!this.state.isEmojiOpen) {
               dismissKeyboard();
-            }
-            setTimeout(() => {
-              Event.trigger('openEmojiModal', this.state.isEmojiOpen);
-              this.setState({ isEmojiOpen: !this.state.isEmojiOpen });
+              setTimeout(() => {
+                Event.trigger('openEmojiModal', this.state.isEmojiOpen);
+                this.setState({ isEmojiOpen: !this.state.isEmojiOpen });
             }, 200);
+            } else {
+              setTimeout(() => {
+                Event.trigger('openEmojiModal', this.state.isEmojiOpen);
+                this.setState({ isEmojiOpen: !this.state.isEmojiOpen });
+                this._mainInput.focus();
+            }, 200);
+            }
+            
           }
           }>
             <View>
@@ -90,18 +104,19 @@ export default class Composer extends React.Component {
                 <Icon name='md-happy' style={styles.icon} />
               )}
               {renderIf(this.state.isEmojiOpen)(
-                <Icon2 name='keyboard-arrow-down' style={styles.icon} />
+                <Icon2 name='keyboard' style={styles.icon} />
               )}
             </View>
           </TouchableOpacity>
           <TextInput
+            ref={component => this._mainInput = component}
             placeholder={this.props.placeholder}
             placeholderTextColor={this.props.placeholderTextColor}
             multiline={this.props.multiline}
             onFocus={() => this.setState({ isEmojiOpen: false })}
             onChange={(e) => {
-              this.props.onChange(e);
-            }
+                this.props.onChange(e);
+              }
             }
             style={[styles.textInput, this.props.textInputStyle, {
               height: this.props.composerHeight,

@@ -45,10 +45,10 @@ export default class MessageImage extends React.Component {
           <View style={generalStyles.styles.imageModalBlack}>
             <PhotoView
               source={{ uri: image }}
-              minimumZoomScale={0.5}
-              maximumZoomScale={6}
+              minimumZoomScale={1.5}
+              maximumZoomScale={50}
               androidScaleType="center"
-              scale={5}
+              scale={30}
               style={{ flex: 1, width: 1000, height: 1000 }} />
             {/*<Image style={generalStyles.styles.imageInsideModal} source={{uri: image}} />*/}
           </View>

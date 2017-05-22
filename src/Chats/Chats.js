@@ -180,8 +180,12 @@ export default class Chats extends Component {
         try {
             var result = dataSource.sort((a, b) => {
                 try {
-                    var aDate = moment(a.lastMessageTime).format();
-                    var bDate = moment(b.lastMessageTime).format();
+                    if(a.lastMessageTime){
+                        var aDate = moment(a.lastMessageTime).format();
+                    }
+                     if(b.lastMessageTime){
+                         var bDate = moment(b.lastMessageTime).format();
+                    }
                     if (aDate && bDate) {
                         if (aDate > bDate) {
                             return -1;

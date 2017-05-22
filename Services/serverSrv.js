@@ -2,6 +2,7 @@ var React = require('react-native');
 import { Actions } from 'react-native-router-flux';
 import './UserAgent';
 
+import Toast from 'react-native-root-toast';
 
 import io from 'socket.io-client/dist/socket.io';
 import ImageResizer from 'react-native-image-resizer';
@@ -1127,7 +1128,7 @@ export function login(_token) {
                     var _encryptedUid = item.encryptedUid;
                     this._privateKey = item.privateKey;
                     socket.disconnect();
-
+                    var isConnected = false;
                     socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {
                         query: {
                             encryptedUid: _encryptedUid,
@@ -1136,24 +1137,67 @@ export function login(_token) {
                         'connect timeout': 5000
                     });
 
+                    setTimeout(() => {
+                            if (isConnected == false) {
+                                var toast = Toast.show('Server Is Down!', {
+                                        duration: Toast.durations.LONG,
+                                        position: Toast.positions.CENTER,
+                                        shadow: true,
+                                        animation: true,
+                                        hideOnPress: false,
+                                        delay: 0
+                                    });
+                            }   
+                        }, 900);
+                    
                     socket.removeAllListeners("deleteFriendMessage");
                     socket.on('deleteFriendMessage', (msg) => {
                         Event.trigger("deleteFriendMessageUI", msg);
                     });
 
+
+                    socket.on('reconnect_failed', function (msg) {
+                        console.log('## reconnect_failed');
+                    });
+
                     socket.on('connect', function (msg) {
+                        isConnected = true;
                         Event.trigger('connect');
                     });
 
                     socket.on('connect_failed', function(){
+                        var toast = Toast.show('Connection to the server failed!', {
+                                        duration: Toast.durations.LONG,
+                                        position: Toast.positions.CENTER,
+                                        shadow: true,
+                                        animation: true,
+                                        hideOnPress: false,
+                                        delay: 0
+                                    });
                         console.log('Connection Failed');
                     });
 
                     socket.on('error', function() {
+                        var toast = Toast.show('Server Is Down!', {
+                                        duration: Toast.durations.LONG,
+                                        position: Toast.positions.CENTER,
+                                        shadow: true,
+                                        animation: true,
+                                        hideOnPress: false,
+                                        delay: 0
+                                    });
                          console.log('## socket io ERROR');
                     });
 
-                    socket.on("disconnect", function () {
+                    socket.on('ping', function() {
+                         console.log('## socket io   - ping');
+                    });
+
+                    socket.on('pong', function() {
+                         console.log('## socket io   - pong');
+                    });
+
+                    socket.on("disconnect", function () {                        
                         console.log("client disconnected from server");
                     });                    
 
@@ -1161,6 +1205,23 @@ export function login(_token) {
                     socket.on('AuthenticationOk', (ok) => {
                         try {
                             this.userIsConnected = true;
+                        } catch (e) {
+                            Actions.SignUp({ type: 'replace' });
+                            ErrorHandler.WriteError('EnterPage constructor => AuthenticationOk', error);
+                        }
+                    });
+
+                    socket.removeAllListeners("AuthenticationFailed");
+                    socket.on('AuthenticationFailed', (Failed) => {
+                        try {
+                            var toast = Toast.show('Authentication Failed!', {
+                                        duration: Toast.durations.LONG,
+                                        position: Toast.positions.CENTER,
+                                        shadow: true,
+                                        animation: true,
+                                        hideOnPress: false,
+                                        delay: 0
+                                    });
                         } catch (e) {
                             Actions.SignUp({ type: 'replace' });
                             ErrorHandler.WriteError('EnterPage constructor => AuthenticationOk', error);
@@ -1181,6 +1242,12 @@ export function login(_token) {
                         },
                         'connect timeout': 5000
                     });
+                        setTimeout(() => {
+                            console.log('## io.sockets 2');
+                            console.log(io);     
+                        }, 900);
+                                   
+
                         setTimeout(function () {
                             Actions.SignUp({ type: 'replace' });
                         }, 100);
