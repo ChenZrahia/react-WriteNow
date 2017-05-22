@@ -1178,14 +1178,6 @@ export function login(_token) {
                     });
 
                     socket.on('error', function() {
-                        var toast = Toast.show('Server Is Down! (1)', {
-                                        duration: Toast.durations.LONG,
-                                        position: Toast.positions.CENTER,
-                                        shadow: true,
-                                        animation: true,
-                                        hideOnPress: false,
-                                        delay: 0
-                                    });
                          console.log('## socket io ERROR');
                     });
 
