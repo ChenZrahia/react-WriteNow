@@ -57,6 +57,7 @@ export default class MessageImage extends React.Component {
               </TouchableOpacity>
           </Modal>
       
+
       );
     } catch (e) {
       ErrorHandler.WriteError('MessageImage.js => openImageModal', e);

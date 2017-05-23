@@ -1191,7 +1191,7 @@ export default class GiftedChat extends React.Component {
           }}>
           <Text style={styles.emojiText}>{x}</Text></TouchableOpacity>;
       });
-      return <ScrollView style={{ flex: 1, backgroundColor: 'red' }}><View style={styles.emoji}>{data}</View></ScrollView>
+      return <ScrollView style={{ flex: 1 }}><View style={styles.emoji}>{data}</View></ScrollView>
     } catch (error) {
       ErrorHandler.WriteError('GiftedChat.js => renderEmoji', error);
     }
