@@ -45,44 +45,20 @@ export default class GroupProfile extends Component {
     onLayout(event) {
         try {
             setTimeout(() => {
-                if (this.state.screenWidth != Dimensions.get('window').width) {
-                    this.setState({
-                        screenWidth: Dimensions.get('window').width
-                    });
+                try {
+                    if (this.state.screenWidth != Dimensions.get('window').width) {
+                        this.setState({
+                            screenWidth: Dimensions.get('window').width
+                        });
+                    }
+                } catch (error) {
+                    ErrorHandler.WriteError("GroupProfile.js => onLayout => timeout", e);
                 }
             }, 300);
-
         } catch (e) {
             ErrorHandler.WriteError("GroupProfile.js => onLayout", e);
         }
     }
-
-    /*componentWillMount() {
-        var initial = Orientation.getInitialOrientation();
-        if (initial === 'PORTRAIT') {
-            this.setState({
-                winWidth: win.width
-            });
-        } else {
-            this.setState({
-                winWidth: win.width
-            });
-        }
-    }*/
-
-    // orientationDidChange(orientation) {
-    //     try {
-    //         if (orientation == 'LANDSCAPE') {
-    //             //do something with landscape layout
-    //             console.log('LANDSCAPE');
-    //         } else {
-    //             //do something with portrait layout
-    //             console.log('PORTRAIT');
-    //         }
-    //     } catch (e) {
-    //         ErrorHandler.WriteError("GroupProfile.js => orientationDidChange", e);
-    //     }
-    // }
 
     componentDidMount() {
         try {
@@ -99,7 +75,6 @@ export default class GroupProfile extends Component {
                     managerSource: this.ds.cloneWithRows(result)
                 });
             });
-            //Orientation.addOrientationListener(this.orientationDidChange);
         } catch (e) {
             ErrorHandler.WriteError("GroupProfile.js => componentDidMount", e);
         }
@@ -202,7 +177,7 @@ export default class GroupProfile extends Component {
                             <Icon name="ios-arrow-back" color="white" size={25} style={{ paddingLeft: 3, paddingRight: 8 }} />
                         </TouchableOpacity>
                         <Text style={{ color: 'white', fontSize: 25 }}>
-                            {this.props.userName}
+                            {this.props.userName}~~
                         </Text>
                         {renderIf(this.groupManagers.indexOf(serverSrv._uid) >= 0)(
                             <View style={{ alignItems: 'flex-end', flexDirection: 'row' }}>

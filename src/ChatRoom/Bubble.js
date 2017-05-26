@@ -11,15 +11,11 @@ import {
   Text
 } from 'react-native';
 var generalStyles = require('../../styles/generalStyle');
-
 var Event = require('../../Services/Events');
 var serverSrv = require('../../Services/serverSrv');
-
 import MessageText from './MessageText';
 import MessageImage from './MessageImage';
-//import MessageEncrypted from './MessageEncrypted';
 import Time from './Time';
-
 var ErrorHandler = require('../../ErrorHandler');
 
 export default class Bubble extends React.Component {
@@ -27,12 +23,11 @@ export default class Bubble extends React.Component {
     super(props);
     try {
       this.onLongPress = this.onLongPress.bind(this);
+      this.renderMessageText = this.renderMessageText.bind(this);
+      this.renderMessageEncrypted = this.renderMessageEncrypted.bind(this);
     } catch (e) {
       ErrorHandler.WriteError('Bubble.js => constructor', e);
     }
-
-    this.renderMessageText = this.renderMessageText.bind(this);
-    this.renderMessageEncrypted = this.renderMessageEncrypted.bind(this);
   }
 
 
@@ -79,7 +74,6 @@ export default class Bubble extends React.Component {
           <View >
             <TouchableOpacity onPress={() => {
               Event.trigger('decryptedMessage', this.props.currentMessage.text, this.props.currentMessage._id);
-
             } }
             onLongPress={this.onLongPress}
             >
@@ -104,7 +98,6 @@ export default class Bubble extends React.Component {
   renderMessageText() {
     try {
       if (this.props.currentMessage.isEncrypted == 1) {
-
         this.renderMessageEncrypted();
         return;
       }
@@ -209,10 +202,14 @@ export default class Bubble extends React.Component {
               cancelButtonIndex,
             },
               (buttonIndex) => {
-                switch (buttonIndex) {
-                  case 0:
-                    Clipboard.setString(this.props.currentMessage.text);
-                    break;
+                try {
+                  switch (buttonIndex) {
+                    case 0:
+                      Clipboard.setString(this.props.currentMessage.text);
+                      break;
+                  }
+                } catch (error) {
+                  ErrorHandler.WriteError('Bubble.js => onLongPress => showActionSheetWithOptions(1)', e);
                 }
               });
           }

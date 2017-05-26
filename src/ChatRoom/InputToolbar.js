@@ -3,10 +3,8 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-
 import Composer from './Composer';
 import Send from './Send';
-
 var ErrorHandler = require('../../ErrorHandler');
 
 export default class InputToolbar extends React.Component {

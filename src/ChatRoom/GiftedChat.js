@@ -22,7 +22,6 @@ import dismissKeyboard from 'react-native-dismiss-keyboard';
 import moment from 'moment/min/moment-with-locales.min';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Actions } from 'react-native-router-flux';
-
 import renderIf from '../../plugins/renderIf';
 import Avatar from './Avatar';
 import Bubble from './Bubble';
@@ -46,9 +45,6 @@ var RSAKey = require('react-native-rsa');
 var generalStyles = require('../../styles/generalStyle');
 var liveSrv = require('../../Services/liveSrv');
 
-// Min and max heights of ToolbarInput and Composer
-// Needed for Composer auto grow and ScrollView animation
-// TODO move these values to Constants.js (also with used colors #b2b2b2)
 const MIN_COMPOSER_HEIGHT = Platform.select({
   ios: 33,
   android: 41,
@@ -113,15 +109,19 @@ export default class GiftedChat extends React.Component {
       Event.removeAllListeners('decryptedMessage');
       Event.on('decryptedMessage', this.decryptedMessage);
       setTimeout(() => {
-        serverSrv.socket.on("onlineStatusChanged", (data) => {
-          if (data.isOnline == true && !this.props.isGroup) {
-            this.setState({ onlineStatus: 'Online' });
-          } else if (!this.props.isGroup) {
-            this.setState({ onlineStatus: 'Offline' });
-          } else {
-            this.setState({ onlineStatus: '-' });
-          }
-        });
+        try {
+          serverSrv.socket.on("onlineStatusChanged", (data) => {
+            if (data.isOnline == true && !this.props.isGroup) {
+              this.setState({ onlineStatus: 'Online' });
+            } else if (!this.props.isGroup) {
+              this.setState({ onlineStatus: 'Offline' });
+            } else {
+              this.setState({ onlineStatus: '-' });
+            }
+          });
+        } catch (error) {
+            ErrorHandler.WriteError('GiftedChat.js => constructor => setTimeout', error);
+        }
       }, 100);
 
       this.onTouchStart = this.onTouchStart.bind(this);
@@ -198,7 +198,6 @@ export default class GiftedChat extends React.Component {
   }
 
   componentDidMount() {
-
   }
 
   componentWillUnmount() {
@@ -365,8 +364,6 @@ export default class GiftedChat extends React.Component {
     }
   }
 
-  // TODO
-  // setMinInputToolbarHeight
   getMinInputToolbarHeight() {
     try {
       if (this.props.renderAccessory) {
@@ -531,14 +528,6 @@ export default class GiftedChat extends React.Component {
   }
 
   renderTypingWindow() {
-    // if (this.state.onlineMessages.length > 0) {
-    //   var msg = this.state.onlineMessages[0];
-    //     return (
-    //         <View style={{backgroundColor:'rgba(0,0,0,0.5)', minHeight: 10, position: 'absolute', top: 0, right: 0, left: 0, zIndex: 9}}>
-    //             <Text style={{color: 'white'}}>{msg.content}</Text>
-    //         </View>
-    //     );
-    // }
   }
 
   renderMessages() {
@@ -767,7 +756,7 @@ export default class GiftedChat extends React.Component {
         secureTextEntry: true,
         validate: true,
       });
-      // Encrypt wuth aes
+      // Encrypt with aes
       var messageId = this.guid();
       // Encrypt
       var ciphertext = CryptoJS.AES.encrypt(this.state.encryptedMessageText, password);
@@ -824,31 +813,35 @@ export default class GiftedChat extends React.Component {
       var hashFromServer = serverSrv._hashPassword;
       if (hash.toString() == hashFromServer.toString()) {
         serverSrv.GetEncryptedMessage_ById(this.state.mid, (result) => {
-          var ciphertext = result.content;
-          if (result.from == serverSrv._uid) {
-            var bytes = CryptoJS.AES.decrypt(ciphertext.toString(), password);
-            var plaintext = bytes.toString(CryptoJS.enc.Utf8);
-            this.setState({
-              DecryptedMessageText: plaintext,
-            })
-          }
-          else if (result.from != serverSrv._uid) {
-            var rsa = new RSAKey();
-            var pKey = serverSrv._privateKey;
-            rsa.setPrivateString(pKey);
-            var encrypedMessage = rsa.decryptWithPrivate(ciphertext);
-            this.setState({
-              DecryptedMessageText: encrypedMessage,
-            })
+          try {
+            var ciphertext = result.content;
+            if (result.from == serverSrv._uid) {
+              var bytes = CryptoJS.AES.decrypt(ciphertext.toString(), password);
+              var plaintext = bytes.toString(CryptoJS.enc.Utf8);
+              this.setState({
+                DecryptedMessageText: plaintext,
+              })
+            }
+            else if (result.from != serverSrv._uid) {
+              var rsa = new RSAKey();
+              var pKey = serverSrv._privateKey;
+              rsa.setPrivateString(pKey);
+              var encrypedMessage = rsa.decryptWithPrivate(ciphertext);
+              this.setState({
+                DecryptedMessageText: encrypedMessage,
+              })
 
-          }
-          this.setState({
-            decryptedsecureTextEntry: false,
-            placeHolderDecrypted: '',
-            headerTextDecrypted: "Message Decrypted Successfully",
-            encryptedPassword: '',
+            }
+            this.setState({
+              decryptedsecureTextEntry: false,
+              placeHolderDecrypted: '',
+              headerTextDecrypted: "Message Decrypted Successfully",
+              encryptedPassword: '',
 
-          });
+            });
+          } catch (error) {
+            ErrorHandler.WriteError('GiftedChat.js => GetEncryptedMessage_ById => catch', error);
+          }
         });
       }
       else {

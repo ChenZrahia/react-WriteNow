@@ -1,12 +1,10 @@
 import { Actions } from 'react-native-router-flux';
 import './UserAgent';
-//import io from 'socket.io-client/socket.io';
 import io from 'socket.io-client/dist/socket.io';
 var Event = require('./Events');
 var moment = require('moment');
 
 //אימות
-
 export var socket = null;
 export var _convId = null;
 export var _isInCall = false; //האם המשתמש בשיחה ברגע זה
@@ -14,7 +12,6 @@ export var _isInCall = false; //האם המשתמש בשיחה ברגע זה
 var _pc = null;
 var ErrorHandler = require('../ErrorHandler');
 var serverSrv = require('./serverSrv');
-
 var SQLite = require('react-native-sqlite-storage')
 
 import {
@@ -30,7 +27,6 @@ import {
 const configuration = { "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] };
 export const pcPeers = {};
 export let localStream;
-
 export let container;
 export function makeCall(callback) {
     try {
@@ -55,30 +51,45 @@ export function Connect(convId, hungUpCallback, IsIncomingCall, isVideo, isPTT) 
             socket.on('hungUp', hungUpCallback);
         }
         socket.on('exchange', (data) => {
-            exchange(data);
+            try {
+                exchange(data);
+            } catch (error) {
+                ErrorHandler.WriteError('liveSrv.js => exchange', error);
+            }
         });
         socket.on('leave', (socketId) => {
-            leave(socketId);
+            try {
+                leave(socketId);
+            } catch (error) {
+                ErrorHandler.WriteError('liveSrv.js => leave', error);
+            }
         });
 
         socket.on('connect', (data) => {
-            if (convId && !IsIncomingCall) {
-                var callType = 'voice';
-                if (isVideo == true) {
-                    callType = 'video';
-                } else if (isPTT == true) {
-                    callType = 'ptt';
+            try {
+                if (convId && !IsIncomingCall) {
+                    var callType = 'voice';
+                    if (isVideo == true) {
+                        callType = 'video';
+                    } else if (isPTT == true) {
+                        callType = 'ptt';
+                    }
+                    socket.emit('makeCall', () => { console.log('make a call'); }, convId, callType);
                 }
-                socket.emit('makeCall', () => { console.log('make a call'); }, convId, callType);
+                Event.trigger('NewLiveChat');
+
+                getLocalStream(isVideo, true, (stream) => {
+                    try {
+                        localStream = stream;
+                        Event.trigger('container_setState', { selfViewSrc: stream.toURL() });
+                        Event.trigger('container_setState', { status: 'ready', info: 'Please enter or create room ID' });
+                    } catch (error) {
+                        ErrorHandler.WriteError('liveSrv.js => getLocalStream', error);
+                    }
+                });
+            } catch (error) {
+                ErrorHandler.WriteError('liveSrv.js => connect', error);
             }
-
-            Event.trigger('NewLiveChat');
-
-            getLocalStream(isVideo, true, (stream) => {
-                localStream = stream;
-                Event.trigger('container_setState', { selfViewSrc: stream.toURL() });
-                Event.trigger('container_setState', { status: 'ready', info: 'Please enter or create room ID' });
-            });
         });
     } catch (error) {
         ErrorHandler.WriteError('liveSrv.js => Connect', error);
@@ -107,31 +118,39 @@ export function getLocalStream(isVideo, isFront, callback) {
             isVideo = false;
         }
         MediaStreamTrack.getSources(sourceInfos => {
-            let videoSourceId;
-            for (const i = 0; i < sourceInfos.length; i++) {
-                const sourceInfo = sourceInfos[i];
-                if (sourceInfo.kind == "video" && sourceInfo.facing == (isFront ? "front" : "back")) {
-                    videoSourceId = sourceInfo.id;
+            try {
+                let videoSourceId;
+                for (const i = 0; i < sourceInfos.length; i++) {
+                    const sourceInfo = sourceInfos[i];
+                    if (sourceInfo.kind == "video" && sourceInfo.facing == (isFront ? "front" : "back")) {
+                        videoSourceId = sourceInfo.id;
+                    }
                 }
+                getUserMedia({
+                    audio: true,
+                    video: isVideo
+                }, function (stream) {
+                    callback(stream);
+                }, logError);
+            } catch (error) {
+                ErrorHandler.WriteError('liveSrv.js => getSources', error);
             }
-            getUserMedia({
-                audio: true,
-                video: isVideo
-            }, function (stream) {
-                callback(stream);
-            }, logError);
         });
     } catch (error) {
-        ErrorHandler.WriteError('liveSrv.js => getLocalStream', error);
+        ErrorHandler.WriteError('liveSrv.js => getLocalStream(1)', error);
     }
 }
 
 export function join(roomID) {
     try {
         socket.emit('join', roomID, function (socketIds) {
-            for (const i in socketIds) {
-                const socketId = socketIds[i];
-                _pc = createPC(socketId, true);
+            try {
+                for (const i in socketIds) {
+                    const socketId = socketIds[i];
+                    _pc = createPC(socketId, true);
+                }
+            } catch (error) {
+                ErrorHandler.WriteError('liveSrv.js => socket.emit => join', error);
             }
         });
     } catch (error) {
@@ -166,8 +185,12 @@ function createPC(socketId, isOffer) {
     }
 
     pc.onnegotiationneeded = function () {
-        if (isOffer) {
-            createOffer();
+        try {
+            if (isOffer) {
+                createOffer();
+            }
+        } catch (error) {
+            ErrorHandler.WriteError('liveSrv.js => createPC => pc.onnegotiationneeded', error);
         }
     }
 
@@ -189,35 +212,43 @@ function createPC(socketId, isOffer) {
     };
 
     pc.onaddstream = function (event) {
-        Event.trigger('container_setState', { info: 'One peer join!', statusPtt: 'green' });
-        Event.trigger('add_remoteList', socketId, event);
+        try {
+            Event.trigger('container_setState', { info: 'One peer join!', statusPtt: 'green' });
+            Event.trigger('add_remoteList', socketId, event);
+        } catch (error) {
+            ErrorHandler.WriteError('liveSrv.js => createPC => pc.onaddstream', error);
+        }
     };
     pc.onremovestream = function (event) {
     };
 
     pc.addStream(localStream);
     function createDataChannel() {
-        if (pc.textDataChannel) {
-            return;
+        try {
+            if (pc.textDataChannel) {
+                return;
+            }
+            const dataChannel = pc.createDataChannel("text");
+
+            dataChannel.onerror = function (error) {
+                console.log("dataChannel.onerror", error);
+            };
+
+            dataChannel.onmessage = function (event) {
+                Event.trigger('receiveTextData', { user: socketId, message: event.data });
+            };
+
+            dataChannel.onopen = function () {
+                Event.trigger('container_setState', { textRoomConnected: true });
+            };
+
+            dataChannel.onclose = function () {
+                console.log('OnClose!');
+            };
+            pc.textDataChannel = dataChannel;
+        } catch (error) {
+            ErrorHandler.WriteError('liveSrv.js => createDataChannel => catch', error);
         }
-        const dataChannel = pc.createDataChannel("text");
-
-        dataChannel.onerror = function (error) {
-            console.log("dataChannel.onerror", error);
-        };
-
-        dataChannel.onmessage = function (event) {
-            Event.trigger('receiveTextData', { user: socketId, message: event.data });
-        };
-
-        dataChannel.onopen = function () {
-            Event.trigger('container_setState', { textRoomConnected: true });
-        };
-
-        dataChannel.onclose = function () {
-            console.log('OnClose!');
-        };
-        pc.textDataChannel = dataChannel;
     }
     return pc;
 }
@@ -233,18 +264,26 @@ function exchange(data) {
         }
         _pc = pc;
         if (data.sdp) {
-            try {
                 pc.setRemoteDescription(new RTCSessionDescription(data.sdp), function () {
-                    if (pc.remoteDescription.type == "offer")
-                        pc.createAnswer(function (desc) {
-                            pc.setLocalDescription(desc, function () {
-                                socket.emit('exchange', { 'to': fromId, 'sdp': pc.localDescription });
+                    try {
+                        if (pc.remoteDescription.type == "offer")
+                            pc.createAnswer(function (desc) {
+                                try {
+                                    pc.setLocalDescription(desc, function () {
+                                        try {
+                                            socket.emit('exchange', { 'to': fromId, 'sdp': pc.localDescription });
+                                        } catch (error) {
+                                            ErrorHandler.WriteError('liveSrv.js => pc.setRemoteDescription => pc.createAnswer => setLocalDescription', error);
+                                        }
+                                    }, logError);
+                                } catch (error) {
+                                    ErrorHandler.WriteError('liveSrv.js => pc.setRemoteDescription => pc.createAnswer', error);
+                                }
                             }, logError);
-                        }, logError);
+                    } catch (error) {
+                        ErrorHandler.WriteError('liveSrv.js => pc.setRemoteDescription', error);
+                    }
                 }, logError);
-            } catch (error) {
-                ErrorHandler.WriteError('liveSrv.js => exchange => setRemoteDescription', error);
-            }
         } else {
             try {
                 pc.addIceCandidate(new RTCIceCandidate(data.candidate));
@@ -283,7 +322,7 @@ function leave(socketId) {
 }
 
 function logError(error) {
-    ErrorHandler.WriteError("logError", error);
+    ErrorHandler.WriteError("## logError", error);
 }
 
 export function mapHash(hash, func) {

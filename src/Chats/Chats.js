@@ -32,7 +32,6 @@ export default class Chats extends Component {
             const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
             this.ds = ds;
             this.mounted = false;
-            //this.myChats = this.sortDates(this.myChats);
             this.state = {
                 dataSource: ds.cloneWithRows(this.myChats),
                 imageVisible: false,
@@ -57,7 +56,6 @@ export default class Chats extends Component {
             var ds = this.ds;
             serverSrv.GetAllUserConv((result) => {
                 try {
-                    //this.myChats = this.sortDates(result);
                     this.myChats = result;
                     setTimeout(() => {
                         try {
@@ -67,9 +65,6 @@ export default class Chats extends Component {
                         } catch (e) {
                             ErrorHandler.WriteError("Chats.js -> UpdateChatsList -> setState", e);
                         }
-                        // this.setState({
-                        //     dataSource: ds.cloneWithRows(this.myChats)
-                        // });
                     }, 900);
 
                 } catch (e) {
@@ -89,9 +84,6 @@ export default class Chats extends Component {
                     chat.groupPicture = groupInfo.groupPicture;
                 }
             });
-            // this.setState({
-            //     dataSource: this.ds.cloneWithRows(this.myChats)
-            // });
             setTimeout(() => {
                 this.setState({
                     dataSource: this.ds.cloneWithRows(this.myChats)
@@ -180,11 +172,11 @@ export default class Chats extends Component {
         try {
             var result = dataSource.sort((a, b) => {
                 try {
-                    if(a.lastMessageTime){
+                    if (a.lastMessageTime) {
                         var aDate = moment(a.lastMessageTime).format();
                     }
-                     if(b.lastMessageTime){
-                         var bDate = moment(b.lastMessageTime).format();
+                    if (b.lastMessageTime) {
+                        var bDate = moment(b.lastMessageTime).format();
                     }
                     if (aDate && bDate) {
                         if (aDate > bDate) {
@@ -349,18 +341,22 @@ export default class Chats extends Component {
     }
 
     renderEncryptedLastMessage(rowData) {
-        if (rowData.lastMessageEncrypted) {
-            return (
-                <Text>
-                    🔒 Encrypted Message
-            </Text>
-            )
-        }
-        else if (!rowData.lastMessage) {
-            return <Text></Text>
-        }
-        else {
-            return (<Text>{rowData.lastMessage}</Text>)
+        try {
+            if (rowData.lastMessageEncrypted) {
+                return (
+                    <Text>
+                        🔒 Encrypted Message
+                </Text>
+                )
+            }
+            else if (!rowData.lastMessage) {
+                return <Text></Text>
+            }
+            else {
+                return (<Text>{rowData.lastMessage}</Text>)
+            }
+        } catch (error) {
+            ErrorHandler.WriteError('Chats.js => renderEncryptedLastMessage', e);
         }
     }
 
@@ -421,7 +417,6 @@ export default class Chats extends Component {
                     />
                     {this.openImageModal(this.imgSelected)}
                     <Text>
-
                     </Text>
                 </View>
             );

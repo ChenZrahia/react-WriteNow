@@ -14,10 +14,8 @@ import {
   BackAndroid
 } from 'react-native';
 import ActionSheet from '@exponent/react-native-action-sheet';
-// var json = require("json!./file.json");
 import dismissKeyboard from 'react-native-dismiss-keyboard';
 import renderIf from '../../plugins/renderIf';
-
 var Event = require('../../Services/Events');
 var ErrorHandler = require('../../ErrorHandler');
 
@@ -25,35 +23,38 @@ export default class Composer extends React.Component {
   constructor(props) {
     super(props);
     try {
-
       this.state = {
         showPicker: false,
       };
       Event.on('closeChatRoom', () => {
         this.setState({ isEmojiOpen: false });
-      });       
+      });
 
     } catch (e) {
       ErrorHandler.WriteError('Composer.js => constructor', e);
     }
   }
 
-  componentDidMount(){
+  componentDidMount() {
     try {
       BackAndroid.addEventListener('hardwareBackPress', () => {
-            if (this.state.isEmojiOpen) {
-              Event.trigger('openEmojiModal', this.state.isEmojiOpen);
-              this.setState({ isEmojiOpen: !this.state.isEmojiOpen });
-              return true;
-            }
-        });
+        try {
+          if (this.state.isEmojiOpen) {
+            Event.trigger('openEmojiModal', this.state.isEmojiOpen);
+            this.setState({ isEmojiOpen: !this.state.isEmojiOpen });
+            return true;
+          }
+        } catch (error) {
+          ErrorHandler.WriteError('Composer.js => componentDidMount => BackAndroid', e);
+        }
+      });
     } catch (error) {
       ErrorHandler.WriteError('Composer.js => componentDidMount', e);
     }
   }
 
   onChange(e) { //add by rugbin 24.3.17 -for auto size the height
-    try {      
+    try {
       const contentSize = e.nativeEvent.contentSize;
       if (!this.contentSize) {
         this.contentSize = contentSize;
@@ -83,20 +84,23 @@ export default class Composer extends React.Component {
       return (
         <View style={styles.row}>
           <TouchableOpacity onPress={() => {
-            if (!this.state.isEmojiOpen) {
-              dismissKeyboard();
-              setTimeout(() => {
-                Event.trigger('openEmojiModal', this.state.isEmojiOpen);
-                this.setState({ isEmojiOpen: !this.state.isEmojiOpen });
-            }, 200);
-            } else {
-              setTimeout(() => {
-                Event.trigger('openEmojiModal', this.state.isEmojiOpen);
-                this.setState({ isEmojiOpen: !this.state.isEmojiOpen });
-                this._mainInput.focus();
-            }, 200);
+            try {
+              if (!this.state.isEmojiOpen) {
+                dismissKeyboard();
+                setTimeout(() => {
+                  Event.trigger('openEmojiModal', this.state.isEmojiOpen);
+                  this.setState({ isEmojiOpen: !this.state.isEmojiOpen });
+                }, 200);
+              } else {
+                setTimeout(() => {
+                  Event.trigger('openEmojiModal', this.state.isEmojiOpen);
+                  this.setState({ isEmojiOpen: !this.state.isEmojiOpen });
+                  this._mainInput.focus();
+                }, 200);
+              }
+            } catch (error) {
+                ErrorHandler.WriteError('Composer.js => render => onPress', e);
             }
-            
           }
           }>
             <View>
@@ -115,8 +119,8 @@ export default class Composer extends React.Component {
             multiline={this.props.multiline}
             onFocus={() => this.setState({ isEmojiOpen: false })}
             onChange={(e) => {
-                this.props.onChange(e);
-              }
+              this.props.onChange(e);
+            }
             }
             style={[styles.textInput, this.props.textInputStyle, {
               height: this.props.composerHeight,

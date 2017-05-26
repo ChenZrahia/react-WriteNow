@@ -4,9 +4,7 @@ import {
   Text,
   View,
 } from 'react-native';
-
 import moment from 'moment/min/moment-with-locales.min';
-
 var ErrorHandler = require('../../ErrorHandler');
 
 export default class Day extends React.Component {
@@ -38,12 +36,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   wrapper: {
-    // backgroundColor: '#ccc',
-    // borderRadius: 10,
-    // paddingLeft: 10,
-    // paddingRight: 10,
-    // paddingTop: 5,
-    // paddingBottom: 5,
   },
   text: {
     backgroundColor: 'transparent',
@@ -60,7 +52,6 @@ Day.contextTypes = {
 Day.defaultProps = {
   isSameDay: () => { },
   currentMessage: {
-    // TODO test if crash when createdAt === null
     createdAt: null,
   },
   previousMessage: {},

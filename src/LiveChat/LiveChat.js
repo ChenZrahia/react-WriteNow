@@ -60,7 +60,7 @@ export default class LiveChat extends Component {
         }
     }
 
-    getDateFormated(date) { //להוציא לסרוויס?
+    getDateFormated(date) {
         try {
             if (!date) {
                 return '';
@@ -117,13 +117,16 @@ export default class LiveChat extends Component {
                         dataSource={this.state.dataSource}
                         renderRow={(rowData) =>
                             <TouchableOpacity onPress={() => {
-                                //Actions.Call();
                                 console.log(rowData.Conversation.groupName);
                             }}>
                                 <View style={generalStyle.styles.row}>
                                     <TouchableOpacity onPress={() => {
-                                        this.imgSelected = rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? rowData.isGroup : require('../../img/user.jpg'))
-                                        this.setImageVisible(true);
+                                        try {
+                                            this.imgSelected = rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? rowData.isGroup : require('../../img/user.jpg'))
+                                            this.setImageVisible(true);
+                                        } catch (error) {
+                                            ErrorHandler.WriteError('LiveChat.js => TouchableOpacity => onPress', e);
+                                        }
                                     }}>
                                         <View style={generalStyle.styles.viewImg}>
                                             <Image style={generalStyle.styles.thumb} source={serverSrv._myFriendsJson[rowData.receiverId] && serverSrv._myFriendsJson[rowData.receiverId].publicInfo.picture
@@ -149,7 +152,6 @@ export default class LiveChat extends Component {
                                         <Text>
                                             {this.renderIconType(rowData.callType)}
                                         </Text>
-
                                     </View>
                                 </View>
                             </TouchableOpacity>

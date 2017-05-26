@@ -50,25 +50,25 @@ let container = null;
 export default class Call extends Component {
     constructor() {
         super();
-        this.container_setState = this.container_setState.bind(this);
-        this.receiveTextData = this.receiveTextData.bind(this);
-        this.delete_remoteList = this.delete_remoteList.bind(this);
-        this.add_remoteList = this.add_remoteList.bind(this);
-        this.hungUp = this.hungUp.bind(this);
-        this.getCall = this.getCall.bind(this);
-        this.talk = this.talk.bind(this);
-        this.endTalk = this.endTalk.bind(this);
-        this.connectToServer = this.connectToServer.bind(this);
-        this.recall = this.recall.bind(this)
-        Event.on('container_setState', this.container_setState);
-        Event.on('receiveTextData', this.receiveTextData);
-        Event.on('delete_remoteList', this.delete_remoteList);
-        Event.on('add_remoteList', this.add_remoteList);
-        Event.on('hungUp', this.hungUp);
-        Event.on('getPttCall', this.getCall);
-        InCallManager.setSpeakerphoneOn(true);
 
         try {
+            this.container_setState = this.container_setState.bind(this);
+            this.receiveTextData = this.receiveTextData.bind(this);
+            this.delete_remoteList = this.delete_remoteList.bind(this);
+            this.add_remoteList = this.add_remoteList.bind(this);
+            this.hungUp = this.hungUp.bind(this);
+            this.getCall = this.getCall.bind(this);
+            this.talk = this.talk.bind(this);
+            this.endTalk = this.endTalk.bind(this);
+            this.connectToServer = this.connectToServer.bind(this);
+            this.recall = this.recall.bind(this)
+            Event.on('container_setState', this.container_setState);
+            Event.on('receiveTextData', this.receiveTextData);
+            Event.on('delete_remoteList', this.delete_remoteList);
+            Event.on('add_remoteList', this.add_remoteList);
+            Event.on('hungUp', this.hungUp);
+            Event.on('getPttCall', this.getCall);
+            InCallManager.setSpeakerphoneOn(true);
             dismissKeyboard();
             this.callInterval = null;
             this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => true });
@@ -118,15 +118,19 @@ export default class Call extends Component {
             }
             if (this.props.convId) {
                 serverSrv.GetConvData_ByConvId(this.props.convId, (convData) => {
-                    //if convData is null or user not exist in local DB  -------- להשלים בדיקה
-                    if (convData.groupPicture) {
-                        ImageResizer.createResizedImage(convData.groupPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {
-                            setTimeout(() => {
-                                this.setState({ userPicture: resizedImageUri });
-                            }, 500);
-                        }).catch((err) => {
-                            ErrorHandler.WriteError('PTT.js => render => ImageResizer', err);
-                        });
+                    try {
+                        //if convData is null or user not exist in local DB  -------- להשלים בדיקה
+                        if (convData.groupPicture) {
+                            ImageResizer.createResizedImage(convData.groupPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {
+                                setTimeout(() => {
+                                    this.setState({ userPicture: resizedImageUri });
+                                }, 500);
+                            }).catch((err) => {
+                                ErrorHandler.WriteError('PTT.js => getCall => ImageResizer', err);
+                            });
+                        }
+                    } catch (error) {
+                        ErrorHandler.WriteError('PTT.js => getCall => GetConvData_ByConvId', err);
                     }
                 });
             } else if (this.props.userPicture) {
@@ -152,14 +156,17 @@ export default class Call extends Component {
                 this.hungUp(true);
             });
             serverSrv.exitChatCall_server((convId) => {
-                if (this.state && this.state.roomID && this.state.roomID.indexOf(convId) == 0) {
-                    this.hungUp();
+                try {
+                    if (this.state && this.state.roomID && this.state.roomID.indexOf(convId) == 0) {
+                        this.hungUp();
+                    }
+                } catch (error) {
+                    ErrorHandler.WriteError("PTT.js -> => componentDidMount => exitChatCall_server", e);
                 }
             });
 
             AppState.addEventListener('change', (state) => {
                 if (state != 'active') {
-                    //this.hungUp(true);
                     InCallManager.setMicrophoneMute(false);
                 }
             })
@@ -225,19 +232,23 @@ export default class Call extends Component {
             const isFront = !this.state.isFront;
             this.setState({ isFront });
             liveSrv.getLocalStream(false, isFront, function (stream) {
-                if (liveSrv.localStream) {
+                try {
+                    if (liveSrv.localStream) {
+                        for (const id in liveSrv.pcPeers) {
+                            const pc = liveSrv.pcPeers[id];
+                            pc && pc.removeStream(liveSrv.localStream);
+                        }
+                        liveSrv.localStream.release();
+                    }
+                    liveSrv.localStream = stream;
+                    liveSrv.container.setState({ selfViewSrc: stream.toURL() });
+
                     for (const id in liveSrv.pcPeers) {
                         const pc = liveSrv.pcPeers[id];
-                        pc && pc.removeStream(liveSrv.localStream);
+                        pc && pc.addStream(liveSrv.localStream);
                     }
-                    liveSrv.localStream.release();
-                }
-                liveSrv.localStream = stream;
-                liveSrv.container.setState({ selfViewSrc: stream.toURL() });
-
-                for (const id in liveSrv.pcPeers) {
-                    const pc = liveSrv.pcPeers[id];
-                    pc && pc.addStream(liveSrv.localStream);
+                } catch (error) {
+                    ErrorHandler.WriteError("PTT.js -> _press", error);
                 }
             });
         } catch (error) {
@@ -298,6 +309,7 @@ export default class Call extends Component {
             liveSrv.socket.on('lineIsFree', () => {
                 try {
                     mirs2.play((success) => { });
+                    console.log('## InCallManager.setMicrophoneMute ## true 1');
                     InCallManager.setMicrophoneMute(true);
                     this.setState({ statusPtt: 'green' });
                 } catch (error) {
@@ -306,24 +318,35 @@ export default class Call extends Component {
             });
 
             liveSrv.socket.on('getPermissionToTalk_serverAnswer', (answer, uidAsked) => {
-                mirs1.play((success) => { });
-                if (answer == true && uidAsked == serverSrv._uid) {
-                    InCallManager.setMicrophoneMute(false);
-                    InCallManager.setSpeakerphoneOn(true);
-                    this.setState({ statusPtt: 'yellow' });
-                } else {
-                    InCallManager.setMicrophoneMute(true);
-                    this.setState({ statusPtt: 'red' });
+                try {
+                    mirs1.play((success) => { });
+                    if (answer == true && uidAsked == serverSrv._uid) {
+                        console.log('## InCallManager.setMicrophoneMute ## false  2');
+                        InCallManager.setMicrophoneMute(false);
+                        InCallManager.setSpeakerphoneOn(true);
+                        this.setState({ statusPtt: 'yellow' });
+                    } else {
+                        console.log('## InCallManager.setMicrophoneMute ## true 3');
+                        InCallManager.setMicrophoneMute(true);
+                        this.setState({ statusPtt: 'red' });
+                    }
+                } catch (error) {
+                    ErrorHandler.WriteError("PTT.js -> on => getPermissionToTalk_serverAnswer", e);
                 }
             });
 
             liveSrv.socket.on('getPermissionToTalk_serverAsk', (uidAsked) => {
-                if (this.state.statusPtt == 'green' && uidAsked != serverSrv._uid) {
-                    InCallManager.setMicrophoneMute(true);
-                    this.setState({ statusPtt: 'red' });
-                    liveSrv.socket.emit('getPermissionToTalk_clientAnswer', true, uidAsked);
-                } else if (this.state.statusPtt != 'green' && uidAsked != serverSrv._uid) {
-                    liveSrv.socket.emit('getPermissionToTalk_clientAnswer', false, uidAsked);
+                try {
+                    if (this.state.statusPtt == 'green' && uidAsked != serverSrv._uid) {
+                        console.log('## InCallManager.setMicrophoneMute ## true 4');
+                        InCallManager.setMicrophoneMute(true);
+                        this.setState({ statusPtt: 'red' });
+                        liveSrv.socket.emit('getPermissionToTalk_clientAnswer', true, uidAsked);
+                    } else if (this.state.statusPtt != 'green' && uidAsked != serverSrv._uid) {
+                        liveSrv.socket.emit('getPermissionToTalk_clientAnswer', false, uidAsked);
+                    }
+                } catch (error) {
+                    ErrorHandler.WriteError("PTT.js -> on getPermissionToTalk_serverAsk", error);
                 }
             });
         } catch (error) {
@@ -372,12 +395,14 @@ export default class Call extends Component {
             });
             mirs1.stop();
             liveSrv.hungUp();
+            console.log('## InCallManager.setMicrophoneMute ## false 5');
             InCallManager.setMicrophoneMute(false);
             InCallManager.setKeepScreenOn(false);
             InCallManager.stop();
             if (this.callInterval) {
                 clearInterval(this.callInterval);
             }
+            console.log('## InCallManager.setMicrophoneMute ## false 6');
             InCallManager.setMicrophoneMute(false);
             InCallManager.setSpeakerphoneOn(true);
             if (this.state.roomID) {
