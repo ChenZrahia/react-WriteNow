@@ -2,6 +2,7 @@ var React = require('react-native');
 import { Actions } from 'react-native-router-flux';
 import './UserAgent';
 
+import Toast from 'react-native-root-toast';
 
 import io from 'socket.io-client/dist/socket.io';
 import ImageResizer from 'react-native-image-resizer';
@@ -19,11 +20,12 @@ var RSAKey = require('react-native-rsa');
 var Sound = require('react-native-sound');
 
 export var socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {
-                        query: {
-                            encryptedUid: '',
-                            publicKey: ''
-                        }
-                    });
+    query: {
+        encryptedUid: '',
+        publicKey: ''
+    },
+    'connect timeout': 5000
+});
 var ErrorHandler = require('../ErrorHandler');
 var SQLite = require('react-native-sqlite-storage')
 
@@ -65,7 +67,7 @@ export var _convId = null;
 var counter = 0;
 export function DeleteDb() {
     counter++;
-    if(counter < 5){
+    if (counter < 5) {
         return;
     }
     db.transaction((tx) => {
@@ -79,7 +81,6 @@ export function DeleteDb() {
         tx.executeSql('DROP TABLE Friends', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Messages', [], null, errorDB); //------------------
         tx.executeSql('DROP TABLE Participates', [], null, errorDB); //------------------
-
 
         tx.executeSql('CREATE TABLE IF NOT EXISTS UserInfo (uid, publicKey, privateKey, encryptedUid,password)', [], null, errorDB);
         tx.executeSql('CREATE TABLE IF NOT EXISTS Conversation (id PRIMARY KEY NOT NULL, isEncrypted, manager , groupName, groupPicture, isGroup, lastMessage, lastMessageTime, lastMessageEncrypted)', [], null, errorDB); //להוציא לפונקציה נפרדת
@@ -163,52 +164,56 @@ export function InsertMyContacts(contacts, isMyContact, convId) {
     try {
         db.transaction((tx) => {
             tx.executeSql('SELECT phoneNumber FROM Friends', [], (tx, result) => {
-                var f_phoneNumbers = [];
-                for (let i = 0; i < result.rows.length; i++) {
-                    f_phoneNumbers.push(result.rows.item(i).phoneNumber);
-                }
-                for (var i = 0; i < contacts.length; i++) {
-                    if (contacts[i].phoneNumber && f_phoneNumbers.indexOf(contacts[i].phoneNumber) < 0) {
-                        try {
-                            f_phoneNumbers.push(contacts[i].phoneNumber);
-                            var newId = '';
-                            if (contacts[i].id) {
-                                newId = contacts[i].id;
-                            } else {
-                                newId = contacts[i].phoneNumber;
-                            }
-                            if (convId && _myConvs[convId]) {
-                                contacts[i].name = contacts[i].publicInfo.fullName;
-                                contacts[i].avatar = contacts[i].publicInfo.picture;
-                                contacts[i]._id = contacts[i].id;
-                                _myConvs[convId].participates[contacts[i].id] = contacts[i];
-                                if (!_myFriendsJson[contacts[i].id]) {
-                                    _myFriendsJson[contacts[i].id] = contacts[i];
-                                    //_myFriends.push(contacts[i]);
+                try {
+                    var f_phoneNumbers = [];
+                    for (let i = 0; i < result.rows.length; i++) {
+                        f_phoneNumbers.push(result.rows.item(i).phoneNumber);
+                    }
+                    for (var i = 0; i < contacts.length; i++) {
+                        if (contacts[i].phoneNumber && f_phoneNumbers.indexOf(contacts[i].phoneNumber) < 0) {
+                            try {
+                                f_phoneNumbers.push(contacts[i].phoneNumber);
+                                var newId = '';
+                                if (contacts[i].id) {
+                                    newId = contacts[i].id;
+                                } else {
+                                    newId = contacts[i].phoneNumber;
                                 }
-                                tx.executeSql('INSERT OR REPLACE INTO Participates VALUES (?, ?, ?)',
-                                    [contacts[i].id,
-                                        convId,
-                                    _myConvs[convId].participates.length > 2
-                                    ]);
+                                if (convId && _myConvs[convId]) {
+                                    contacts[i].name = contacts[i].publicInfo.fullName;
+                                    contacts[i].avatar = contacts[i].publicInfo.picture;
+                                    contacts[i]._id = contacts[i].id;
+                                    _myConvs[convId].participates[contacts[i].id] = contacts[i];
+                                    if (!_myFriendsJson[contacts[i].id]) {
+                                        _myFriendsJson[contacts[i].id] = contacts[i];
+                                        //_myFriends.push(contacts[i]);
+                                    }
+                                    tx.executeSql('INSERT OR REPLACE INTO Participates VALUES (?, ?, ?)',
+                                        [contacts[i].id,
+                                            convId,
+                                        _myConvs[convId].participates.length > 2
+                                        ]);
+                                }
+                                tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?)',
+                                    [newId,
+                                        contacts[i].phoneNumber,
+                                        '',
+                                        '',
+                                        contacts[i].publicInfo.fullName,
+                                        contacts[i].publicInfo.picture,
+                                        isMyContact]);
+                            } catch (error) {
+                                ErrorHandler.WriteError('serverSrv.js => InsertMyContacts => SELECT phoneNumber FROM Friends(1)', error);
                             }
-                            tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?)',
-                                [newId,
-                                    contacts[i].phoneNumber,
-                                    '',
-                                    '',
-                                    contacts[i].publicInfo.fullName,
-                                    contacts[i].publicInfo.picture,
-                                    isMyContact]);
-                        } catch (error) {
-                            ErrorHandler.WriteError('serverSrv.js => InsertMyContacts => SELECT phoneNumber FROM Friends', error);
                         }
                     }
+                    Event.trigger('updateFriends', true);
+                } catch (error) {
+                    ErrorHandler.WriteError('serverSrv.js => InsertMyContacts => SELECT phoneNumber FROM Friends', error);
                 }
-                Event.trigger('updateFriends', true);
             }, errorDB);
         }, (error) => {
-            ErrorHandler.WriteError('serverSrv.js => InsertMyContacts => INSERT OR REPLACE INTO Friends', error);
+            ErrorHandler.WriteError('serverSrv.js => InsertMyContacts => INSERT OR REPLACE INTO Friends(1)', error);
         });
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => InsertMyContacts', error);
@@ -253,30 +258,34 @@ export function GetAllMyFriends_Server(callback) {
             friendUidArray: friendUidArray
         };
         socket.emit('GetMyFriendsChanges', usersToServer, ((data) => {
-            db.transaction((tx) => {
-                try {
-                    for (var i = 0; i < data.length; i++) {
-                        if (data[i].deletedUser == true && data[i].id) {
-                            //tx.executeSql('DELETE FROM Friends WHERE id=?', [data[i].id]);
-                        } else {
-                            tx.executeSql('DELETE FROM Friends WHERE id = ?', [data[i].phoneNumber]);
-                            tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?)',
-                                [data[i].id,
-                                data[i].phoneNumber,
-                                data[i].ModifyDate,
-                                data[i].ModifyPicDate,
-                                data[i].publicInfo.fullName,
-                                data[i].publicInfo.picture,
-                                    true]);
+            try {
+                db.transaction((tx) => {
+                    try {
+                        for (var i = 0; i < data.length; i++) {
+                            if (data[i].deletedUser == true && data[i].id) {
+                                //tx.executeSql('DELETE FROM Friends WHERE id=?', [data[i].id]);
+                            } else {
+                                tx.executeSql('DELETE FROM Friends WHERE id = ?', [data[i].phoneNumber]);
+                                tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?)',
+                                    [data[i].id,
+                                    data[i].phoneNumber,
+                                    data[i].ModifyDate,
+                                    data[i].ModifyPicDate,
+                                    data[i].publicInfo.fullName,
+                                    data[i].publicInfo.picture,
+                                        true]);
+                            }
                         }
+                        GetAllMyFriends(callback, true);
+                    } catch (error) {
+                        ErrorHandler.WriteError('serverSrv.js => GetAllMyFriends_Server => GetMyFriendsChanges => transaction', error);
                     }
-                    GetAllMyFriends(callback, true);
-                } catch (error) {
-                    ErrorHandler.WriteError('serverSrv.js => GetAllMyFriends_Server => GetMyFriendsChanges => transaction', error);
-                }
-            }, (error) => {
-                ErrorHandler.WriteError('serverSrv.js => GetAllMyFriends_Server => GetMyFriendsChanges', error);
-            })
+                }, (error) => {
+                    ErrorHandler.WriteError('serverSrv.js => GetAllMyFriends_Server => GetMyFriendsChanges', error);
+                })
+            } catch (error) {
+                ErrorHandler.WriteError('serverSrv.js => GetAllMyFriends_Server => GetMyFriendsChanges(1)', error);
+            }
         }));
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => GetAllMyFriends_Server', error);
@@ -356,44 +365,53 @@ function GetAllUserConv_Server(callback) {
         }
         if (!_myFriends) {
             _myFriends = [];
-        } 
+        }
         usersArr = _myFriends.map(x => x.id);
         socket.emit('GetAllUserConvChanges', usersArr, convIdArray, ((data) => {
-            getConvParticipates_server(data.NewFriends, null, () => {});
-            data = data.ConvChanges;
-            db.transaction((tx) => {
-                for (var i = 0; i < data.length; i++) {
-                    if (data[i].deletedConv == true && data[i].id) {
-                        tx.executeSql('DELETE FROM Conversation WHERE id=?', [data[i].id]);
-                    } else if (data[i].isExist == true) {
+            try {
 
-                        tx.executeSql(' UPDATE Conversation ' +
-                            ' set isEncrypted = ?, ' +
-                            ' manager = ?, ' +
-                            ' groupName = ?, ' +
-                            ' lastMessage = ?,' +
-                            ' lastMessageTime = ?, ' +
-                            ' lastMessageEncrypted = ? ' +
-                            ' WHERE id = ? ', [data[i].isEncrypted, data[i].manager, data[i].groupName, data[i].lastMessage, data[i].lastMessageTime, data[i].lastMessageEncrypted, data[i].id], null, errorDB);
-                    } else {
-                        tx.executeSql('INSERT INTO Conversation VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                            [data[i].id,
-                            data[i].isEncrypted,
-                            data[i].manager,
-                            data[i].groupName,
-                            data[i].groupPicture,
-                            data[i].isGroup,
-                            data[i].lastMessage,
-                            data[i].lastMessageTime,
-                            data[i].lastMessageEncrypted,
-                            ]);
+                getConvParticipates_server(data.NewFriends, null, () => { });
+                data = data.ConvChanges;
+                db.transaction((tx) => {
+                    try {
+                        for (var i = 0; i < data.length; i++) {
+                            if (data[i].deletedConv == true && data[i].id) {
+                                tx.executeSql('DELETE FROM Conversation WHERE id=?', [data[i].id]);
+                            } else if (data[i].isExist == true) {
+
+                                tx.executeSql(' UPDATE Conversation ' +
+                                    ' set isEncrypted = ?, ' +
+                                    ' manager = ?, ' +
+                                    ' groupName = ?, ' +
+                                    ' lastMessage = ?,' +
+                                    ' lastMessageTime = ?, ' +
+                                    ' lastMessageEncrypted = ? ' +
+                                    ' WHERE id = ? ', [data[i].isEncrypted, data[i].manager, data[i].groupName, data[i].lastMessage, data[i].lastMessageTime, data[i].lastMessageEncrypted, data[i].id], null, errorDB);
+                            } else {
+                                tx.executeSql('INSERT INTO Conversation VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                                    [data[i].id,
+                                    data[i].isEncrypted,
+                                    data[i].manager,
+                                    data[i].groupName,
+                                    data[i].groupPicture,
+                                    data[i].isGroup,
+                                    data[i].lastMessage,
+                                    data[i].lastMessageTime,
+                                    data[i].lastMessageEncrypted,
+                                    ]);
+                            }
+                        }
+                        _data = data;
+                        GetAllUserConv(callback, data, true);
+                    } catch (error) {
+                        ErrorHandler.WriteError('serverSrv.js => GetAllUserConv_Server => GetAllUserConvChanges(in)', error);
                     }
-                }
-                _data = data;
-                GetAllUserConv(callback, data, true);
-            }, (error) => {
-                ErrorHandler.WriteError('serverSrv.js => GetAllUserConv_Server => GetAllUserConvChanges', error);
-            })
+                }, (error) => {
+                    ErrorHandler.WriteError('serverSrv.js => GetAllUserConv_Server => GetAllUserConvChanges', error);
+                })
+            } catch (error) {
+                ErrorHandler.WriteError('serverSrv.js => GetAllUserConv_Server => GetAllUserConvChanges(1)', error);
+            }
         }));
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => GetAllUserConv_Server', error);
@@ -562,62 +580,66 @@ function GetConv_server(convId, callback) {
         _convId = convId;
         socket.emit('enterChat', convId);
         socket.emit('GetConvChangesById', convId, lastMessageTime, ((data) => {
-            var result = data.participates.filter((user) => { return user.id != _uid; });
+            try {
+                var result = data.participates.filter((user) => { return user.id != _uid; });
 
-            if (result.length > 0) {
-                _myFriendPublicKey = result[0].pkey;
-            }
+                if (result.length > 0) {
+                    _myFriendPublicKey = result[0].pkey;
+                }
 
-            if (!_myConvs[convId] || !_myConvs[convId].participates) {
-                _myConvs[convId] = { participates: [] };
-            }
-            db.transaction((tx) => {
-                for (var i = 0; i < data.participates.length; i++) {
-                    try {
-                        if (!_myFriendsJson[data.participates[i].id]) {
-                            newParticipates.push(data.participates[i].id);
-                        } else {
-                            data.participates[i].name = _myFriendsJson[data.participates[i].id].publicInfo.fullName;
-                            //data.participates[i].avatar = _myFriendsJson[data.participates[i].id].publicInfo.picture;
-                            data.participates[i]._id = data.participates[i].id;
-                            _myConvs[convId].participates[data.participates[i].id] = data.participates[i];
-                            tx.executeSql('INSERT OR REPLACE INTO Participates VALUES (?, ?, ?)',
-                                [data.participates[i].id,
-                                    convId,
-                                data.participates.length > 2
-                                ]);
-                        }
-                    } catch (error) {
-                        ErrorHandler.WriteError('serverSrv.js => GetConv_server => GetConvChangesById => db.transaction', error);
-                    }
+                if (!_myConvs[convId] || !_myConvs[convId].participates) {
+                    _myConvs[convId] = { participates: [] };
                 }
-                if (newParticipates.length > 0) {
-                    socket.emit('getUsers', newParticipates, (result) => {
-                        InsertMyContacts(result, false, convId);
-                    });
-                }
-                for (var i = 0; i < data.messages.length; i++) {
-                    if (data.messages[i].isDeleted == true && data.messages[i].id) {
-                        tx.executeSql('DELETE FROM Messages WHERE id=?', [data.messages[i].id]);
-                    } else {
-                        if (data.messages[i].image) {
-                            ImageResizer.createResizedImage(data.messages[i].image, 400, 400, 'JPEG', 100, 0, null).then((function (obj) {
-                                return (resizedImageUri) => {
-                                    obj.imgPath = resizedImageUri;
-                                    InsertNewContact(tx, obj);
-                                }
-                            })(data.messages[i])).catch((err) => {
-                                ErrorHandler.WriteError('serverSrv.js => onServerTyping => ImageResizer', err);
-                            });
-                        } else {
-                            InsertNewContact(tx, data.messages[i]);
+                db.transaction((tx) => {
+                    for (var i = 0; i < data.participates.length; i++) {
+                        try {
+                            if (!_myFriendsJson[data.participates[i].id]) {
+                                newParticipates.push(data.participates[i].id);
+                            } else {
+                                data.participates[i].name = _myFriendsJson[data.participates[i].id].publicInfo.fullName;
+                                //data.participates[i].avatar = _myFriendsJson[data.participates[i].id].publicInfo.picture;
+                                data.participates[i]._id = data.participates[i].id;
+                                _myConvs[convId].participates[data.participates[i].id] = data.participates[i];
+                                tx.executeSql('INSERT OR REPLACE INTO Participates VALUES (?, ?, ?)',
+                                    [data.participates[i].id,
+                                        convId,
+                                    data.participates.length > 2
+                                    ]);
+                            }
+                        } catch (error) {
+                            ErrorHandler.WriteError('serverSrv.js => GetConv_server => GetConvChangesById => db.transaction', error);
                         }
                     }
-                }
-                GetConv(callback, convId, true);
-            }, (error) => {
-                ErrorHandler.WriteError('serverSrv.js => GetConv_server => GetConvChangesById', error);
-            })
+                    if (newParticipates.length > 0) {
+                        socket.emit('getUsers', newParticipates, (result) => {
+                            InsertMyContacts(result, false, convId);
+                        });
+                    }
+                    for (var i = 0; i < data.messages.length; i++) {
+                        if (data.messages[i].isDeleted == true && data.messages[i].id) {
+                            tx.executeSql('DELETE FROM Messages WHERE id=?', [data.messages[i].id]);
+                        } else {
+                            if (data.messages[i].image) {
+                                ImageResizer.createResizedImage(data.messages[i].image, 400, 400, 'JPEG', 100, 0, null).then((function (obj) {
+                                    return (resizedImageUri) => {
+                                        obj.imgPath = resizedImageUri;
+                                        InsertNewContact(tx, obj);
+                                    }
+                                })(data.messages[i])).catch((err) => {
+                                    ErrorHandler.WriteError('serverSrv.js => onServerTyping => ImageResizer', err);
+                                });
+                            } else {
+                                InsertNewContact(tx, data.messages[i]);
+                            }
+                        }
+                    }
+                    GetConv(callback, convId, true);
+                }, (error) => {
+                    ErrorHandler.WriteError('serverSrv.js => GetConv_server => GetConvChangesById', error);
+                })
+            } catch (error) {
+                ErrorHandler.WriteError('serverSrv.js => GetConv_server => GetConvChangesById(out)', error);
+            }
         }));
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => GetConv_server', error);
@@ -652,17 +674,21 @@ export function GetConvByContact(callback, uid, phoneNumber, fullName, isUpdate)
                                 _myFriendsJson[Fid]._id = Fid;
                                 if (_myChats.filter((chat) => { return chat.id == result.id; }).length == 0) { //if the chat not axist
                                     db.transaction((tx2) => {
-                                        tx2.executeSql('INSERT OR REPLACE into Conversation values(?,?,?,?,?,?,?,?,?)', [result.id.toString(), false, result.manager, _myFriendsJson[Fid].publicInfo.fullName, _myFriendsJson[Fid].publicInfo.picture, result.lastMessageEncrypted, false/*TODO: check if true or false!*/]);
-                                        tx2.executeSql('INSERT OR REPLACE into Participates values(?,?,?)', [result.id.toString(), Fid.toString(), false]);
-                                        tx2.executeSql('UPDATE Friends set id = ? WHERE phoneNumber = ?', [Fid.toString(), phoneNumber.toString()]);
-                                        Event.trigger('NewChat', {
-                                            convId: result.id,
-                                            isEncrypted: false,
-                                            manager: result.manager,
-                                            groupName: _myFriendsJson[Fid].publicInfo.fullName,
-                                            groupPicture: _myFriendsJson[Fid].publicInfo.picture,
-                                            isGroup: false
-                                        });
+                                        try {
+                                            tx2.executeSql('INSERT OR REPLACE into Conversation values(?,?,?,?,?,?,?,?,?)', [result.id.toString(), false, result.manager, _myFriendsJson[Fid].publicInfo.fullName, _myFriendsJson[Fid].publicInfo.picture, result.lastMessageEncrypted, false/*TODO: check if true or false!*/]);
+                                            tx2.executeSql('INSERT OR REPLACE into Participates values(?,?,?)', [result.id.toString(), Fid.toString(), false]);
+                                            tx2.executeSql('UPDATE Friends set id = ? WHERE phoneNumber = ?', [Fid.toString(), phoneNumber.toString()]);
+                                            Event.trigger('NewChat', {
+                                                convId: result.id,
+                                                isEncrypted: false,
+                                                manager: result.manager,
+                                                groupName: _myFriendsJson[Fid].publicInfo.fullName,
+                                                groupPicture: _myFriendsJson[Fid].publicInfo.picture,
+                                                isGroup: false
+                                            });
+                                        } catch (error) {
+                                            ErrorHandler.WriteError('serverSrv.js => GetConvByContact => returnConv(i)', error);
+                                        }
                                     });
                                     _myChats.push({
                                         id: result.id,
@@ -722,12 +748,6 @@ export function deleteMessageFromLocalDB(convID, messageID) {
             tx.executeSql('DELETE FROM Messages WHERE id = ?', [messageID], (tx, rs) => { });
         });
         socket.emit('deleteMessageServer', messageID, convID);
-        // socket.removeAllListeners("deleteFriendMessage");
-        // socket.on('deleteFriendMessage', (msg) => {
-        //     console.log(msg);
-        //     console.log("trigger");
-        //     Event.trigger("deleteFriendMessageUI",msg);
-        // });
         myChatsJson[messageID] = null;
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => deleteMessageFromLocalDB', error);
@@ -750,23 +770,27 @@ export function createNewGroup(_groupName, _groupPicture, _participates) {
     try {
         socket.emit('openNewGroup', { groupName: _groupName, groupPicture: _groupPicture }, _participates, (result) => {
             db.transaction((tx) => {
-                tx.executeSql('INSERT INTO Conversation VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    [result.id,
-                    result.isEncrypted,
-                    result.manager,
-                    result.groupName,
-                    result.groupPicture,
-                    result.isGroup,
-                    result.lastMessage,
-                    result.lastMessageTime,
-                        false
-                    ]);
-                for (var i = 0; i < result.participates.length; i++) {
-                    tx.executeSql('INSERT INTO Participates VALUES (?, ?, ?)',
+                try {
+                    tx.executeSql('INSERT INTO Conversation VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                         [result.id,
-                        result.participates[i],
-                        result.isGroup
+                        result.isEncrypted,
+                        result.manager,
+                        result.groupName,
+                        result.groupPicture,
+                        result.isGroup,
+                        result.lastMessage,
+                        result.lastMessageTime,
+                            false
                         ]);
+                    for (var i = 0; i < result.participates.length; i++) {
+                        tx.executeSql('INSERT INTO Participates VALUES (?, ?, ?)',
+                            [result.id,
+                            result.participates[i],
+                            result.isGroup
+                            ]);
+                    }
+                } catch (error) {
+                    ErrorHandler.WriteError('serverSrv.js => createNewGroup => INSERT INTO Conversation' + error.message, error);
                 }
             });
             Actions.ChatRoom(result);
@@ -800,14 +824,18 @@ export function updateGroupInfo(_convId, _groupName, _groupPicture) {
 export function updateGroupParticipants(_convId, _participates) {
     try {
         db.transaction((tx) => {
-            tx.executeSql('DELETE FROM Participates WHERE convId = ?',
-                [_convId]);
-            for (var i = 0; i < _participates.length; i++) {
-                tx.executeSql('INSERT INTO Participates VALUES (?, ?, ?)',
-                    [_convId,
-                        _participates[i],
-                        true
-                    ]);
+            try {
+                tx.executeSql('DELETE FROM Participates WHERE convId = ?',
+                    [_convId]);
+                for (var i = 0; i < _participates.length; i++) {
+                    tx.executeSql('INSERT INTO Participates VALUES (?, ?, ?)',
+                        [_convId,
+                            _participates[i],
+                            true
+                        ]);
+                }
+            } catch (error) {
+                ErrorHandler.WriteError('serverSrv.js => updateGroupParticipants => DELETE FROM Participates' + error.message, error);
             }
         });
         socket.emit('updateGroupParticipants', _convId, _participates, (result) => {
@@ -823,23 +851,27 @@ export function updateGroupParticipants(_convId, _participates) {
 export function getConvParticipates_server(result, _convId, callback) {
     try {
         db.transaction((tx) => {
-            for (var i = 0; i < result.length; i++) {
-                tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?)',
-                    [result[i].id,
-                    result[i].phoneNumber,
-                        '',
-                        '',
-                    result[i].publicInfo.fullName,
-                    result[i].publicInfo.picture,
-                        false], () => {
-                            if (i + 1 == result.length && _convId) {
-                                getConvParticipates(_convId, callback)
-                            }
-                        }); //?
-                if(!_myFriendsJson[result[i].id]){
-                    _myFriendsJson[result[i].id] = result[i];
-                    _myFriends.push(result[i]);
+            try {
+                for (var i = 0; i < result.length; i++) {
+                    tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?, ?, ?, ?, ?, ?, ?)',
+                        [result[i].id,
+                        result[i].phoneNumber,
+                            '',
+                            '',
+                        result[i].publicInfo.fullName,
+                        result[i].publicInfo.picture,
+                            false], () => {
+                                if (i + 1 == result.length && _convId) {
+                                    getConvParticipates(_convId, callback)
+                                }
+                            }); //?
+                    if (!_myFriendsJson[result[i].id]) {
+                        _myFriendsJson[result[i].id] = result[i];
+                        _myFriends.push(result[i]);
+                    }
                 }
+            } catch (error) {
+                ErrorHandler.WriteError('serverSrv.js => getConvParticipates_server => INSERT OR REPLACE INTO Friends' + error.message, error);
             }
         });
     } catch (error) {
@@ -848,88 +880,85 @@ export function getConvParticipates_server(result, _convId, callback) {
 }
 
 export function getConvParticipates(_convId, callback) {
-    var newUsers = [];
-    socket.emit('getGroupParticipatesId', _convId, (participates) => {
-        try {
-            db.transaction((tx) => {
-                var uidArr = '(';
-                var newUsers = [];
-                for (var i = 0; i < participates.length; i++) {
-                    tx.executeSql('INSERT OR REPLACE INTO Participates VALUES (?, ?, ?)',
-                        [_convId,
-                            participates[i],
-                            true
-                        ]);
-                    if (i == (participates.length - 1)) {
-                        uidArr += ('"' + participates[i] + '"');
+    try {
+        var newUsers = [];
+        socket.emit('getGroupParticipatesId', _convId, (participates) => {
+            try {
+                db.transaction((tx) => {
+                    try {
+                        var uidArr = '(';
+                        var newUsers = [];
+                        for (var i = 0; i < participates.length; i++) {
+                            tx.executeSql('INSERT OR REPLACE INTO Participates VALUES (?, ?, ?)',
+                                [_convId,
+                                    participates[i],
+                                    true
+                                ]);
+                            if (i == (participates.length - 1)) {
+                                uidArr += ('"' + participates[i] + '"');
+                            }
+                            else {
+                                uidArr += ('"' + participates[i] + '"' + ',');
+                            }
+                            if (newUsers.indexOf(participates[i]) == -1) {
+                                newUsers.push(participates[i]);
+                            }
+                            if (i + 1 == participates.length) {
+                                uidArr += ')';
+                                getConvParticipates_DB(_convId, uidArr, newUsers, callback);
+                            }
+                        }
+                    } catch (error) {
+                        ErrorHandler.WriteError('serverSrv.js => getConvParticipates(in) => INSERT OR REPLACE INTO Participates' + error.message, error);
                     }
-                    else {
-                        uidArr += ('"' + participates[i] + '"' + ',');
-                    }
-                    if (newUsers.indexOf(participates[i]) == -1) {
-                        newUsers.push(participates[i]);
-                    }
-                    if (i + 1 == participates.length) {
-                        uidArr += ')';
-                        getConvParticipates_DB(_convId, uidArr, newUsers, callback);
-                    }
-                }
-            });
-        } catch (error) {
-            ErrorHandler.WriteError('serverSrv.js => getConvParticipates' + error.message, error);
-        }
-    });
+                });
+            } catch (error) {
+                ErrorHandler.WriteError('serverSrv.js => getConvParticipates' + error.message, error);
+            }
+        });
+    } catch (error) {
+        ErrorHandler.WriteError('serverSrv.js => getConvParticipates(1)' + error.message, error);
+    }
 }
 
 export function getConvParticipates_DB(_convId, uidArr, newUsers, callback) {
     try {
         db.transaction((tx) => {
-            // tx.executeSql('SELECT uid FROM Participates WHERE convId=?', [_convId], (tx, rsP) => {
-            //     try {
-            //         var uidArr = '(';
-            //         for (var i = 0; i < rsP.rows.length; i++) {
-            //             if (i == (rsP.rows.length - 1)) {
-            //                 uidArr += ('"' + rsP.rows.item(i).uid + '"');
-            //             }
-            //             else {
-            //                 uidArr += ('"' + rsP.rows.item(i).uid + '"' + ',');
-            //             }
-            //             if (newUsers.indexOf(rsP.rows.item(i).uid) == -1) {
-            //                 newUsers.push(rsP.rows.item(i).uid);
-            //             }
-            //         }
-            //         uidArr += ')';
-            //     } catch (error) {
-            //         ErrorHandler.WriteError('serverSrv.js => getConvParticipates_DB' + error.message, error);
-            //     }
-
-            var selectStr = 'SELECT * FROM Friends WHERE id IN ' + uidArr + ' ORDER BY fullName';
-            tx.executeSql(selectStr, [], (tx, rs) => {
-                var convParticipates = [];
-                for (var i = 0; i < rs.rows.length; i++) {
-                    if (convParticipates.indexOf(rs.rows.item(i).id) === -1) {
-                        if (newUsers.indexOf(rs.rows.item(i).id) != -1) {
-                            newUsers.splice(newUsers.indexOf(rs.rows.item(i).id), 1);
-                        }
-                        convParticipates.push({
-                            id: rs.rows.item(i).id,
-                            phoneNumber: rs.rows.item(i).phoneNumber,
-                            ModifyDate: rs.rows.item(i).ModifyDate,
-                            ModifyPicDate: rs.rows.item(i).ModifyPicDate,
-                            publicInfo: {
-                                fullName: rs.rows.item(i).fullName,
-                                picture: rs.rows.item(i).picture
+            try {
+                var selectStr = 'SELECT * FROM Friends WHERE id IN ' + uidArr + ' ORDER BY fullName';
+                tx.executeSql(selectStr, [], (tx, rs) => {
+                    try {
+                        var convParticipates = [];
+                        for (var i = 0; i < rs.rows.length; i++) {
+                            if (convParticipates.indexOf(rs.rows.item(i).id) === -1) {
+                                if (newUsers.indexOf(rs.rows.item(i).id) != -1) {
+                                    newUsers.splice(newUsers.indexOf(rs.rows.item(i).id), 1);
+                                }
+                                convParticipates.push({
+                                    id: rs.rows.item(i).id,
+                                    phoneNumber: rs.rows.item(i).phoneNumber,
+                                    ModifyDate: rs.rows.item(i).ModifyDate,
+                                    ModifyPicDate: rs.rows.item(i).ModifyPicDate,
+                                    publicInfo: {
+                                        fullName: rs.rows.item(i).fullName,
+                                        picture: rs.rows.item(i).picture
+                                    }
+                                });
                             }
-                        });
+                        }
+                        callback(convParticipates)
+                        if (newUsers.length > 0) {
+                            socket.emit('getConvParticipates', newUsers, (result) => {
+                                getConvParticipates_server(result, _convId, callback);
+                            });
+                        }
+                    } catch (error) {
+                        ErrorHandler.WriteError('serverSrv.js => getConvParticipates(tx1)' + error.message, error);
                     }
-                }
-                callback(convParticipates)
-                if (newUsers.length > 0) {
-                    socket.emit('getConvParticipates', newUsers, (result) => {
-                        getConvParticipates_server(result, _convId, callback);
-                    });
-                }
-            });
+                });
+            } catch (error) {
+                ErrorHandler.WriteError('serverSrv.js => getConvParticipates(tx)' + error.message, error);
+            }
         });
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => getConvParticipates' + error.message, error);
@@ -940,11 +969,15 @@ export function getGroupManagers(_convId, callback) {
     try {
         db.transaction((tx) => {
             tx.executeSql('SELECT manager FROM Conversation WHERE id=?', [_convId], (tx, rs) => {
-                var groupManagers = [];
-                for (var i = 0; i < rs.rows.length; i++) {
-                    groupManagers.push(rs.rows.item(i).manager);
+                try {
+                    var groupManagers = [];
+                    for (var i = 0; i < rs.rows.length; i++) {
+                        groupManagers.push(rs.rows.item(i).manager);
+                    }
+                    callback(groupManagers)
+                } catch (error) {
+                    ErrorHandler.WriteError('serverSrv.js => getConvParticipates => getGroupManagers' + error.message, error);
                 }
-                callback(groupManagers)
             });
         });
     } catch (error) {
@@ -958,33 +991,34 @@ export function onServerTyping(callback) {
         _isFirstTime_Conv = true;
         socket.removeAllListeners("typing");
         socket.on('typing', (msg) => {
-            if (isPlayed == false && startTyping && msg.from != _uid && this._convId == msg.convId) {
-                isPlayed = true;
-                startTyping.play();
-            }
-            if (msg.content.length == 0 && msg.from != _uid) {
-                isPlayed = false;
-            }
-            Event.trigger('serverTyping', msg);
-            callback(msg);
-            if (msg.sendTime && msg.from != _uid) {
-                if (msg.image) {
-                    ImageResizer.createResizedImage(msg.image, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
-                        msg.imgPath = resizedImageUri;
+            try {
+                if (isPlayed == false && startTyping && msg.from != _uid && this._convId == msg.convId) {
+                    isPlayed = true;
+                    startTyping.play();
+                }
+                if (msg.content.length == 0 && msg.from != _uid) {
+                    isPlayed = false;
+                }
+                Event.trigger('serverTyping', msg);
+                callback(msg);
+                if (msg.sendTime && msg.from != _uid) {
+                    if (msg.image) {
+                        ImageResizer.createResizedImage(msg.image, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
+                            msg.imgPath = resizedImageUri;
+                            isPlayed = false;
+                            this.saveNewMessage(msg);
+                        }).catch((err) => {
+                            ErrorHandler.WriteError('serverSrv.js => onServerTyping => ImageResizer', err);
+                        });
+
+                    } else {
                         isPlayed = false;
                         this.saveNewMessage(msg);
-                    }).catch((err) => {
-                        ErrorHandler.WriteError('serverSrv.js => onServerTyping => ImageResizer', err);
-                    });
-
-                } else {
-                    isPlayed = false;
-                    this.saveNewMessage(msg);
+                    }
                 }
+            } catch (error) {
+                ErrorHandler.WriteError('serverSrv.js => onServerTyping => on typing' + error.message, error);
             }
-            // else if(msg.isEncrypted == true){
-            //     this.saveNewMessage(msg);  
-            // }
         });
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => onServerTyping' + error.message, error);
@@ -1009,26 +1043,30 @@ export function saveNewMessage(msg, saveLocal) {
 
         if (saveLocal != false) {
             db.transaction((tx) => {
-                if ((msg.content && msg.content.length > 0) || (pathOrImage && pathOrImage.length > 0)) {
-                    tx.executeSql('INSERT OR REPLACE INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                        [msg.id,
-                        msg.convId,
-                        msg.isEncrypted,
-                        msg.from,
-                        msg.content,
-                        moment(msg.sendTime).toISOString(),
-                        msg.lastTypingTime,
-                        msg.isSeenByAll,
-                            pathOrImage
-                        ]);
-                    tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ?, lastMessageEncrypted = ? WHERE id = ? AND lastMessageTime < ?',
-                        [msg.content ? msg.content : ' 📷 Image',
-                        moment(msg.sendTime).toISOString(),
-                        msg.convId,
-                        moment(msg.sendTime).toISOString(),
-                        msg.isEncrypted
-                        ], (rs) => {
-                        });
+                try {
+                    if ((msg.content && msg.content.length > 0) || (pathOrImage && pathOrImage.length > 0)) {
+                        tx.executeSql('INSERT OR REPLACE INTO Messages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                            [msg.id,
+                            msg.convId,
+                            msg.isEncrypted,
+                            msg.from,
+                            msg.content,
+                            moment(msg.sendTime).toISOString(),
+                            msg.lastTypingTime,
+                            msg.isSeenByAll,
+                                pathOrImage
+                            ]);
+                        tx.executeSql('UPDATE Conversation SET lastMessage = ?, lastMessageTime = ?, lastMessageEncrypted = ? WHERE id = ? AND lastMessageTime < ?',
+                            [msg.content ? msg.content : ' 📷 Image',
+                            moment(msg.sendTime).toISOString(),
+                            msg.convId,
+                            moment(msg.sendTime).toISOString(),
+                            msg.isEncrypted
+                            ], (rs) => {
+                            });
+                    }
+                } catch (error) {
+                    ErrorHandler.WriteError('serverSrv.js => saveNewMessage => INSERT OR REPLACE' + error.message, error);
                 }
             });
         }
@@ -1099,7 +1137,7 @@ export function GetLiveChats(callback) {
                 socket.emit('GetLiveChats', (data) => {
                     callback(data);
                 });
-            });            
+            });
             socket.emit('GetLiveChats', (data) => {
                 callback(data);
             });
@@ -1117,64 +1155,128 @@ export function login(_token) {
     db.transaction((tx) => {
         try {
             tx.executeSql('SELECT * FROM UserInfo', [], (tx, rs) => {
-                if (rs.rows.length > 0) {
-                    var item = rs.rows.item(rs.rows.length - 1);
-                    _uid = item.uid;
-                    this._hashPassword = item.password;
-                    this._uid = item.uid;
-                    var _encryptedUid = item.encryptedUid;
-                    this._privateKey = item.privateKey;
-                    socket.disconnect();
-
-                    socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {
-                        query: {
-                            encryptedUid: _encryptedUid,
-                            publicKey: item.publicKey, uid: _uid, token: this._token
-                        }
-                    });
-
-                    socket.removeAllListeners("deleteFriendMessage");
-                    socket.on('deleteFriendMessage', (msg) => {
-                        Event.trigger("deleteFriendMessageUI", msg);
-                    });
-
-                    socket.on('connect', function (msg) {
-                        Event.trigger('connect');
-                    });
-
-                    socket.on("disconnect", function () {
-                        console.log("client disconnected from server");
-                    });                    
-
-                    socket.removeAllListeners("AuthenticationOk");
-                    socket.on('AuthenticationOk', (ok) => {
-                        try {
-                            this.userIsConnected = true;
-                        } catch (e) {
-                            Actions.SignUp({ type: 'replace' });
-                            ErrorHandler.WriteError('EnterPage constructor => AuthenticationOk', error);
-                        }
-                    });
-                    socket.removeAllListeners("deleteFriendMessage");
-
-                    socket.on('deleteFriendMessage', (msg) => {
-                        Event.trigger("deleteFriendMessageUI", msg);
-                    });
-                }
-                else {
-                    try {
+                try {
+                    if (rs.rows.length > 0) {
+                        var item = rs.rows.item(rs.rows.length - 1);
+                        _uid = item.uid;
+                        this._hashPassword = item.password;
+                        this._uid = item.uid;
+                        var _encryptedUid = item.encryptedUid;
+                        this._privateKey = item.privateKey;
+                        socket.disconnect();
+                        var isConnected = false;
                         socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {
-                        query: {
-                            encryptedUid: '',
-                            publicKey: ''
-                        }
-                    });
-                        setTimeout(function () {
-                            Actions.SignUp({ type: 'replace' });
-                        }, 100);
-                    } catch (error) {
-                        ErrorHandler.WriteError('EnterPage constructor => userNotExist in DB ', error);
+                            query: {
+                                encryptedUid: _encryptedUid,
+                                publicKey: item.publicKey, uid: _uid, token: this._token
+                            },
+                            'connect timeout': 5000
+                        });
+
+                        setTimeout(() => {
+                            if (isConnected == false) {
+                                var toast = Toast.show('Server Is Down!', {
+                                    duration: Toast.durations.LONG,
+                                    position: Toast.positions.CENTER,
+                                    shadow: true,
+                                    animation: true,
+                                    hideOnPress: false,
+                                    delay: 0
+                                });
+                            }
+                        }, 4000);
+
+                        socket.removeAllListeners("deleteFriendMessage");
+                        socket.on('deleteFriendMessage', (msg) => {
+                            Event.trigger("deleteFriendMessageUI", msg);
+                        });
+
+
+                        socket.on('reconnect_failed', function (msg) {
+                            console.log('## reconnect_failed');
+                        });
+
+                        socket.on('connect', function (msg) {
+                            isConnected = true;
+                            Event.trigger('connect');
+                        });
+
+                        socket.on('connect_failed', function () {
+                            var toast = Toast.show('Connection to the server failed!', {
+                                duration: Toast.durations.LONG,
+                                position: Toast.positions.CENTER,
+                                shadow: true,
+                                animation: true,
+                                hideOnPress: false,
+                                delay: 0
+                            });
+                            console.log('Connection Failed');
+                        });
+
+                        socket.on('error', function () {
+                            console.log('## socket io ERROR');
+                        });
+
+                        socket.on("disconnect", function () {
+                            console.log("client disconnected from server");
+                        });
+
+                        socket.removeAllListeners("AuthenticationOk");
+                        socket.on('AuthenticationOk', (ok) => {
+                            try {
+                                this.userIsConnected = true;
+                            } catch (e) {
+                                Actions.SignUp({ type: 'replace' });
+                                ErrorHandler.WriteError('EnterPage constructor => AuthenticationOk', error);
+                            }
+                        });
+
+                        socket.removeAllListeners("AuthenticationFailed");
+                        socket.on('AuthenticationFailed', (Failed) => {
+                            try {
+                                var toast = Toast.show('Authentication Failed!', {
+                                    duration: Toast.durations.LONG,
+                                    position: Toast.positions.CENTER,
+                                    shadow: true,
+                                    animation: true,
+                                    hideOnPress: false,
+                                    delay: 0
+                                });
+                            } catch (e) {
+                                Actions.SignUp({ type: 'replace' });
+                                ErrorHandler.WriteError('EnterPage constructor => AuthenticationOk', error);
+                            }
+                        });
+                        socket.removeAllListeners("deleteFriendMessage");
+
+                        socket.on('deleteFriendMessage', (msg) => {
+                            Event.trigger("deleteFriendMessageUI", msg);
+                        });
                     }
+                    else {
+                        try {
+                            socket = io.connect('https://server-sagi-uziel.c9users.io:8080', {
+                                query: {
+                                    encryptedUid: '',
+                                    publicKey: ''
+                                },
+                                'connect timeout': 5000
+                            });
+                            setTimeout(() => {
+                                console.log('## io.sockets 2');
+                                console.log(io);
+                            }, 900);
+
+
+                            setTimeout(function () {
+                                Actions.SignUp({ type: 'replace' });
+                            }, 100);
+                        } catch (error) {
+                            ErrorHandler.WriteError('EnterPage constructor => userNotExist in DB ', error);
+                        }
+                    }
+                } catch (error) {
+                    ErrorHandler.WriteError('SELECT SQL statement Error(1)' + error.message, error);
                 }
             }, (error) => {
                 Actions.SignUp({ type: 'replace' });
@@ -1207,20 +1309,24 @@ export function signUpFunc(newUser, callback) {
         }
         newUser.privateInfo.tokenNotification = this._token;
         socket.emit('addNewUser', newUser, (user) => {
-            if (user && user.id) {                
-                var encryptedUid = rsa.encryptWithPrivate(user.id);
-                db.transaction(function (tx) {
-                    this._uid = user.id;
-                    tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?,?)', [user.id, publicKey, privateKey, encryptedUid, newUser.privateInfo.password]);
-                    tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?,?,?,?,?,?,?)', [user.id, newUser.phoneNumber, newUser.ModifyDate, newUser.ModifyPicDate, newUser.publicInfo.fullName, newUser.publicInfo.picture]);
-                    login();
-                }, (error) => {
-                    ErrorHandler.WriteError('signUp => addNewUser => transaction', error);
-                }, function () {                    
-                });
-            }
-            if (callback) {
-                callback(user.id);
+            try {
+                if (user && user.id) {
+                    var encryptedUid = rsa.encryptWithPrivate(user.id);
+                    db.transaction(function (tx) {
+                        this._uid = user.id;
+                        tx.executeSql('INSERT INTO UserInfo VALUES (?,?,?,?,?)', [user.id, publicKey, privateKey, encryptedUid, newUser.privateInfo.password]);
+                        tx.executeSql('INSERT OR REPLACE INTO Friends VALUES (?,?,?,?,?,?,?)', [user.id, newUser.phoneNumber, newUser.ModifyDate, newUser.ModifyPicDate, newUser.publicInfo.fullName, newUser.publicInfo.picture]);
+                        login();
+                    }, (error) => {
+                        ErrorHandler.WriteError('signUp => addNewUser => transaction', error);
+                    }, function () {
+                    });
+                }
+                if (callback) {
+                    callback(user.id);
+                }
+            } catch (error) {
+                ErrorHandler.WriteError('signUp => INSERT INTO UserInfo', e);
             }
         });
     } catch (e) {

@@ -27,15 +27,19 @@ export default class Actions extends React.Component {
                 cancelButtonIndex,
             },
                 (buttonIndex) => {
-                    let i = 0;
-                    for (let key in this.props.options) {
-                        if (this.props.options.hasOwnProperty(key)) {
-                            if (buttonIndex === i) {
-                                this.props.options[key](this.props);
-                                return;
+                    try {
+                        let i = 0;
+                        for (let key in this.props.options) {
+                            if (this.props.options.hasOwnProperty(key)) {
+                                if (buttonIndex === i) {
+                                    this.props.options[key](this.props);
+                                    return;
+                                }
+                                i++;
                             }
-                            i++;
                         }
+                    } catch (error) {
+                        ErrorHandler.WriteError('Actions.js => onActionsPress => showActionSheetWithOptions', e);
                     }
                 });
         } catch (e) {

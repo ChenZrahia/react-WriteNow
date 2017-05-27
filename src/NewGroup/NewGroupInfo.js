@@ -106,13 +106,21 @@ export default class NewGroupInfo extends Component {
     }
 
     componentWillMount() {
-        this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
-        this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
+        try {
+            this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
+            this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
+        } catch (error) {
+            ErrorHandler.WriteError('NewGroupInfo.js => componentWillMount', e);
+        }
     }
 
     componentWillUnmount() {
-        this.keyboardDidShowListener.remove();
-        this.keyboardDidHideListener.remove();
+        try {
+            this.keyboardDidShowListener.remove();
+            this.keyboardDidHideListener.remove();
+        } catch (error) {
+            ErrorHandler.WriteError('NewGroupInfo.js => componentWillUnmount', e);
+        }
     }
 
     _keyboardDidShow() {

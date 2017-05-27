@@ -20,7 +20,6 @@ import { Actions } from 'react-native-router-flux';
 import ImageResizer from 'react-native-image-resizer';
 import InputToolbar from './InputToolbar';
 import Icon from 'react-native-vector-icons/Ionicons';
-
 var ImagePicker = require('react-native-image-picker');
 var serverSrv = require('../../Services/serverSrv');
 var generalStyles = require('../../styles/generalStyle');
@@ -33,8 +32,8 @@ var Platform = require('react-native').Platform;
 export default class ChatRoom extends Component {
     constructor(props) {
         super(props);
-        dismissKeyboard();
         try {
+            dismissKeyboard();
             this._messageId = null;
             this.state = {
                 messages: [],
@@ -80,16 +79,20 @@ export default class ChatRoom extends Component {
             Event.on('imojiType', this.onType);
             Event.on('encryptedMessage', this.onSend);
             BackAndroid.addEventListener('hardwareBackPress', () => {
-                Event.trigger('closeChatRoom');
-                serverSrv.exitChat(this.convId);
-                if (this.convId && this.messages.length > 0 && ((this.messages[0].text && this.messages[0].text.length > 0) || (this.messages[0].image && this.messages[0].image.length > 0)) && this.messages[0].sendTime) {
-                    var contentOfMessage = this.messages[0].text;
-                    if (!contentOfMessage || contentOfMessage == '') {
-                        contentOfMessage = ' 📷 Image';
-                    } else if (this.messages[0].image) {
-                        contentOfMessage = ' 📷 ' + contentOfMessage;
+                try {
+                    Event.trigger('closeChatRoom');
+                    serverSrv.exitChat(this.convId);
+                    if (this.convId && this.messages.length > 0 && ((this.messages[0].text && this.messages[0].text.length > 0) || (this.messages[0].image && this.messages[0].image.length > 0)) && this.messages[0].sendTime) {
+                        var contentOfMessage = this.messages[0].text;
+                        if (!contentOfMessage || contentOfMessage == '') {
+                            contentOfMessage = ' 📷 Image';
+                        } else if (this.messages[0].image) {
+                            contentOfMessage = ' 📷 ' + contentOfMessage;
+                        }
+                        Event.trigger('lastMessage', contentOfMessage, this.messages[0].sendTime, this.convId, false, this.messages[0].isEncrypted);
                     }
-                    Event.trigger('lastMessage', contentOfMessage, this.messages[0].sendTime, this.convId, false, this.messages[0].isEncrypted);
+                } catch (error) {
+                    ErrorHandler.WriteError('ChatRoom.js => componentDidMount => BackAndroid', e);
                 }
             });
             this.LoadNewChat(this.props.id, this.props.isContact, this.props.id, this.props.phoneNumber, this.props.fullName);
@@ -134,15 +137,19 @@ export default class ChatRoom extends Component {
             }
 
             var callback = (data, convId) => {
-                if (!data) {
-                    data = [];
-                }
-                this.messages = data;
-                this.convId = convId;
+                try {
+                    if (!data) {
+                        data = [];
+                    }
+                    this.messages = data;
+                    this.convId = convId;
 
-                this.setState({
-                    messages: GiftedChat.append(this.messages, this.onlineMessages),
-                });
+                    this.setState({
+                        messages: GiftedChat.append(this.messages, this.onlineMessages),
+                    });
+                } catch (error) {
+                    ErrorHandler.WriteError('ChatRoom.js => LoadNewChat => callback', error);
+                }
             }
             serverSrv.onServerTyping(this.onFriendType);
             if (convId && convId != null) {
@@ -152,8 +159,12 @@ export default class ChatRoom extends Component {
             }
             if (isContact == true) {
                 setTimeout(() => {
-                    serverSrv.GetConvByContact(callback, uid, phoneNumber, this.props.publicInfo.fullName);
-                    this.skip += 20;
+                    try {
+                        serverSrv.GetConvByContact(callback, uid, phoneNumber, this.props.publicInfo.fullName);
+                        this.skip += 20;
+                    } catch (error) {
+                        ErrorHandler.WriteError('ChatRoom.js => LoadNewChat => setTimeout', error);
+                    }
                 }, 100);
             } else {
                 serverSrv.GetConv(callback, this.convId, null, this.skip);
@@ -168,8 +179,12 @@ export default class ChatRoom extends Component {
         try {
             if (!serverSrv._myFriendsJson[uid]) {
                 serverSrv.findMissingFriend([uid], (data) => {
-                    if (data.length > 0) {
-                        serverSrv._myFriendsJson[msg.from] = data[0];
+                    try {
+                        if (data.length > 0) {
+                            serverSrv._myFriendsJson[msg.from] = data[0];
+                        }
+                    } catch (error) {
+                        ErrorHandler.WriteError('ChatRoom.js => findMissingFriend(1)', error);
                     }
                 });
             }
@@ -180,9 +195,7 @@ export default class ChatRoom extends Component {
 
     deleteMessage(text, id) {
         try {
-
             this.messages = this.state.messages.filter((x) => x.id !== id );
-            
             this.setState({
                 messages: this.messages //delete message from the UI
             });
@@ -195,7 +208,6 @@ export default class ChatRoom extends Component {
     deleteFriendMessageUI(mid) {
         try {
             this.messages = this.state.messages.filter((x) => x.id !== mid);
-            
             this.setState({
                 messages: this.messages
             });
@@ -241,40 +253,41 @@ export default class ChatRoom extends Component {
                 }
             };
             ImagePicker.showImagePicker(options, (response) => {
-                if (response.didCancel) {
-                    console.log('User cancelled image picker');
-                }
-                else if (response.error) {
-                    console.log('ImagePicker Error: ', response.error);
-                }
-                else if (response.customButton) {
-                    console.log('User tapped custom button: ', response.customButton);
-                }
-                else {
-                    // You can display the image using either data...
-                    const source = { uri: 'data:image/jpeg;base64,' + response.data, isStatic: true };
-                    // or a reference to the platform specific asset location
-                    if (Platform.OS === 'ios') {
-                        const source = { uri: response.uri.replace('file://', ''), isStatic: true };
-                    } else {
-                        const source = { uri: response.uri, isStatic: true };
+                try {
+                    if (response.didCancel) {
+                        console.log('User cancelled image picker');
                     }
-                    var img = response.data;
-                    var img2 = source;
-                    ImageResizer.createResizedImage(response.uri, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
-                        NativeModules.RNImageToBase64.getBase64String(resizedImageUri, (err, base64) => {
-                            //this.sendImageMessage('data:image/jpeg;base64,' + base64);
-                            this.setState({
-                                imgToMsg: ('data:image/jpeg;base64,' + base64),
-                                pathOfImage: resizedImageUri
-                            });
-                            this.setImageVisible(true);
-                            //error check
-                        })
-                    }).catch((err) => {
-                        ErrorHandler.WriteError('ChatRoom.js => showImagePicker => createResizedImage', err);
-                    });
-                    // this.sendImageMessage('data:image/jpeg;base64,' + response.data);
+                    else if (response.error) {
+                        console.log('ImagePicker Error: ', response.error);
+                    }
+                    else if (response.customButton) {
+                        console.log('User tapped custom button: ', response.customButton);
+                    }
+                    else {
+                        // You can display the image using either data...
+                        const source = { uri: 'data:image/jpeg;base64,' + response.data, isStatic: true };
+                        // or a reference to the platform specific asset location
+                        if (Platform.OS === 'ios') {
+                            const source = { uri: response.uri.replace('file://', ''), isStatic: true };
+                        } else {
+                            const source = { uri: response.uri, isStatic: true };
+                        }
+                        var img = response.data;
+                        var img2 = source;
+                        ImageResizer.createResizedImage(response.uri, 400, 400, 'JPEG', 100, 0, null).then((resizedImageUri) => {
+                            NativeModules.RNImageToBase64.getBase64String(resizedImageUri, (err, base64) => {
+                                this.setState({
+                                    imgToMsg: ('data:image/jpeg;base64,' + base64),
+                                    pathOfImage: resizedImageUri
+                                });
+                                this.setImageVisible(true);
+                            })
+                        }).catch((err) => {
+                            ErrorHandler.WriteError('ChatRoom.js => showImagePicker => createResizedImage', err);
+                        });
+                    }
+                } catch (error) {
+                    ErrorHandler.WriteError('ChatRoom.js => showImagePicker => ImagePicker.showImagePicker', e);
                 }
             });
         } catch (e) {
@@ -372,9 +385,6 @@ export default class ChatRoom extends Component {
                     messages.convId = this.convId;
                     messages.text = messages.content;
                 }
-                else {
-                    //messages.createdAt = messages.sendTime;
-                }
             }
             if (!messages.forEach) {
                 messages = [messages];
@@ -451,7 +461,6 @@ export default class ChatRoom extends Component {
                     name: serverSrv._myFriendsJson[msg.from] ? serverSrv._myFriendsJson[msg.from].publicInfo.fullName : 'New User',
                     _id: serverSrv._myFriendsJson[msg.from] ? serverSrv._myFriendsJson[msg.from].id : 'newUserId'
                 }
-                // msg.user = serverSrv._myFriendsJson[msg.from];
             }
 
             if (!isImage) {
@@ -465,7 +474,6 @@ export default class ChatRoom extends Component {
                 this.indexOnlineMessages[msg._id].text = msg.content;
                 this.indexOnlineMessages[msg._id].content = msg.content;
                 if (!msg.content || msg.content.length == 0) {
-                    //this._messageId = null; --marked by sagi 08/04/17
                     this.onlineMessages.splice(this.onlineMessages.indexOf(this.indexOnlineMessages[msg._id]), 1);
                     delete this.indexOnlineMessages[msg._id];
                 }
@@ -473,7 +481,6 @@ export default class ChatRoom extends Component {
             if (msg.sendTime) {
                 this.onSend(msg);
             } else {
-
                 this.setState((previousState) => {
                     return {
                         messages: GiftedChat.append(this.messages, this.onlineMessages),
@@ -527,14 +534,18 @@ export default class ChatRoom extends Component {
     loadEarlierMessages() {
         try {
             var callback = (data, convId) => {
-                if (!data) {
-                    data = [];
+                try {
+                    if (!data) {
+                        data = [];
+                    }
+                    this.messages = GiftedChat.append(data, this.messages);
+                    this.convId = convId;
+                    this.setState({
+                        messages: GiftedChat.append(this.messages, this.onlineMessages),
+                    });
+                } catch (error) {
+                    ErrorHandler.WriteError('ChatRoom.js => loadEarlierMessages => callback', error);
                 }
-                this.messages = GiftedChat.append(data, this.messages);
-                this.convId = convId;
-                this.setState({
-                    messages: GiftedChat.append(this.messages, this.onlineMessages),
-                });
             }
             serverSrv.GetConv(callback, this.convId, null, this.skip);
             this.skip += 20;

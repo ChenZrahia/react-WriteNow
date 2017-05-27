@@ -1,6 +1,3 @@
-/*
-**  This component will be published in a separate package
-*/
 import React from 'react';
 import {
   Image,
@@ -9,9 +6,6 @@ import {
   View,
 } from 'react-native';
 
-// TODO
-// 3 words name initials
-// handle only alpha numeric chars
 var ErrorHandler = require('../../ErrorHandler');
 
 export default class GiftedAvatar extends React.Component {
@@ -31,9 +25,6 @@ export default class GiftedAvatar extends React.Component {
       for (let i = 0; i < userName.length; i++) {
         sumChars += userName.charCodeAt(i);
       }
-
-      // inspired by https://github.com/wbinnssmith/react-user-avatar
-      // colors from https://flatuicolors.com/
       const colors = [
         '#e67e22', // carrot
         '#2ecc71', // emerald
@@ -83,7 +74,6 @@ export default class GiftedAvatar extends React.Component {
   render() {
     try {
       if (!this.props.user.name && !this.props.user.avatar) {
-        // render placeholder
         return (
           <View style={[
             defaultStyles.avatarStyle,

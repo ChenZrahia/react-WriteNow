@@ -119,7 +119,12 @@ export default class Contacts extends Component {
             let filteredContacts = this.myFriends;
             try {
                 filteredContacts = this.myFriends.filter((user) => {
-                    return ((user.publicInfo.fullName.toLowerCase().includes(filterText.toLowerCase())) || (user.phoneNumber ? user.phoneNumber.includes(filterText) : false));
+                    try {
+                        return ((user.publicInfo.fullName.toLowerCase().includes(filterText.toLowerCase())) || (user.phoneNumber ? user.phoneNumber.includes(filterText) : false));
+                    } catch (error) {
+                        ErrorHandler.WriteError("Contacts.js => getDataSource => this.myFriends.filter", e);
+                        return false;
+                    }
                 });
             } catch (e) {
                 ErrorHandler.WriteError("Contacts.js => getDataSource => filter", e);

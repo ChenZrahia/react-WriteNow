@@ -11,6 +11,8 @@ var ErrorHandler = require('../../ErrorHandler');
 var generalStyles = require('../../styles/generalStyle');
 var serverSrv = require('../../Services/serverSrv');
 var Event = require('../../Services/Events');
+import FitImage from '../../plugins/FitImage';
+
 
 export default class MessageImage extends React.Component {
   constructor() {
@@ -37,22 +39,25 @@ export default class MessageImage extends React.Component {
   openImageModal(image) {
     try {
       return (
-        <Modal
-          transparent={true}
-          visible={this.state.imageVisible == true}
-          onRequestClose={() => { this.setImageVisible(false); }}
-        >
-          <View style={generalStyles.styles.imageModalBlack}>
-            <PhotoView
-              source={{ uri: image }}
-              minimumZoomScale={0.5}
-              maximumZoomScale={6}
-              androidScaleType="center"
-              scale={5}
-              style={{ flex: 1, width: 1000, height: 1000 }} />
-            {/*<Image style={generalStyles.styles.imageInsideModal} source={{uri: image}} />*/}
-          </View>
-        </Modal>
+          <Modal
+              transparent={true}
+              visible={this.state.imageVisible == true}
+              onRequestClose={() => { console.log('image closed') }}
+          >
+              <TouchableOpacity style={{ flex: 1 }} onPress={() => {
+                  this.setImageVisible(!this.state.imageVisible)
+              }}>
+               <View style={generalStyles.styles.imageModal}>
+                            <FitImage style={generalStyles.styles.imageInsideModal}   indicator
+                        originalWidth={300}
+                        originalHeight={300}
+                        source={{ uri: image }} />
+            
+                  </View>
+              </TouchableOpacity>
+          </Modal>
+      
+
       );
     } catch (e) {
       ErrorHandler.WriteError('MessageImage.js => openImageModal', e);

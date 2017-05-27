@@ -53,7 +53,6 @@ export default class SignUp extends Component {
     checkStringPassword_pam(password) {
         try {
             var msg = '';
-            return msg; //for test only -----
             if (!password) {
                 msg = 'Enter A Password';
             } else if (password.length < 6) {
@@ -129,23 +128,25 @@ export default class SignUp extends Component {
             };
 
             serverSrv.signUpFunc(newUser, (userId) => {
-                //setTimeout(() => {
-                this.setState({
-                    SpinnerVisible: false
-                });
-                //}, 100);
-                if (userId) {
-                    Actions.Tabs({ type: 'reset' });
-                } else {
-                    disabled = false;
-                    var toast = Toast.show('Phone Number Already In Use', {
-                        duration: Toast.durations.LONG,
-                        position: Toast.positions.BOTTOM,
-                        shadow: true,
-                        animation: true,
-                        hideOnPress: true,
-                        delay: 0
+                try {
+                    this.setState({
+                        SpinnerVisible: false
                     });
+                    if (userId) {
+                        Actions.Tabs({ type: 'reset' });
+                    } else {
+                        disabled = false;
+                        var toast = Toast.show('Phone Number Already In Use', {
+                            duration: Toast.durations.LONG,
+                            position: Toast.positions.BOTTOM,
+                            shadow: true,
+                            animation: true,
+                            hideOnPress: true,
+                            delay: 0
+                        });
+                    }
+                } catch (error) {
+                    ErrorHandler.WriteError('SignUp.js => SignUpSubmit => serverSrv.signUpFunc', e);
                 }
             });
         } catch (e) {

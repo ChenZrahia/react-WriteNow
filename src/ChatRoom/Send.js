@@ -9,12 +9,6 @@ import {
 var ErrorHandler = require('../../ErrorHandler');
 
 export default class Send extends React.Component {
-  // shouldComponentUpdate(nextProps, nextState) {
-  //   if (this.props.text.trim().length === 0 && nextProps.text.trim().length > 0 || this.props.text.trim().length > 0 && nextProps.text.trim().length === 0) {
-  //     return true;
-  //   }
-  //   return false;
-  // }
   render() {
     try {
       if (this.props.text.trim().length > 0) {

@@ -90,7 +90,7 @@ export default class Call extends Component {
             ErrorHandler.WriteError("Call.js -> constructor", e);
         }
     }
-    
+
     getCall(IsIncomingCall) {
         try {
             _IsIncomingCall = IsIncomingCall;
@@ -113,13 +113,17 @@ export default class Call extends Component {
 
             if (this.props.convId) {
                 serverSrv.GetConvData_ByConvId(this.props.convId, (convData) => {
-                    //if convData is null or user not exist in local DB  -------- להשלים בדיקה
-                    if (convData.groupPicture) {
-                        ImageResizer.createResizedImage(convData.groupPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {
-                            this.setState({ userPicture: resizedImageUri });
-                        }).catch((err) => {
-                            ErrorHandler.WriteError('Call.js => render => ImageResizer', err);
-                        });
+                    try {
+                        //if convData is null or user not exist in local DB  -------- להשלים בדיקה
+                        if (convData.groupPicture) {
+                            ImageResizer.createResizedImage(convData.groupPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {
+                                this.setState({ userPicture: resizedImageUri });
+                            }).catch((err) => {
+                                ErrorHandler.WriteError('Call.js => render => ImageResizer', err);
+                            });
+                        }
+                    } catch (error) {
+                        ErrorHandler.WriteError('Call.js => render => GetConvData_ByConvId', err);
                     }
                 });
             } else if (this.props.userPicture) {
@@ -143,8 +147,12 @@ export default class Call extends Component {
                 this.hungUp(true);
             });
             serverSrv.exitChatCall_server((convId) => {
-                if (this.state.roomID && this.state.roomID.indexOf && this.state.roomID.indexOf(convId) == 0) {
-                    this.hungUp();
+                try {
+                    if (this.state.roomID && this.state.roomID.indexOf && this.state.roomID.indexOf(convId) == 0) {
+                        this.hungUp();
+                    }
+                } catch (error) {
+                    ErrorHandler.WriteError("Call.js -> serverSrv.exitChatCall_server", e);
                 }
             });
 
@@ -209,19 +217,23 @@ export default class Call extends Component {
             const isFront = !this.state.isFront;
             this.setState({ isFront });
             liveSrv.getLocalStream(false, isFront, function (stream) {
-                if (liveSrv.localStream) {
+                try {
+                    if (liveSrv.localStream) {
+                        for (const id in liveSrv.pcPeers) {
+                            const pc = liveSrv.pcPeers[id];
+                            pc && pc.removeStream(liveSrv.localStream);
+                        }
+                        liveSrv.localStream.release();
+                    }
+                    liveSrv.localStream = stream;
+                    liveSrv.container.setState({ selfViewSrc: stream.toURL() });
+
                     for (const id in liveSrv.pcPeers) {
                         const pc = liveSrv.pcPeers[id];
-                        pc && pc.removeStream(liveSrv.localStream);
+                        pc && pc.addStream(liveSrv.localStream);
                     }
-                    liveSrv.localStream.release();
-                }
-                liveSrv.localStream = stream;
-                liveSrv.container.setState({ selfViewSrc: stream.toURL() });
-
-                for (const id in liveSrv.pcPeers) {
-                    const pc = liveSrv.pcPeers[id];
-                    pc && pc.addStream(liveSrv.localStream);
+                } catch (error) {
+                    ErrorHandler.WriteError("Call.js -> getLocalStream(!)", error);
                 }
             });
         } catch (error) {

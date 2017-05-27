@@ -133,11 +133,15 @@ export default class NewGroup extends Component {
                     return user.id;
                 });
                 result.map((user) => {
-                    if (this.GroupContactsIds.indexOf(user.id) >= 0) {
-                        user.isHidden = true;
-                    }
-                    else {
-                        user.isHidden = false;
+                    try {
+                        if (this.GroupContactsIds.indexOf(user.id) >= 0) {
+                            user.isHidden = true;
+                        }
+                        else {
+                            user.isHidden = false;
+                        }
+                    } catch (error) {
+                        ErrorHandler.WriteError("NewGroup.js =>UpdateMyFriends => map", e);
                     }
                 });
             }
@@ -172,7 +176,12 @@ export default class NewGroup extends Component {
             //create filtered datasource
             let filteredContacts = this.myFriends;
             filteredContacts = this.myFriends.filter((user) => {
-                return ((user.publicInfo.fullName.toLowerCase().includes(fiterText.toLowerCase())) || (user.phoneNumber ? user.phoneNumber.includes(fiterText) : false));
+                try {
+                    return ((user.publicInfo.fullName.toLowerCase().includes(fiterText.toLowerCase())) || (user.phoneNumber ? user.phoneNumber.includes(fiterText) : false));
+                } catch (error) {
+                    ErrorHandler.WriteError("NewGroup.js => onFilterChange => this.myFriends.filter", e);
+                }
+                return false;
             });
             if (this.state.dataSource.cloneWithRows) {
                 return this.state.dataSource.cloneWithRows(filteredContacts);
@@ -328,23 +337,27 @@ export default class NewGroup extends Component {
             return (
                 (rowData) =>
                     <TouchableOpacity onPress={() => {
-                        if (rowData.id != serverSrv._uid) {
-                            this.GroupContacts.splice(this.GroupContacts.indexOf(rowData), 1);
-                            this.groupMembersCounter--;
-                            rowData.isHidden = false;
-                            this.myFriends.map((user) => {
-                                if (user.id == rowData.id) {
-                                    user.isHidden = false;
-                                }
+                        try {
+                            if (rowData.id != serverSrv._uid) {
+                                this.GroupContacts.splice(this.GroupContacts.indexOf(rowData), 1);
+                                this.groupMembersCounter--;
+                                rowData.isHidden = false;
+                                this.myFriends.map((user) => {
+                                    if (user.id == rowData.id) {
+                                        user.isHidden = false;
+                                    }
+                                });
+                            }
+                            this.setState({
+                                groupSource: this.ds2.cloneWithRows(this.GroupContacts),
+                                dataSource: this.ds.cloneWithRows(this.myFriends)
                             });
+                            setTimeout(() => {
+                                this.onFilterChange({ nativeEvent: { text: this.state.filter } });
+                            }, 1);
+                        } catch (error) {
+                            ErrorHandler.WriteError("NewGroup.js => renderRow => TouchableOpacity onPress", e);
                         }
-                        this.setState({
-                            groupSource: this.ds2.cloneWithRows(this.GroupContacts),
-                            dataSource: this.ds.cloneWithRows(this.myFriends)
-                        });
-                        setTimeout(() => {
-                            this.onFilterChange({ nativeEvent: { text: this.state.filter } });
-                        }, 1);
                     }}>
                         <View style={{ paddingBottom: 5, paddingLeft: 5, paddingRight: 5, alignItems: 'center' }}>
                             <Image style={styles.groupMemberPic} source={rowData.publicInfo.picture ? { uri: rowData.publicInfo.picture } : require('../../img/user.jpg')} />
