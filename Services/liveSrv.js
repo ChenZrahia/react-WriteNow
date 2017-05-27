@@ -107,12 +107,16 @@ export function getLocalStream(isVideo, isFront, callback) {
             isVideo = false;
         }
         MediaStreamTrack.getSources(sourceInfos => {
-            let videoSourceId;
-            for (const i = 0; i < sourceInfos.length; i++) {
-                const sourceInfo = sourceInfos[i];
-                if (sourceInfo.kind == "video" && sourceInfo.facing == (isFront ? "front" : "back")) {
-                    videoSourceId = sourceInfo.id;
+            try {
+                let videoSourceId;
+                for (const i = 0; i < sourceInfos.length; i++) {
+                    const sourceInfo = sourceInfos[i];
+                    if (sourceInfo.kind == "video" && sourceInfo.facing == (isFront ? "front" : "back")) {
+                        videoSourceId = sourceInfo.id;
+                    }
                 }
+            } catch (error) {
+                ErrorHandler.WriteError('liveSrv.js => getLocalStream => getSources', error);
             }
             getUserMedia({
                 audio: true,
@@ -189,35 +193,43 @@ function createPC(socketId, isOffer) {
     };
 
     pc.onaddstream = function (event) {
-        Event.trigger('container_setState', { info: 'One peer join!', statusPtt: 'green' });
-        Event.trigger('add_remoteList', socketId, event);
+        try {
+            Event.trigger('container_setState', { info: 'One peer join!', statusPtt: 'green' });
+            Event.trigger('add_remoteList', socketId, event);
+        } catch (error) {
+            ErrorHandler.WriteError('liveSrv.js => createPC => onaddstream', error);
+        }
     };
     pc.onremovestream = function (event) {
     };
 
     pc.addStream(localStream);
     function createDataChannel() {
-        if (pc.textDataChannel) {
-            return;
+        try {
+            if (pc.textDataChannel) {
+                return;
+            }
+            const dataChannel = pc.createDataChannel("text");
+
+            dataChannel.onerror = function (error) {
+                console.log("dataChannel.onerror", error);
+            };
+
+            dataChannel.onmessage = function (event) {
+                Event.trigger('receiveTextData', { user: socketId, message: event.data });
+            };
+
+            dataChannel.onopen = function () {
+                Event.trigger('container_setState', { textRoomConnected: true });
+            };
+
+            dataChannel.onclose = function () {
+                console.log('OnClose!');
+            };
+            pc.textDataChannel = dataChannel;
+        } catch (error) {
+            ErrorHandler.WriteError('liveSrv.js => createPC => createDataChannel', error);
         }
-        const dataChannel = pc.createDataChannel("text");
-
-        dataChannel.onerror = function (error) {
-            console.log("dataChannel.onerror", error);
-        };
-
-        dataChannel.onmessage = function (event) {
-            Event.trigger('receiveTextData', { user: socketId, message: event.data });
-        };
-
-        dataChannel.onopen = function () {
-            Event.trigger('container_setState', { textRoomConnected: true });
-        };
-
-        dataChannel.onclose = function () {
-            console.log('OnClose!');
-        };
-        pc.textDataChannel = dataChannel;
     }
     return pc;
 }

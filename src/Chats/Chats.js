@@ -390,6 +390,8 @@ export default class Chats extends Component {
                             }}>
                                 <View style={generalStyle.styles.row}>
                                     <TouchableOpacity onPress={() => {
+                                        console.log('111222333');
+                                        console.log(rowData);
                                         this.imgSelected = rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? require('../../img/group-img.jpg') : require('../../img/user.jpg'))
                                         this.setImageVisible(true);
                                     }}>

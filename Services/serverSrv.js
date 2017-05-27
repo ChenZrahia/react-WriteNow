@@ -520,7 +520,6 @@ function InsertNewContact(tx, user) {
                 user.lastMessageEncrypted
                 ]);
         }
-
     } catch (error) {
         ErrorHandler.WriteError('serverSrv.js => InsertNewContact', error);
     }
@@ -589,7 +588,7 @@ function GetConv_server(convId, callback) {
                                 ]);
                         }
                     } catch (error) {
-                        console.log(error);
+                        ErrorHandler.WriteError('serverSrv.js => GetConv_server => GetConvChangesById => db.transaction', error);
                     }
                 }
                 if (newParticipates.length > 0) {
