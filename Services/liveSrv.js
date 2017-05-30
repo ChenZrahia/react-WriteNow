@@ -4,7 +4,6 @@ import io from 'socket.io-client/dist/socket.io';
 var Event = require('./Events');
 var moment = require('moment');
 
-//אימות
 export var socket = null;
 export var _convId = null;
 export var _isInCall = false; //האם המשתמש בשיחה ברגע זה

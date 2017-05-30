@@ -86,7 +86,7 @@ export default class WriteNow extends Component {
                         if (notifData.isVoiceCall == 'true') {
                             serverSrv._isCallMode = false;
                             if (liveSrv._isInCall == true) {
-                                liveSrv.socket.emit('unavailableCall'); //TODO: לממש
+                                liveSrv.socket.emit('unavailableCall'); 
                             } else {
                                 Actions.Call(notifData);
                                 setTimeout(() => {

@@ -90,7 +90,6 @@ export default class Call extends Component {
             this.startCall = this.startCall.bind(this);
             this.pptUp = this.pptUp.bind(this);
             InCallManager.setMicrophoneMute(true);
-
         } catch (e) {
             ErrorHandler.WriteError("PTT.js -> constructor", e);
         }
@@ -119,8 +118,7 @@ export default class Call extends Component {
             if (this.props.convId) {
                 serverSrv.GetConvData_ByConvId(this.props.convId, (convData) => {
                     try {
-                        //if convData is null or user not exist in local DB  -------- להשלים בדיקה
-                        if (convData.groupPicture) {
+                        if (convData && convData.groupPicture) {
                             ImageResizer.createResizedImage(convData.groupPicture, 400, 400, 'JPEG', 100, 0, "temp").then((resizedImageUri) => {
                                 setTimeout(() => {
                                     this.setState({ userPicture: resizedImageUri });
@@ -303,13 +301,16 @@ export default class Call extends Component {
         try {
             liveSrv.Connect(this.props.convId, this.hungUp, _IsIncomingCall, false, true);
             liveSrv.socket.on('leave', () => {
-                InCallManager.setKeepScreenOn(false);
-                InCallManager.stop();
+                try {
+                    InCallManager.setKeepScreenOn(false);
+                    InCallManager.stop();
+                } catch (error) {
+                    ErrorHandler.WriteError("PTT.js -> connectToServer => leave", error);
+                }
             });
             liveSrv.socket.on('lineIsFree', () => {
                 try {
                     mirs2.play((success) => { });
-                    console.log('## InCallManager.setMicrophoneMute ## true 1');
                     InCallManager.setMicrophoneMute(true);
                     this.setState({ statusPtt: 'green' });
                 } catch (error) {
@@ -321,12 +322,10 @@ export default class Call extends Component {
                 try {
                     mirs1.play((success) => { });
                     if (answer == true && uidAsked == serverSrv._uid) {
-                        console.log('## InCallManager.setMicrophoneMute ## false  2');
                         InCallManager.setMicrophoneMute(false);
                         InCallManager.setSpeakerphoneOn(true);
                         this.setState({ statusPtt: 'yellow' });
                     } else {
-                        console.log('## InCallManager.setMicrophoneMute ## true 3');
                         InCallManager.setMicrophoneMute(true);
                         this.setState({ statusPtt: 'red' });
                     }
@@ -338,7 +337,6 @@ export default class Call extends Component {
             liveSrv.socket.on('getPermissionToTalk_serverAsk', (uidAsked) => {
                 try {
                     if (this.state.statusPtt == 'green' && uidAsked != serverSrv._uid) {
-                        console.log('## InCallManager.setMicrophoneMute ## true 4');
                         InCallManager.setMicrophoneMute(true);
                         this.setState({ statusPtt: 'red' });
                         liveSrv.socket.emit('getPermissionToTalk_clientAnswer', true, uidAsked);
@@ -395,7 +393,6 @@ export default class Call extends Component {
             });
             mirs1.stop();
             liveSrv.hungUp();
-            console.log('## InCallManager.setMicrophoneMute ## false 5');
             InCallManager.stopRingback();
             InCallManager.setMicrophoneMute(false);
             InCallManager.setKeepScreenOn(false);
@@ -403,7 +400,6 @@ export default class Call extends Component {
             if (this.callInterval) {
                 clearInterval(this.callInterval);
             }
-            console.log('## InCallManager.setMicrophoneMute ## false 6');
             InCallManager.setMicrophoneMute(false);
             InCallManager.setSpeakerphoneOn(true);
             if (this.state.roomID) {
@@ -516,7 +512,6 @@ export default class Call extends Component {
         }
     }
 }
-
 
 var styles = StyleSheet.create({
     selfView: {
