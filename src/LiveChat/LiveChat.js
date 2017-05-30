@@ -32,6 +32,7 @@ export default class LiveChat extends Component {
             this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
             this.updateLiveChatData = this.updateLiveChatData.bind(this);
             this.state = {
+                imageVisible: false,
                 dataSource: this.ds.cloneWithRows([])
             };
         } catch (e) {
@@ -108,6 +109,36 @@ export default class LiveChat extends Component {
         }
     }
 
+    setImageVisible(visible) {
+        try {
+            this.setState({ imageVisible: visible });
+        } catch (e) {
+            ErrorHandler.WriteError('Chats.js => setImageVisible', e);
+        }
+    }
+
+    openImageModal(image) {
+        try {
+            return (
+                <Modal
+                    transparent={true}
+                    visible={this.state.imageVisible == true}
+                    onRequestClose={() => { console.log('image closed') }}
+                >
+                    <TouchableOpacity style={{ flex: 1 }} onPress={() => {
+                        this.setImageVisible(!this.state.imageVisible)
+                    }}>
+                        <View style={generalStyle.styles.imageModal}>
+                            <Image style={generalStyle.styles.imageInsideModal} source={image} />
+                        </View>
+                    </TouchableOpacity>
+                </Modal>
+            );
+        } catch (e) {
+            ErrorHandler.WriteError('Chats.js => openImageModal', e);
+        }
+    }
+
     render() {
         try {
             return (
@@ -125,7 +156,7 @@ export default class LiveChat extends Component {
                                             this.imgSelected = rowData.groupPicture ? { uri: rowData.groupPicture } : (rowData.isGroup ? rowData.isGroup : require('../../img/user.jpg'))
                                             this.setImageVisible(true);
                                         } catch (error) {
-                                            ErrorHandler.WriteError('LiveChat.js => TouchableOpacity => onPress', e);
+                                            ErrorHandler.WriteError('LiveChat.js => TouchableOpacity => onPress', error);
                                         }
                                     }}>
                                         <View style={generalStyle.styles.viewImg}>
@@ -157,6 +188,7 @@ export default class LiveChat extends Component {
                             </TouchableOpacity>
                         }
                     />
+                    {this.openImageModal(this.imgSelected)}
                 </View>
             );
         } catch (e) {

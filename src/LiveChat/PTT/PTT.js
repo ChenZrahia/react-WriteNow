@@ -396,6 +396,7 @@ export default class Call extends Component {
             mirs1.stop();
             liveSrv.hungUp();
             console.log('## InCallManager.setMicrophoneMute ## false 5');
+            InCallManager.stopRingback();
             InCallManager.setMicrophoneMute(false);
             InCallManager.setKeepScreenOn(false);
             InCallManager.stop();
