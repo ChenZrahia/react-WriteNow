@@ -55,15 +55,15 @@ export default class SignUp extends Component {
             var msg = '';
             if (!password) {
                 msg = 'Enter A Password';
-            } else if (password.length < 6) {
-                msg = 'Password Need To Contain At Least 6 Characters';
+            } else if (password.length < 5) {
+                msg = 'Password Need To Contain At Least 5 Characters';
             } else if (password.search(/\d/) == -1) {
                 msg = 'Password Need To Contain Numbers';
             } else if (password.search(/[a-zA-Z]/) == -1) {
                 msg = 'Password Need To Contain Letters';
-            } else if (password.search(/[\!\@\#\$\%\^\&\*\(\)\_\+\.\,\;\:]/) == -1) {
-                msg = 'Password Need To Contain Signs';
-            }
+            // } else if (password.search(/[\!\@\#\$\%\^\&\*\(\)\_\+\.\,\;\:]/) == -1) {
+            //     msg = 'Password Need To Contain Signs';
+             }
             return msg;
         } catch (e) {
             ErrorHandler.WriteError('SignUp.js => checkStringPassword_pam', e);

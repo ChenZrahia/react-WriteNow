@@ -607,7 +607,7 @@ function GetConv_server(convId, callback) {
                                     ]);
                             }
                         } catch (error) {
-                            ErrorHandler.WriteError('serverSrv.js => GetConv_server(*)', error);
+                            ErrorHandler.WriteError('serverSrv.js => GetConv_server => GetConvChangesById => db.transaction', error);
                         }
                     }
                     if (newParticipates.length > 0) {
