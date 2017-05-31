@@ -21,13 +21,20 @@ var Event = require('./Services/Events');
 var serverSrv = require('./Services/serverSrv');
 var PhoneContacts = require('react-native-contacts');
 var ErrorHandler = require('./ErrorHandler');
-
+import { setJSExceptionHandler } from 'react-native-exception-handler';
 import FCM from 'react-native-fcm';
 
 var newMsg_ring = null;
 setTimeout(() => {
     newMsg_ring = new Sound('new_msg.mp3', Sound.MAIN_BUNDLE, (error) => { });
 }, 500);
+
+const errorHandler = (error, isFatal) => {
+    console.log("@@ ERROR - ", error);
+    ErrorHandler.WriteError('index.android.js => errorHandler', error);
+}
+
+setJSExceptionHandler(errorHandler, true);
 
 export default class WriteNow extends Component {
     constructor(a, b, c, d, e, f) {
@@ -86,7 +93,7 @@ export default class WriteNow extends Component {
                         if (notifData.isVoiceCall == 'true') {
                             serverSrv._isCallMode = false;
                             if (liveSrv._isInCall == true) {
-                                liveSrv.socket.emit('unavailableCall'); 
+                                liveSrv.socket.emit('unavailableCall');
                             } else {
                                 Actions.Call(notifData);
                                 setTimeout(() => {
@@ -97,7 +104,7 @@ export default class WriteNow extends Component {
                         } else if (notifData.isVideoCall == 'true') {
                             serverSrv._isCallMode = false;
                             if (liveSrv._isInCall == true) {
-                                liveSrv.socket.emit('unavailableCall'); //TODO: לממש
+                                liveSrv.socket.emit('unavailableCall');
                             } else {
                                 Actions.Video(notifData);
                                 setTimeout(() => {
@@ -108,13 +115,15 @@ export default class WriteNow extends Component {
                         } else if (notifData.isPttCall == 'true') {
                             serverSrv._isCallMode = false;
                             if (liveSrv._isInCall == true) {
-                                liveSrv.socket.emit('unavailableCall'); //TODO: לממש
+                                liveSrv.socket.emit('unavailableCall');
                             } else {
-                                Actions.PTT(notifData);
+                                setTimeout(() => {
+                                    Actions.PTT(notifData);
+                                }, 100);
                                 setTimeout(() => {
                                     Event.trigger('getPttCall', true);
                                     Event.trigger('NewLiveChat');
-                                }, 100);
+                                }, 200);
                             }
                         } else {
                             if (newMsg_ring && serverSrv._convId != notifData.convId) {

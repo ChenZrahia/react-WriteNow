@@ -2,6 +2,10 @@ package com.writenow;
 import android.app.Application;
 import android.util.Log;
 import com.facebook.react.ReactApplication;
+import java.lang.Thread;
+import android.widget.Toast;
+import android.app.Fragment;
+import android.content.Context;
 //import com.bitgo.randombytes.RandomBytesPackage;
 // import fnd.reactaes.reactaes.ReactAESPackage;
 import com.zxcpoiu.incallmanager.InCallManagerPackage;
@@ -70,11 +74,33 @@ public class MainApplication extends Application implements ReactApplication {
 
     @Override
     public void onCreate() {
+      try{
         super.onCreate();
+        // Setup handler for uncaught exceptions.
+        Thread.setDefaultUncaughtExceptionHandler (new Thread.UncaughtExceptionHandler()
+        {
+          @Override
+          public void uncaughtException (Thread thread, Throwable e)
+          {
+            try{
+              Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            }catch (Exception ex) {
+              ex.printStackTrace();
+            }
+          }
+        });
 
         // FORCE LTR
         I18nUtil sharedI18nUtilInstance = I18nUtil.getInstance();
         sharedI18nUtilInstance.allowRTL(getApplicationContext(), false);
+        }catch (Exception e) {
+          try{
+            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+          }catch (Exception ex) {
+            ex.printStackTrace();
+          }
+        e.printStackTrace();
+      }
     }
 
   @Override

@@ -607,7 +607,7 @@ function GetConv_server(convId, callback) {
                                     ]);
                             }
                         } catch (error) {
-                            console.log(error);
+                            ErrorHandler.WriteError('serverSrv.js => GetConv_server(*)', error);
                         }
                     }
                     if (newParticipates.length > 0) {
@@ -1262,11 +1262,6 @@ export function login(_token) {
                                 },
                                 'connect timeout': 5000
                             });
-                            setTimeout(() => {
-                                console.log('## io.sockets 2');
-                                console.log(io);
-                            }, 900);
-
 
                             setTimeout(function () {
                                 Actions.SignUp({ type: 'replace' });
